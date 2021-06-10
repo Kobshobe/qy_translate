@@ -27,7 +27,7 @@ export default defineComponent({
     }
 
     function toGitHub() {
-      window.open(`https://github.com/Kobshobe/qy_trans/`);
+      window.open(`https://github.com/Kobshobe/qy_translate`);
       eventToGoogle({
         name: "toGitHub",
         params: {},
