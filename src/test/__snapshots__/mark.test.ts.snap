@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`mark test 1`] = `
+Array [
+  Array [
+    10,
+    14,
+  ],
+  Array [
+    18,
+    22,
+  ],
+  Array [
+    3,
+    7,
+  ],
+]
+`;

@@ -1,0 +1,67 @@
+{
+  "manifest_version": 3,
+  "name": "轻氧翻译 - QY Translate",
+  "description": "极简高效的翻译插件，并提供微信小程序端，随时随地高效学习高效工作！",
+  "version": "1.1.5",
+  "icons": {
+    "16": "assets/images/logo.png",
+    "48": "assets/images/logo.png",
+    "128": "assets/images/logo.png"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_title": "轻氧翻译 - QY Translate",
+    "default_icon": "assets/images/logo.png",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "windows": "Alt+K",
+        "mac": "Command+K",
+        "chromeos": "Alt+K",
+        "linux": "Alt+K"
+      }
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "iframe.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "css": [
+        "css/content-ewrskdfdswerhnyikyofd.css",
+        "css/chunk-common-ewrskdfdswerhnyikyofd.css",
+        "css/chunk-vendors-ewrskdfdswerhnyikyofd.css"
+      ],
+      "js": [
+        "js/chunk-common-ewrskdfdswerhnyikyofd.js",
+        "content-ewrskdfdswerhnyikyofd.js",
+        "js/chunk-vendors-ewrskdfdswerhnyikyofd.js"
+      ],
+      "all_frames": true
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; media-src * data: blob: filesystem:;"
+  }
+}
