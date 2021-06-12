@@ -1,4 +1,4 @@
-# phrase_vue3
+# 轻氧翻译 - QY Translate
 
 ## Project setup
 ```
