@@ -75,7 +75,7 @@ $foundPaddingTop: 0;
   overflow-x: hidden;
   overflow-y: visible;
   ::selection {
-    background: lightblue;
+    background: #B4D7FF;
     color: black;
   }
   ::v-deep(.mark-text-wsrfhedsoufheqiwrhew) {

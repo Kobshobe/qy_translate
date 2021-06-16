@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="text.replace(/\s/g, '') !== ''"
+    v-if="(translator.mode === 'pdf' || translator.configInfo.isTreadWord) && text.replace(/\s/g, '') !== ''"
     class="tap-to-translate to-translate-icon"
     @click="translate"
     :style="toTranslateStyle"
@@ -96,9 +96,13 @@ import {
 } from "vue";
 import { translatorHook } from "@/hook/translatorHook";
 import Translator from "./Translator.vue";
+// import {eventToGoogle} from "../../utils/analytics"
 
 export default defineComponent({
-  setup() {
+  props: {
+    mode: String,
+  },
+  setup(props) {
     const resultDOM = ref<any | null>(null);
     const transLoadingDOM = ref<any | null>(null);
     const text = ref("");
@@ -122,13 +126,21 @@ export default defineComponent({
       left: `5px`,
       width: `${resultStyleData.width}px`,
       setHold() {
+        translator.toAnalytics({
+          name: "setHold",
+          params: { status: !resultStyle.hold },
+        });
         resultStyle.hold = !resultStyle.hold;
+      },
+      moveBarTap() {
+        translator.toAnalytics({ name: "moveTap", params: {} });
       },
     });
 
     provide("resultStyle", resultStyle);
 
-    const translator = translatorHook("resultOnly");
+    //@ts-ignore
+    const translator = translatorHook(props.mode);
 
     provide("translator", translator);
     const popupElm = reactive({
@@ -148,10 +160,12 @@ export default defineComponent({
 
     watchEffect(() => {
       // auto change Geometric size
-      if(!translator.find.result) return
-      const maxLen = Math.max(translator.find.text.length, translator.find.result.text.length);
+      if (!translator.find.result) return;
+      const maxLen = Math.max(
+        translator.find.text.length,
+        translator.find.result.text.length
+      );
       if (maxLen > 180) {
-
         resultStyle.width = 380 + "px";
       } else {
         resultStyle.width = 300 + "px";
@@ -188,17 +202,16 @@ export default defineComponent({
         setTimeout(async () => {
           //@ts-ignore
           text.value = window.getSelection().toString();
-          // getPosition(e);
           if (!text.value.replace(/\s/g, "")) return;
-          if (resultDOM.value) {
-            showToTrans.value = false;
-          } else {
-            showToTrans.value = true;
-          }
+          translator.configInfo.getTreadWord()
+          // if (resultDOM.value) {
+          //   showToTrans.value = false;
+          // } else {
+          //   showToTrans.value = true;
+          // }
           setToTranslatePostion(e.clientX, e.clientY);
         });
       });
-      
     });
 
     function setToTranslatePostion(x: number, y: number) {
@@ -256,13 +269,13 @@ export default defineComponent({
     return {
       resultDOM,
       transLoadingDOM,
-      showToTrans,
       text,
       translator,
       resultStyle,
       toTranslateStyle,
       translate,
       setResultPostion,
+      
     };
   },
   components: {

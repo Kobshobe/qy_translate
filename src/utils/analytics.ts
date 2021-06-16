@@ -1,11 +1,11 @@
-import { IEvent } from './interface'
+import { IAnalyticEvent } from './interface'
 import { googleAnalytic, clientVersion, client, Mode, os } from '@/config'
 import { getClientId } from './chromeApi'
 
 
-export async function eventToGoogle(event: IEvent) {
+export async function eventToGoogle(event: IAnalyticEvent) {
     const id = await getClientId()
-    Object.assign(event.params, {cv:clientVersion, c:client, st: navigator.userAgent, mode: Mode, os})
+    Object.assign(event.params, {cv:clientVersion, c:client, st: navigator.userAgent, mode: Mode, os, uid: id})
     fetch(
         `https://www.google-analytics.com/mp/collect?measurement_id=${googleAnalytic.measurementId}&api_secret=${googleAnalytic.apiSecret}`,
         {
@@ -26,4 +26,13 @@ export async function eventToGoogle(event: IEvent) {
 
 export function eventToAnalytic({data}:{data:any}) {
     eventToGoogle(data)
+}
+
+// 文本截取超出加..
+export function getTextLimit(text: string, length: number) {
+    let t = text.slice(0, length)
+    if(length < text.length) {
+        t += ".."
+    }
+    return t
 }

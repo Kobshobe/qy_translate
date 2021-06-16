@@ -7,8 +7,8 @@
     "build": "vue-cli-service build && webpack",
     "lint": "vue-cli-service lint",
     "watch": "vue-cli-service build --watch",
-    "bg": "webpack",
-    "bg:watch": "webpack --watch",
+    "bg": "export NODE_ENV=production && webpack",
+    "bg:watch": "export NODE_ENV=development && webpack --watch",
     "test": "jest --verbose",
     "test:watch": "jest --watchAll"
   },
@@ -18,6 +18,7 @@
     ]
   },
   "dependencies": {
+    "@pdftron/webviewer": "^7.3.2",
     "core-js": "^3.6.5",
     "element-plus": "^1.0.2-beta.41",
     "franc": "^5.0.0",

@@ -42,6 +42,7 @@ export default defineComponent({
         resultStyle.left = `${e.clientX - xDist}px`;
         resultStyle.top = `${e.clientY - yDist}px`;
       };
+      resultStyle.moveBarTap()
     };
 
     return {

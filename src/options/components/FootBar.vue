@@ -1,5 +1,7 @@
 <template>
   <div class="option-bottom">
+    <div class="bottom-text" @click="toPDFReader" title="在图标右键菜单处也可以打开哦">PDF阅读器</div>
+    <div style="width: 10px"></div>
     <div class="bottom-text" @click="toStore">应用市场</div>
     <div style="width: 10px"></div>
     <div class="bottom-text" @click="copyShareUrl">分享链接</div>
@@ -15,6 +17,7 @@ import { defineComponent } from "vue";
 import { ElMessage } from "element-plus";
 import { storeUrl, client, clientVersion } from "../../config";
 import { eventToGoogle } from "../../utils/analytics";
+import {openPDFReader} from '@/utils/chromeApi'
 
 export default defineComponent({
   setup() {
@@ -51,10 +54,15 @@ export default defineComponent({
       });
     }
 
+    function toPDFReader() {
+      openPDFReader("option")
+    }
+
     return {
       toStore,
       copyShareUrl,
       toGitHub,
+      toPDFReader
     };
   },
 });
@@ -63,8 +71,15 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .option-bottom {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 25px;
+  border-top: 1px solid #dadada;
   display: flex;
-  padding-top: 60px;
+  justify-content: center;
+  align-items: center;
   color: #aaa;
   font-size: 15px;
   .bottom-text {

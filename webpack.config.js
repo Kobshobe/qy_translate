@@ -1,9 +1,17 @@
 const path = require("path")
 const resolve = dir => path.resolve(__dirname, dir);
 
+let mode = 'production'
+
+if(process.env.NODE_ENV === 'development') {
+    mode = 'development'
+}
+
+console.log(mode)
+
 
 module.exports = {
-    mode: 'production',  // production development
+    mode,
     devtool: 'inline-source-map',
     entry: {
         background: "./src/plugins/background.ts",

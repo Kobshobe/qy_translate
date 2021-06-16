@@ -5,7 +5,7 @@ const path = require("path");
 // 复制文件到指定目录
 const copyFiles = [
   {
-    from: path.resolve("src/plugins/manifestV2.json"),
+    from: path.resolve("src/plugins/manifest.json"),
     to: `${path.resolve("dist")}/manifest.json`
   },
   {
@@ -20,10 +20,14 @@ const copyFiles = [
     from: path.resolve("src/components/translator/iframe.js"),
     to: path.resolve("dist")
   },
-  // {
-  //   from: path.resolve("src/pdf_view/lib"),
-  //   to: path.resolve("dist/lib")
-  // },
+  {
+    from: path.resolve("src/pdf_viewer/build"),
+    to: path.resolve("dist/pdf_viewer/build")
+  },
+  {
+    from: path.resolve("src/pdf_viewer/web"),
+    to: path.resolve("dist/pdf_viewer/web")
+  },
 ];
 
 // 复制插件
@@ -46,6 +50,12 @@ chromeName.forEach(name => {
   };
 });
 
+pages["pdf_viewer"] = {
+  entry: `src/pdf_viewer/web/main.ts`,
+  template: `src/pdf_viewer/web/viewer.html`,
+  filename: `pdf_viewer/web/index.html`
+};
+
 module.exports = {
   pages,
   productionSourceMap: false,
@@ -53,7 +63,7 @@ module.exports = {
   configureWebpack: {
     devtool: 'inline-source-map',
     entry: {
-      content: "./src/content/main.ts",
+      content: "./src/content/main.ts"
     },
     output: {
       filename: "[name]-ewrskdfdswerhnyikyofd.js"
@@ -68,9 +78,6 @@ module.exports = {
     }
   },
   chainWebpack: config => {
-    /// 让打包时生成的 chunk-vendors.js 不带 hash
-    // if (process.env.NODE_ENV === 'production') {
-    // }
     config.output.filename('js/[name]-ewrskdfdswerhnyikyofd.js').end()
     config.output.chunkFilename('js/[name]-ewrskdfdswerhnyikyofd.js').end()
   }

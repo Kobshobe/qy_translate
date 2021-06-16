@@ -1,6 +1,6 @@
 import { getMainLang, getSecondLang } from './chromeApi'
-import {IRequestResult, ITransResult, ITransResultFromApi} from '@/utils/interface'
-import {eventToGoogle} from './analytics'
+import {IRequestResult, ITransResult, ITransResultFromApi, ITransInfo} from '@/utils/interface'
+import {eventToGoogle, getTextLimit} from './analytics'
 import {calcHash} from './tk'
 
 
@@ -19,13 +19,11 @@ class Find {
 
 class TkAndClient {
   ttkList = ["444444.1050258596", "445678.1618007056", "445767.3058494238", "444000.1270171236", "445111.1710346305"]
-  // clientList = ["webapp", "gtx"]
+
   client = "webapp"
   ttk: string = "444444.1050258596"
   getTk(text:string) {
-    // if(this.ttk === '') {
-    //   return '&client=' + this.client
-    // }
+
     return '&client=' + this.client + '&tk=' + calcHash(text, this.ttk)
   }
   next() {
@@ -40,10 +38,7 @@ class TkAndClient {
 }
 
 export class Translator {
-  // baseUrl: string = 'https://translate.google.cn'
-  // fSid: undefined | string = undefined
-  // bl: undefined | string = undefined
-  // fSidSaveTime: Date = new Date()
+
   tkTool = new TkAndClient()
   // delectLangs = ['en', 'ru', 'ja', 'de', 'fr', 'es', 'pt', 'it', 'tr', 'ar', 'ko', 'th', 'ms', 'vi']
 
@@ -58,11 +53,9 @@ export class Translator {
     }).join("&")
   }
 
-  async findUseApi(text: string, from: string = '', to: string = '', type?: string) :Promise<IRequestResult> {
+  async findUseApi({text, from='', to='', type, mode}:ITransInfo) :Promise<IRequestResult> {
 
     const baseUrl = 'https://translate.googleapis.com/translate_a/single'
-
-    const dtPramas = type === 'sub' ? 'dt=rm&dt=ex&dt=bd&' : ''
 
     if (from === '') {
       from = 'auto'
@@ -70,17 +63,6 @@ export class Translator {
 
     if (to === '' || to === 'auto') {
       to = await this.autoGetLang(text, from, to)
-    }
-    
-
-
-    const paramsData = {
-      client: 'webapp',
-      sl: from,
-      tl: to,
-      dj: 1,
-      q: text,
-      dt: 't'
     }
 
     /*
@@ -97,6 +79,18 @@ export class Translator {
     qc:
     ld:
     */
+
+    const dtPramas = type === 'sub' ? 'dt=rm&dt=ex&dt=bd&' : ''
+    
+    const paramsData = {
+      client: 'webapp',
+      sl: from,
+      tl: to,
+      dj: 1,
+      q: text,
+      dt: 't'
+    }
+
     const realUrl = baseUrl + '?' + dtPramas + this.getParamsUrlPart(paramsData) + this.tkTool.getTk(text)
     // this.tkTool.next()
     // console.log(realUrl) 
@@ -129,6 +123,8 @@ export class Translator {
       }
     }
 
+
+
     if(errRes) {
       eventToGoogle({
         name: 'google_trans',
@@ -140,7 +136,9 @@ export class Translator {
           cost,
           errMsg: errRes.errMsg,
           tClient: this.tkTool.client,
-          ttk: this.tkTool.ttk
+          ttk: this.tkTool.ttk,
+          lt: getTextLimit(text, 20),
+          trans_mode: mode
         }
       })
       console.log(this.tkTool.client, this.tkTool.ttk, realUrl)
@@ -175,6 +173,8 @@ export class Translator {
         type: type,
         textLenght: text.length,
         cost,
+        lt: getTextLimit(text, 20),
+        trans_mode: mode
       }
     })
     return {

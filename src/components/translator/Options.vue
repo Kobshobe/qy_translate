@@ -52,7 +52,7 @@ export default defineComponent({
     const translator = <ITranslatorHook>inject("translator");
 
     function popupVisibleChange(event: boolean, className: string) {
-      if (translator.mode=== "resultOnly") return;
+      if (translator.mode!== "popup") return;
       if (!event) return;
       // @ts-ignore
       const popupList: HTMLElement[] = document.getElementsByClassName(
@@ -70,9 +70,9 @@ export default defineComponent({
           );
           arrows.forEach((elm) => {
             elm.setAttribute("style", "display:none;");
-          });
-        });
-      });
+          })
+        })
+      })
     }
 
     return {

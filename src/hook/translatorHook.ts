@@ -2,7 +2,8 @@ import { reactive, watch, computed } from 'vue'
 import { ITransResult } from '@/utils/interface'
 import { newMarkManager, getMarkHtml } from '@/utils/mark'
 import apiWrap from '@/utils/apiWithPort'
-import { IRequestResult, ITranslateMsg, ITranslatorHook, Find } from '@/utils/interface'
+import { IRequestResult, ITranslateMsg, ITranslatorHook, Find, IAnalyticEvent, ITransInfo, IConfigInfo } from '@/utils/interface'
+import {isTreadWord} from '@/utils/chromeApi'
 
 export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = false) {
     const translator: ITranslatorHook = reactive({
@@ -138,6 +139,7 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
                 translator.options.isShow = true
                 translator.options.from = translator.find.result?.resultFrom
                 translator.options.to = translator.find.result?.resultTo
+                translator.toAnalytics({name: "result_option_show", params: {}})
             },
             exchange() {
                 // [translator.options.from, translator.options.to,] = [translator.options.to,, translator.options.from,]
@@ -145,6 +147,32 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
                 translator.translateText({ text: translator.find.result.text, type: 'exchange', from: translator.options.to, to: translator.options.from })
                 translator.options.isShow = false
             }
+        },
+        configInfo: {
+            isTreadWord: true,
+            info: {},
+            changeTreadWord() {
+                if(!translator.configInfo.isTreadWord) {
+                    translator.toast.showToast({msg:'已关闭划词翻译'})
+                }
+                translator.usePort({
+                    name: "setTreadWord",
+                    msg: translator.configInfo.isTreadWord,
+                    onMsgHandle: () => {}
+                })
+            },
+            getTreadWord() {
+            translator.usePort({
+                name: "getTreadWord",
+                msg: null,
+                onMsgHandle: (msg:any) => {
+
+                    translator.configInfo.isTreadWord = isTreadWord(msg)
+
+                    if(msg) translator.configInfo.info = msg
+                }
+            })
+        }
         },
         async usePort({ name, msg, onMsgHandle }) {
             if (isTest) {
@@ -252,7 +280,7 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
 
             await translator.usePort({
                 name: 'translate',
-                msg: { text: find.text, from, to, type },
+                msg:<ITransInfo> { text: find.text, from, to, type, mode },
                 onMsgHandle: (msg: IRequestResult) => {
                     if (msg.errMsg) return
                     translator.find = find
@@ -335,26 +363,22 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
                 onMsgHandle: () => { }
             })
         },
-        showFoundText: true
-        // computed(() => {
-        //     if(!translator.find.result) return true
-        //     if(translator.find.text.length > 500 || translator.find.result.text.length > 500) {
-        //         return false
-        //     } else {
-        //         return true
-        //     }
-        // })
+        toAnalytics(event: IAnalyticEvent) {
+            translator.usePort({
+                name: "analytic",
+                msg: event,
+                onMsgHandle: () => {}
+            })
+        }
     })
+
+    translator.configInfo.getTreadWord()
 
     watch(() => translator.subTranslator.selectText, (newVal) => {
         if (newVal !== '') {
             translator.subTranslator.status = 'showGate'
         }
     })
-
-    if (translator.mode === "resultOnly") {
-
-    }
 
     return translator
 }

@@ -1,5 +1,6 @@
 import apiWrap from '../utils/apiWithPort'
-import {init} from '../utils/chromeApi'
+import {init, openPDFReader} from '../utils/chromeApi'
+import {eventToAnalytic, eventToGoogle} from "@/utils/analytics"
 
 init()
 
@@ -18,28 +19,25 @@ chrome.runtime.onConnect.addListener(function (port:chrome.runtime.Port) {
 
 
 // 快捷键
-// chrome.commands.onCommand.addListener(function (command: any) {
-//   console.log('Conmmand', command)
-// })
+chrome.commands.onCommand.addListener(function (command: any) {
+  console.log('Conmmand', command)
+})
 
-// const contextMenuItem:chrome.contextMenus.CreateProperties = {
-//   id: "phrase_open_pdf",
-//   title: "打开pdf",
-//   contexts: ["action"],
-// }
+chrome.runtime.onInstalled.addListener(() => {
+  const contextMenuItem:chrome.contextMenus.CreateProperties = {
+    id: "open_pdf_reader",
+    title: "PDF阅读器",
+    contexts: ["action"],
+  }
+  chrome.contextMenus.create(contextMenuItem)
 
-// chrome.runtime.onInstalled.addListener(function () {
-//   // console.log("on install")
-//   chrome.contextMenus.create(contextMenuItem)
+})
 
-// })
+// 右键菜单点击
+chrome.contextMenus.onClicked.addListener(function (clickData) {
+  if(clickData.menuItemId === "open_pdf_reader") {
+    openPDFReader("menu")
+  }
 
-// // 右键菜单点击
-// chrome.contextMenus.onClicked.addListener(function (clickData: any) {
-//   console.log("contextMenus click", clickData)
-//   const url = chrome.runtime.getURL("pdf_view.html")
-//   console.log(url)
-//   chrome.tabs.create({url})
-//   // chrome.runtime.sendMessage({ todo: "testSend" })
-// })
+})
 

@@ -1,13 +1,13 @@
 
-export const Mode:'test'|'jest'|'public'|'public_test' = 'public_test'
-export const clientVersion = "1.1.5"
-export const _client:'chrome'|'edge' = "edge"
+export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
+export const clientVersion = "1.1.6"
+export const _client:'chrome'|'edge' = "chrome"
 export const client:string = getClient()
 export const os:'mac'|'windows'|'linux'|'unknow' = getOS()
 export const storeUrl = 'https://www.fishfit.fun:8080/p/web/download/option'
 
 const tokenInfo = {
-    token: 'eyJhbGciOiJIAiOjE2MjQ1NDg2MzcsInVpZCI6I',
+    token: '..-',
     saveTime: new Date().getTime(),
     liveTime: 100000000000,
     openid: "testopenid"

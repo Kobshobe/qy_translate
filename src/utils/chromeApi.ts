@@ -1,10 +1,11 @@
 import { Mode, TestTokenInfo, client, clientVersion } from '@/config'
-import { ITokenInfo, ITokenInfoFromCloud, IOptionPageOpenParma } from '@/utils/interface'
+import { ITokenInfo, ITokenInfoFromCloud, IOptionPageOpenParma, IConfigInfo } from '@/utils/interface'
 // @ts-ignore
 import { v4 } from "uuid";
 import {eventToGoogle} from './analytics'
 
 export async function init() {
+    // console.log("bg_init")
     let mainLang = await getMainLang()
     if (!mainLang && navigator.language) {
         mainLang = navigator.language
@@ -16,6 +17,35 @@ export async function init() {
             mainLang
         }
     })
+}
+
+export function openPDFReader(scene:"option"|"menu") {
+    const url = chrome.runtime.getURL("pdf_viewer/web/index.html")
+    chrome.tabs.create({url})
+    eventToGoogle({name: "open_pdf_reader", params: {scene}})
+}
+
+export function setTreadWord(treadWordInfo:any) {
+    return new Promise((resolve) => {
+        chrome.storage.sync.set({isTreadWord: treadWordInfo.data})
+        eventToGoogle({name:"changeTreadWord", params: {status: treadWordInfo.data}})
+    })
+}
+
+export function getTreadWord() :Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+        chrome.storage.sync.get(['isTreadWord'], (result) => {
+            resolve(result.isTreadWord)
+        })
+    })
+}
+
+export function isTreadWord(treadWordInfo: any) :boolean {
+    if(treadWordInfo === false) {
+        return false
+    } else {
+        return true
+    }
 }
 
 export async function getClientId(): Promise<string> {

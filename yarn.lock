@@ -1530,6 +1530,11 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
+"@pdftron/webviewer@^7.3.2":
+  version "7.3.2"
+  resolved "https://registry.nlark.com/@pdftron/webviewer/download/@pdftron/webviewer-7.3.2.tgz#58c24fa6318268b7962fb51bbf6486bac24c7d64"
+  integrity sha1-WMJPpjGCaLeWL7Ubv2SGusJMfWQ=
+
 "@popperjs/core@^2.4.4":
   version "2.9.2"
   resolved "https://registry.npm.taobao.org/@popperjs/core/download/@popperjs/core-2.9.2.tgz?cache=0&sync_timestamp=1617290098226&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40popperjs%2Fcore%2Fdownload%2F%40popperjs%2Fcore-2.9.2.tgz#adea7b6953cbb34651766b0548468e743c6a2353"
@@ -5562,13 +5567,6 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
-franc-min@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.nlark.com/franc-min/download/franc-min-5.0.0.tgz#5625d0570a18564dcbbfa8330254d23549294d9a"
-  integrity sha1-ViXQVwoYVk3Lv6gzAlTSNUkpTZo=
-  dependencies:
-    trigram-utils "^1.0.0"
-
 franc@^5.0.0:
   version "5.0.0"
   resolved "https://registry.nlark.com/franc/download/franc-5.0.0.tgz#e2543f113a6b5d0a1a734cf782dd3d486215cbbe"
@@ -7455,6 +7453,11 @@ klona@^2.0.4:
   version "2.0.4"
   resolved "https://registry.npm.taobao.org/klona/download/klona-2.0.4.tgz#7bb1e3affb0cb8624547ef7e8f6708ea2e39dfc0"
   integrity sha1-e7Hjr/sMuGJFR+9+j2cI6i4538A=
+
+langs@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.nlark.com/langs/download/langs-2.0.0.tgz#00c32ce48152a49a614450b9ba2632ab58a0a364"
+  integrity sha1-AMMs5IFSpJphRFC5uiYyq1igo2Q=
 
 languagedetect@^2.0.0:
   version "2.0.0"

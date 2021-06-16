@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "轻氧翻译 - QY Translate",
   "description": "极简高效的翻译插件，并提供微信小程序端，随时随地高效学习高效工作！",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "icons": {
     "16": "assets/images/logo.png",
     "48": "assets/images/logo.png",
@@ -12,7 +12,13 @@
     "page": "options.html",
     "open_in_tab": true
   },
-  "permissions": ["storage", "http://*/*", "https://*/*"],
+  "permissions": [
+    "storage",
+    "http://*/*",
+    "https://*/*",
+    "contextMenus",
+    "tabs"
+  ],
   "browser_action": {
     "default_title": "phrase",
     "default_icon": "assets/images/logo.png",

@@ -1,11 +1,10 @@
 <template>
   <div class="option-main">
     <div class="option-container">
-      <TabBar :tabsInfo="tabsInfo" v-model:activeIndex="activeTabIndex" />
+      <TabBar />
       <div class="option-content-box">
-        <TranslatorOption v-if="activeTabIndex === 0" />
-        <QrLogin v-show="activeTabIndex === 1" :show="activeTabIndex === 1" />
-        <!-- <Coffee v-if="activeTabIndex === 2" /> -->
+        <TranslatorOption v-if="optionPageHook.activeTabIndex === 0" />
+        <QrLogin v-show="optionPageHook.activeTabIndex === 1" :show="optionPageHook.activeTabIndex === 1" />
       </div>
     </div>
     <FootBar />
@@ -13,7 +12,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, provide } from "vue";
+import hook from '@/hook/optionPageHook';
 import QrLogin from "./QrLogin.vue";
 import TabBar from "./TabBar.vue";
 import FootBar from './FootBar.vue'
@@ -22,21 +22,11 @@ import { getOptionOpenParmas } from "@/utils/chromeApi";
 
 export default defineComponent({
   setup() {
-    const tabsInfo = ["翻译设置", "微信登录"];
-    const activeTabIndex = ref(0);
-
-    getOpenParams();
-
-    async function getOpenParams() {
-      const openParams = await getOptionOpenParmas();
-      if (openParams && openParams.tab === "login") {
-        activeTabIndex.value = 1;
-      }
-    }
+    const optionPageHook = hook()
+    provide('optionPageHook', optionPageHook)
 
     return {
-      tabsInfo,
-      activeTabIndex
+      optionPageHook
     };
   },
   components: {
@@ -61,14 +51,13 @@ export default defineComponent({
 
 .option-container {
   width: 760px;
-  min-height: 530px;
   /* border-radius: 10px; */
   background-color: white;
 }
 
 .option-content-box {
   box-sizing: border-box;
-  height: 100%;
+  min-height: 500px;
   width: 100%;
   padding: 50px 85px 50px 85px;
 }

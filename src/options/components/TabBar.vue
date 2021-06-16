@@ -1,43 +1,28 @@
 <template>
   <div class="tab-main">
     <TabBtn
-      v-for="(text, index) of tabsInfo"
+      v-for="(text, index) of optionPageHook.tabsInfo"
       :text="text"
-      :active="activeIndex === index"
+      :active="optionPageHook.activeTabIndex === index"
       :index="index"
       :key="index"
-      @selectTab="selectTab"
+      @selectTab="optionPageHook.selectTab"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, inject } from "vue";
 import TabBtn from "./TabBtn.vue";
 import {eventToGoogle} from '@/utils/analytics'
 
 export default defineComponent({
-  props: {
-    tabsInfo: Array,
-    activeIndex: {
-      default: 0,
-      type: Number,
-    },
-  },
-  setup(props:any, context) {
-    const selectTab = (index:number) => {
-    //   console.log("selectTab", index);
-      context.emit("update:activeIndex", index);
-      eventToGoogle({
-        name: 'tap_tab',
-        params: {
-          tabText: props.tabsInfo[index]
-        }
-      })
-    };
+  setup() {
+
+    const optionPageHook = inject('optionPageHook')
 
     return {
-      selectTab,
+      optionPageHook,
     };
   },
   components: {

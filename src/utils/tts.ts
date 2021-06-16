@@ -51,6 +51,10 @@ export const getAudioBase64 = async (
   }
 
   if (text.length > 200) {
+    eventToGoogle({
+      name: "tts_too_long_err",
+      params: {textLenght: text.length}
+    })
     throw new RangeError(
       `text length (${text.length}) should be less than 200 characters. Try "getAllAudioBase64(text, [option])" for long text.`
     );

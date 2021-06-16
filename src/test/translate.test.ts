@@ -14,7 +14,7 @@ function delay(second:number) {
 jest.setTimeout(40000);
 
 test('translate text test', async (done) => {
-    const msg = await translator.findUseApi('apple', '', 'zh-CN')
+    const msg = await translator.findUseApi({text:'apple', from:'', to:'zh-CN', type: '', mode: ''})
     expect(msg.errMsg).toBe('')
     expect(msg.data.resultFrom).toEqual('en')
     expect(msg.data.text).toEqual('苹果')

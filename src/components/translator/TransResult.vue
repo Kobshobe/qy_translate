@@ -16,7 +16,7 @@
         </div>
         <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
           <IconBtn
-            v-if="translator.mode !== 'resultOnly'"
+            v-if="translator.mode === 'popup'"
             type="icon-bianji1"
             iconSize="16"
             @click="translator.toEdit"

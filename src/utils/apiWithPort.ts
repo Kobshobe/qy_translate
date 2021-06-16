@@ -1,7 +1,7 @@
 import { collectResult, reduceCollect, updateMark } from '../api/api'
 import { Translator } from '../utils/translator'
 import { getAudioBase64 } from '../utils/tts'
-import { openOptionsPage } from '../utils/chromeApi'
+import { openOptionsPage, getTreadWord, setTreadWord } from '../utils/chromeApi'
 import { IRequestResult } from '@/utils/interface'
 import { eventToGoogle, eventToAnalytic } from './analytics'
 import { client, clientVersion } from '../config'
@@ -11,7 +11,7 @@ const translator = new Translator();
 const apiWrap = {
   // ---------- 翻译
   translate: async (msg: any, port: any) => {
-    const result: any = await translator.findUseApi(msg.text, msg.from, msg.to, msg.type)
+    const result: any = await translator.findUseApi(msg)
     return getRequestResultMsg({ port, res: result })
   },
   // ---------- 收藏或标记收藏
@@ -40,6 +40,12 @@ const apiWrap = {
   },
   analytic: async (msg: any, port: any) => {
     return await HandleResultCanTest(eventToAnalytic, msg, port)
+  },
+  setTreadWord: async (msg: any, port: any) => {
+    return await HandleResultCanTest(setTreadWord, msg, port)
+  },
+  getTreadWord: async (msg: any, port: any) => {
+    return await HandleResultCanTest(getTreadWord, msg, port)
   }
 }
 

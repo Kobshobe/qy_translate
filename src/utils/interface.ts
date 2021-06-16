@@ -32,6 +32,15 @@ export interface ICollectResultMsg {
     tid: number
 }
 
+export interface ITransInfo {
+    text: string
+    from: string
+    to: string
+    type: string
+    mode: string
+}
+
+
 export interface IRequestResult {
     errMsg: string
     data?: any
@@ -82,7 +91,7 @@ export interface ILangInfo {
     secord: string
 }
 
-export interface IEvent {
+export interface IAnalyticEvent {
     name: string
     params: any
 
@@ -111,7 +120,7 @@ export interface ITranslateMsg {
 }
 
 export interface ITranslatorHook {
-    mode: 'resultOnly'|'popup'
+    mode: 'resultOnly'|'popup'|'pdf'
     status: 'result' | 'editing'
     editingText: string,
     show: boolean,
@@ -160,6 +169,12 @@ export interface ITranslatorHook {
         show() :void
         exchange() :void
     }
+    configInfo: {
+        isTreadWord: boolean
+        info: IConfigInfo|{}
+        getTreadWord() :void
+        changeTreadWord() :void
+    }
     usePort({ name, msg, onMsgHandle }: { name: string, msg: any, onMsgHandle: Function }): void
     handleWebErr(msg: IRequestResult): void
     getMarkHtml(): void
@@ -173,10 +188,14 @@ export interface ITranslatorHook {
     toEdit(): void
     copyResult(): void
     eventToAnalytic(eventData: any): void
-    showFoundText: any
+    toAnalytics(event: IAnalyticEvent) :void
 }
 
 export interface IQrLoginParams {
     qrUrl: Ref<string>
     loginStatus: Ref<'loginOk' | 'none' | 'scanQr' | 'loadingQr' | 'invalidQr' | 'loadQrFail'>
+}
+
+export interface IConfigInfo {
+    isTreadWord?: boolean
 }
