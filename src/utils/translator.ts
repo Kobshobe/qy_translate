@@ -127,7 +127,7 @@ export class Translator {
 
     if(errRes) {
       eventToGoogle({
-        name: 'google_trans',
+        name: 'google_trans_err',
         params: {
           from: from,
           to: to,

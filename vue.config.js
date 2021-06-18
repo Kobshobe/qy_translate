@@ -5,7 +5,7 @@ const path = require("path");
 // 复制文件到指定目录
 const copyFiles = [
   {
-    from: path.resolve("src/plugins/manifest.json"),
+    from: path.resolve("src/plugins/manifestV2.json"),
     to: `${path.resolve("dist")}/manifest.json`
   },
   {
@@ -27,6 +27,10 @@ const copyFiles = [
   {
     from: path.resolve("src/pdf_viewer/web"),
     to: path.resolve("dist/pdf_viewer/web")
+  },
+  {
+    from: path.resolve("src/_locales"),
+    to: path.resolve("dist/_locales")
   },
 ];
 

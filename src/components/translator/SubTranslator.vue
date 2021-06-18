@@ -19,11 +19,11 @@
           class="gate-trans-mark-wsrfhedsoufheqiwrhew"
         >
           <div class="gate-btn-wsrfhedsoufheqiwrhew" @click="translator.subTranslator.translate">
-            翻译
+            {{subTransMsg}}
           </div>
           <div class="gate-divider-wsrfhedsoufheqiwrhew">|</div>
           <div class="gate-btn-wsrfhedsoufheqiwrhew" @click="translator.subTranslator.mark">
-            {{ translator.canReduceMark ? "取消标记" : "标记" }}
+            {{ translator.canReduceMark ? reduceMarkMsg : markMsg }}
           </div>
         </div>
 
@@ -51,8 +51,12 @@ export default defineComponent({
   setup() {
     const translator = inject<any>("translator");
 
+    const markMsg = chrome.i18n.getMessage("mark")
+    const subTransMsg = chrome.i18n.getMessage("subTrans")
+    const reduceMarkMsg = chrome.i18n.getMessage("reduceMark")
+
     return {
-      translator,
+      translator,markMsg,subTransMsg,reduceMarkMsg
     };
   },
   components: {

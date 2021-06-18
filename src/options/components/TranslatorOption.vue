@@ -1,9 +1,9 @@
 <template>
-  <OptionItem title="划词翻译:">
+  <OptionItem :title="`${treadWordMsg}:`">
     <el-switch v-model="optionPageHook.configInfo.isTreadWord" active-color="#4C8BF5" @change="optionPageHook.configInfo.changeTreadWord"></el-switch>
   </OptionItem>
   <div class="lang-option">
-    <OptionItem title="我的主要语言:">
+    <OptionItem :title="mainLangMsg">
       <el-select
         v-model="mainLang"
         placeholder="请选择"
@@ -24,7 +24,7 @@
     <div style="width: 150px"></div>
     <OptionItem
       v-if="mainLang === 'zh-CN' || mainLang === 'zh-TW'"
-      title="我的第二语言:"
+      :title="secondLangMsg"
     >
       <el-select
         v-model="secondLang"
@@ -45,8 +45,8 @@
     </OptionItem>
   </div>
 
-  <OptionItem title="收藏管理:">
-    <div style="padding-bottom: 20px">微信扫码使用小程序管理</div>
+  <OptionItem :title="collManagerMsg">
+    <div style="padding-bottom: 20px">{{weChatCollManaMsg}}</div>
     <img class="to-min-qr" :src="qrSrc" alt="" />
   </OptionItem>
 </template>
@@ -90,6 +90,12 @@ export default defineComponent({
       }
     });
 
+    const treadWordMsg = chrome.i18n.getMessage("treadWord")
+    const mainLangMsg = chrome.i18n.getMessage("mainLang")
+    const secondLangMsg = chrome.i18n.getMessage("secondLang")
+    const collManagerMsg = chrome.i18n.getMessage("collManager")
+    const weChatCollManaMsg = chrome.i18n.getMessage("weChatCollMana")
+
     return {
       optionPageHook,
       languages,
@@ -98,7 +104,12 @@ export default defineComponent({
       changeMainLang,
       changeSecondLang,
       qrSrc,
-      isTreadWord
+      isTreadWord,
+      treadWordMsg,
+      mainLangMsg,
+      secondLangMsg,
+      collManagerMsg,
+      weChatCollManaMsg
     };
   },
   components: {

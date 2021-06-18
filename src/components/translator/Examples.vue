@@ -1,6 +1,6 @@
 <template>
   <div v-if="example">
-    <div class="examples-title-wsrfhedsoufheqiwrhew">例句</div>
+    <div class="examples-title-wsrfhedsoufheqiwrhew">{{transExampleMsg}}</div>
     <div
       v-for="(item, index) in example"
       class="examples-items-wsrfhedsoufheqiwrhew"
@@ -18,8 +18,10 @@ export default defineComponent({
     const example = inject<any>("translator").subTranslator.resultData.data
       .examples?.example;
 
+    const transExampleMsg = chrome.i18n.getMessage("transExampple")
+
     return {
-      example,
+      example,transExampleMsg
     };
   },
 });

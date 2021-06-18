@@ -1,14 +1,14 @@
 <template>
   <div class="option-bottom">
-    <div class="bottom-text" @click="toPDFReader" title="在图标右键菜单处也可以打开哦">PDF阅读器</div>
+    <div class="bottom-text" @click="toPDFReader" title="在图标右键菜单处也可以打开哦">{{PDFViewerMsg}}</div>
     <div style="width: 10px"></div>
-    <div class="bottom-text" @click="toStore">应用市场</div>
+    <div class="bottom-text" @click="toStore">{{appStoreMsg}}</div>
     <div style="width: 10px"></div>
-    <div class="bottom-text" @click="copyShareUrl">分享链接</div>
+    <div class="bottom-text" @click="copyShareUrl">{{shareLinkMsg}}</div>
     <div style="width: 10px"></div>
     <div class="bottom-text" @click="toGitHub">GitHub</div>
     <div style="width: 10px"></div>
-    <a class="bottom-text" href="mailto: phraseanywhere@outlook.com">联系我们</a>
+    <a class="bottom-text" href="mailto: phraseanywhere@outlook.com">{{contactUsMsg}}</a>
   </div>
 </template>
 
@@ -25,15 +25,21 @@ export default defineComponent({
       window.open(`${storeUrl}?c=${client}&cv=${clientVersion}`);
       eventToGoogle({
         name: "toStore",
-        params: {},
+        params: {
+          locale: chrome.i18n.getMessage("@@ui_locale")
+        },
       });
     }
+
+    console.log(chrome.i18n.getMessage("@@ui_locale"))
 
     function toGitHub() {
       window.open(`https://github.com/Kobshobe/qy_translate`);
       eventToGoogle({
         name: "toGitHub",
-        params: {},
+        params: {
+          locale: chrome.i18n.getMessage("@@ui_locale")
+        },
       });
     }
 
@@ -45,12 +51,12 @@ export default defineComponent({
       document.execCommand("copy");
       document.body.removeChild(tempInput);
       ElMessage.success({
-        message: "分享链接已复制",
+        message: chrome.i18n.getMessage("copyShareLink"),
         type: "success",
       });
       eventToGoogle({
         name: "copyShareLink",
-        params: {},
+        params: {locale: chrome.i18n.getMessage("@@ui_locale")},
       });
     }
 
@@ -58,11 +64,21 @@ export default defineComponent({
       openPDFReader("option")
     }
 
+    const PDFViewerMsg = chrome.i18n.getMessage("PDFViewer")
+    const appStoreMsg = chrome.i18n.getMessage("appStore")
+    const shareLinkMsg = chrome.i18n.getMessage("shareLink")
+    const contactUsMsg = chrome.i18n.getMessage("contactUs")
+
+
     return {
       toStore,
       copyShareUrl,
       toGitHub,
-      toPDFReader
+      toPDFReader,
+      PDFViewerMsg,
+      appStoreMsg,
+      shareLinkMsg,
+      contactUsMsg,
     };
   },
 });

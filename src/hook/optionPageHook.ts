@@ -3,9 +3,15 @@ import {getOptionOpenParmas, getTreadWord, setTreadWord, isTreadWord} from '@/ut
 import {eventToGoogle} from '@/utils/analytics';
 import { ElMessage } from "element-plus";
 
+
+const optionTransMsg = chrome.i18n.getMessage("optionTrans")
+const optionLoginMsg = chrome.i18n.getMessage("optionLogin")
+const treadWordOff = chrome.i18n.getMessage("treadWordOff")
+
+
 export default function optionPageHook() {
     const hook = reactive({
-        tabsInfo: ["翻译设置", "微信登录"],
+        tabsInfo: [optionTransMsg, optionLoginMsg],
         activeTabIndex: 0,
         configInfo: {
             isTreadWord: true,
@@ -14,7 +20,7 @@ export default function optionPageHook() {
                 setTreadWord({data:hook.configInfo.isTreadWord})
                 if(!hook.configInfo.isTreadWord) {
                     ElMessage.info({
-                        message: "已关闭划词翻译",
+                        message: treadWordOff,
                         type: "info",
                       });
                 }
@@ -32,7 +38,8 @@ export default function optionPageHook() {
             eventToGoogle({
                 name: 'tap_tab',
                 params: {
-                    tabText: hook.tabsInfo[index]
+                    tabText: hook.tabsInfo[index],
+                    locale: chrome.i18n.getMessage("@@ui_locale")
                 }
             })
         },

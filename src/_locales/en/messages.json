@@ -1,0 +1,111 @@
+{
+    "extName": {
+        "message": "QY Translate",
+        "description": "ext_name"
+    },
+    "extDesc": {
+        "message": "Minimalistic translation plugins, and provide WeChat small program, and efficiently learn efficient work anytime, anywhere!"
+    },
+    "enterText": {
+        "message": "Enter text"
+    },
+    "moreOption": {
+        "message": "More Option"
+    },
+    "copyOK": {
+        "message": "Copy success"
+    },
+    "treadWordOff": {
+        "message": "Select text translate off"
+    },
+    "treadWord": {
+        "message": "Select text translate"
+    },
+    "needLogin": {
+        "message": "Need to log in, do you go to login?"
+    },
+    "needRelogin": {
+        "message": "Need to log in, do you go to login？"
+    },
+    "scanQR": {
+        "message": "Login"
+    },
+    "collTooLong": {
+        "message": "More than 500 can't be collected"
+    },
+    "subTrans": {
+        "message": "translate"
+    },
+    "reduceMark": {
+        "message": "Unhighlight"
+    },
+    "mark": {
+        "message": "Highlight"
+    },
+    "transExampple": {
+        "message": "Example"
+    },
+    "fetchErr": {
+        "message": "Network error!"
+    },
+    "netErr": {
+        "message": "Network Error!"
+    },
+    "optionTrans": {
+        "message": "Tranlate"
+    },
+    "optionLogin": {
+        "message": "WeChat Login"
+    },
+    "mainLang": {
+        "message": "My primary language:"
+    },
+    "secondLang": {
+        "message": "My second language:"
+    },
+    "collManager": {
+        "message": "Collection Management:"
+    },
+    "weChatCollMana": {
+        "message": "Use WeChat scan the QR to manage"
+    },
+    "logged": {
+        "message": "Logged"
+    },
+    "logout": {
+        "message": "Logout"
+    },
+    "loadingQR": {
+        "message": "loading..."
+    },
+    "weChatScanQRToLogin": {
+        "message": "Log in with WeChat scan code"
+    },
+    "invalidQR": {
+        "message": "QR code expires"
+    },
+    "clickToRefresh": {
+        "message": "Click to refresh"
+    },
+    "loadQRFail": {
+        "message": "QR code loading failed"
+    },
+    "clickReTry": {
+        "message": "Click to try again"
+    },
+    "PDFViewer": {
+        "message": "PDF Viewer"
+    },
+    "appStore": {
+        "message": "App Store"
+    },
+    "shareLink": {
+        "message": "Share Link"
+    },
+    "contactUs": {
+        "message": "Contact Us"
+    },
+    "copyShareLink": {
+        "message": "Sharing links have been copied"
+    }
+}

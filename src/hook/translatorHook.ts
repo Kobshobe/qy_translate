@@ -1,15 +1,25 @@
-import { reactive, watch, computed } from 'vue'
+import { reactive, watch, computed, onMounted } from 'vue'
 import { ITransResult } from '@/utils/interface'
 import { newMarkManager, getMarkHtml } from '@/utils/mark'
 import apiWrap from '@/utils/apiWithPort'
 import { IRequestResult, ITranslateMsg, ITranslatorHook, Find, IAnalyticEvent, ITransInfo, IConfigInfo } from '@/utils/interface'
 import {isTreadWord} from '@/utils/chromeApi'
 
+
+const copyOKMsg = chrome.i18n.getMessage("copyOK")
+const treadWordOffMsg = chrome.i18n.getMessage("treadWordOff")
+const needLoginMsg = chrome.i18n.getMessage("needLogin")
+const needReloginMsg = chrome.i18n.getMessage("needRelogin")
+const scanQRMsg = chrome.i18n.getMessage("scanQR")
+const collTooLongMsg = chrome.i18n.getMessage("collTooLong")
+
+
 export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = false) {
     const translator: ITranslatorHook = reactive({
         mode,
         status: 'result',
         editingText: ``,
+        lastFindText: '',
         show: false,
         find: new Find(''),
         findStatus: 'none',
@@ -32,7 +42,7 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
         },
         toast: {
             show: false,
-            msg: 'toast xxx',
+            msg: '',
             closeTimer: undefined,
             showToast({ msg, duration = 1500 }) {
                 clearTimeout(translator.toast.closeTimer)
@@ -125,6 +135,7 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             close() {
                 translator.options.isShow = false
                 if (translator.options.from !== translator.find.result?.resultFrom || translator.options.to !== translator.find.result?.resultTo) {
+                    // @ts-ignore
                     translator.translateText({ text: translator.find.text, type: 'changeLang', from: translator.options.from, to: translator.options.to })
                 }
             },
@@ -153,7 +164,7 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             info: {},
             changeTreadWord() {
                 if(!translator.configInfo.isTreadWord) {
-                    translator.toast.showToast({msg:'已关闭划词翻译'})
+                    translator.toast.showToast({msg: treadWordOffMsg})
                 }
                 translator.usePort({
                     name: "setTreadWord",
@@ -192,11 +203,11 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
         handleWebErr(msg) {
             if (!msg) return
             if (msg.errMsg === 'needLogin' || msg.errMsg === 'needRelogin') {
-                let text = '需要登录，是否前往登录？'
+                let text = needLoginMsg
                 if (msg.errMsg === 'needRelogin') {
-                    text = '需要重新登录，是否前往登录？'
+                    text = needReloginMsg
                 }
-                translator.dialogMsg.showDialog(text, '扫码登录', '', () => {
+                translator.dialogMsg.showDialog(text, scanQRMsg, '', () => {
                     translator.usePort({
                         name: 'openOptionsPage',
                         msg: { tab: 'login' },
@@ -243,7 +254,7 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
         async collect({ success, fail }) {
             if (!translator.find.result) return
             if (translator.find.text.length > 500 || translator.find.result.text.length > 500) {
-                translator.toast.showToast({ msg: '内容字符超过500无法收藏哦~' })
+                translator.toast.showToast({ msg: collTooLongMsg })
                 fail?.call(translator)
                 return
             }
@@ -334,7 +345,10 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             })
         },
         toEdit() {
+            translator.lastFindText = translator.editingText
+            translator.editingText = ''
             translator.status = 'editing'
+            translator.editingText = ''
             translator.eventToAnalytic({
                 name: 'to_edit',
                 params: {}
@@ -348,7 +362,7 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             tempInput.select();
             document.execCommand("copy");
             document.body.removeChild(tempInput);
-            translator.toast.showToast({ msg: '复制成功', duration: 1000 })
+            translator.toast.showToast({ msg: copyOKMsg, duration: 1000 })
             translator.eventToAnalytic({
                 name: 'copy_trans_result',
                 params: {
@@ -357,6 +371,7 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             })
         },
         eventToAnalytic(eventData) {
+            eventData.params.locale = chrome.i18n.getMessage("@@ui_locale")
             translator.usePort({
                 name: 'analytic',
                 msg: eventData,
@@ -369,10 +384,19 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
                 msg: event,
                 onMsgHandle: () => {}
             })
+        },
+        getLastFindText() {
+            translator.editingText = translator.lastFindText
+            translator.eventToAnalytic({
+                name: 'getLastFindText',
+                params: {}
+            })
         }
     })
 
-    translator.configInfo.getTreadWord()
+    onMounted(() => {
+        translator.configInfo.getTreadWord()
+    })
 
     watch(() => translator.subTranslator.selectText, (newVal) => {
         if (newVal !== '') {

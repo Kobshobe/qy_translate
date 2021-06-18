@@ -4,6 +4,9 @@ import { Mode, client, clientVersion } from '../config'
 import { IRequestResult, IQrLoginParams, ITokenInfo } from '@/utils/interface'
 import { eventToGoogle } from '../utils/analytics'
 
+const fetchErrMsg = '网络开小差!'
+const netErrMsg = '网络开小差了!'
+
 let protocol = "https://"
 let webSocketProtocol = "wss://"
 let BaseUrl = 'www.fishfit.fun:8080/p'
@@ -139,7 +142,7 @@ export async function serveBaseReq({ url, method, success, fail, data = {}, head
         if (err === `fetch_err`) {
           reject({
             errMsg: `fetchReq_${url}_err`,
-            toastMsg: '网络开小差了!'
+            toastMsg: fetchErrMsg
           })
         } else {
           await reject(getResult(err, `authReq_${url}_err`))
@@ -167,6 +170,7 @@ export async function serveBaseReq({ url, method, success, fail, data = {}, head
         url,
         method,
         cost,
+        errMsg: err.errMsg
       }
     })
     fail && fail(err);
@@ -185,7 +189,7 @@ async function getResult(res: any, errMsg: string = ''): Promise<IRequestResult>
       serveToastMsg = data.serveToastMsg
     } finally {
       if (errMsg && !toastMsg) {
-        toastMsg = '网络开小差!'
+        toastMsg = netErrMsg
       }
     
       if(toastMsg) {

@@ -7,7 +7,7 @@
           id="phrase-editing-wsrfhedsoufheqiwrhew"
           v-model="translator.editingText"
           @keydown="translator.translateFromEdit"
-          placeholder="请输入文本内容"
+          :placeholder="enterTextMsg"
           :autofocus="true"
         ></textarea>
       </div>
@@ -18,12 +18,19 @@
           color="#AAAAAA"
           @click="translator.clear"
         />
+        <IconBtn
+          v-else-if="translator.lastFindText !== ''"
+          type="icon-lishijilu"
+          color="#AAAAAA"
+          iconSize=16
+          @click="translator.getLastFindText"
+        />
       </div>
     </div>
     <div class="editing-tool-bar-wsrfhedsoufheqiwrhew">
       <div class="editing-tool-bar-left-wsrfhedsoufheqiwrhew">
         <div class="tread-switch-box-wsrfhedsoufheqiwrhew">
-          <div class="tread-switch-text-wsrfhedsoufheqiwrhew">划词翻译</div>
+          <div class="tread-switch-text-wsrfhedsoufheqiwrhew">{{treadWordMsg}}</div>
           <el-switch v-model="translator.configInfo.isTreadWord" active-color="#4C8BF5" @change="translator.configInfo.changeTreadWord"> </el-switch>
         </div>
       </div>
@@ -66,9 +73,14 @@ export default defineComponent({
       document.execCommand("paste");
     });
 
+    const enterTextMsg = chrome.i18n.getMessage("enterText")
+    const treadWordMsg = chrome.i18n.getMessage("treadWord")
+
     return {
       translator,
       on,
+      enterTextMsg,
+      treadWordMsg
     };
   },
   components: {

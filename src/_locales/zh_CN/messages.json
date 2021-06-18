@@ -1,0 +1,111 @@
+{
+    "extName": {
+        "message": "轻氧翻译 - QY Translate",
+        "description": "ext_name"
+    },
+    "extDesc": {
+        "message": "极简高效的划词翻译插件，并提供微信小程序端，随时随地高效学习高效工作！"
+    },
+    "enterText": {
+        "message": "请输入文本内容"
+    },
+    "moreOption": {
+        "message": "更多设置"
+    },
+    "copyOK": {
+        "message": "复制成功"
+    },
+    "treadWordOff": {
+        "message": "已关闭划词翻译"
+    },
+    "treadWord": {
+        "message": "划词翻译"
+    },
+    "needLogin": {
+        "message": "需要登录，是否前往登录？"
+    },
+    "needRelogin": {
+        "message": "需要重新登录，是否前往登录？"
+    },
+    "scanQR": {
+        "message": "扫码登录"
+    },
+    "collTooLong": {
+        "message": "内容字符超过500无法收藏哦~"
+    },
+    "subTrans": {
+        "message": "翻译"
+    },
+    "reduceMark": {
+        "message": "取消标记"
+    },
+    "mark": {
+        "message": "标记"
+    },
+    "transExampple": {
+        "message": "例句"
+    },
+    "fetchErr": {
+        "message": "网络开小差!"
+    },
+    "netErr": {
+        "message": "网络开小差了!"
+    },
+    "optionTrans": {
+        "message": "翻译设置"
+    },
+    "optionLogin": {
+        "message": "微信登录"
+    },
+    "mainLang": {
+        "message": "我的主要语言:"
+    },
+    "secondLang": {
+        "message": "我的第二语言:"
+    },
+    "collManager": {
+        "message": "收藏管理:"
+    },
+    "weChatCollMana": {
+        "message": "微信扫码使用小程序管理"
+    },
+    "logged": {
+        "message": "已登录"
+    },
+    "logout": {
+        "message": "退出登录"
+    },
+    "loadingQR": {
+        "message": "二维码加载中..."
+    },
+    "weChatScanQRToLogin": {
+        "message": "使用微信扫码登录"
+    },
+    "invalidQR": {
+        "message": "二维码失效"
+    },
+    "clickToRefresh": {
+        "message": "点击刷新"
+    },
+    "loadQRFail": {
+        "message": "二维码加载失败"
+    },
+    "clickReTry": {
+        "message": "点击重试"
+    },
+    "PDFViewer": {
+        "message": "PDF阅读器"
+    },
+    "appStore": {
+        "message": "应用市场"
+    },
+    "shareLink": {
+        "message": "分享链接"
+    },
+    "contactUs": {
+        "message": "联系我们"
+    },
+    "copyShareLink": {
+        "message": "分享链接已复制"
+    }
+}

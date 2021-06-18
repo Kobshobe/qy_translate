@@ -4,14 +4,14 @@
       <div class="qr-img-box">
         <Loading size="50" />
       </div>
-      <div class="qr-tip">二维码加载中...</div>
+      <div class="qr-tip">{{ loadingQRMsg }}</div>
     </div>
 
-    <div v-else-if="loginStatus === 'scanQr'">
+    <div class="qr-loaded-box" v-else-if="loginStatus === 'scanQr'">
       <div class="qr-img-box">
         <img class="qr-img" :src="qrUrl" alt="" />
       </div>
-      <div class="qr-tip">使用微信扫码登录</div>
+      <div class="qr-tip">{{ weChatScanQRToLoginMsg }}</div>
     </div>
 
     <div
@@ -20,12 +20,12 @@
       <div class="qr-img-box">
         <div class="qr-invalid" @click="reLoadQr">
           <div v-if="loginStatus === 'invalidQr'" class="text-desc">
-            <div>二维码失效</div>
-            <div>点击刷新</div>
+            <div>{{ invalidQRMsg }}</div>
+            <div>{{ clickToRefreshMsg }}</div>
           </div>
           <div v-else-if="loginStatus === 'loadQrFail'" class="text-desc">
-            <div>二维码加载失败</div>
-            <div>点击重试</div>
+            <div>{{ loadQRFailMsg }}</div>
+            <div>{{ clickReTryMsg }}</div>
           </div>
         </div>
       </div>
@@ -34,9 +34,9 @@
     <div v-else-if="loginStatus === 'loginOk'">
       <div class="qr-img-box">
         <div class="text-desc">
-          <h1>已登录</h1>
+          <h1>{{ loggedMsg }}</h1>
           <div style="height: 10px"></div>
-          <el-button plain @click="logout">退出登录</el-button>
+          <el-button plain @click="logout">{{ logoutMsg }}</el-button>
         </div>
       </div>
     </div>
@@ -48,7 +48,6 @@ import { defineComponent, ref, watch } from "vue";
 import Loading from "../../components/base/Loading.vue";
 import { qrLogin } from "../../api/api";
 import { removeTokenInfo, getTokenFromStorage } from "../../utils/chromeApi";
-import {eventToGoogle} from '../../utils/analytics'
 
 export default defineComponent({
   props: {
@@ -56,9 +55,10 @@ export default defineComponent({
   },
   setup(props) {
     const qrUrl = ref("");
-    const loginStatus = ref<
-      "loginOk" | "none" | "scanQr" | "loadingQr" | "invalidQr" | "loadQrFail"
-    >("none");
+    const loginStatus =
+      ref<
+        "loginOk" | "none" | "scanQr" | "loadingQr" | "invalidQr" | "loadQrFail"
+      >("none");
 
     isLogin();
 
@@ -70,12 +70,12 @@ export default defineComponent({
     }
 
     const reLoadQr = () => {
-      qrLogin({qrUrl, loginStatus});
+      qrLogin({ qrUrl, loginStatus });
     };
 
     function logout() {
       removeTokenInfo(() => {
-        qrLogin({qrUrl, loginStatus});
+        qrLogin({ qrUrl, loginStatus });
       });
     }
 
@@ -87,17 +87,36 @@ export default defineComponent({
             loginStatus.value !== "scanQr" &&
             loginStatus.value !== "loginOk"
           ) {
-            qrLogin({qrUrl, loginStatus});
+            qrLogin({ qrUrl, loginStatus });
           }
         }
       }
     );
+
+    const loggedMsg = chrome.i18n.getMessage("logged");
+    const logoutMsg = chrome.i18n.getMessage("logout");
+    const loadingQRMsg = chrome.i18n.getMessage("loadingQR");
+    const weChatScanQRToLoginMsg = chrome.i18n.getMessage(
+      "weChatScanQRToLogin"
+    );
+    const invalidQRMsg = chrome.i18n.getMessage("invalidQR");
+    const clickToRefreshMsg = chrome.i18n.getMessage("clickToRefresh");
+    const loadQRFailMsg = chrome.i18n.getMessage("loadQRFail");
+    const clickReTryMsg = chrome.i18n.getMessage("clickReTry");
 
     return {
       qrUrl,
       loginStatus,
       reLoadQr,
       logout,
+      loggedMsg,
+      logoutMsg,
+      loadingQRMsg,
+      weChatScanQRToLoginMsg,
+      invalidQRMsg,
+      clickToRefreshMsg,
+      loadQRFailMsg,
+      clickReTryMsg,
     };
   },
   components: {
@@ -112,6 +131,14 @@ export default defineComponent({
   flex-direction: column;
   flex-wrap: nowrap;
   align-items: center;
+  justify-content: center;
+  .qr-loaded-box {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+  }
   .qr-img-box {
     position: relative;
     display: flex;

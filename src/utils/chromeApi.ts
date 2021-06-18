@@ -60,7 +60,7 @@ export async function getClientId(): Promise<string> {
                 resolve("op:" + tokenInfo.openid)
             } else {
                 if(result.uuid) {
-                    resolve("uuid"+result.uuid)
+                    resolve("uuid:"+result.uuid)
                 } else {
                     const uuid = v4()
                     chrome.storage.sync.set({uuid})

@@ -123,6 +123,7 @@ export interface ITranslatorHook {
     mode: 'resultOnly'|'popup'|'pdf'
     status: 'result' | 'editing'
     editingText: string,
+    lastFindText: string,
     show: boolean,
     find: Find,
     findStatus: 'none' | 'ok' | 'loading' | 'reLoad',
@@ -189,6 +190,7 @@ export interface ITranslatorHook {
     copyResult(): void
     eventToAnalytic(eventData: any): void
     toAnalytics(event: IAnalyticEvent) :void
+    getLastFindText() :void
 }
 
 export interface IQrLoginParams {

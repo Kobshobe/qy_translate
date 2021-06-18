@@ -36,7 +36,7 @@
         </el-option>
       </el-select>
       <div style="height: 1px; width: 100%; background-color: #e4e7ed"></div>
-      <div class="more-option-wsrfhedsoufheqiwrhew" @click="translator.options.openOptionsPage">更多设置</div>
+      <div class="more-option-wsrfhedsoufheqiwrhew" @click="translator.options.openOptionsPage">{{moreMsg}}</div>
     </div>
   </div>
 </template>
@@ -75,10 +75,13 @@ export default defineComponent({
       })
     }
 
+    const moreMsg = chrome.i18n.getMessage("moreOption")
+
     return {
       languages,
       translator,
       popupVisibleChange,
+      moreMsg
     };
   },
   components: {
