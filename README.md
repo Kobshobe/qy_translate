@@ -11,7 +11,7 @@
 ![avatar](http://img.fishfit.fun/qy_mark_php.png) 
 &nbsp;
 
-[点我应用商店下载](https://www.fishfit.fun:8080/p/web/download/gitd)  
+[下载地址](https://www.fishfit.fun:8080/p/web/home/github)  
 &nbsp;
 
 #### 收藏后，如果想随便学习一下，还可以使用`轻氧翻译`微信小程序，翻译学习两不误  
