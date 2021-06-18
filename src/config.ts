@@ -1,7 +1,7 @@
 
 export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
 export const clientVersion = "1.1.6"
-export const _client:'chrome'|'edge' = "chrome"
+export const _client:'chrome'|'edge'|'crx' = "crx"
 export const client:string = getClient()
 export const os:'mac'|'windows'|'linux'|'unknow' = getOS()
 export const storeUrl = 'https://www.fishfit.fun:8080/p/web/download/option'

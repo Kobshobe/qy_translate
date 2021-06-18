@@ -14,8 +14,7 @@
   },
   "permissions": [
     "storage",
-    "contextMenus",
-    "tabs"
+    "contextMenus"
   ],
   "action": {
     "default_title": "轻氧翻译 - QY Translate",
