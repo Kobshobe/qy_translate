@@ -167,14 +167,17 @@ export function getSecondLang(): Promise<string> {
     })
 }
 
-export function setMainLang(lang: string) {
+export function setMainLang(lang: string, initSet: boolean = false) {
     chrome.storage.sync.set({ mainLang: lang })
-    eventToGoogle({
-        name: 'setMainLang',
-        params: {
-            lang
-        }
-    })
+    if(!initSet) {
+        eventToGoogle({
+            name: 'setMainLang',
+            params: {
+                lang
+            }
+        })
+    }
+    
 }
 
 export function setSecondLang(lang: string) {

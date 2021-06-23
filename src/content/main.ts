@@ -12,8 +12,6 @@ function joinContent() {
 
   const theApp = createApp(app)
   setUI(theApp)
-  const options = { zIndex: 31474836, size: 'small' }
-  theApp.config.globalProperties.$ELEMENT = options
   theApp.mount('#' + id)
 }
 

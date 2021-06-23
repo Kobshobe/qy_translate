@@ -11,6 +11,8 @@
 ![avatar](http://img.fishfit.fun/qy_mark_php.png) 
 &nbsp;
 
+还有PDF阅读翻译等功能
+
 [下载地址](https://www.fishfit.fun:8080/p/web/home/github)  
 &nbsp;
 
