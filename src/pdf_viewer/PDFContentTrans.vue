@@ -1,14 +1,55 @@
 <template>
-    <ContentTrans mode="pdf" />
+  <ContentTrans mode="pdf" />
+  <el-dialog
+    title="打开网络PDF文件"
+    v-model="dialogVisible"
+    width="500px"
+    :before-close="handleClose"
+  >
+    <el-input
+      v-model="input"
+      placeholder="请输入链接地址"
+      size="medium"
+    ></el-input>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="openLinkPDF">确 定</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import ContentTrans from '../components/translator/ContentTrans.vue'
+import { defineComponent, ref } from "vue";
+import ContentTrans from "../components/translator/ContentTrans.vue";
+import { openPDFReader } from "@/utils/chromeApi";
 
 export default defineComponent({
-    components: {
-        ContentTrans
+  setup() {
+    const dialogVisible = ref(false);
+    const input = ref("");
+
+    const b = <HTMLLIElement>document.getElementById("open-link");
+    b.addEventListener("click", () => {
+      console.log("link");
+      dialogVisible.value = true;
+    });
+
+    function openLinkPDF() {
+      if (input.value.length > 4) {
+        openPDFReader("openLink", input.value);
+      }
     }
-})
+
+    return {
+      dialogVisible,
+      input,
+      openLinkPDF,
+    };
+  },
+  components: {
+    ContentTrans,
+  },
+});
 </script>

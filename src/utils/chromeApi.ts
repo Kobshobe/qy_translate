@@ -1,28 +1,16 @@
-import { Mode, TestTokenInfo, client, clientVersion } from '@/config'
+import { Mode, TestTokenInfo } from '@/config'
 import { ITokenInfo, ITokenInfoFromCloud, IOptionPageOpenParma, IConfigInfo } from '@/utils/interface'
 // @ts-ignore
 import { v4 } from "uuid";
 import {eventToGoogle} from './analytics'
 
-export async function init() {
-    // console.log("bg_init")
+
+async function checkMainLang() {
     let mainLang = await getMainLang()
     if (!mainLang && navigator.language) {
         mainLang = navigator.language
-        setMainLang(navigator.language)
+        setMainLang(navigator.language, "init")
     }
-    eventToGoogle({
-        name: 'bg_init',
-        params: {
-            mainLang
-        }
-    })
-}
-
-export function openPDFReader(scene:"option"|"menu") {
-    const url = chrome.runtime.getURL("pdf_viewer/web/index.html")
-    chrome.tabs.create({url})
-    eventToGoogle({name: "open_pdf_reader", params: {scene}})
 }
 
 export function setTreadWord(treadWordInfo:any) {
@@ -167,13 +155,14 @@ export function getSecondLang(): Promise<string> {
     })
 }
 
-export function setMainLang(lang: string, initSet: boolean = false) {
+export function setMainLang(lang: string, scene: string) {
     chrome.storage.sync.set({ mainLang: lang })
-    if(!initSet) {
+    if(scene != "init") {
         eventToGoogle({
             name: 'setMainLang',
             params: {
-                lang
+                lang,
+                scene
             }
         })
     }
@@ -231,5 +220,105 @@ export function getOptionOpenParmas(): Promise<IOptionPageOpenParma | null> {
             resolve(result.optionPageOpenParmas)
             chrome.storage.sync.remove('optionPageOpenParmas')
         })
+    })
+}
+
+export class Install {
+    noFirstInstall() :Promise<boolean> {
+        checkMainLang()
+
+        return new Promise<boolean>((resolve, reject) => {
+            chrome.storage.sync.get(['noFirstInstall'], (result:any) => {
+                if (result.noFirstInstall) {
+                    eventToGoogle({
+                        name: "onInstall",
+                        params:{}
+                    })
+                    resolve(true)
+                } else {
+                    this.setInfo()
+                    // chrome.tabs.create({url:"https://www.jd.com"})
+                    eventToGoogle({
+                        name: "firstInstall",
+                        params:{}
+                    })
+                    resolve(false)
+                }
+            })
+        })
+    }
+
+    setInfo() {
+        chrome.storage.sync.set({noFirstInstall: true})
+    }
+}
+
+export function bgInit() {
+    chrome.storage.sync.get(['bgInit'], (res:any) => {
+        const now = new Date().valueOf()
+        if (res.bgInit) {
+            if (now - res.bgInit.lastToAnalytic < 1800000) return
+            chrome.storage.sync.set({
+                bgInit: {
+                    lastToAnalytic: new Date().valueOf()
+                }
+            })
+            eventToGoogle({
+                name: "bg_init",
+                params: {}
+            })
+        } else {
+            chrome.storage.sync.set({
+                bgInit: {
+                    lastToAnalytic: new Date().valueOf()
+                }
+            })
+            eventToGoogle({
+                name: "bg_init",
+                params: {}
+            })
+        }
+    })
+}
+
+export async function openPDFReader(scene:"option"|"actionMenu"|"openLink", link:string='') {
+    let url = chrome.runtime.getURL("pdf_viewer/web/index.html")
+    let openType = "none"
+    if(scene === 'actionMenu') {
+        link = await getCurrentTabUrl()
+    }
+    const len = link.length
+
+    if(len > 4) {
+        if(scene === 'openLink') {
+            url = url + "?url=" + link
+        } else if(link.substr(len-4) === ".pdf") {
+            url = url + "?url=" + link
+        }
+        const s = link.split('://')
+        if (s.length > 1) {
+            openType = s[0]
+        }
+    }
+
+    if(scene === 'openLink') {
+        window.location.href = url
+    } else {
+        chrome.tabs.create({url})
+    }
+    
+    eventToGoogle({name: "open_pdf_reader", params: {scene, openType}})
+}
+
+function getCurrentTabUrl() :Promise<string> {
+    return new Promise<string>((resolve) => {
+        chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+            const url = tabs[0].url;
+            if (url) {
+                resolve(url)
+            } else {
+                resolve("")
+            }
+        });
     })
 }

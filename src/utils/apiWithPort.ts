@@ -4,7 +4,6 @@ import { getAudioBase64 } from '../utils/tts'
 import { openOptionsPage, getTreadWord, setTreadWord } from '../utils/chromeApi'
 import { IRequestResult } from '@/utils/interface'
 import { eventToGoogle, eventToAnalytic } from './analytics'
-import { client, clientVersion } from '../config'
 
 const translator = new Translator();
 

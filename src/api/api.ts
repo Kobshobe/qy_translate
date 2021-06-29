@@ -1,6 +1,6 @@
 import { getTokenFromStorage, saveTokenInfo } from '../utils/chromeApi'
 import { Ref } from 'vue'
-import { Mode, client, clientVersion } from '../config'
+import { Mode, client } from '../config'
 import { IRequestResult, IQrLoginParams, ITokenInfo } from '@/utils/interface'
 import { eventToGoogle } from '../utils/analytics'
 
@@ -127,8 +127,8 @@ export async function serveBaseReq({ url, method, success, fail, data = {}, head
       }
     }
 
-    headers.c = client
-    headers.cv = clientVersion
+    headers.c = client.c
+    headers.cv = client.cv
 
     baseFetch({
       url: protocol + BaseUrl + url,

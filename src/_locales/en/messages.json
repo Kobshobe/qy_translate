@@ -4,7 +4,10 @@
         "description": "ext_name"
     },
     "extDesc": {
-        "message": "Minimalistic translation plugins, and provide WeChat small program, and efficiently learn efficient work anytime, anywhere!"
+        "message": "Translate selected text."
+    },
+    "sName": {
+        "message": "QY Translate"
     },
     "enterText": {
         "message": "Enter text"
@@ -103,7 +106,7 @@
         "message": "Share Link"
     },
     "contactUs": {
-        "message": "Contact Us"
+        "message": "Feedback"
     },
     "copyShareLink": {
         "message": "Sharing links have been copied"

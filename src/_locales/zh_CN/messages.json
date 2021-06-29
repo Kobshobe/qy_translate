@@ -4,7 +4,10 @@
         "description": "ext_name"
     },
     "extDesc": {
-        "message": "极简高效的划词翻译插件，并提供微信小程序端，随时随地高效学习高效工作！"
+        "message": "极简设计风格，可划词翻译，PDF翻译，有移动端收藏管理(学习利器)"
+    },
+    "sName": {
+        "message": "轻氧翻译"
     },
     "enterText": {
         "message": "请输入文本内容"
@@ -22,10 +25,10 @@
         "message": "划词翻译"
     },
     "needLogin": {
-        "message": "需要登录，是否前往登录？"
+        "message": "需要登录，是否前往登?"
     },
     "needRelogin": {
-        "message": "需要重新登录，是否前往登录？"
+        "message": "需要重新登录，是否前往登录?"
     },
     "scanQR": {
         "message": "扫码登录"
@@ -70,7 +73,7 @@
         "message": "微信扫码使用小程序管理"
     },
     "logged": {
-        "message": "已登录"
+        "message": "已登录，现在可以收藏翻译结果，并使用轻氧翻译小程序进行学习"
     },
     "logout": {
         "message": "退出登录"
@@ -103,7 +106,7 @@
         "message": "分享链接"
     },
     "contactUs": {
-        "message": "联系我们"
+        "message": "意见反馈"
     },
     "copyShareLink": {
         "message": "分享链接已复制"

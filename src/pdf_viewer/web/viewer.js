@@ -35,6 +35,21 @@ Object.defineProperty(exports, "__esModule", ({
 exports.OptionKind = exports.AppOptions = void 0;
 
 var _viewer_compatibility = __webpack_require__(2);
+function getPDFUrl() {
+  const query = window.location.search.substring(1);
+  const vars = query.split("&");
+  let url = ""
+  vars.forEach(v => {
+    const p = v.split("=")
+    if(p.length > 1 && p[0] == 'url') {
+      url = p[1]
+    } 
+  })
+  return url
+}
+
+const url = getPDFUrl()
+
 
 const OptionKind = {
   VIEWER: 0x02,
@@ -49,7 +64,7 @@ const defaultOptions = {
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE
   },
   defaultUrl: {
-    value: "", // ==================== defaultUrl open
+    value: url, // https://ebookimg.lorefree.com/assets/file/2020/08/23/004851/%E3%80%8A%E8%A5%BF%E6%B8%B8%E8%AE%B0%E3%80%8B%E7%9A%84%E8%AF%9E%E7%94%9F%20%E8%94%A1%E9%93%81%E9%B9%B0%E8%91%97.pdf
     kind: OptionKind.VIEWER
   },
   defaultZoomValue: {
@@ -2189,9 +2204,9 @@ let validateFileURL;
         protocol
       } = new URL(file, window.location.href);
 
-      if (origin !== viewerOrigin && protocol !== "blob:") {
-        throw new Error("file origin does not match viewer's");
-      }
+      // if (origin !== viewerOrigin && protocol !== "blob:") {
+      //   throw new Error("file origin does not match viewer's");
+      // }
     } catch (ex) {
       PDFViewerApplication.l10n.get("loading_error").then(msg => {
         PDFViewerApplication._documentError(msg, {

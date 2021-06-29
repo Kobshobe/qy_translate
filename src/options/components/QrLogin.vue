@@ -32,12 +32,11 @@
     </div>
 
     <div v-else-if="loginStatus === 'loginOk'">
-      <div class="qr-img-box">
-        <div class="text-desc">
-          <h1>{{ loggedMsg }}</h1>
-          <div style="height: 10px"></div>
-          <el-button plain @click="logout">{{ logoutMsg }}</el-button>
+      <div class="qr-logged">
+        <div class="logged-text">
+          {{ loggedMsg }}
         </div>
+        <el-button plain @click="logout">{{ logoutMsg }}</el-button>
       </div>
     </div>
   </div>
@@ -175,6 +174,22 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     font-size: 18px;
+  }
+
+  .qr-logged {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 370px;
+    .logged-text {
+      padding: 120px 0 30px 0;
+      font-size: 15px;
+      text-align: center;
+      color: #555;
+    }
+    ::v-deep(.el-button) {
+      width: 80px
+    }
   }
 }
 </style>

@@ -97,13 +97,6 @@ export interface IAnalyticEvent {
 
 }
 
-export interface IEventList {
-    name: string
-    client: string
-    clientVersion: string
-    eventList: any[]
-}
-
 export interface eventItem {
     name: string
     type: "wrap" | "single"
@@ -200,4 +193,12 @@ export interface IQrLoginParams {
 
 export interface IConfigInfo {
     isTreadWord?: boolean
+}
+
+export interface IClientInfo {
+    c: string
+    os: string
+    l: string
+    cv: string
+    st: string
 }

@@ -56,7 +56,7 @@ import { defineComponent, ref, inject } from "vue";
 import OptionItem from "./OptionItem.vue";
 import { languages } from "../../utils/translator";
 import { setMainLang, setSecondLang, getTreadWord, setTreadWord } from "@/utils/chromeApi";
-import { client } from "@/config";
+import { platform } from "@/config";
 
 export default defineComponent({
   setup() {
@@ -67,14 +67,14 @@ export default defineComponent({
     const secondLang = ref<string>("");
 
     let qrSrc = "";
-    if (client === "edge") {
+    if (platform === "edge") {
       qrSrc = "assets/images/qr_edge_option.png";
     } else {
       qrSrc = "assets/images/qr_chrome_option.png";
     }
 
     const changeMainLang = (lang: string) => {
-      setMainLang(lang);
+      setMainLang(lang, "optionSet");
     };
 
     const changeSecondLang = (lang: string) => {

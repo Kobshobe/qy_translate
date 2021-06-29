@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "description": "__MSG_extDesc__",
-  "version": "1.1.8",
+  "version": "1.2.0",
   "default_locale" : "en",
   "icons": {
     "16": "assets/images/logo.png",
@@ -17,7 +17,8 @@
     "storage",
     "http://*/*",
     "https://*/*",
-    "contextMenus"
+    "contextMenus",
+    "tabs"
   ],
   "browser_action": {
     "default_title": "phrase",

@@ -1,6 +1,6 @@
 <template>
   <div id="my-loading-box-wsrfhedsoufheqiwrhew">
-    <SvgIcon type="icon-jiazai" :size=size />
+    <SvgIcon type="icon-jiazaizhong" :size=size />
   </div>
 </template>
 

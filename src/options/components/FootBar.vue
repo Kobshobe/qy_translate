@@ -1,10 +1,10 @@
 <template>
   <div class="option-bottom">
+    <div class="bottom-text" @click="toIndex">{{sNameMsg}}</div>
+    <div style="width: 10px"></div>
     <div class="bottom-text" @click="toPDFReader" title="在图标右键菜单处也可以打开哦">{{PDFViewerMsg}}</div>
     <div style="width: 10px"></div>
     <div class="bottom-text" @click="toStore">{{appStoreMsg}}</div>
-    <div style="width: 10px"></div>
-    <div class="bottom-text" @click="copyShareUrl">{{shareLinkMsg}}</div>
     <div style="width: 10px"></div>
     <div class="bottom-text" @click="toGitHub">GitHub</div>
     <div style="width: 10px"></div>
@@ -15,14 +15,14 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { ElMessage } from "element-plus";
-import { storeUrl, client, clientVersion } from "../../config";
+import { storeUrl, client } from "../../config";
 import { eventToGoogle } from "../../utils/analytics";
 import {openPDFReader} from '@/utils/chromeApi'
 
 export default defineComponent({
   setup() {
     function toStore() {
-      window.open(`${storeUrl}?c=${client}&cv=${clientVersion}`);
+      window.open(`${storeUrl}?c=${client.c}&cv=${client.cv}`);
       eventToGoogle({
         name: "toStore",
         params: {
@@ -30,8 +30,6 @@ export default defineComponent({
         },
       });
     }
-
-    console.log(chrome.i18n.getMessage("@@ui_locale"))
 
     function toGitHub() {
       window.open(`https://github.com/Kobshobe/qy_translate`);
@@ -43,19 +41,11 @@ export default defineComponent({
       });
     }
 
-    function copyShareUrl() {
-      const tempInput = document.createElement("input");
-      tempInput.value = `${storeUrl}_share?c=${client}&cv=${clientVersion}`;
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      document.execCommand("copy");
-      document.body.removeChild(tempInput);
-      ElMessage.success({
-        message: chrome.i18n.getMessage("copyShareLink"),
-        type: "success",
-      });
+    function toIndex() {
+      window.open(`https://www.fishfit.fun:8080/p/web/home/option?c=${client.c}&cv=${client.cv}`);
+
       eventToGoogle({
-        name: "copyShareLink",
+        name: "optionToIndex",
         params: {locale: chrome.i18n.getMessage("@@ui_locale")},
       });
     }
@@ -66,18 +56,18 @@ export default defineComponent({
 
     const PDFViewerMsg = chrome.i18n.getMessage("PDFViewer")
     const appStoreMsg = chrome.i18n.getMessage("appStore")
-    const shareLinkMsg = chrome.i18n.getMessage("shareLink")
+    const sNameMsg = chrome.i18n.getMessage("sName")
     const contactUsMsg = chrome.i18n.getMessage("contactUs")
 
 
     return {
       toStore,
-      copyShareUrl,
+      toIndex,
       toGitHub,
       toPDFReader,
       PDFViewerMsg,
       appStoreMsg,
-      shareLinkMsg,
+      sNameMsg,
       contactUsMsg,
     };
   },
@@ -96,14 +86,14 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #aaa;
+  color: #777;
   font-size: 15px;
   .bottom-text {
     text-decoration: underline;
     cursor: pointer;
   }
   a:link {
-    color: #aaa;
+    color: #777;
   }
 }
 </style>

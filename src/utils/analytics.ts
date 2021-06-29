@@ -1,11 +1,11 @@
-import { IAnalyticEvent } from './interface'
-import { googleAnalytic, clientVersion, client, Mode, os } from '@/config'
-import { getClientId } from './chromeApi'
+import { IAnalyticEvent } from '@/utils/interface'
+import { googleAnalytic, client } from '@/config'
+import { getClientId } from '@/utils/chromeApi'
 
 
 export async function eventToGoogle(event: IAnalyticEvent) {
     const id = await getClientId()
-    Object.assign(event.params, {cv:clientVersion, c:client, st: navigator.userAgent, mode: Mode, os, uid: id})
+    Object.assign(event.params, {uid: id}, client)
     fetch(
         `https://www.google-analytics.com/mp/collect?measurement_id=${googleAnalytic.measurementId}&api_secret=${googleAnalytic.apiSecret}`,
         {

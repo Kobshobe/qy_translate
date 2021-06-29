@@ -1,0 +1,114 @@
+{
+    "extName": {
+        "message": "輕氧翻譯 - QY Translate",
+        "description": "ext_name"
+    },
+    "extDesc": {
+        "message": "極簡設計風格，可劃詞翻譯，PDF翻譯，有移動端收藏管理(學習利器)！"
+    },
+    "sName": {
+        "message": "輕氧翻譯"
+    },
+    "enterText": {
+        "message": "請輸入文本內容"
+    },
+    "moreOption": {
+        "message": "更多設置"
+    },
+    "copyOK": {
+        "message": "複製成功"
+    },
+    "treadWordOff": {
+        "message": "已關閉劃詞翻譯"
+    },
+    "treadWord": {
+        "message": "劃詞翻譯"
+    },
+    "needLogin": {
+        "message": "需要登錄，是否前往登錄?"
+    },
+    "needRelogin": {
+        "message": "需要重新登錄，是否前往登錄?"
+    },
+    "scanQR": {
+        "message": "掃碼登錄"
+    },
+    "collTooLong": {
+        "message": "內容字符超過500無法收藏哦~"
+    },
+    "subTrans": {
+        "message": "翻譯"
+    },
+    "reduceMark": {
+        "message": "取消標記"
+    },
+    "mark": {
+        "message": "標記"
+    },
+    "transExampple": {
+        "message": "例句"
+    },
+    "fetchErr": {
+        "message": "網絡開小差!"
+    },
+    "netErr": {
+        "message": "網絡開小差了!"
+    },
+    "optionTrans": {
+        "message": "翻譯設置"
+    },
+    "optionLogin": {
+        "message": "微信登錄"
+    },
+    "mainLang": {
+        "message": "我的主要語言:"
+    },
+    "secondLang": {
+        "message": "我的第二語言:"
+    },
+    "collManager": {
+        "message": "收藏管理:"
+    },
+    "weChatCollMana": {
+        "message": "微信掃碼使用小程序管理"
+    },
+    "logged": {
+        "message": "已登錄，現在可以收藏翻譯結果，並使用輕氧翻譯小程序進行學習"
+    },
+    "logout": {
+        "message": "退出登錄"
+    },
+    "loadingQR": {
+        "message": "二維碼加載中..."
+    },
+    "weChatScanQRToLogin": {
+        "message": "使用微信掃碼登錄"
+    },
+    "invalidQR": {
+        "message": "二維碼失效"
+    },
+    "clickToRefresh": {
+        "message": "點擊刷新"
+    },
+    "loadQRFail": {
+        "message": "二維碼加載失敗"
+    },
+    "clickReTry": {
+        "message": "點擊重試"
+    },
+    "PDFViewer": {
+        "message": "PDF閱讀器"
+    },
+    "appStore": {
+        "message": "應用市場"
+    },
+    "shareLink": {
+        "message": "分享鏈接"
+    },
+    "contactUs": {
+        "message": "意見反饋"
+    },
+    "copyShareLink": {
+        "message": "分享鏈接已復制"
+    }
+}

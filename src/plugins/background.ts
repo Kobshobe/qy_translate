@@ -1,15 +1,14 @@
 import apiWrap from '../utils/apiWithPort'
-import {init, openPDFReader} from '../utils/chromeApi'
+import {openPDFReader,Install, bgInit} from '../utils/chromeApi'
 import {eventToAnalytic, eventToGoogle} from "@/utils/analytics"
 
-init()
+bgInit()
 
 chrome.runtime.onConnect.addListener(function (port:chrome.runtime.Port) {
 
   port.onMessage.addListener(async function (msg: any) {
     // @ts-ignore
     apiWrap[port.name](msg, port)
-
   })
 })
 
@@ -20,23 +19,36 @@ chrome.runtime.onConnect.addListener(function (port:chrome.runtime.Port) {
 
 // 快捷键
 chrome.commands.onCommand.addListener(function (command: any) {
-  console.log('Conmmand', command)
+  // console.log('Conmmand', command)
 })
 
 chrome.runtime.onInstalled.addListener(() => {
-  const contextMenuItem:chrome.contextMenus.CreateProperties = {
-    id: "open_pdf_reader",
+  const pdfActionMenu:chrome.contextMenus.CreateProperties = {
+    id: "actionPdfReader",
     title: "PDF阅读器",
-    contexts: ["action"],
+    contexts: ["action", "browser_action"],
   }
-  chrome.contextMenus.create(contextMenuItem)
+  // const contextMenuItem:chrome.contextMenus.CreateProperties = {
+  //   id: "page_pdf_reader",
+  //   title: "PDF阅读器",
+  // }
+  chrome.contextMenus.create(pdfActionMenu)
+  // chrome.contextMenus.create(contextMenuItem)
+  const install = new Install()
+  install.noFirstInstall()
+})
 
+chrome.runtime.setUninstallURL("https://www.wenjuan.com/s/UZBZJvIxG6A/", () => {
+  eventToGoogle({
+    name: "uninstall",
+    params: {}
+  })
 })
 
 // 右键菜单点击
 chrome.contextMenus.onClicked.addListener(function (clickData) {
-  if(clickData.menuItemId === "open_pdf_reader") {
-    openPDFReader("menu")
+  if(clickData.menuItemId === "actionPdfReader") {
+    openPDFReader('actionMenu')
   }
 
 })

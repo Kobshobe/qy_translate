@@ -1,6 +1,27 @@
 <template>
   <div class="icon-box-wsrfhedsoufheqiwrhew">
     <svg
+      v-if="type === 'icon-jiazaizhong'"
+      t="1624979364393"
+      viewBox="0 0 1024 1024"
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      p-id="9490"
+      :width="size"
+      :height="size"
+    >
+      <path
+        d="M512 51.2C257.501867 51.2 51.2 257.501867 51.2 512S257.501867 972.8 512 972.8 972.8 766.498133 972.8 512c0-92.706133-27.477333-181.4528-78.165333-256.785067A460.322133 460.322133 0 0 0 512 51.2z m0 102.4c120.866133 0 231.458133 60.245333 297.6768 158.72A356.4544 356.4544 0 0 1 870.4 512c0 197.9392-160.4608 358.4-358.4 358.4S153.6 709.9392 153.6 512 314.0608 153.6 512 153.6z"
+        fill="#DBDBDB"
+        p-id="9491"
+      ></path>
+      <path
+        d="M512 51.2c155.3408 0 297.642667 77.482667 382.634667 204.014933a51.2 51.2 0 0 1-84.957867 57.105067A357.922133 357.922133 0 0 0 512 153.6a51.2 51.2 0 0 1 0-102.4z"
+        :fill="color"
+        p-id="9492"
+      ></path>
+    </svg>
+    <svg
       v-if="type === 'icon-shoucang1'"
       viewBox="0 0 1024 1024"
       version="1.1"
@@ -123,22 +144,6 @@
       ></path>
     </svg>
     <svg
-      v-else-if="type === 'icon-jiazai'"
-      :width="size"
-      :height="size"
-      t="1619364099503"
-      viewBox="0 0 1024 1024"
-      version="1.1"
-      xmlns="http://www.w3.org/2000/svg"
-      p-id="1189"
-    >
-      <path
-        d="M783.530667 783.530667L723.2 723.2A298.666667 298.666667 0 1 0 512 810.666667l0 85.33333301a384 384 0 1 1 271.530667-112.46933301z"
-        p-id="1190"
-        :fill="color"
-      ></path>
-    </svg>
-    <svg
       v-else-if="type === 'icon-refresh'"
       :width="size"
       :height="size"
@@ -253,7 +258,6 @@
     <svg
       v-else-if="type === 'icon-lishijilu'"
       t="1624003943202"
-      class="icon"
       viewBox="0 0 1024 1024"
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
