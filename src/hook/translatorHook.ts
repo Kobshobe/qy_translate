@@ -2,23 +2,15 @@ import { reactive, watch, computed, onMounted } from 'vue'
 import { ITransResult } from '@/utils/interface'
 import { newMarkManager, getMarkHtml } from '@/utils/mark'
 import apiWrap from '@/utils/apiWithPort'
-import { IRequestResult, ITranslateMsg, ITranslatorHook, Find, IAnalyticEvent, ITransInfo, IConfigInfo } from '@/utils/interface'
+import { IRequestResult, ITranslateMsg, ITranslatorHook, Find, IAnalyticEvent, IWrapTransInfo, IConfigInfo } from '@/utils/interface'
 import {isTreadWord} from '@/utils/chromeApi'
-
-
-const copyOKMsg = chrome.i18n.getMessage("copyOK")
-const treadWordOffMsg = chrome.i18n.getMessage("treadWordOff")
-const needLoginMsg = chrome.i18n.getMessage("needLogin")
-const needReloginMsg = chrome.i18n.getMessage("needRelogin")
-const scanQRMsg = chrome.i18n.getMessage("scanQR")
-const collTooLongMsg = chrome.i18n.getMessage("collTooLong")
 
 
 export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = false) {
     const translator: ITranslatorHook = reactive({
         mode,
         status: 'result',
-        editingText: ``,
+        editingText: `app`,
         lastFindText: '',
         show: false,
         find: new Find(''),
@@ -28,12 +20,16 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
         subIfram: undefined,
         dialogMsg: {
             show: false,
-            contentText: '',
+            message: '',
             confirmText: '',
             cancelText: '',
             confirmAction: undefined,
-            showDialog: (contentText, confirmText, cancelText, confirmAction) => {
-                translator.dialogMsg.contentText = contentText
+            showDialog: ({message, confirmText, cancelText, confirmAction, type}) => {
+                if (type === 'i18n') {
+                    translator.dialogMsg.message = chrome.i18n.getMessage(message)
+                } else {
+                    translator.dialogMsg.message = message
+                }
                 translator.dialogMsg.confirmText = confirmText
                 translator.dialogMsg.cancelText = cancelText
                 translator.dialogMsg.confirmAction = confirmAction
@@ -44,10 +40,15 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             show: false,
             msg: '',
             closeTimer: undefined,
-            showToast({ msg, duration = 1500 }) {
+            showToast({type, message, duration=1000}) {
                 clearTimeout(translator.toast.closeTimer)
                 translator.toast.show = false
-                translator.toast.msg = msg
+                if (type === 'i18n') {
+                    translator.toast.msg = chrome.i18n.getMessage(message)
+                    if(!translator.toast.msg) return
+                } else {
+                    translator.toast.msg = message
+                }
                 translator.toast.show = true
                 translator.toast.closeTimer = setTimeout(() => {
                     translator.toast.show = false
@@ -132,11 +133,14 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             isShow: false,
             from: '',
             to: '',
+            engine: '',
             close() {
                 translator.options.isShow = false
-                if (translator.options.from !== translator.find.result?.resultFrom || translator.options.to !== translator.find.result?.resultTo) {
+                if (
+                    translator.options.from !== translator.find.result?.resultFrom ||
+                    translator.options.to !== translator.find.result?.resultTo) {
                     // @ts-ignore
-                    translator.translateText({ text: translator.find.text, type: 'changeLang', from: translator.options.from, to: translator.options.to })
+                    translator.translateText({ text: translator.find.text, type: 'changeLang', from: translator.options.from, to: translator.options.to, findStatus: 'reLoading' })
                 }
             },
             openOptionsPage() {
@@ -147,24 +151,32 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
                 })
             },
             show() {
+                if(!translator.find.result) return
                 translator.options.isShow = true
-                translator.options.from = translator.find.result?.resultFrom
-                translator.options.to = translator.find.result?.resultTo
+                translator.options.from = translator.find.result.resultFrom
+                translator.options.to = translator.find.result.resultTo
+                translator.options.engine = translator.find.result.engine
                 translator.toAnalytics({name: "result_option_show", params: {}})
             },
             exchange() {
                 // [translator.options.from, translator.options.to,] = [translator.options.to,, translator.options.from,]
                 // @ts-ignore
-                translator.translateText({ text: translator.find.result.text, type: 'exchange', from: translator.options.to, to: translator.options.from })
+                translator.translateText({ text: translator.find.result.text, type: 'exchange', from: translator.options.to, to: translator.options.from, findStatus: 'reLoading' })
+                translator.options.isShow = false
+            },
+            changeEngine() {
+                // @ts-ignore
+                translator.translateText({ text: translator.find.text, type: 'changeEngine', from: translator.options.from, to: translator.options.to, findStatus: 'reLoading' })
                 translator.options.isShow = false
             }
         },
         configInfo: {
             isTreadWord: true,
+            engine: '',
             info: {},
             changeTreadWord() {
                 if(!translator.configInfo.isTreadWord) {
-                    translator.toast.showToast({msg: treadWordOffMsg})
+                    translator.toast.showToast({type: 'i18n', message: 'treadWordOff'})
                 }
                 translator.usePort({
                     name: "setTreadWord",
@@ -203,24 +215,27 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
         handleWebErr(msg) {
             if (!msg) return
             if (msg.errMsg === 'needLogin' || msg.errMsg === 'needRelogin') {
-                let text = needLoginMsg
-                if (msg.errMsg === 'needRelogin') {
-                    text = needReloginMsg
-                }
-                translator.dialogMsg.showDialog(text, scanQRMsg, '', () => {
+                // let text = needLoginMsg
+                // if (msg.errMsg === 'needRelogin') {
+                //     text = needReloginMsg
+                // }
+                translator.dialogMsg.showDialog({
+                    type: 'i18n',
+                    message: msg.errMsg,
+                    confirmText: chrome.i18n.getMessage('scanQR'),
+                    cancelText: '',
+                    confirmAction: () => {
                     translator.usePort({
                         name: 'openOptionsPage',
                         msg: { tab: 'login' },
                         onMsgHandle: () => { }
                     })
                     translator.dialogMsg.show = false
-                })
+                }})
             } else if (msg.toastMsg) {
-                translator.toast.showToast({ msg: msg.toastMsg })
+                translator.toast.showToast(msg.toastMsg)
             } else if (msg.serveToastMsg) {
-                translator.toast.showToast({
-                    msg: msg.serveToastMsg
-                })
+                translator.toast.showToast(msg.serveToastMsg)
             }
         },
         getMarkHtml() {
@@ -254,7 +269,7 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
         async collect({ success, fail }) {
             if (!translator.find.result) return
             if (translator.find.text.length > 500 || translator.find.result.text.length > 500) {
-                translator.toast.showToast({ msg: collTooLongMsg })
+                translator.toast.showToast({ type: 'i18n', message: 'collTooLong' })
                 fail?.call(translator)
                 return
             }
@@ -291,14 +306,29 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
 
             await translator.usePort({
                 name: 'translate',
-                msg:<ITransInfo> { text: find.text, from, to, type, mode },
+                msg:<IWrapTransInfo> { text: find.text, from, to, type, mode, engine:translator.options.engine },
                 onMsgHandle: (msg: IRequestResult) => {
-                    if (msg.errMsg) return
+                    console.log(msg)
+                    if (msg.errMsg) {
+                        translator.findStatus = 'none'
+                        return
+                    }
+                    if (!msg.data) {
+                        translator.findStatus = 'ok'
+                        return
+                    }
                     translator.find = find
                     translator.find.result = msg.data;
                     translator.marksList = []
                     translator.status = "result"
-                    translator.findStatus = 'ok'
+                    if(translator.findStatus === 'reLoading') {
+                        setTimeout(() => {
+                            translator.findStatus = 'ok'
+                        }, 300)
+                    } else {
+                        translator.findStatus = 'ok'
+                    }
+                    
                     translator.subTranslator.init()
 
                 }
@@ -362,7 +392,7 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             tempInput.select();
             document.execCommand("copy");
             document.body.removeChild(tempInput);
-            translator.toast.showToast({ msg: copyOKMsg, duration: 1000 })
+            translator.toast.showToast({ type: 'i18n', message: 'copyOK' })
             translator.eventToAnalytic({
                 name: 'copy_trans_result',
                 params: {

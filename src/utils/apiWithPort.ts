@@ -1,27 +1,25 @@
-import { collectResult, reduceCollect, updateMark } from '../api/api'
-import { Translator } from '../utils/translator'
-import { getAudioBase64 } from '../utils/tts'
-import { openOptionsPage, getTreadWord, setTreadWord } from '../utils/chromeApi'
-import { IRequestResult } from '@/utils/interface'
+import { collectResult, reduceCollect, updateMark } from '@/api/api'
+import { wrapTranslator } from '@/translator/transWrap'
+import { getAudioBase64 } from '@/translator/tts'
+import { openOptionsPage, getTreadWord, setTreadWord } from '@/utils/chromeApi'
+import { IRequestResult, IWrapTransInfo } from '@/utils/interface'
 import { eventToGoogle, eventToAnalytic } from './analytics'
 
-const translator = new Translator();
-
 const apiWrap = {
-  // ---------- 翻译
-  translate: async (msg: any, port: any) => {
-    const result: any = await translator.findUseApi(msg)
+  // ---------- trans
+  translate: async (msg: IWrapTransInfo, port: any) => {
+    const result: any = await wrapTranslator.trans(msg)
     return getRequestResultMsg({ port, res: result })
   },
-  // ---------- 收藏或标记收藏
+  // ---------- collect or mark collect
   collect: async (msg: any, port: any) => {
     return await HandleResultCanTest(collectResult, msg, port)
   },
-  // ---------- 取消收藏
+  // ---------- reduce collected
   reduceCollect: async (msg: any, port: any) => {
     return await HandleResultCanTest(reduceCollect, msg, port)
   },
-  // ---------- 更新标记
+  // ---------- update marks
   updateMark: async (msg: any, port: any) => {
     return await HandleResultCanTest(updateMark, msg, port)
   },

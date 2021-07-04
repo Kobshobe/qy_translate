@@ -1,5 +1,31 @@
 import {Ref} from 'vue'
 
+export interface IToastMsg {
+    type: 'normal'|'i18n'|'lang'
+    message: string
+    duration?: number
+}
+
+export interface IDialogMsg {
+    type: 'normal'|'i18n'|'lang'
+    message: string
+    confirmText: string
+    cancelText: string
+    confirmAction?: any
+}
+
+export interface IServerReqParams {
+    url: string
+    method: string
+    query?: any
+    success?: Function
+    fail?: Function
+    data?: any
+    headers?: any
+    auth: boolean
+    successStatusCode?: number[]
+}
+
 export class Find {
     text: string
     result: ITransResult | undefined
@@ -32,12 +58,13 @@ export interface ICollectResultMsg {
     tid: number
 }
 
-export interface ITransInfo {
+export interface IWrapTransInfo {
     text: string
     from: string
     to: string
     type: string
     mode: string
+    engine: string
 }
 
 
@@ -45,16 +72,19 @@ export interface IRequestResult {
     errMsg: string
     data?: any
     status?: number
-    toastMsg?: string
-    serveToastMsg?: string
+    toastMsg?: IToastMsg
+    serveToastMsg?: IToastMsg
 }
 
 export interface ITransResult {
     text: string
     resultFrom: string
     resultTo: string
-    pronunciation: string
-    data: any
+    engine: string
+    translit?: string
+    srcTranslit?: string
+    data?: any
+    domain?: string
 }
 
 export interface ITransResultFromApi {
@@ -110,32 +140,33 @@ export interface ITranslateMsg {
     from?: string
     to?: string
     findStatus?: 'loading'|undefined
+    engine?: string
 }
 
 export interface ITranslatorHook {
     mode: 'resultOnly'|'popup'|'pdf'
     status: 'result' | 'editing'
-    editingText: string,
-    lastFindText: string,
-    show: boolean,
-    find: Find,
-    findStatus: 'none' | 'ok' | 'loading' | 'reLoad',
-    fromIframe: any,
-    toIframe: any,
-    subIfram: any,
+    editingText: string
+    lastFindText: string
+    show: boolean
+    find: Find
+    findStatus: 'none' | 'ok' | 'loading' | 'reLoading'
+    fromIframe: any
+    toIframe: any
+    subIfram: any
     dialogMsg: {
         show: boolean
-        contentText: string
+        message: string
         confirmText: string
         cancelText: string
         confirmAction: any
-        showDialog(contentText: string, confirmText: string, cancelText: string, confirmAction: any): void
+        showDialog(dialogMsg:IDialogMsg): void
     }
     toast: {
         show: boolean
         msg: string
         closeTimer: any
-        showToast({ msg, duration }: { msg: string, duration?: number }): void
+        showToast(toastMsg:IToastMsg): void
     }
     marksList: any[]
     canReduceMark: boolean
@@ -158,6 +189,7 @@ export interface ITranslatorHook {
         isShow: boolean
         from: string|undefined
         to: string|undefined
+        engine: string
         close():void
         openOptionsPage():void
         show() :void
@@ -165,17 +197,18 @@ export interface ITranslatorHook {
     }
     configInfo: {
         isTreadWord: boolean
+        engine: string
         info: IConfigInfo|{}
         getTreadWord() :void
         changeTreadWord() :void
     }
     usePort({ name, msg, onMsgHandle }: { name: string, msg: any, onMsgHandle: Function }): void
     handleWebErr(msg: IRequestResult): void
-    getMarkHtml(): void
+    getMarkHtml(): string
     updateMark({ success, fail, info }: { success: Function, fail: Function, info: {marks: string, tid: number } }): void
     reduceCollect(): void
     collect({ success, fail }: { success?: Function, fail?: Function }): void
-    translateText({ text, from, to, type, findStatus }: ITranslateMsg): void
+    translateText({ text, from, to, type, findStatus, engine }: ITranslateMsg): void
     translateFromEdit(e: any): void
     getTTS(audioType: string, id: string): void
     clear(): void
@@ -201,4 +234,9 @@ export interface IClientInfo {
     l: string
     cv: string
     st: string
+}
+
+export interface IBDDMTransResult {
+    result: string[]
+    from: string
 }

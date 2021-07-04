@@ -21,6 +21,9 @@
     "treadWordOff": {
         "message": "Select text translate off"
     },
+    "isPronunciation": {
+        "message": "Show Pronunciation"
+    },
     "treadWord": {
         "message": "Select text translate"
     },

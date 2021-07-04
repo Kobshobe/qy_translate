@@ -5,7 +5,7 @@
     @click="translator.dialogMsg.show = false"
   >
     <div class="dialog-content-box-wsrfhedsoufheqiwrhew" @click.stop="">
-      <div class="content-text-wsrfhedsoufheqiwrhew">{{translator.dialogMsg.contentText}}</div>
+      <div class="content-text-wsrfhedsoufheqiwrhew">{{translator.dialogMsg.message}}</div>
       <div class="dialog-control-bar-wsrfhedsoufheqiwrhew">
         <div class="cancel-wsrfhedsoufheqiwrhew" @click="translator.dialogMsg.show = false">{{translator.dialogMsg.cancelText}}</div>
         <div class="comfirm-wsrfhedsoufheqiwrhew" @click="translator.dialogMsg.confirmAction">{{translator.dialogMsg.confirmText}}</div>

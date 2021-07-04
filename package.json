@@ -10,7 +10,9 @@
     "bg": "export NODE_ENV=production && webpack",
     "bg:watch": "export NODE_ENV=development && webpack --watch",
     "test": "jest --verbose",
-    "test:watch": "jest --watchAll"
+    "test:watch": "jest --watchAll",
+    "test:marks": "jest --watch -f src/test/mark.test.ts",
+    "test:bdd": "jest --watch -f baiduDomainTrans.test.ts"
   },
   "test": {
     "presets": [
@@ -19,6 +21,7 @@
   },
   "dependencies": {
     "@pdftron/webviewer": "^7.3.2",
+    "axios-chrome-messaging-adapter": "^0.5.0",
     "core-js": "^3.6.5",
     "element-plus": "^1.0.2-beta.41",
     "franc": "^5.0.0",
@@ -55,6 +58,7 @@
     "google-tts-api": "^2.0.2",
     "html-webpack-plugin": "4.0.0-alpha",
     "jest": "^26.6.3",
+    "jest-chrome": "^0.7.1",
     "node-fetch": "^2.6.1",
     "node-sass": "^5.0.0",
     "sass-loader": "10.1.0",

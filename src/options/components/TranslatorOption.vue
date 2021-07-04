@@ -1,8 +1,38 @@
 <template>
-  <OptionItem :title="`${treadWordMsg}:`">
-    <el-switch v-model="optionPageHook.configInfo.isTreadWord" active-color="#4C8BF5" @change="optionPageHook.configInfo.changeTreadWord"></el-switch>
-  </OptionItem>
-  <div class="lang-option">
+  <div class="colume-option">
+    <OptionItem :title="`${'默认翻译来源'}:`">
+      <el-select
+        v-model="transEngine"
+        placeholder="请选择"
+        @change="setTransEngine(transEngine)"
+        :filterable="false"
+        size="medium"
+      >
+        <el-option-group
+          v-for="group in engines"
+          :key="group.name"
+          :label="group.name"
+        >
+          <el-option
+            v-for="(engine, key, index) in group.engines"
+            :key="index"
+            :label="engine.name"
+            :value="engine.code"
+          >
+          </el-option>
+        </el-option-group>
+      </el-select>
+    </OptionItem>
+    <OptionItem :title="`${treadWordMsg}:`">
+      <el-switch
+        v-model="optionPageHook.configInfo.isTreadWord"
+        active-color="#4C8BF5"
+        @change="optionPageHook.configInfo.changeTreadWord"
+      ></el-switch>
+    </OptionItem>
+  </div>
+
+  <div class="colume-option">
     <OptionItem :title="mainLangMsg">
       <el-select
         v-model="mainLang"
@@ -12,16 +42,15 @@
         size="medium"
       >
         <el-option
-          v-for="(value, key, index) in languages"
+          v-for="(lang, key, index) in languages"
           :key="index"
-          :label="value"
+          :label="lang['zh-CN']"
           :value="key"
           v-show="key !== 'auto'"
         >
         </el-option>
       </el-select>
     </OptionItem>
-    <div style="width: 150px"></div>
     <OptionItem
       v-if="mainLang === 'zh-CN' || mainLang === 'zh-TW'"
       :title="secondLangMsg"
@@ -34,9 +63,9 @@
         size="medium"
       >
         <el-option
-          v-for="(value, key, index) in languages"
+          v-for="(lang, key, index) in languages"
           :key="index"
-          :label="value"
+          :label="lang['zh-CN']"
           :value="key"
           v-show="key !== 'auto'"
         >
@@ -46,7 +75,7 @@
   </div>
 
   <OptionItem :title="collManagerMsg">
-    <div style="padding-bottom: 20px">{{weChatCollManaMsg}}</div>
+    <div style="padding-bottom: 20px">{{ weChatCollManaMsg }}</div>
     <img class="to-min-qr" :src="qrSrc" alt="" />
   </OptionItem>
 </template>
@@ -54,17 +83,24 @@
 <script lang="ts">
 import { defineComponent, ref, inject } from "vue";
 import OptionItem from "./OptionItem.vue";
-import { languages } from "../../utils/translator";
-import { setMainLang, setSecondLang, getTreadWord, setTreadWord } from "@/utils/chromeApi";
+import { languages, engines } from "@/translator/language";
+import {
+  setMainLang,
+  setSecondLang,
+  getTreadWord,
+  setTreadWord,
+  setTransEngine,
+} from "@/utils/chromeApi";
 import { platform } from "@/config";
 
 export default defineComponent({
   setup() {
-    const optionPageHook = inject('optionPageHook')
-    const isTreadWord = ref(false)
+    const optionPageHook = inject("optionPageHook");
+    const isTreadWord = ref(false);
 
     const mainLang = ref<string>("");
     const secondLang = ref<string>("");
+    const transEngine = ref<string>("");
 
     let qrSrc = "";
     if (platform === "edge") {
@@ -81,35 +117,48 @@ export default defineComponent({
       setSecondLang(lang);
     };
 
-    chrome.storage.sync.get(["mainLang", "secondLang"], (result: any) => {
-      if (result.mainLang) mainLang.value = result.mainLang;
-      if (result.secondLang) {
-        secondLang.value = result.secondLang;
-      } else {
-        secondLang.value = "en";
+    chrome.storage.sync.get(
+      ["mainLang", "secondLang", "transEngine"],
+      (result: any) => {
+        if (result.mainLang) mainLang.value = result.mainLang;
+        if (result.secondLang) {
+          secondLang.value = result.secondLang;
+        } else {
+          secondLang.value = "en";
+        }
+        if (result.transEngine) {
+          transEngine.value = result.transEngine;
+        } else {
+          transEngine.value = "ggTrans__";
+        }
       }
-    });
+    );
 
-    const treadWordMsg = chrome.i18n.getMessage("treadWord")
-    const mainLangMsg = chrome.i18n.getMessage("mainLang")
-    const secondLangMsg = chrome.i18n.getMessage("secondLang")
-    const collManagerMsg = chrome.i18n.getMessage("collManager")
-    const weChatCollManaMsg = chrome.i18n.getMessage("weChatCollMana")
+    const treadWordMsg = chrome.i18n.getMessage("treadWord");
+    const mainLangMsg = chrome.i18n.getMessage("mainLang");
+    const secondLangMsg = chrome.i18n.getMessage("secondLang");
+    const collManagerMsg = chrome.i18n.getMessage("collManager");
+    const weChatCollManaMsg = chrome.i18n.getMessage("weChatCollMana");
+    // const isPronunciationMsg = chrome.i18n.getMessage("isPronunciation");
 
     return {
       optionPageHook,
       languages,
+      engines,
       mainLang,
       secondLang,
+      transEngine,
       changeMainLang,
       changeSecondLang,
+      setTransEngine,
       qrSrc,
       isTreadWord,
       treadWordMsg,
       mainLangMsg,
       secondLangMsg,
       collManagerMsg,
-      weChatCollManaMsg
+      weChatCollManaMsg,
+      // isPronunciationMsg
     };
   },
   components: {
@@ -120,7 +169,7 @@ export default defineComponent({
 
 
 <style scoped lang='scss'>
-.lang-option {
+.colume-option {
   display: flex;
   flex-wrap: nowrap;
 }

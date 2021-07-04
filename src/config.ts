@@ -1,27 +1,10 @@
 import {IClientInfo} from '@/utils/interface'
-export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
-export const clientVersion = "1.2.0"
+export const Mode:'test'|'jest'|'public'|'public_test' = 'jest'
+export const clientVersion = "1.2.1"
 export const platform:'chrome'|'edge'|'crx'|'crx_v2'|'_test' = "_test"
 export const client:IClientInfo = getClient()
 export const os:'mac'|'windows'|'linux'|'unknow' = getOS()
 export const storeUrl = 'https://www.fishfit.fun:8080/p/web/download/option'
-
-const tokenInfo = {
-    token: '..-',
-    saveTime: new Date().getTime(),
-    liveTime: 100000000000,
-    openid: "testopenid"
-}
-
-export let TestTokenInfo:any = tokenInfo
-
-export function setTestTokenToNull(logout:boolean) {
-    if(logout) {
-        TestTokenInfo = null
-    } else {
-        TestTokenInfo = tokenInfo
-    }
-}
 
 export const googleAnalytic = {
     measurementId: `G-4XZ65P0G94`,

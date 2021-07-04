@@ -24,6 +24,9 @@
     "treadWord": {
         "message": "劃詞翻譯"
     },
+    "isPronunciation": {
+        "message": "顯示音標"
+    },
     "needLogin": {
         "message": "需要登錄，是否前往登錄?"
     },

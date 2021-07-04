@@ -8,11 +8,12 @@
         :popperAppendToBody="true"
         @visibleChange="popupVisibleChange($event, 'fromLangPopup-wsrfhedsoufheqiwrhew')"
         popperClass="fromLangPopup-wsrfhedsoufheqiwrhew"
+        @change="translator.options.close"
       >
         <el-option
-          v-for="(value, key, index) in languages"
+          v-for="(lang, key, index) in languages"
           :key="index"
-          :label="value"
+          :label="lang['zh-CN']"
           :value="key"
         >
         </el-option>
@@ -25,15 +26,42 @@
         :popperAppendToBody="true"
         @visibleChange="popupVisibleChange($event, 'toLangPopup-wsrfhedsoufheqiwrhew')"
         popperClass="toLangPopup-wsrfhedsoufheqiwrhew"
+        @change="translator.options.close"
       >
         <el-option
-          v-for="(value, key, index) in languages"
+          v-for="(lang, key, index) in languages"
           :key="index"
-          :label="value"
+          :label="lang['zh-CN']"
           :value="key"
           v-show="key !== 'auto'"
         >
         </el-option>
+      </el-select>
+
+      <!-- 翻译源 -->
+      <div style="height: 1px; width: 100%; background-color: #e4e7ed" @click.stop=""></div>
+      <el-select
+        placeholder="请选择"
+        :filterable="false"
+        v-model="translator.options.engine"
+        :popperAppendToBody="true"
+        @visibleChange="popupVisibleChange($event, 'enginePopup-wsrfhedsoufheqiwrhew')"
+        popperClass="enginePopup-wsrfhedsoufheqiwrhew"
+        @change="translator.options.changeEngine"
+      >
+        <el-option-group
+          v-for="group in engines"
+          :key="group.name"
+          :label="group.name"
+        >
+          <el-option
+            v-for="(engine, key, index) in group.engines"
+            :key="index"
+            :label="engine.name"
+            :value="engine.code"
+          >
+          </el-option>
+        </el-option-group>
       </el-select>
       <div style="height: 1px; width: 100%; background-color: #e4e7ed"></div>
       <div class="more-option-wsrfhedsoufheqiwrhew" @click="translator.options.openOptionsPage">{{moreMsg}}</div>
@@ -44,8 +72,8 @@
 <script lang="ts">
 import { defineComponent, ref, inject, watchEffect, Ref } from "vue";
 import IconBtn from "../base/IconBtn.vue";
-import { languages } from "@/utils/translator";
-import {ITranslatorHook} from '@/utils/interface'
+import { languages, engines } from "@/translator/language";
+import {ITranslatorHook} from '@/utils/interface';
 
 export default defineComponent({
   setup() {
@@ -79,6 +107,7 @@ export default defineComponent({
 
     return {
       languages,
+      engines,
       translator,
       popupVisibleChange,
       moreMsg

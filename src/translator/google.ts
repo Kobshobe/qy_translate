@@ -1,21 +1,9 @@
-import { getMainLang, getSecondLang } from './chromeApi'
-import {IRequestResult, ITransResult, ITransResultFromApi, ITransInfo} from '@/utils/interface'
-import {eventToGoogle, getTextLimit} from './analytics'
-import {calcHash} from './tk'
-
-
-class Find {
-  text: string
-  result: ITransResult | undefined
-  isCollected: boolean
-  tid: number | null
-  constructor() {
-      this.text = ""
-      this.result = undefined
-      this.isCollected = false
-      this.tid = null
-  }
-}
+import {BaseTrans} from '@/translator/share'
+import { getMainLang, getSecondLang } from '@/utils/chromeApi'
+import {IRequestResult, ITransResult, ITransResultFromApi,IWrapTransInfo} from '@/utils/interface'
+import {eventToGoogle, getTextLimit} from '@/utils/analytics'
+import {calcHash} from '@/translator/tk'
+import { BaiduTrans } from './baiduDomainTrans'
 
 class TkAndClient {
   ttkList = ["444444.1050258596", "445678.1618007056", "445767.3058494238", "444000.1270171236", "445111.1710346305"]
@@ -37,14 +25,14 @@ class TkAndClient {
   }
 }
 
-export class Translator {
-
+export class GoogleTrans extends BaiduTrans {
+  
   tkTool = new TkAndClient()
-  // delectLangs = ['en', 'ru', 'ja', 'de', 'fr', 'es', 'pt', 'it', 'tr', 'ar', 'ko', 'th', 'ms', 'vi']
 
-  // constructor() {
-
-  // }
+  constructor() {
+    super()
+    this.maxLenght = 50000
+  }
 
   getParamsUrlPart(data:Object) :string {
     return Object.keys(data).map(function (key) {
@@ -53,17 +41,14 @@ export class Translator {
     }).join("&")
   }
 
-  async findUseApi({text, from='', to='', type, mode}:ITransInfo) :Promise<IRequestResult> {
+  async trans({text, from, to, type, mode}:IWrapTransInfo) :Promise<IRequestResult> {
+
+    const tooLongErr = this.checkTextLen(text)
+    if(tooLongErr) {
+      return tooLongErr
+    }
 
     const baseUrl = 'https://translate.googleapis.com/translate_a/single'
-
-    if (from === '') {
-      from = 'auto'
-    }
-
-    if (to === '' || to === 'auto') {
-      to = await this.autoGetLang(text, from, to)
-    }
 
     /*
     [dt代表]
@@ -80,7 +65,7 @@ export class Translator {
     ld:
     */
 
-    const dtPramas = type === 'sub' ? 'dt=rm&dt=ex&dt=bd&' : ''
+    const dtPramas = type === 'sub' ? 'dt=rm&dt=ex&dt=bd&' : 'dt=rm&'
     
     const paramsData = {
       client: 'webapp',
@@ -92,38 +77,56 @@ export class Translator {
     }
 
     const realUrl = baseUrl + '?' + dtPramas + this.getParamsUrlPart(paramsData) + this.tkTool.getTk(text)
-    // this.tkTool.next()
-    // console.log(realUrl) 
     const start = new Date().getTime()
     let errRes:IRequestResult|undefined = undefined;
 
-    const find = await fetch(realUrl)
+    let find:Response|undefined = undefined;
+    try {
+      find = await fetch(realUrl)
+    } catch {
+      if (!find) {
+        return <IRequestResult>{
+          errMsg: 'unkown err!',
+          toastMsg: {
+            type: 'i18n',
+            message: '__fetchErr__'
+          }
+        }
+      }
+    }
+    
     const cost = new Date().getTime() - start
-    const body = await find.text()
     if(find.status !== 200) {
       console.log('trans err')
       if(find.status == 429) {
         errRes = {
           status: find.status,
           errMsg: 'gl_trans_err_429',
-          toastMsg: '请求出错'
+          toastMsg: {
+            type: 'i18n',
+            message: '__reqErr__'
+          }
         }
       } else if (find.status === 403) {
         errRes = {
           status: find.status,
           errMsg: 'gl_trans_err_403',
-          toastMsg: '请求出错'
+          toastMsg: {
+            type: 'i18n',
+            message: '__reqErr__'
+          }
         }
       } else {
         errRes = {
           status: find.status,
           errMsg: `gl_trans_bad_${find.status}`,
-          toastMsg: '网络出错！'
+          toastMsg: {
+            type: 'i18n',
+            message: '__reqErr__'
+          }
         }
       }
     }
-
-
 
     if(errRes) {
       eventToGoogle({
@@ -141,29 +144,33 @@ export class Translator {
           trans_mode: mode
         }
       })
-      console.log(this.tkTool.client, this.tkTool.ttk, realUrl)
       this.tkTool.next()
       return errRes
     }
+
+    const body = await find.text()
 
     const jsonBody:ITransResultFromApi = JSON.parse(body)
     const result:ITransResult = {
       text: '',
       resultFrom: jsonBody.src,
       resultTo: to,
-      pronunciation: '',
-      data: jsonBody
+      translit: '',
+      srcTranslit: '',
+      data: jsonBody,
+      engine: 'ggTrans__'
     }
-    if(type === 'sub') {
+    // if(type === 'sub') {
       jsonBody.sentences.slice(0, -1).forEach((s:any) => {
         result.text += s.trans
       })
-      result.pronunciation = jsonBody.sentences.slice(-1)[0].src_translit
-    } else {
-      jsonBody.sentences.forEach((s:any) => {
-        result.text += s.trans
-      })
-    }
+      result.srcTranslit = jsonBody.sentences.slice(-1)[0].src_translit
+      result.translit = jsonBody.sentences.slice(-1)[0].translit
+    // } else {
+    //   jsonBody.sentences.forEach((s:any) => {
+    //     result.text += s.trans
+    //   })
+    // }
     eventToGoogle({
       name: 'google_trans',
       params: {

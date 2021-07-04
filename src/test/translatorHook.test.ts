@@ -1,6 +1,7 @@
 global.fetch = require('node-fetch');
-import {translatorHook} from '../hook/translatorHook'
-import {Mode, setTestTokenToNull} from '@/config'
+import {translatorHook} from '@/hook/translatorHook'
+import {Mode} from '@/config'
+import {removeTokenInfo} from '@/utils/chromeApi'
 
 test('hook test translate',async () => {
     // expect.assertions(4)
@@ -49,7 +50,7 @@ test('hook test translate',async () => {
     expect(trans.find.isCollected).toBe(false)
 
     // 未登录点收藏
-    setTestTokenToNull(true)
+    removeTokenInfo(()=> {})
     trans.subTranslator.selectRange = [0,3] // 客户选取了前面3个字符'app'
     trans.subTranslator.selectText = trans.find.text.slice(0, 3)
     trans.subTranslator.bookMark()
@@ -62,7 +63,8 @@ test('hook test translate',async () => {
     expect(trans.dialogMsg.confirmText).toBe('扫码登录')
 
     // 子翻译 app
-    setTestTokenToNull(false)
+    //@ts-ignore
+    chrome.setTestToken()
     trans.subTranslator.selectRange = [0,3] // 客户选取了前面3个字符'app'
     trans.subTranslator.selectText = trans.find.text.slice(0, 3)
     await trans.subTranslator.translate()
@@ -70,22 +72,22 @@ test('hook test translate',async () => {
     expect(trans.subTranslator.resultData?.text).toBe('应用程序')
 })
 
-// test('sub trans test', async () => {
-//     const trans = translatorHook('popup', true)
-//     // 翻译
-//     trans.editingText = 'look This'
-//     expect(trans.editingText).toBe('look This')
-//     await trans.translateText({text:'look This', from:'en', to:'zh-CN', type: 'test'})
-//     expect(trans.find.result?.text).toBe('看看这个')
+test('sub trans test', async () => {
+    const trans = translatorHook('popup', true)
+    // 翻译
+    trans.editingText = 'look This'
+    expect(trans.editingText).toBe('look This')
+    await trans.translateText({text:'look This', from:'en', to:'zh-CN', type: 'test'})
+    expect(trans.find.result?.text).toBe('看看这个')
 
-//     // 子翻译
-//     trans.subTranslator.selectRange = [0,4] // 客户选取了前面4个字符'look'
-//     trans.subTranslator.selectText = trans.find.text.slice(0, 4)
-//     await trans.subTranslator.translate()
-//     expect(trans.subTranslator.status).toBe('result')
-//     expect(trans.subTranslator.resultData?.text).toBe('看')
-//     expect(trans.subTranslator.resultData?.pronunciation).not.toBe('')
-//     expect(trans.subTranslator.resultData?.pronunciation).not.toBe(undefined)
-//     expect(trans.subTranslator.resultData?.data.dict.length).toBe(2)
-//     expect(trans.subTranslator.resultData?.data.examples.example.length).toBeGreaterThan(2)
-// })
+    // 子翻译
+    trans.subTranslator.selectRange = [0,4] // 客户选取了前面4个字符'look'
+    trans.subTranslator.selectText = trans.find.text.slice(0, 4)
+    await trans.subTranslator.translate()
+    expect(trans.subTranslator.status).toBe('result')
+    expect(trans.subTranslator.resultData?.text).toBe('看')
+    expect(trans.subTranslator.resultData?.srcTranslit).not.toBe('')
+    expect(trans.subTranslator.resultData?.srcTranslit).not.toBe(undefined)
+    expect(trans.subTranslator.resultData?.data.dict.length).toBe(2)
+    expect(trans.subTranslator.resultData?.data.examples.example.length).toBeGreaterThan(2)
+})

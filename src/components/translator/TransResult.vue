@@ -42,6 +42,7 @@
           />
         </div>
         <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
+          <Loading v-if="translator.findStatus === 'reLoading'" />
           <IconBtn
             type="icon-gengduo1"
             iconSize="17"
@@ -59,6 +60,7 @@ import { defineComponent, inject } from "vue";
 import IconBtn from "../base/IconBtn.vue";
 import SoundBtn from "./SoundBtn.vue";
 import CollectBtn from "./CollectBtn.vue";
+import Loading from '@/components/base/Loading.vue'
 import Options from "./Options.vue";
 import SubTranslator from "./SubTranslator.vue";
 import FindText from "./FindText.vue";
@@ -79,6 +81,7 @@ export default defineComponent({
     Options,
     SubTranslator,
     FindText,
+    Loading,
   },
 });
 </script>

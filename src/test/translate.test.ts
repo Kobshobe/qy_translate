@@ -1,9 +1,9 @@
 global.fetch = require('node-fetch');
 
-import { Translator } from '../utils/translator'
+import { GoogleTrans } from '@/translator/google'
 
 
-const translator = new Translator()
+const translator = new GoogleTrans()
 
 function delay(second:number) {
     return new Promise((resolve) => {
@@ -14,7 +14,7 @@ function delay(second:number) {
 jest.setTimeout(40000);
 
 test('translate text test', async (done) => {
-    const msg = await translator.findUseApi({text:'apple', from:'', to:'zh-CN', type: '', mode: ''})
+    const msg = await translator.trans({text:'apple', from:'', to:'zh-CN', type: '', mode: '', engine: ''})
     expect(msg.errMsg).toBe('')
     expect(msg.data.resultFrom).toEqual('en')
     expect(msg.data.text).toEqual('苹果')

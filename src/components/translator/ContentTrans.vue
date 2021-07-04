@@ -74,7 +74,7 @@
     v-if="
       resultStyle.hold ||
       translator.findStatus === 'ok' ||
-      translator.findStatus === 'reLoad'
+      translator.findStatus === 'reLoading'
     "
     ref="resultDOM"
     class="result"
@@ -179,9 +179,7 @@ export default defineComponent({
           e.path.some((elm: any) => {
             if (typeof elm.className === "string") {
               if (
-                elm.className.indexOf("fromLangPopup-wsrfhedsoufheqiwrhew") !==
-                  -1 ||
-                elm.className.indexOf("toLangPopup-wsrfhedsoufheqiwrhew") !== -1
+                elm.className.indexOf("wsrfhedsoufheqiwrhew") !== -1
               ) {
                 out = false;
                 return true;

@@ -2,7 +2,10 @@
   <div class="text-scroll-box-wsrfhedsoufheqiwrhew" ref="foundScrollDOM">
     <div v-if="mode === 'foundText'" class="found-box-wsrfhedsoufheqiwrhew">
       <div
-        class="text-style-wsrfhedsoufheqiwrhew found-text-box-wsrfhedsoufheqiwrhew"
+        class="
+          text-style-wsrfhedsoufheqiwrhew
+          found-text-box-wsrfhedsoufheqiwrhew
+        "
         v-on:mouseup.stop="findTextMouseup"
       >
         {{ translator.find.text }}
@@ -10,27 +13,57 @@
 
       <div
         v-if="mode === 'foundText'"
-        class="text-style-wsrfhedsoufheqiwrhew mark-text-box-wsrfhedsoufheqiwrhew"
+        class="
+          text-style-wsrfhedsoufheqiwrhew
+          mark-text-box-wsrfhedsoufheqiwrhew
+        "
         v-html="markHtml"
       ></div>
     </div>
-    <div v-else class="text-style-wsrfhedsoufheqiwrhew result-text-box-wsrfhedsoufheqiwrhew">
+    <div
+      v-else
+      class="
+        text-style-wsrfhedsoufheqiwrhew
+        result-text-box-wsrfhedsoufheqiwrhew
+      "
+    >
       {{ translator.find.result?.text }}
     </div>
+    <!-- <div
+      v-if="mode === 'foundText' && translator.find.result.srcTranslit && localeLang !== translator.find.result.resultFrom"
+      class="
+        result-text-box-wsrfhedsoufheqiwrhew
+        pronunciation-wsrfhedsoufheqiwrhew
+      "
+    >
+      [{{ translator.find.result.srcTranslit }}]
+    </div>
+    <div
+      v-else-if="mode === 'resultText' && translator.find.result?.translit && localeLang !== translator.find.result.resultTo"
+      class="
+        result-text-box-wsrfhedsoufheqiwrhew
+        pronunciation-wsrfhedsoufheqiwrhew
+      "
+    >
+      [{{ translator.find.result.translit }}]
+    </div> -->
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, inject, watch, ref } from "vue";
+import { ITranslatorHook } from "@/utils/interface";
 
 export default defineComponent({
   props: {
-    mode: String,
+    mode: String, // foundText, resultText
   },
   setup(props) {
-    const translator = inject<any>("translator");
+    const translator = <ITranslatorHook>inject("translator");
     const markHtml = ref("");
     const foundScrollDOM = ref<any | null>(null);
+    const localeLang = navigator.language
+
     markHtml.value = translator.getMarkHtml();
 
     const findTextMouseup = (e: any) => {
@@ -56,7 +89,7 @@ export default defineComponent({
       }
     );
 
-    return { translator, markHtml, findTextMouseup, foundScrollDOM };
+    return { translator, markHtml, findTextMouseup, foundScrollDOM, localeLang };
   },
 });
 </script>
@@ -75,7 +108,7 @@ $foundPaddingTop: 0;
   overflow-x: hidden;
   overflow-y: visible;
   ::selection {
-    background: #B4D7FF;
+    background: #b4d7ff;
     color: black;
   }
   ::v-deep(.mark-text-wsrfhedsoufheqiwrhew) {
@@ -102,7 +135,6 @@ $foundPaddingTop: 0;
     padding: 0 $transEdgePadding 0 $transEdgePadding;
     line-height: 25px;
     color: black;
-
   }
   .found-box-wsrfhedsoufheqiwrhew {
     box-sizing: border-box;
@@ -118,6 +150,9 @@ $foundPaddingTop: 0;
     box-sizing: border-box;
     padding: 0 $transEdgePadding 0 $transEdgePadding;
     line-height: 25px;
+  }
+  .pronunciation-wsrfhedsoufheqiwrhew {
+    color: #aaa;
   }
 }
 </style>

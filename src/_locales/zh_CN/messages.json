@@ -24,6 +24,9 @@
     "treadWord": {
         "message": "划词翻译"
     },
+    "isPronunciation": {
+        "message": "显示音标"
+    },
     "needLogin": {
         "message": "需要登录，是否前往登?"
     },
@@ -48,10 +51,10 @@
     "transExampple": {
         "message": "例句"
     },
-    "fetchErr": {
+    "__fetchErr__": {
         "message": "网络开小差!"
     },
-    "netErr": {
+    "__netErr__": {
         "message": "网络开小差了!"
     },
     "optionTrans": {
@@ -110,5 +113,20 @@
     },
     "copyShareLink": {
         "message": "分享链接已复制"
+    },
+    "__noSupport__": {
+        "message": "语种不支持"
+    },
+    "__onlyEnAndZh__": {
+        "message": "此翻译源仅支持中英互译"
+    },
+    "__onlyZhToZh__": {
+        "message": "此翻译源仅支持中译英"
+    },
+    "__reqErr__": {
+        "message": "请求出错"
+    },
+    "__textTooLong__": {
+        "message": "文本内容过长"
     }
 }

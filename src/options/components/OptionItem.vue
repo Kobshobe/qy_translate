@@ -19,6 +19,7 @@ export default defineComponent({
 <style scoped lang='scss'>
 .option-item-main {
   padding-bottom: 40px;
+  width: 50%;
   .option-item-title {
     font-size: 15px;
     font-weight: bold;

@@ -1,7 +1,7 @@
 import { getTokenFromStorage, saveTokenInfo } from '../utils/chromeApi'
 import { Ref } from 'vue'
 import { Mode, client } from '../config'
-import { IRequestResult, IQrLoginParams, ITokenInfo } from '@/utils/interface'
+import { IServerReqParams, IRequestResult, IQrLoginParams, ITokenInfo } from '@/utils/interface'
 import { eventToGoogle } from '../utils/analytics'
 
 const fetchErrMsg = '网络开小差!'
@@ -91,18 +91,17 @@ export async function qrLogin({ qrUrl, loginStatus }: IQrLoginParams) {
 export function baseFetch({ url, method, success, fail, data, headers = {}, successStatusCode = [200, 201] }:
   { url: string, method: string, success: Function, fail: Function, data: any, headers: any, successStatusCode?: number[] }) {
   return new Promise((resolve, reject) => {
-    fetch(url, {
-      method,
-      headers,
-      body: data,
-    })
+    const fetchData:any = {headers,method}
+    if(method !== 'GET') {
+      fetchData.body = data
+    }
+    fetch(url, fetchData)
       .then(res => {
         if (successStatusCode.includes(res.status)) {
           resolve(res)
         } else {
           reject(res)
         }
-
       })
       .catch(err => {
         console.log('fetch err: ', err)
@@ -113,9 +112,9 @@ export function baseFetch({ url, method, success, fail, data, headers = {}, succ
 
 
 
-export async function serveBaseReq({ url, method, success, fail, data = {}, headers = {}, auth = false, successStatusCode = [200, 201] }:
-  { url: string, method: string, success?: Function, fail?: Function, data: any, headers?: any, auth: boolean, successStatusCode?: number[] }): Promise<IRequestResult> {
-
+export async function serveBaseReq(
+  { url, method, success, fail, query, data = {}, headers = {}, auth = false, successStatusCode = [200, 201] }:
+  IServerReqParams): Promise<IRequestResult> {
 
   const start = new Date().getTime()
   return new Promise<IRequestResult>(async (resolve, reject) => {
@@ -130,12 +129,16 @@ export async function serveBaseReq({ url, method, success, fail, data = {}, head
     headers.c = client.c
     headers.cv = client.cv
 
+    if (query) {
+      url = url + makeQuery(query)
+    }
+
     baseFetch({
       url: protocol + BaseUrl + url,
       method,
       data: JSON.stringify(data),
       headers,
-      success: async (res: any) => {
+      success: async (res: Response) => {
         await resolve(getResult(res))
       },
       fail: async (err: any) => {
@@ -178,7 +181,15 @@ export async function serveBaseReq({ url, method, success, fail, data = {}, head
   })
 }
 
-async function getResult(res: any, errMsg: string = ''): Promise<IRequestResult> {
+function makeQuery(queryObject:any) {
+  const query = Object.entries(queryObject).reduce((params:any, entry:any) => {
+        params.push(entry.join('='))
+        return params
+      }, []).join('&')
+  return encodeURI(`?${query}`)
+}
+
+async function getResult(res: Response, errMsg: string = ''): Promise<IRequestResult> {
 
     let data;
     let toastMsg;
@@ -256,3 +267,13 @@ export async function sendEvent(data: any) {
   })
 }
 
+export async function baiduDomainTransApi(query:any) {
+  return await serveBaseReq({
+    url: '/trans/baidu',
+    method: 'GET',
+    query,
+    success: () => {},
+    fail: () => {},
+    auth: false,
+  })
+}

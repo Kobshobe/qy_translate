@@ -90,6 +90,16 @@ export default defineComponent({
   position: relative;
   width: 100%;
   height: 100%;
+  // font-weight: normal;
+  // font-family: Arial, Helvetica, sans-serif;
+  // font-style: normal;
+  // line-height: normal;
+  // text-align: left;
+}
+::v-deep(*) {
+  padding: 0;
+  margin: 0;
+  background-color: rgba(0,0,0,0);
   font-weight: normal;
   font-family: Arial, Helvetica, sans-serif;
   font-style: normal;

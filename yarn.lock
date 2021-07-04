@@ -1622,6 +1622,14 @@
     "@types/connect" "*"
     "@types/node" "*"
 
+"@types/chrome@^0.0.114":
+  version "0.0.114"
+  resolved "https://registry.nlark.com/@types/chrome/download/@types/chrome-0.0.114.tgz?cache=0&sync_timestamp=1623229360294&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40types%2Fchrome%2Fdownload%2F%40types%2Fchrome-0.0.114.tgz#8ceb33fa261f4b9e307fa7344ba8182d8d410d4e"
+  integrity sha1-jOsz+iYfS54wf6c0S6gYLY1BDU4=
+  dependencies:
+    "@types/filesystem" "*"
+    "@types/har-format" "*"
+
 "@types/chrome@^0.0.137":
   version "0.0.137"
   resolved "https://registry.nlark.com/@types/chrome/download/@types/chrome-0.0.137.tgz#5ea73ee6e874880ecdfaccd5b378c541c7da87ec"
@@ -2867,6 +2875,11 @@ aws4@^1.8.0:
   version "1.11.0"
   resolved "https://registry.nlark.com/aws4/download/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
   integrity sha1-1h9G2DslGSUOJ4Ta9bCUeai0HFk=
+
+axios-chrome-messaging-adapter@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.nlark.com/axios-chrome-messaging-adapter/download/axios-chrome-messaging-adapter-0.5.0.tgz#5efcbdf6e8c55b8962a1a32c6e3b1ffcbb2615ea"
+  integrity sha1-Xvy99ujFW4lioaMsbjsf/LsmFeo=
 
 axios-https-proxy-fix@^0.17.1:
   version "0.17.1"
@@ -6880,6 +6893,13 @@ jest-changed-files@^26.6.2:
     "@jest/types" "^26.6.2"
     execa "^4.0.0"
     throat "^5.0.0"
+
+jest-chrome@^0.7.1:
+  version "0.7.1"
+  resolved "https://registry.nlark.com/jest-chrome/download/jest-chrome-0.7.1.tgz#72dd7cc0367e6b24f17974fb78f59665dafd0a10"
+  integrity sha1-ct18wDZ+ayTxeXT7ePWWZdr9ChA=
+  dependencies:
+    "@types/chrome" "^0.0.114"
 
 jest-cli@^26.6.3:
   version "26.6.3"

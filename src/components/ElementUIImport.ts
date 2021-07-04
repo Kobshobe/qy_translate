@@ -1,9 +1,9 @@
 import { createApp } from 'vue'
 import app from './components/app.vue'
-import { ElButton, ElSelect, ElOption, ElSwitch } from 'element-plus';
+import { ElButton, ElSelect, ElOptionGroup, ElOption, ElSwitch } from 'element-plus';
 import { setConfig } from 'element-plus/lib/utils/config.js'
 
-const components = [ElButton, ElSelect, ElOption, ElSwitch];
+const components = [ElButton, ElSelect, ElOptionGroup, ElOption, ElSwitch];
 
 export function setUI(app:any, other:any[]=[]) {
     const options = { zIndex: 31474836, size: 'small' }

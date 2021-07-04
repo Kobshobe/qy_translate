@@ -1,8 +1,16 @@
-import { Mode, TestTokenInfo } from '@/config'
+import { Mode } from '@/config'
 import { ITokenInfo, ITokenInfoFromCloud, IOptionPageOpenParma, IConfigInfo } from '@/utils/interface'
 // @ts-ignore
 import { v4 } from "uuid";
 import {eventToGoogle} from './analytics'
+
+export async function getFromeStorage(field:string[]) :Promise<any> {
+    return new Promise<any>((resolve) => {
+        chrome.storage.sync.get(field, (result) => {
+            resolve(result)
+        })
+    })
+}
 
 
 async function checkMainLang() {
@@ -38,10 +46,6 @@ export function isTreadWord(treadWordInfo: any) :boolean {
 
 export async function getClientId(): Promise<string> {
     return new Promise<string>((resolve) => {
-        if(Mode === "jest") {
-            resolve("test:xxxxxx-yyyyy")
-            return
-        }
         chrome.storage.sync.get(['tokenInfo', 'uuid'], (result: any) => {
             const tokenInfo: ITokenInfo | null = result.tokenInfo
             if(tokenInfo && tokenInfo.openid) {
@@ -74,15 +78,6 @@ export async function getTokenUsePort(): Promise<string> {
 export function getTokenFromStorage(getCheckToken=true): Promise<string> {
 
     return new Promise<string>((resolve, reject) => {
-        if (Mode === 'jest') {
-            const check = checkToken(TestTokenInfo)
-            if (check === 'needRelogin' || check === 'needLogin') {
-                reject(check)
-            } else {
-                resolve(check)
-            }
-            return
-        }
         chrome.storage.sync.get(['tokenInfo'], (result: any) => {
             const tokenInfo: ITokenInfo | null = result.tokenInfo
             const check = checkToken(tokenInfo)
@@ -321,4 +316,9 @@ function getCurrentTabUrl() :Promise<string> {
             }
         });
     })
+}
+
+
+export function setTransEngine(engine:string) {
+    chrome.storage.sync.set({transEngine:engine})
 }

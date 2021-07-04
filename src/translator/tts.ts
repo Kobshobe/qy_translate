@@ -2,7 +2,7 @@
 // import axios from 'axios';
 import { baseFetch } from '../api/api'
 import splitLongText from './splitLongText';
-import { eventToGoogle } from './analytics'
+import { eventToGoogle } from '@/utils/analytics'
 
 interface Option {
   lang?: string;

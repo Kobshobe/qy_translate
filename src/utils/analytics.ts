@@ -1,9 +1,12 @@
 import { IAnalyticEvent } from '@/utils/interface'
-import { googleAnalytic, client } from '@/config'
+import { googleAnalytic, client, Mode } from '@/config'
 import { getClientId } from '@/utils/chromeApi'
 
 
 export async function eventToGoogle(event: IAnalyticEvent) {
+    if(Mode === 'jest') {
+        return
+    }
     const id = await getClientId()
     Object.assign(event.params, {uid: id}, client)
     fetch(
