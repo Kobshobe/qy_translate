@@ -16,7 +16,7 @@ export class BaiduTrans extends BaseTrans {
         //@ts-ignore
         let baiduFrom = GToBaidu[from]
         //@ts-ignore
-        let baiduTo = GToBaidu[to]
+        const baiduTo = GToBaidu[to]
         if(!baiduFrom) {
             baiduFrom = 'auto'
         }
@@ -39,6 +39,8 @@ export class BaiduTrans extends BaseTrans {
                 errMsg: ''
             }
         }
+
+        console.log(resp)
     
         const data:ITransResult = {
             text: resp.data.result.reduce((total:string, item:string) => {total+=item}),

@@ -81,7 +81,7 @@ export function getTokenFromStorage(getCheckToken=true): Promise<string> {
         chrome.storage.sync.get(['tokenInfo'], (result: any) => {
             const tokenInfo: ITokenInfo | null = result.tokenInfo
             const check = checkToken(tokenInfo)
-            if (check === 'needRelogin' || check === 'needLogin') {
+            if (check === '__needRelogin__' || check === '__needLogin__') {
                 reject(check)
             } else {
                 resolve(check)
@@ -94,11 +94,11 @@ function checkToken(tokenInfo: ITokenInfo | null): string {
     if (tokenInfo) {
         const now = new Date().getTime()
         if (now - tokenInfo.saveTime + 1800 > tokenInfo.liveTime) {
-            return 'needRelogin'
+            return '__needRelogin__'
         }
         return tokenInfo.token
     } else {
-        return 'needLogin'
+        return '__needLogin__'
     }
 }
 

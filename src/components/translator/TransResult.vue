@@ -23,9 +23,8 @@
           />
         </div>
       </div>
-      <div class="divider-wsrfhedsoufheqiwrhew"></div>
     </div>
-
+    <Divider />
     <div class="text-container-wsrfhedsoufheqiwrhew">
       <div class="found-result-text-wsrfhedsoufheqiwrhew">
         <div style="height:18px"></div>
@@ -42,7 +41,6 @@
           />
         </div>
         <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
-          <Loading v-if="translator.findStatus === 'reLoading'" />
           <IconBtn
             type="icon-gengduo1"
             iconSize="17"
@@ -60,10 +58,10 @@ import { defineComponent, inject } from "vue";
 import IconBtn from "../base/IconBtn.vue";
 import SoundBtn from "./SoundBtn.vue";
 import CollectBtn from "./CollectBtn.vue";
-import Loading from '@/components/base/Loading.vue'
 import Options from "./Options.vue";
 import SubTranslator from "./SubTranslator.vue";
 import FindText from "./FindText.vue";
+import Divider from './Divider.vue'
 import { ITranslatorHook } from "@/utils/interface";
 
 export default defineComponent({
@@ -81,7 +79,7 @@ export default defineComponent({
     Options,
     SubTranslator,
     FindText,
-    Loading,
+    Divider,
   },
 });
 </script>
@@ -94,11 +92,6 @@ export default defineComponent({
   .text-container-wsrfhedsoufheqiwrhew {
     box-sizing: border-box;
     width: 100%;
-  }
-  .divider-wsrfhedsoufheqiwrhew {
-    width: 100%;
-    height: 4px;
-    background-color: #f2f2f2;
   }
 
   .tool-bar-wsrfhedsoufheqiwrhew {

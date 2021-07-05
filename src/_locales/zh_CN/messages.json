@@ -27,12 +27,6 @@
     "isPronunciation": {
         "message": "显示音标"
     },
-    "needLogin": {
-        "message": "需要登录，是否前往登?"
-    },
-    "needRelogin": {
-        "message": "需要重新登录，是否前往登录?"
-    },
     "scanQR": {
         "message": "扫码登录"
     },
@@ -50,12 +44,6 @@
     },
     "transExampple": {
         "message": "例句"
-    },
-    "__fetchErr__": {
-        "message": "网络开小差!"
-    },
-    "__netErr__": {
-        "message": "网络开小差了!"
     },
     "optionTrans": {
         "message": "翻译设置"
@@ -128,5 +116,20 @@
     },
     "__textTooLong__": {
         "message": "文本内容过长"
+    },
+    "__hasErr__": {
+        "message": "出现错误"
+    },
+    "__fetchErr__": {
+        "message": "请检查您的网络"
+    },
+    "__netErr__": {
+        "message": "网络开小差了!"
+    },
+    "__needLogin__": {
+        "message": "需要登录，是否前往登?"
+    },
+    "__needRelogin__": {
+        "message": "需要重新登录，是否前往登录?"
     }
 }

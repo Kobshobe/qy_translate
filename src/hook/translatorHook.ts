@@ -213,12 +213,9 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             })
         },
         handleWebErr(msg) {
+            console.log('msg: ', msg)
             if (!msg) return
-            if (msg.errMsg === 'needLogin' || msg.errMsg === 'needRelogin') {
-                // let text = needLoginMsg
-                // if (msg.errMsg === 'needRelogin') {
-                //     text = needReloginMsg
-                // }
+            if (msg.errMsg === '__needLogin__' || msg.errMsg === '__needRelogin__') {
                 translator.dialogMsg.showDialog({
                     type: 'i18n',
                     message: msg.errMsg,
@@ -322,9 +319,10 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
                     translator.marksList = []
                     translator.status = "result"
                     if(translator.findStatus === 'reLoading') {
+                        translator.findStatus = 'willOK'
                         setTimeout(() => {
-                            translator.findStatus = 'ok'
-                        }, 300)
+                            if(translator.findStatus === 'willOK') translator.findStatus = 'ok';
+                        }, 400)
                     } else {
                         translator.findStatus = 'ok'
                     }
@@ -355,13 +353,16 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             translator.usePort({
                 name: 'tts',
                 msg: { text: text, lang: lang },
-                onMsgHandle: (res: any) => {
+                onMsgHandle: (res: IRequestResult) => {
+                    if (res.errMsg) {
+                        return
+                    }
                     // @ts-ignore
                     const iframe = translator[`${audioType}Iframe`]
                     iframe.contentWindow.postMessage({
                         source: "phrase",
                         action: "playAudio",
-                        audioBase64: res,
+                        audioBase64: res.data,
                         id: id
                     }, '*')
                 }

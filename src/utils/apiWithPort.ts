@@ -25,12 +25,12 @@ const apiWrap = {
   },
   // ---------- 播放声音
   tts: async (msg: any, port: any) => {
-    const audioBase64 = await getAudioBase64(msg.text, {
+    const result = await getAudioBase64(msg.text, {
       lang: msg.lang,
       slow: false,
       host: 'https://translate.google.cn',
     })
-    port.postMessage(audioBase64[0])
+    port.postMessage(result)
   },
   openOptionsPage: (msg: any, port: any) => {
     openOptionsPage(msg)

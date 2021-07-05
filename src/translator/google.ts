@@ -31,7 +31,7 @@ export class GoogleTrans extends BaiduTrans {
 
   constructor() {
     super()
-    this.maxLenght = 50000
+    this.maxLenght = 5000
   }
 
   getParamsUrlPart(data:Object) :string {

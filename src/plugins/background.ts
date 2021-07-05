@@ -38,12 +38,7 @@ chrome.runtime.onInstalled.addListener(() => {
   install.noFirstInstall()
 })
 
-chrome.runtime.setUninstallURL("https://www.wenjuan.com/s/UZBZJvIxG6A/", () => {
-  eventToGoogle({
-    name: "uninstall",
-    params: {}
-  })
-})
+chrome.runtime.setUninstallURL("https://www.wenjuan.com/s/UZBZJvIxG6A/", () => {})
 
 // 右键菜单点击
 chrome.contextMenus.onClicked.addListener(function (clickData) {

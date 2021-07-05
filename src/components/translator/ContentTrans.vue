@@ -73,8 +73,7 @@
   <div
     v-if="
       resultStyle.hold ||
-      translator.findStatus === 'ok' ||
-      translator.findStatus === 'reLoading'
+      (translator.findStatus !== 'none' && translator.findStatus !== 'loading')
     "
     ref="resultDOM"
     class="result"

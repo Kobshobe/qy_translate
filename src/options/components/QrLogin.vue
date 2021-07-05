@@ -63,7 +63,7 @@ export default defineComponent({
 
     async function isLogin() {
       const token = await getTokenFromStorage();
-      if (token !== "needLogin" && token !== "needRelogin") {
+      if (token !== "__needLogin__" && token !== "__needRelogin__") {
         loginStatus.value = "loginOk";
       }
     }

@@ -14,6 +14,23 @@ export interface IDialogMsg {
     confirmAction?: any
 }
 
+export interface IBaseReqParams {
+    url: string
+    method: string
+    success?: Function
+    fail?: Function
+    data?: any
+    headers?: any
+    successStatusCode?: number[]
+}
+
+export interface IBaseReqResult {
+    errMsg?: string,
+    status: number|undefined
+    data: string
+    response: Response
+}
+
 export interface IServerReqParams {
     url: string
     method: string
@@ -69,7 +86,7 @@ export interface IWrapTransInfo {
 
 
 export interface IRequestResult {
-    errMsg: string
+    errMsg?: string
     data?: any
     status?: number
     toastMsg?: IToastMsg
@@ -150,7 +167,7 @@ export interface ITranslatorHook {
     lastFindText: string
     show: boolean
     find: Find
-    findStatus: 'none' | 'ok' | 'loading' | 'reLoading'
+    findStatus: 'none' | 'ok' | 'loading' | 'reLoading' | 'willOK'
     fromIframe: any
     toIframe: any
     subIfram: any
@@ -194,6 +211,7 @@ export interface ITranslatorHook {
         openOptionsPage():void
         show() :void
         exchange() :void
+        changeEngine():void
     }
     configInfo: {
         isTreadWord: boolean
