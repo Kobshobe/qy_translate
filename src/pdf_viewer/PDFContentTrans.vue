@@ -4,7 +4,6 @@
     title="打开网络PDF文件"
     v-model="dialogVisible"
     width="500px"
-    :before-close="handleClose"
   >
     <el-input
       v-model="input"

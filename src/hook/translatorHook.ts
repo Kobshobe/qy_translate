@@ -4,10 +4,11 @@ import { newMarkManager, getMarkHtml } from '@/utils/mark'
 import apiWrap from '@/utils/apiWithPort'
 import { IRequestResult, ITranslateMsg, ITranslatorHook, Find, IAnalyticEvent, IWrapTransInfo, IConfigInfo } from '@/utils/interface'
 import {isTreadWord} from '@/utils/chromeApi'
+import { engines } from '@/translator/language'
 
 
 export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = false) {
-    const translator: ITranslatorHook = reactive({
+    const hook: ITranslatorHook = reactive({
         mode,
         status: 'result',
         editingText: `app`,
@@ -25,15 +26,27 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             cancelText: '',
             confirmAction: undefined,
             showDialog: ({message, confirmText, cancelText, confirmAction, type}) => {
+                hook.dialogMsg.cancelText = ''
+                hook.dialogMsg.confirmText = ''
+                hook.dialogMsg.confirmAction = undefined
                 if (type === 'i18n') {
-                    translator.dialogMsg.message = chrome.i18n.getMessage(message)
+                    hook.dialogMsg.message = chrome.i18n.getMessage(message)
+                    cancelText && (hook.dialogMsg.cancelText = chrome.i18n.getMessage(cancelText));
+                    confirmText && (hook.dialogMsg.confirmText = chrome.i18n.getMessage(confirmText));
+                    switch (confirmText) {
+                        case '__applyServiceFree__':
+                            confirmAction = hook.applyBDDM
+                    }
                 } else {
-                    translator.dialogMsg.message = message
+                    hook.dialogMsg.message = message
+                    hook.dialogMsg.cancelText = cancelText
+                    hook.dialogMsg.confirmText = confirmText
                 }
-                translator.dialogMsg.confirmText = confirmText
-                translator.dialogMsg.cancelText = cancelText
-                translator.dialogMsg.confirmAction = confirmAction
-                translator.dialogMsg.show = true
+                if (!hook.dialogMsg.confirmText && !hook.dialogMsg.cancelText) {
+                    hook.dialogMsg.cancelText = chrome.i18n.getMessage("__gotIt__")
+                }
+                hook.dialogMsg.confirmAction = confirmAction
+                if(hook.dialogMsg.message) hook.dialogMsg.show = true
             }
         },
         toast: {
@@ -41,17 +54,17 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             msg: '',
             closeTimer: undefined,
             showToast({type, message, duration=1000}) {
-                clearTimeout(translator.toast.closeTimer)
-                translator.toast.show = false
+                clearTimeout(hook.toast.closeTimer)
+                hook.toast.show = false
                 if (type === 'i18n') {
-                    translator.toast.msg = chrome.i18n.getMessage(message)
-                    if(!translator.toast.msg) return
+                    hook.toast.msg = chrome.i18n.getMessage(message)
+                    if(!hook.toast.msg) return
                 } else {
-                    translator.toast.msg = message
+                    hook.toast.msg = message
                 }
-                translator.toast.show = true
-                translator.toast.closeTimer = setTimeout(() => {
-                    translator.toast.show = false
+                hook.toast.show = true
+                hook.toast.closeTimer = setTimeout(() => {
+                    hook.toast.show = false
                 }, duration)
             }
         },
@@ -67,66 +80,66 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             resultData: undefined,
             marksStr: '[]',
             async translate() {
-                translator.subTranslator.status = 'loading'
-                translator.subTranslator.isLoading = true
-                await translator.usePort({
+                hook.subTranslator.status = 'loading'
+                hook.subTranslator.isLoading = true
+                await hook.usePort({
                     name: 'translate',
-                    msg: { text: translator.subTranslator.selectText, from: translator.find.result?.resultFrom, to: translator.find.result?.resultTo, type: 'sub' },
+                    msg: { text: hook.subTranslator.selectText, from: hook.find.result?.resultFrom, to: hook.find.result?.resultTo, type: 'sub' },
                     onMsgHandle: (msg: IRequestResult) => {
-                        translator.subTranslator.resultData = msg.data
-                        translator.subTranslator.status = 'result'
+                        hook.subTranslator.resultData = msg.data
+                        hook.subTranslator.status = 'result'
                     }
                 })
             },
             afterMark(canReduce: boolean) {
-                translator.canReduceMark = canReduce
-                if (translator.subTranslator.status !== "result") translator.subTranslator.status = 'hide'
+                hook.canReduceMark = canReduce
+                if (hook.subTranslator.status !== "result") hook.subTranslator.status = 'hide'
             },
             bookMark() {
-                translator.canReduceMark = newMarkManager([translator.subTranslator.selectRange[0], translator.subTranslator.selectRange[1]], translator.marksList).canReduce
+                hook.canReduceMark = newMarkManager([hook.subTranslator.selectRange[0], hook.subTranslator.selectRange[1]], hook.marksList).canReduce
             },
             async mark() {
-                const markInfo = newMarkManager([translator.subTranslator.selectRange[0], translator.subTranslator.selectRange[1]], translator.marksList)
-                translator.subTranslator.marksStr = JSON.stringify(markInfo.newMarksList)
-                if (!translator.find.isCollected) {
+                const markInfo = newMarkManager([hook.subTranslator.selectRange[0], hook.subTranslator.selectRange[1]], hook.marksList)
+                hook.subTranslator.marksStr = JSON.stringify(markInfo.newMarksList)
+                if (!hook.find.isCollected) {
                     if (markInfo.canReduce) {
                         // 收藏标记后取消收藏，此时取消标记直接取消不触发收藏
-                        translator.marksList = markInfo.newMarksList
-                        translator.subTranslator.afterMark(markInfo.canReduce)
+                        hook.marksList = markInfo.newMarksList
+                        hook.subTranslator.afterMark(markInfo.canReduce)
                     } else {
-                        if (translator.subTranslator.status !== "result") translator.subTranslator.status = 'loading'
-                        await translator.collect({
+                        if (hook.subTranslator.status !== "result") hook.subTranslator.status = 'loading'
+                        await hook.collect({
                             success: () => {
-                                translator.subTranslator.afterMark(!markInfo.canReduce)
-                                translator.marksList = markInfo.newMarksList
+                                hook.subTranslator.afterMark(!markInfo.canReduce)
+                                hook.marksList = markInfo.newMarksList
                             }, fail: () => {
-                                translator.subTranslator.afterMark(markInfo.canReduce)
+                                hook.subTranslator.afterMark(markInfo.canReduce)
                             }
                         })
                     }
 
                 } else {
-                    if (!translator.find.tid) return
-                    await translator.updateMark({
+                    if (!hook.find.tid) return
+                    await hook.updateMark({
                         success: () => {
-                            translator.marksList = markInfo.newMarksList
-                            translator.subTranslator.afterMark(!markInfo.canReduce)
+                            hook.marksList = markInfo.newMarksList
+                            hook.subTranslator.afterMark(!markInfo.canReduce)
                         },
                         fail: () => {
-                            translator.subTranslator.afterMark(markInfo.canReduce)
+                            hook.subTranslator.afterMark(markInfo.canReduce)
                         },
                         info: {
-                            tid: translator.find.tid,
-                            marks: translator.subTranslator.marksStr
+                            tid: hook.find.tid,
+                            marks: hook.subTranslator.marksStr
                         }
                     })
 
                 }
             },
             init() {
-                translator.subTranslator.status = 'hide'
-                translator.subTranslator.isLoading = false
-                translator.subTranslator.selectText = ''
+                hook.subTranslator.status = 'hide'
+                hook.subTranslator.isLoading = false
+                hook.subTranslator.selectText = ''
             }
         },
         options: {
@@ -135,39 +148,38 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             to: '',
             engine: '',
             close() {
-                translator.options.isShow = false
+                hook.options.isShow = false
                 if (
-                    translator.options.from !== translator.find.result?.resultFrom ||
-                    translator.options.to !== translator.find.result?.resultTo) {
+                    hook.options.from !== hook.find.result?.resultFrom ||
+                    hook.options.to !== hook.find.result?.resultTo) {
                     // @ts-ignore
-                    translator.translateText({ text: translator.find.text, type: 'changeLang', from: translator.options.from, to: translator.options.to, findStatus: 'reLoading' })
+                    hook.trans({ text: hook.find.text, type: 'changeLang', from: hook.options.from, to: hook.options.to, findStatus: 'reLoading' })
                 }
             },
             openOptionsPage() {
-                translator.usePort({
+                hook.usePort({
                     name: 'openOptionsPage',
-                    msg: { tab: '' },
-                    onMsgHandle: () => { }
+                    msg: { tab: '', type: 'login' }
                 })
             },
             show() {
-                if(!translator.find.result) return
-                translator.options.isShow = true
-                translator.options.from = translator.find.result.resultFrom
-                translator.options.to = translator.find.result.resultTo
-                translator.options.engine = translator.find.result.engine
-                translator.toAnalytics({name: "result_option_show", params: {}})
+                if(!hook.find.result) return
+                hook.options.isShow = true
+                hook.options.from = hook.find.result.resultFrom
+                hook.options.to = hook.find.result.resultTo
+                hook.options.engine = hook.find.result.engine
+                hook.toAnalytics({name: "result_option_show", params: {}})
             },
             exchange() {
                 // [translator.options.from, translator.options.to,] = [translator.options.to,, translator.options.from,]
                 // @ts-ignore
-                translator.translateText({ text: translator.find.result.text, type: 'exchange', from: translator.options.to, to: translator.options.from, findStatus: 'reLoading' })
-                translator.options.isShow = false
+                hook.trans({ text: hook.find.result.text, type: 'exchange', from: hook.options.to, to: hook.options.from, findStatus: 'reLoading' })
+                hook.options.isShow = false
             },
             changeEngine() {
                 // @ts-ignore
-                translator.translateText({ text: translator.find.text, type: 'changeEngine', from: translator.options.from, to: translator.options.to, findStatus: 'reLoading' })
-                translator.options.isShow = false
+                hook.trans({ text: hook.find.text, type: 'changeEngine', from: hook.options.from, to: hook.options.to, findStatus: 'reLoading' })
+                hook.options.isShow = false
             }
         },
         configInfo: {
@@ -175,24 +187,24 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             engine: '',
             info: {},
             changeTreadWord() {
-                if(!translator.configInfo.isTreadWord) {
-                    translator.toast.showToast({type: 'i18n', message: 'treadWordOff'})
+                if(!hook.configInfo.isTreadWord) {
+                    hook.toast.showToast({type: 'i18n', message: 'treadWordOff'})
                 }
-                translator.usePort({
+                hook.usePort({
                     name: "setTreadWord",
-                    msg: translator.configInfo.isTreadWord,
+                    msg: hook.configInfo.isTreadWord,
                     onMsgHandle: () => {}
                 })
             },
             getTreadWord() {
-            translator.usePort({
-                name: "getTreadWord",
+            hook.usePort({
+                name: 'getTreadWordConf',
                 msg: null,
                 onMsgHandle: (msg:any) => {
 
-                    translator.configInfo.isTreadWord = isTreadWord(msg)
+                    hook.configInfo.isTreadWord = isTreadWord(msg)
 
-                    if(msg) translator.configInfo.info = msg
+                    if(msg) hook.configInfo.info = msg
                 }
             })
         }
@@ -201,45 +213,53 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             if (isTest) {
                 // @ts-ignore
                 const resultMsg = await apiWrap[name](msg, null)
-                translator.handleWebErr(resultMsg)
-                onMsgHandle(resultMsg)
+                hook.handleWebErr(resultMsg)
+                onMsgHandle && onMsgHandle(resultMsg)
                 return
             }
             const port = chrome.runtime.connect({ name: name })
             port.postMessage(msg)
             port.onMessage.addListener((msg: IRequestResult) => {
-                translator.handleWebErr(msg)
-                onMsgHandle(msg)
+                hook.handleWebErr(msg)
+                onMsgHandle && onMsgHandle(msg)
             })
         },
         handleWebErr(msg) {
-            console.log('msg: ', msg)
             if (!msg) return
+            if(msg.tipsMessage) {
+                hook.tips.message = chrome.i18n.getMessage(msg.tipsMessage)
+            } else {
+                hook.tips.message = ''
+            }
             if (msg.errMsg === '__needLogin__' || msg.errMsg === '__needRelogin__') {
-                translator.dialogMsg.showDialog({
+                hook.dialogMsg.showDialog({
                     type: 'i18n',
                     message: msg.errMsg,
                     confirmText: chrome.i18n.getMessage('scanQR'),
                     cancelText: '',
                     confirmAction: () => {
-                    translator.usePort({
+                    hook.usePort({
                         name: 'openOptionsPage',
                         msg: { tab: 'login' },
                         onMsgHandle: () => { }
                     })
-                    translator.dialogMsg.show = false
+                    hook.dialogMsg.show = false
                 }})
-            } else if (msg.toastMsg) {
-                translator.toast.showToast(msg.toastMsg)
-            } else if (msg.serveToastMsg) {
-                translator.toast.showToast(msg.serveToastMsg)
+            } 
+
+            else if (msg.dialogMsg) {
+                hook.dialogMsg.showDialog(msg.dialogMsg)
+            }
+            
+            else if (msg.toastMsg) {
+                hook.toast.showToast(msg.toastMsg)
             }
         },
         getMarkHtml() {
-            return getMarkHtml(translator.marksList, translator.find.text)
+            return getMarkHtml(hook.marksList, hook.find.text)
         },
         async updateMark({ success, fail, info }) {
-            await translator.usePort({
+            await hook.usePort({
                 name: 'updateMark',
                 msg: info,
                 onMsgHandle: (msg: IRequestResult) => {
@@ -252,37 +272,37 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             })
         },
         async reduceCollect() {
-            await translator.usePort({
+            await hook.usePort({
                 name: 'reduceCollect',
-                msg: { tid: translator.find.tid },
+                msg: { tid: hook.find.tid },
                 onMsgHandle: (msg: IRequestResult) => {
                     if (!msg.errMsg && msg.status === 200) {
-                        translator.find.isCollected = false
-                        translator.find.tid = null
+                        hook.find.isCollected = false
+                        hook.find.tid = null
                     }
                 }
             })
         },
         async collect({ success, fail }) {
-            if (!translator.find.result) return
-            if (translator.find.text.length > 500 || translator.find.result.text.length > 500) {
-                translator.toast.showToast({ type: 'i18n', message: 'collTooLong' })
-                fail?.call(translator)
+            if (!hook.find.result) return
+            if (hook.find.text.length > 500 || hook.find.result.text.length > 500) {
+                hook.toast.showToast({ type: 'i18n', message: 'collTooLong' })
+                fail?.call(hook)
                 return
             }
-            await translator.usePort({
+            await hook.usePort({
                 name: 'collect',
                 msg: {
-                    text: translator.find.text,
-                    translation: translator.find.result.text,
-                    marks: translator.subTranslator.marksStr,
-                    resultFrom: translator.find.result.resultFrom,
-                    resultTo: translator.find.result.resultTo
+                    text: hook.find.text,
+                    translation: hook.find.result.text,
+                    marks: hook.subTranslator.marksStr,
+                    resultFrom: hook.find.result.resultFrom,
+                    resultTo: hook.find.result.resultTo
                 },
                 onMsgHandle: (msg: IRequestResult) => {
                     if (!msg.errMsg) {
-                        translator.find.isCollected = true
-                        translator.find.tid = msg.data.tid
+                        hook.find.isCollected = true
+                        hook.find.tid = msg.data.tid
                         success && success(msg)
                     } else {
                         if (fail) fail({ msg: "needLogin" })
@@ -290,75 +310,81 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
                 }
             })
         },
-        async translateText({ text, from = '', to = '', type, findStatus }) {
+        async trans({ text, from = '', to = '', type, findStatus }) {
             const t = text
             if (t.replace(/\s+|[\r\n]+/g, "").length === 0) {
                 return
             }
             const find = new Find(text)
-            translator.show = true;
+            hook.show = true;
             if (findStatus) {
-                translator.findStatus = findStatus
+                hook.findStatus = findStatus
             }
 
-            await translator.usePort({
+            await hook.usePort({
                 name: 'translate',
-                msg:<IWrapTransInfo> { text: find.text, from, to, type, mode, engine:translator.options.engine },
+                msg:<IWrapTransInfo> { text: find.text, from, to, type, mode, engine:hook.options.engine },
                 onMsgHandle: (msg: IRequestResult) => {
-                    console.log(msg)
                     if (msg.errMsg) {
-                        translator.findStatus = 'none'
+                        if(hook.findStatus === 'reLoading') {
+                            hook.findStatus = 'willOK'
+                            setTimeout(() => {
+                                if(hook.findStatus === 'willOK') hook.findStatus = 'ok';
+                            }, 400)
+                        } else {
+                            hook.findStatus = 'none'
+                        }
                         return
                     }
                     if (!msg.data) {
-                        translator.findStatus = 'ok'
+                        hook.findStatus = 'ok'
                         return
                     }
-                    translator.find = find
-                    translator.find.result = msg.data;
-                    translator.marksList = []
-                    translator.status = "result"
-                    if(translator.findStatus === 'reLoading') {
-                        translator.findStatus = 'willOK'
+                    hook.find = find
+                    hook.find.result = msg.data;
+                    hook.marksList = []
+                    hook.status = "result"
+                    if(hook.findStatus === 'reLoading') {
+                        hook.findStatus = 'willOK'
                         setTimeout(() => {
-                            if(translator.findStatus === 'willOK') translator.findStatus = 'ok';
+                            if(hook.findStatus === 'willOK') hook.findStatus = 'ok';
                         }, 400)
                     } else {
-                        translator.findStatus = 'ok'
+                        hook.findStatus = 'ok'
                     }
                     
-                    translator.subTranslator.init()
+                    hook.subTranslator.init()
 
                 }
             })
         },
         translateFromEdit(e) {
             if (e.code === 'Enter' && !e.ctrlKey && !e.shiftKey && !e.altKey) {
-                translator.translateText({ text: translator.editingText, type: 'edit_enter', findStatus: 'loading' })
+                hook.trans({ text: hook.editingText, type: 'edit_enter', findStatus: 'loading' })
             }
         },
         getTTS(audioType, id) {
             let text, lang;
-            if (!translator.find.result) return
+            if (!hook.find.result) return
             if (audioType === 'from') {
-                text = translator.find.text
-                lang = translator.find.result.resultFrom
+                text = hook.find.text
+                lang = hook.find.result.resultFrom
             } else if (audioType === 'to') {
-                text = translator.find.result.text
-                lang = translator.find.result.resultTo
+                text = hook.find.result.text
+                lang = hook.find.result.resultTo
             } else if (audioType === 'sub') {
-                text = translator.subTranslator.selectText
-                lang = translator.find.result.resultFrom
+                text = hook.subTranslator.selectText
+                lang = hook.find.result.resultFrom
             }
-            translator.usePort({
+            hook.usePort({
                 name: 'tts',
-                msg: { text: text, lang: lang },
+                msg: { text: text, lang: lang, audioType: audioType},
                 onMsgHandle: (res: IRequestResult) => {
                     if (res.errMsg) {
                         return
                     }
                     // @ts-ignore
-                    const iframe = translator[`${audioType}Iframe`]
+                    const iframe = hook[`${audioType}Iframe`]
                     iframe.contentWindow.postMessage({
                         source: "phrase",
                         action: "playAudio",
@@ -369,72 +395,90 @@ export function translatorHook(mode: 'resultOnly' | 'popup', isTest: boolean = f
             })
         },
         clear() {
-            translator.editingText = ''
-            translator.eventToAnalytic({
+            hook.editingText = ''
+            hook.eventToAnalytic({
                 name: 'clear_edit_text',
                 params: {}
             })
         },
         toEdit() {
-            translator.lastFindText = translator.editingText
-            translator.editingText = ''
-            translator.status = 'editing'
-            translator.editingText = ''
-            translator.eventToAnalytic({
+            hook.lastFindText = hook.editingText
+            hook.editingText = ''
+            hook.status = 'editing'
+            hook.editingText = ''
+            hook.eventToAnalytic({
                 name: 'to_edit',
                 params: {}
             })
         },
         copyResult() {
             const tempInput = document.createElement("input");
-            if (!translator.find.result) return
-            tempInput.value = translator.find.result.text;
+            if (!hook.find.result) return
+            tempInput.value = hook.find.result.text;
             document.body.appendChild(tempInput);
             tempInput.select();
             document.execCommand("copy");
             document.body.removeChild(tempInput);
-            translator.toast.showToast({ type: 'i18n', message: 'copyOK' })
-            translator.eventToAnalytic({
+            hook.toast.showToast({ type: 'i18n', message: 'copyOK' })
+            hook.eventToAnalytic({
                 name: 'copy_trans_result',
                 params: {
-                    len: translator.find.result.text
+                    len: hook.find.result.text
                 }
             })
         },
         eventToAnalytic(eventData) {
             eventData.params.locale = chrome.i18n.getMessage("@@ui_locale")
-            translator.usePort({
+            hook.usePort({
                 name: 'analytic',
                 msg: eventData,
                 onMsgHandle: () => { }
             })
         },
         toAnalytics(event: IAnalyticEvent) {
-            translator.usePort({
+            hook.usePort({
                 name: "analytic",
                 msg: event,
                 onMsgHandle: () => {}
             })
         },
         getLastFindText() {
-            translator.editingText = translator.lastFindText
-            translator.eventToAnalytic({
+            hook.editingText = hook.lastFindText
+            hook.eventToAnalytic({
                 name: 'getLastFindText',
                 params: {}
             })
+        },
+        applyBDDM() {
+            hook.usePort({
+                name: "applyBDDM",
+            })
+        },
+        pasteAndTrans() {
+            const t = document.createElement("input");
+            document.body.appendChild(t);
+            t.focus();
+            document.execCommand("paste");
+            const clipboardText = t.value;
+            hook.editingText = clipboardText
+            document.body.removeChild(t);
+            hook.trans({text: hook.editingText, from: '', to: '', type: 'edit_paste', engine: '', findStatus: 'loading'})
+        },
+        tips: {
+            message: ''
         }
     })
 
     onMounted(() => {
-        translator.configInfo.getTreadWord()
+        hook.configInfo.getTreadWord()
     })
 
-    watch(() => translator.subTranslator.selectText, (newVal) => {
+    watch(() => hook.subTranslator.selectText, (newVal) => {
         if (newVal !== '') {
-            translator.subTranslator.status = 'showGate'
+            hook.subTranslator.status = 'showGate'
         }
     })
 
-    return translator
+    return hook
 }
 

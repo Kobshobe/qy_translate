@@ -9,8 +9,8 @@ export interface IToastMsg {
 export interface IDialogMsg {
     type: 'normal'|'i18n'|'lang'
     message: string
-    confirmText: string
-    cancelText: string
+    confirmText?: string
+    cancelText?: string
     confirmAction?: any
 }
 
@@ -27,7 +27,7 @@ export interface IBaseReqParams {
 export interface IBaseReqResult {
     errMsg?: string,
     status: number|undefined
-    data: string
+    data: any
     response: Response
 }
 
@@ -76,12 +76,16 @@ export interface ICollectResultMsg {
 }
 
 export interface IWrapTransInfo {
-    text: string
-    from: string
-    to: string
-    type: string
-    mode: string
+    readonly text: string
+    from?: string
+    to?: string
+    readonly type: string
+    readonly mode: string
     engine: string
+    isDetectedLang?: boolean
+    extraMsg?: any
+    fromCode?: string
+    toCode?: string
 }
 
 
@@ -90,7 +94,8 @@ export interface IRequestResult {
     data?: any
     status?: number
     toastMsg?: IToastMsg
-    serveToastMsg?: IToastMsg
+    dialogMsg?: IDialogMsg
+    tipsMessage?: string
 }
 
 export interface ITransResult {
@@ -98,8 +103,8 @@ export interface ITransResult {
     resultFrom: string
     resultTo: string
     engine: string
-    translit?: string
-    srcTranslit?: string
+    sPronunciation?: string
+    tPronunciation?: string
     data?: any
     domain?: string
 }
@@ -131,6 +136,7 @@ export interface IMarkInfo {
 
 export interface IOptionPageOpenParma {
     tab: 'login' | ''
+    action?: string
 }
 
 export interface ILangInfo {
@@ -153,11 +159,19 @@ export interface eventItem {
 
 export interface ITranslateMsg {
     text: string,
-    type: 'sub' | 'edit_icon' | 'select' | 'changeLang' | 'edit_enter' | 'test'|'exchange'
+    type: 'sub' | 'edit_icon' | 'select' | 'changeLang' | 'edit_enter' | 'test'|'exchange'|'edit_paste'
     from?: string
     to?: string
     findStatus?: 'loading'|undefined
     engine?: string
+}
+
+export interface IPortHandler {
+    name: 'translate'|'collect'|'reduceCollect'|'updateMark'|'tts'|
+    'openOptionsPage'|'analytic'|'setTreadWord'|'getTreadWordConf'|
+    'applyBDDM'
+    msg?:any
+    onMsgHandle?(msg:any) :void
 }
 
 export interface ITranslatorHook {
@@ -174,8 +188,8 @@ export interface ITranslatorHook {
     dialogMsg: {
         show: boolean
         message: string
-        confirmText: string
-        cancelText: string
+        confirmText: string|undefined
+        cancelText: string|undefined
         confirmAction: any
         showDialog(dialogMsg:IDialogMsg): void
     }
@@ -220,13 +234,13 @@ export interface ITranslatorHook {
         getTreadWord() :void
         changeTreadWord() :void
     }
-    usePort({ name, msg, onMsgHandle }: { name: string, msg: any, onMsgHandle: Function }): void
+    usePort({ name, msg, onMsgHandle}:IPortHandler): void
     handleWebErr(msg: IRequestResult): void
     getMarkHtml(): string
     updateMark({ success, fail, info }: { success: Function, fail: Function, info: {marks: string, tid: number } }): void
     reduceCollect(): void
     collect({ success, fail }: { success?: Function, fail?: Function }): void
-    translateText({ text, from, to, type, findStatus, engine }: ITranslateMsg): void
+    trans({ text, from, to, type, findStatus, engine }: ITranslateMsg): void
     translateFromEdit(e: any): void
     getTTS(audioType: string, id: string): void
     clear(): void
@@ -235,6 +249,11 @@ export interface ITranslatorHook {
     eventToAnalytic(eventData: any): void
     toAnalytics(event: IAnalyticEvent) :void
     getLastFindText() :void
+    applyBDDM() :void
+    pasteAndTrans() :void
+    tips: {
+        message: string
+    }
 }
 
 export interface IQrLoginParams {
@@ -257,4 +276,12 @@ export interface IClientInfo {
 export interface IBDDMTransResult {
     result: string[]
     from: string
+}
+
+export interface IAllStorage {
+    mainLang: string
+    isTreadWord: boolean
+    tokenInfo: ITokenInfo
+    secondLang: string
+    optionPageOpenParmas: IOptionPageOpenParma
 }

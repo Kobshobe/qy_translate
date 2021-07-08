@@ -3,7 +3,6 @@ import { getMainLang, getSecondLang } from '@/utils/chromeApi'
 import {IRequestResult, ITransResult, ITransResultFromApi,IWrapTransInfo} from '@/utils/interface'
 import {eventToGoogle, getTextLimit} from '@/utils/analytics'
 import {calcHash} from '@/translator/tk'
-import { BaiduTrans } from './baiduDomainTrans'
 
 class TkAndClient {
   ttkList = ["444444.1050258596", "445678.1618007056", "445767.3058494238", "444000.1270171236", "445111.1710346305"]
@@ -25,7 +24,7 @@ class TkAndClient {
   }
 }
 
-export class GoogleTrans extends BaiduTrans {
+export class GoogleTrans extends BaseTrans {
   
   tkTool = new TkAndClient()
 
@@ -67,16 +66,17 @@ export class GoogleTrans extends BaiduTrans {
 
     const dtPramas = type === 'sub' ? 'dt=rm&dt=ex&dt=bd&' : 'dt=rm&'
     
-    const paramsData = {
+    //@ts-ignore
+    const paramsData = new URLSearchParams({
       client: 'webapp',
       sl: from,
       tl: to,
-      dj: 1,
+      dj: '1',
       q: text,
-      dt: 't'
-    }
+      dt: 't',
+    })
 
-    const realUrl = baseUrl + '?' + dtPramas + this.getParamsUrlPart(paramsData) + this.tkTool.getTk(text)
+    const realUrl = baseUrl + '?' + dtPramas + paramsData.toString() + this.tkTool.getTk(text)
     const start = new Date().getTime()
     let errRes:IRequestResult|undefined = undefined;
 
@@ -151,21 +151,23 @@ export class GoogleTrans extends BaiduTrans {
     const body = await find.text()
 
     const jsonBody:ITransResultFromApi = JSON.parse(body)
+    
     const result:ITransResult = {
       text: '',
       resultFrom: jsonBody.src,
+      //@ts-ignore
       resultTo: to,
-      translit: '',
-      srcTranslit: '',
+      sPronunciation: '',
+      tPronunciation: '',
       data: jsonBody,
-      engine: 'ggTrans__'
+      engine: 'ggTrans__common'
     }
     // if(type === 'sub') {
       jsonBody.sentences.slice(0, -1).forEach((s:any) => {
         result.text += s.trans
       })
-      result.srcTranslit = jsonBody.sentences.slice(-1)[0].src_translit
-      result.translit = jsonBody.sentences.slice(-1)[0].translit
+      result.sPronunciation = jsonBody.sentences.slice(-1)[0].src_translit
+      result.tPronunciation = jsonBody.sentences.slice(-1)[0].translit
     // } else {
     //   jsonBody.sentences.forEach((s:any) => {
     //     result.text += s.trans
@@ -189,40 +191,6 @@ export class GoogleTrans extends BaiduTrans {
       errMsg: '',
       data: result,
     }
-  }
-
-  isChinese(text: string) {
-    const re = /[\u4E00-\u9FA5]+/;
-    if (re.test(text)) return true;
-    return false;
-  }
-
-  async autoGetLang(text:string, from:string, to:string) :Promise<string> {
-
-    return await this.detectLang(text)
-  }
-
-  async detectLang(text:string) {
-    const mainLang = await getMainLang()
-    if(mainLang === 'zh-CN') {
-      if (this.isChinese(text)) {
-        return await getSecondLang()
-      } else {
-        return await getMainLang()
-      }
-    }
-
-    // if(this.delectLangs.indexOf(mainLang) > 0) {
-    //   const lang = franc(text)
-    //   console.log('franc lang: ', lang)
-    //   if(lang[0][0] === mainLang) {
-    //     console.log('second')
-    //     return await getSecondLang()
-    //   } else {
-    //     return await getMainLang()
-    //   }
-    // }
-    return await getMainLang()
   }
 
 }

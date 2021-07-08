@@ -1,4 +1,4 @@
-import {reactive} from 'vue';
+import {onMounted, reactive, onUnmounted} from 'vue';
 import {getOptionOpenParmas, getTreadWord, setTreadWord, isTreadWord} from '@/utils/chromeApi';
 import {eventToGoogle} from '@/utils/analytics';
 import { ElMessage } from "element-plus";
@@ -26,12 +26,22 @@ export default function optionPageHook() {
                 }
             },
         },
+
+        DMTrans: {
+            applyDialog: false
+        },
         
         async getOpenParams() {
-            const openParams = await getOptionOpenParmas();
-            if (openParams && openParams.tab === "login") {
+            const storage = await getOptionOpenParmas();
+            if (!storage) return
+            if (storage.optionPageOpenParmas?.tab === "login") {
                 hook.activeTabIndex = 1;
             }
+            hook.configInfo.isTreadWord = storage.isTreadWord
+            if(storage.optionPageOpenParmas?.action === 'applyBDTransDM') {
+                hook.DMTrans.applyDialog = true
+            }
+            chrome.storage.sync.remove('optionPageOpenParmas')
         },
         selectTab(index:number) {
             hook.activeTabIndex = index
@@ -45,12 +55,15 @@ export default function optionPageHook() {
         },
         async init() {
             hook.getOpenParams()
-            const treadWordInfo = await getTreadWord()
-            hook.configInfo.isTreadWord = isTreadWord(treadWordInfo)
         }
     })
 
-    hook.init()
+    onMounted(() => {
+        hook.init()
+        document.addEventListener('visibilitychange', async () => {
+            hook.getOpenParams()
+        }) 
+    })
 
     return hook
 }

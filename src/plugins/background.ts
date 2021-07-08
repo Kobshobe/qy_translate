@@ -23,6 +23,8 @@ chrome.commands.onCommand.addListener(function (command: any) {
 })
 
 chrome.runtime.onInstalled.addListener(() => {
+  const install = new Install()
+  install.noFirstInstall()
   const pdfActionMenu:chrome.contextMenus.CreateProperties = {
     id: "actionPdfReader",
     title: "PDF阅读器",
@@ -34,8 +36,6 @@ chrome.runtime.onInstalled.addListener(() => {
   // }
   chrome.contextMenus.create(pdfActionMenu)
   // chrome.contextMenus.create(contextMenuItem)
-  const install = new Install()
-  install.noFirstInstall()
 })
 
 chrome.runtime.setUninstallURL("https://www.wenjuan.com/s/UZBZJvIxG6A/", () => {})

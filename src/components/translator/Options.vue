@@ -155,6 +155,9 @@ export default defineComponent({
       font-size: 14px;
       color: #555;
     }
+    ::v-deep(.el-select-dropdown__ite) {
+      list-style: none;
+    }
     ::v-deep(.el-input__inner) {
       border: none;
       padding: 0 8px;
@@ -173,6 +176,7 @@ export default defineComponent({
     ::v-deep(.el-select) {
       width: 100%
     }
+    
   }
 }
 </style>

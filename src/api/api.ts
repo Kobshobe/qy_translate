@@ -1,11 +1,11 @@
 import { getTokenFromStorage, saveTokenInfo } from '../utils/chromeApi'
 import { Ref } from 'vue'
 import { Mode, client } from '../config'
-import { IBaseReqParams,IBaseReqResult,IServerReqParams, IRequestResult, IQrLoginParams, ITokenInfo,IToastMsg } from '@/utils/interface'
+import { IBaseReqParams,IBaseReqResult,IServerReqParams, IRequestResult, IQrLoginParams, ITokenInfo,IToastMsg, IDialogMsg } from '@/utils/interface'
 import { eventToGoogle } from '../utils/analytics'
 
-let protocol = "https://"
-let webSocketProtocol = "wss://"
+let protocol = 'https://'
+let webSocketProtocol = 'wss://'
 let BaseUrl = 'www.fishfit.fun:8080/p'
 
 if (Mode === 'test' || Mode === 'jest') {
@@ -24,20 +24,20 @@ export async function qrLogin({ qrUrl, loginStatus }: IQrLoginParams) {
 
   loginStatus.value = 'loadingQr'
   const start = new Date().getTime()
-  const ws = new WebSocket(webSocketProtocol + BaseUrl + "/user/login_qr");
-  ws.binaryType = "arraybuffer";
+  const ws = new WebSocket(webSocketProtocol + BaseUrl + '/user/login_qr');
+  ws.binaryType = 'arraybuffer';
 
   ws.onopen = (event) => {
-    ws.send("login");
+    ws.send('login');
   };
 
   ws.onmessage = (event) => {
     const msg = getStrFromBuf(event.data);
-    if (msg.slice(0, 9) === `{"token":`) {
-      ws.send("loginOk");
+    if (msg.slice(0, 9) === `{'token':`) {
+      ws.send('loginOk');
       const tokenInfo:ITokenInfo = JSON.parse(msg)
       saveTokenInfo(tokenInfo, (msg: string) => {
-        loginStatus.value = "loginOk"
+        loginStatus.value = 'loginOk'
       })
       eventToGoogle({
         name: 'qr_loginOk',
@@ -46,10 +46,10 @@ export async function qrLogin({ qrUrl, loginStatus }: IQrLoginParams) {
           cost: start - new Date().getTime()
         }
       })
-    } else if (msg.slice(0, 5) === "{err") {
+    } else if (msg.slice(0, 5) === '{err') {
     } else {
-      qrUrl.value = "data:image/jpeg;base64," + window.btoa(msg);
-      loginStatus.value = "scanQr" // scanQr
+      qrUrl.value = 'data:image/jpeg;base64,' + window.btoa(msg);
+      loginStatus.value = 'scanQr' // scanQr
       eventToGoogle({
         name: 'qr_load',
         params: {
@@ -76,7 +76,7 @@ export async function qrLogin({ qrUrl, loginStatus }: IQrLoginParams) {
   function getStrFromBuf(buf: ArrayBuffer) {
     const byte = new Uint8Array(buf);
     const len = byte.byteLength;
-    let s = "";
+    let s = '';
     for (let i = 0; i < len; i++) {
       s += String.fromCharCode(byte[i]);
     }
@@ -87,23 +87,31 @@ export async function qrLogin({ qrUrl, loginStatus }: IQrLoginParams) {
 
 export async function baseFetch({ url, method, success, fail, data, headers = {}, successStatusCode = [200, 201] }:IBaseReqParams) :Promise<IBaseReqResult> {
   return new Promise<IBaseReqResult>((resolve, reject) => {
-    const fetchData:any = {headers,method}
+    const fetchData:RequestInit = {headers,method}
     if(method !== 'GET') {
       fetchData.body = data
     }
     fetch(url, fetchData)
       .then(async (res) => {
+        let s = await res.text()
+        let data;
+        try {
+          data = JSON.parse(s)
+        } catch {
+          data = s
+        }
+        
         if (successStatusCode.includes(res.status)) {
           resolve({
             status: res.status,
-            data: await res.text(),
+            data,
             response: res
           })
         } else {
           resolve({
             errMsg: 'statusErr',
             status: res.status,
-            data: await res.text(),
+            data,
             response: res
           })
         }
@@ -137,7 +145,7 @@ export async function serveBaseReq(
           name: 'needLogin',
           params: {
             type: headers.Authorization,
-            pos: "before_req"
+            pos: 'before_req'
           }
         })
         return
@@ -159,7 +167,6 @@ export async function serveBaseReq(
     const cost = new Date().getTime() - start
 
     const deal = getResult(result)
-    console.log(deal)
 
     if(!result.errMsg) {
       eventToGoogle({
@@ -180,7 +187,7 @@ export async function serveBaseReq(
           name: 'needLogin',
           params: {
             type: deal.errMsg,
-            pos: "after_req"
+            pos: 'after_req'
           }
         })
       } else {
@@ -210,31 +217,20 @@ function makeQuery(queryObject:any) {
 }
 
 function getResult(res: IBaseReqResult):IRequestResult {
+    let toastMsg:IToastMsg|undefined = res.data && res.data.toastMsg;
+    let dialogMsg: IDialogMsg|undefined = res.data && res.data.dialogMsg;
 
-    let data;
-    let toastMsg:IToastMsg|undefined;
-    let serveToastMsg:IToastMsg|undefined;;
-
-    if (!res.errMsg) {
-      try {
-        data = JSON.parse(res.data)
-        serveToastMsg = data.serveToastMsg
-      } catch {
-        data = res.data
+    if(res.status === 401) {
+      res.errMsg = '__needLogin__'
+    }
+    else if(res.errMsg === '__fetchErr__') {
+      toastMsg = {
+        type: 'i18n',
+        message: '__fetchErr__'
       }
-    } else {
-      console.log('get err: ', res)
-      if(res.status === 401) {
-        console.log('get err 401')
-        res.errMsg = '__needLogin__'
-      }
-      else if(res.errMsg === '__fetchErr__') {
-        toastMsg = {
-          type: 'i18n',
-          message: '__fetchErr__'
-        }
-      }
-      else {
+    }
+    else {
+      if(!toastMsg && res.errMsg) {
         toastMsg = {
           type: 'i18n',
           message: '__reqErr__'
@@ -242,12 +238,13 @@ function getResult(res: IBaseReqResult):IRequestResult {
       }
     }
 
+
     return {
       status: res.status,
       errMsg: res.errMsg,
-      data,
+      data: res.data,
       toastMsg,
-      serveToastMsg
+      dialogMsg
     }
   
 }
@@ -290,24 +287,59 @@ export async function updateMark({ success, fail, data }: { success?: Function, 
   })
 }
 
-export async function sendEvent(data: any) {
-  return await serveBaseReq({
-    url: '/phrase',
-    method: 'POST',
-    data,
-    success: () => { },
-    fail: () => { },
-    auth: false
-  })
-}
-
 export async function baiduDomainTransApi(query:any) {
-  return await serveBaseReq({
-    url: '/trans/baidu',
+  const resp =  await serveBaseReq({
+    url: '/trans/baidu/transDM',
     method: 'GET',
     query,
-    success: () => {},
-    fail: () => {},
-    auth: false,
+    auth: true,
+    successStatusCode: [200]
   })
+
+  if(resp.status === 200) {
+    return resp
+  }
+
+  if (resp.data.msg === '__noRice__') {
+    resp.dialogMsg = {
+      message: '__wantToApplyTrans__',
+      confirmText: '__applyServiceFree__',
+      type: 'i18n'
+    }
+  } else {
+    resp.toastMsg = {
+      message: '__reqErr__',
+      type: 'i18n'
+    }
+  }
+  return resp
+}
+
+export async function applyBDDM() {
+  const resp = await serveBaseReq({
+    url: '/trans/baidu/applyDM/10000',
+    method: 'POST',
+    auth: true,
+  })
+
+  if (resp.status === 201) {
+    resp.dialogMsg = {
+      message: '__applyOK__',
+      type: 'i18n'
+    }
+
+  } else if(resp.data.msg === '__noMouthAccess__') {
+    resp.dialogMsg = {
+      message: '__noMouthAccess__',
+      type: 'i18n'
+    }
+
+  } else {
+    resp.dialogMsg = {
+      message: '__applyFail__',
+      type: 'i18n'
+    }
+  }
+
+  return resp
 }

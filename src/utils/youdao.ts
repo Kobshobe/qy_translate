@@ -329,8 +329,8 @@ class YoudaoTranslator {
                         resultFrom: 'en',
                         resultTo: 'zh_CN',
                         data: body,
-                        translit: '',
-                        srcTranslit: '',
+                        tPronunciation: '',
+                        sPronunciation: '',
                         engine: ''
                     }
                     console.log(transResult)

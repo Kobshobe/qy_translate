@@ -1,6 +1,6 @@
 import {IWrapTransInfo, ITransResult, IRequestResult} from '@/utils/interface'
 import {GoogleTrans} from '@/translator/google'
-import {BaiduTrans} from '@/translator/baiduDomainTrans'
+import {BaiduTrans} from '@/translator/baiduTrans'
 import {getMainLang, getSecondLang, getFromeStorage} from '@/utils/chromeApi'
 
 class WrapTranslator {
@@ -11,13 +11,6 @@ class WrapTranslator {
         this.baidu = new BaiduTrans()
     }
     async trans(transInfo:IWrapTransInfo) :Promise<IRequestResult> {
-        if (transInfo.from === '') {
-            transInfo.from = 'auto'
-        }
-      
-        if (transInfo.to === '' || transInfo.to === 'auto') {
-        transInfo.to = await this.autoGetLang(transInfo.text, transInfo.from, transInfo.to)
-        }
 
         if (!transInfo.engine) {
           const info = await getFromeStorage(['transEngine'])
@@ -32,7 +25,7 @@ class WrapTranslator {
           case 'ggTrans':
             return await this.google.trans(transInfo)
           case 'bdTrans':
-            return await this.baidu.transDomain(transInfo)
+            return await this.baidu.CTrans(transInfo)
           case 'bdDM':
             return await this.baidu.transDomain(transInfo)
           default:

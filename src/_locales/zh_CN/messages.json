@@ -64,7 +64,7 @@
         "message": "微信扫码使用小程序管理"
     },
     "logged": {
-        "message": "已登录，现在可以收藏翻译结果，并使用轻氧翻译小程序进行学习"
+        "message": "已登录，现在可以收藏翻译结果，并使用轻氧翻译小程序进行查阅学习"
     },
     "logout": {
         "message": "退出登录"
@@ -102,7 +102,9 @@
     "copyShareLink": {
         "message": "分享链接已复制"
     },
-    "__noSupport__": {
+    
+
+    "__noSupportLang__": {
         "message": "语种不支持"
     },
     "__onlyEnAndZh__": {
@@ -131,5 +133,32 @@
     },
     "__needRelogin__": {
         "message": "需要重新登录，是否前往登录?"
+    },
+    "__wantToApplyTrans__": {
+        "message": "免费申请专业翻译服务?"
+    },
+    "__gotIt__": {
+        "message": "知道了"
+    },
+    "__reduce__": {
+        "message": "取消"
+    },
+    "__scanApply__": {
+        "message": "扫码申请"
+    },
+    "__noMouthAccess__": {
+        "message": "30天内不可重复申请本服务，如刚需可联系我们"
+    },
+    "__applyServiceFree__": {
+        "message": "免费申请"
+    },
+    "__applyOK__": {
+        "message": "恭喜你，申请成功!"
+    },
+    "__applyFail__": {
+        "message": "申请失败，刚需可联系我们"
+    },
+    "__changeEngine__": {
+        "message": "语种不支持默认翻译源，已切换到通用翻译源"
     }
 }

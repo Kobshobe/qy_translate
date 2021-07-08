@@ -1,6 +1,11 @@
 <template>
   <div class="result-main-wsrfhedsoufheqiwrhew">
-    <div class="text-container-wsrfhedsoufheqiwrhew text-container-top-wsrfhedsoufheqiwrhew">
+    <div
+      class="
+        text-container-wsrfhedsoufheqiwrhew
+        text-container-top-wsrfhedsoufheqiwrhew
+      "
+    >
       <div class="found-result-text-wsrfhedsoufheqiwrhew" ref="findTextDOM">
         <FindText mode="foundText" />
       </div>
@@ -27,7 +32,7 @@
     <Divider />
     <div class="text-container-wsrfhedsoufheqiwrhew">
       <div class="found-result-text-wsrfhedsoufheqiwrhew">
-        <div style="height:18px"></div>
+        <div style="height: 18px"></div>
         <FindText mode="resultText" />
       </div>
       <div class="tool-bar-wsrfhedsoufheqiwrhew">
@@ -41,6 +46,15 @@
           />
         </div>
         <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
+          <el-tooltip
+            v-if="translator.tips.message !== ''"
+            class="item"
+            effect="dark"
+            :content="translator.tips.message"
+            placement="top-end"
+          >
+            <IconBtn type="icon-tishi" iconSize="15" color="#FFB715" />
+          </el-tooltip>
           <IconBtn
             type="icon-gengduo1"
             iconSize="17"
@@ -61,7 +75,7 @@ import CollectBtn from "./CollectBtn.vue";
 import Options from "./Options.vue";
 import SubTranslator from "./SubTranslator.vue";
 import FindText from "./FindText.vue";
-import Divider from './Divider.vue'
+import Divider from "./Divider.vue";
 import { ITranslatorHook } from "@/utils/interface";
 
 export default defineComponent({
@@ -69,7 +83,7 @@ export default defineComponent({
     const translator = <ITranslatorHook>inject("translator");
 
     return {
-      translator,
+      translator
     };
   },
   components: {

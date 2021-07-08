@@ -32,7 +32,7 @@
       <div class="sub-sound-bar-wsrfhedsoufheqiwrhew">
         <div class="sub-sound-btn-wsrfhedsoufheqiwrhew">
           <div v-if="showPronunciation" class="sub-pronunciation-wsrfhedsoufheqiwrhew">
-            {{ translator.subTranslator.resultData.srcTranslit }}
+            {{ translator.subTranslator.resultData?.sPronunciation }}
           </div>
           <SoundBtn audioType="sub" />
           <div v-if="showPronunciation" style="width: 5px"></div>
@@ -63,8 +63,8 @@ export default defineComponent({
 
     const showPronunciation = computed(() => {
       return (
-        translator.subTranslator.resultData?.srcTranslit &&
-        translator.subTranslator.resultData.srcTranslit.length < 30
+        translator.subTranslator.resultData?.sPronunciation &&
+        translator.subTranslator.resultData.sPronunciation.length < 30
       );
     });
 

@@ -9,6 +9,7 @@
           @keydown="translator.translateFromEdit"
           :placeholder="enterTextMsg"
           :autofocus="true"
+          ref="editorDOM"
         ></textarea>
       </div>
       <div class="editing-clear-wsrfhedsoufheqiwrhew">
@@ -22,16 +23,30 @@
           v-else-if="translator.lastFindText !== ''"
           type="icon-lishijilu"
           color="#AAAAAA"
-          iconSize=16
+          iconSize="16"
           @click="translator.getLastFindText"
+        />
+        <IconBtn
+          v-else-if="translator.lastFindText === '' && translator.lastFindText === ''"
+          type="icon-niantie1"
+          color="#AAAAAA"
+          iconSize="16"
+          @click="translator.pasteAndTrans"
         />
       </div>
     </div>
     <div class="editing-tool-bar-wsrfhedsoufheqiwrhew">
       <div class="editing-tool-bar-left-wsrfhedsoufheqiwrhew">
         <div class="tread-switch-box-wsrfhedsoufheqiwrhew">
-          <div class="tread-switch-text-wsrfhedsoufheqiwrhew">{{treadWordMsg}}</div>
-          <el-switch v-model="translator.configInfo.isTreadWord" active-color="#4C8BF5" @change="translator.configInfo.changeTreadWord"> </el-switch>
+          <div class="tread-switch-text-wsrfhedsoufheqiwrhew">
+            {{ treadWordMsg }}
+          </div>
+          <el-switch
+            v-model="translator.configInfo.isTreadWord"
+            active-color="#4C8BF5"
+            @change="translator.configInfo.changeTreadWord"
+          >
+          </el-switch>
         </div>
       </div>
       <div class="editing-tool-bar-right-wsrfhedsoufheqiwrhew">
@@ -44,7 +59,7 @@
             type="icon-zuojiantou"
             iconSize="20"
             @click="
-              translator.translateText({
+              translator.trans({
                 text: translator.editingText,
                 type: 'edit_icon',
                 findStatus: 'loading',
@@ -67,20 +82,23 @@ import Loading from "../base/Loading.vue";
 export default defineComponent({
   setup() {
     const translator = <ITranslatorHook>inject("translator");
+    const editorDOM = ref<any | null>(null);
     const on = ref(true);
+    const text = ref('')
 
     onMounted(() => {
-      document.execCommand("paste");
+      editorDOM.value?.focus();
     });
 
-    const enterTextMsg = chrome.i18n.getMessage("enterText")
-    const treadWordMsg = chrome.i18n.getMessage("treadWord")
+    const enterTextMsg = chrome.i18n.getMessage("enterText");
+    const treadWordMsg = chrome.i18n.getMessage("treadWord");
 
     return {
       translator,
       on,
       enterTextMsg,
-      treadWordMsg
+      treadWordMsg,
+      editorDOM
     };
   },
   components: {

@@ -129,7 +129,7 @@ export default defineComponent({
         if (result.transEngine) {
           transEngine.value = result.transEngine;
         } else {
-          transEngine.value = "ggTrans__";
+          transEngine.value = "ggTrans__common";
         }
       }
     );

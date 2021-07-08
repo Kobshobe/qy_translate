@@ -10,7 +10,7 @@ test('hook test translate',async () => {
     // 翻译
     trans.editingText = 'apple'
     expect(trans.editingText).toBe('apple')
-    await trans.translateText({text:'apple', from: 'en', to:'zh-CN', type: 'test'})
+    await trans.trans({text:'apple', from: 'en', to:'zh-CN', type: 'test'})
     expect(trans.find.result?.text).toBe('苹果')
     // 收藏
     await trans.collect({
@@ -77,7 +77,7 @@ test('sub trans test', async () => {
     // 翻译
     trans.editingText = 'look This'
     expect(trans.editingText).toBe('look This')
-    await trans.translateText({text:'look This', from:'en', to:'zh-CN', type: 'test'})
+    await trans.trans({text:'look This', from:'en', to:'zh-CN', type: 'test'})
     expect(trans.find.result?.text).toBe('看看这个')
 
     // 子翻译
@@ -86,8 +86,8 @@ test('sub trans test', async () => {
     await trans.subTranslator.translate()
     expect(trans.subTranslator.status).toBe('result')
     expect(trans.subTranslator.resultData?.text).toBe('看')
-    expect(trans.subTranslator.resultData?.srcTranslit).not.toBe('')
-    expect(trans.subTranslator.resultData?.srcTranslit).not.toBe(undefined)
+    expect(trans.subTranslator.resultData?.sPronunciation).not.toBe('')
+    expect(trans.subTranslator.resultData?.sPronunciation).not.toBe(undefined)
     expect(trans.subTranslator.resultData?.data.dict.length).toBe(2)
     expect(trans.subTranslator.resultData?.data.examples.example.length).toBeGreaterThan(2)
 })

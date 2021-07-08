@@ -150,7 +150,7 @@ export default defineComponent({
 
     function translate(e: any) {
       // translate want select text and click logo
-      translator.translateText({
+      translator.trans({
         text: text.value,
         type: "select",
         findStatus: "loading",

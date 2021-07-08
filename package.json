@@ -12,7 +12,8 @@
     "test": "jest --verbose",
     "test:watch": "jest --watchAll",
     "test:marks": "jest --watch -f src/test/mark.test.ts",
-    "test:bdd": "jest --watch -f baiduDomainTrans.test.ts"
+    "test:bddl": "jest --watch -f baiduDomainAndLang.test.ts",
+    "test:bdc": "jest --watch -f baiduCommonTrans.test.ts"
   },
   "test": {
     "presets": [

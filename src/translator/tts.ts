@@ -43,6 +43,7 @@ const assertInputTypes = (text: string, lang: string, slow: boolean, host: strin
  */
 export const getAudioBase64 = async (
   text: string,
+  audioType: string,
   { lang = 'en', slow = false, host = 'https://translate.google.cn', timeout = 10000 }: Option = {}
 ): Promise<IRequestResult> => {
   assertInputTypes(text, lang, slow, host);
@@ -85,7 +86,8 @@ export const getAudioBase64 = async (
       params: {
         status: res.status,
         cost: new Date().getTime() - start,
-        len: text.length
+        len: text.length,
+        audioType,
       }
     })
     return {
@@ -103,7 +105,8 @@ export const getAudioBase64 = async (
     eventToGoogle({
       name: 'parse_tts_data_err',
       params: {
-        len: text.length
+        len: text.length,
+        audioType,
       }
     })
     return {
@@ -121,7 +124,8 @@ export const getAudioBase64 = async (
     eventToGoogle({
       name: 'tts_may_not_support',
       params: {
-        len: text.length
+        len: text.length,
+        audioType,
       }
     })
     return {
@@ -139,7 +143,7 @@ export const getAudioBase64 = async (
   } catch (e) {
     eventToGoogle({
       name: 'parse_tts_base64_err',
-      params: {}
+      params: {audioType}
     })
     return {
       errMsg: 'parse_tts_base64_err',
@@ -155,7 +159,8 @@ export const getAudioBase64 = async (
     params: {
       status: res.status,
       cost: new Date().getTime() - start,
-      len: text.length
+      len: text.length,
+      audioType
     }
   })
 
@@ -187,39 +192,39 @@ interface LongTextOption extends Option {
  * @param {number?}  option.timeout     default is 10000 (ms)
  * @return {Result[]} the list with short text and audio base64
  */
-export const getAllAudioBase64 = async (
-  text: string,
-  {
-    lang = 'en',
-    slow = false,
-    host = 'https://translate.google.com',
-    splitPunct = '',
-    timeout = 10000,
-  }: LongTextOption = {}
-): Promise<{ shortText: string; base64: string }[]> => {
-  assertInputTypes(text, lang, slow, host);
+// export const getAllAudioBase64 = async (
+//   text: string,
+//   {
+//     lang = 'en',
+//     slow = false,
+//     host = 'https://translate.google.com',
+//     splitPunct = '',
+//     timeout = 10000,
+//   }: LongTextOption = {}
+// ): Promise<{ shortText: string; base64: string }[]> => {
+//   assertInputTypes(text, lang, slow, host);
 
-  if (typeof splitPunct !== 'string') {
-    throw new TypeError('splitPunct should be a string');
-  }
+//   if (typeof splitPunct !== 'string') {
+//     throw new TypeError('splitPunct should be a string');
+//   }
 
-  if (typeof timeout !== 'number' || timeout <= 0) {
-    throw new TypeError('timeout should be a positive number');
-  }
+//   if (typeof timeout !== 'number' || timeout <= 0) {
+//     throw new TypeError('timeout should be a positive number');
+//   }
 
-  const shortTextList = splitLongText(text, { splitPunct });
-  const base64List = await Promise.all(
-    shortTextList.map((shortText) => getAudioBase64(shortText, { lang, slow, host, timeout }))
-  );
+//   const shortTextList = splitLongText(text, { splitPunct });
+//   const base64List = await Promise.all(
+//     shortTextList.map((shortText) => getAudioBase64(shortText, { lang, slow, host, timeout }))
+//   );
 
-  // put short text and base64 text in a list
-  const result: { shortText: string; base64: string }[] = [];
-  for (let i = 0; i < shortTextList.length; i++) {
-    const shortText = shortTextList[i];
-    const base64 = base64List[i];
-    //@ts-ignore ------------
-    result.push({ shortText, base64 });
-  }
+//   // put short text and base64 text in a list
+//   const result: { shortText: string; base64: string }[] = [];
+//   for (let i = 0; i < shortTextList.length; i++) {
+//     const shortText = shortTextList[i];
+//     const base64 = base64List[i];
+//     //@ts-ignore ------------
+//     result.push({ shortText, base64 });
+//   }
 
-  return result;
-};
+//   return result;
+// };

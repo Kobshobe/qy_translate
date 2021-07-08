@@ -1,4 +1,4 @@
-import { collectResult, reduceCollect, updateMark } from '@/api/api'
+import { applyBDDM, collectResult, reduceCollect, updateMark } from '@/api/api'
 import { wrapTranslator } from '@/translator/transWrap'
 import { getAudioBase64 } from '@/translator/tts'
 import { openOptionsPage, getTreadWord, setTreadWord } from '@/utils/chromeApi'
@@ -25,7 +25,7 @@ const apiWrap = {
   },
   // ---------- 播放声音
   tts: async (msg: any, port: any) => {
-    const result = await getAudioBase64(msg.text, {
+    const result = await getAudioBase64(msg.text, msg.audioType, {
       lang: msg.lang,
       slow: false,
       host: 'https://translate.google.cn',
@@ -41,8 +41,11 @@ const apiWrap = {
   setTreadWord: async (msg: any, port: any) => {
     return await HandleResultCanTest(setTreadWord, msg, port)
   },
-  getTreadWord: async (msg: any, port: any) => {
+  getTreadWordConf: async (msg: any, port: any) => {
     return await HandleResultCanTest(getTreadWord, msg, port)
+  },
+  applyBDDM: async (msg: any, port: any) => {
+    return await HandleResultCanTest(applyBDDM, msg, port)
   }
 }
 

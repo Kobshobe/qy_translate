@@ -35,6 +35,11 @@ Object.assign(global, {chrome: {
             remove(key, callBack) {
                 storage.delete(key)
                 callBack()
+            },
+            set(msg:Object) {
+                for(let key in msg) {
+                    storage.set(key, msg[key])
+                }
             }
         }
     },

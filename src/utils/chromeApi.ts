@@ -1,5 +1,5 @@
 import { Mode } from '@/config'
-import { ITokenInfo, ITokenInfoFromCloud, IOptionPageOpenParma, IConfigInfo } from '@/utils/interface'
+import { ITokenInfo, ITokenInfoFromCloud, IOptionPageOpenParma, IConfigInfo, IAllStorage } from '@/utils/interface'
 // @ts-ignore
 import { v4 } from "uuid";
 import {eventToGoogle} from './analytics'
@@ -176,18 +176,25 @@ export function setSecondLang(lang: string) {
 
 // 打开设置页面
 export function openOptionsPage(msg:any) {
-    if (msg.tab === 'login') {
-        chrome.storage.sync.set({
-            optionPageOpenParmas: {
-                tab: 'login'
-            }
-        })
+    switch (msg.type) {
+        case 'login':
+            chrome.storage.sync.set({
+                optionPageOpenParmas: {
+                    tab: 'login'
+                }
+            })
+        case 'applyBDTransDM':
+            chrome.storage.sync.set({
+                optionPageOpenParmas: {
+                    action: 'applyBDTransDM'
+                }
+            })
     }
     chrome.runtime.openOptionsPage()
     eventToGoogle({
         name: "open_options_page",
         params: {
-            isToLogin: msg.tab === 'login'
+            type: msg.type
         }
     })
 }
@@ -209,11 +216,12 @@ export function getOptionPageOpenParmasUsePort() {
     })
 }
 
-export function getOptionOpenParmas(): Promise<IOptionPageOpenParma | null> {
-    return new Promise<IOptionPageOpenParma | null>((resolve, _) => {
-        chrome.storage.sync.get(['optionPageOpenParmas'], (result: any) => {
-            resolve(result.optionPageOpenParmas)
-            chrome.storage.sync.remove('optionPageOpenParmas')
+export function getOptionOpenParmas(): Promise<IAllStorage> {
+    return new Promise<IAllStorage>((resolve, _) => {
+        chrome.storage.sync.get(['optionPageOpenParmas', 'isTreadWord'], (result: any) => {
+            console.log(result)
+            resolve(result)
+            // chrome.storage.sync.remove('optionPageOpenParmas')
         })
     })
 }

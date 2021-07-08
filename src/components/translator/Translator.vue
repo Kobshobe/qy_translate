@@ -105,6 +105,7 @@ export default defineComponent({
   font-style: normal;
   line-height: normal;
   text-align: left;
+  list-style: none;
 }
 </style>
 
