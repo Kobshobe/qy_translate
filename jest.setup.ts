@@ -1,5 +1,6 @@
 const fs = require('fs');
 global.fetch = require('node-fetch');
+import {apiWrap} from './src/utils/apiWithPort'
 
 const rawdata = fs.readFileSync('src/_locales/zh_CN/messages.json');
 const locale = JSON.parse(rawdata)
@@ -14,8 +15,9 @@ const tokenInfo = {
 }
 
 storage.set("tokenInfo", tokenInfo)
+const portPool = new Map()
 
-Object.assign(global, {chrome: {
+const chrome = {
     i18n: {
         getMessage(message) {
             return locale[message].message
@@ -31,6 +33,7 @@ Object.assign(global, {chrome: {
                     }
                 });
                 callback(result)
+                return result
             },
             remove(key, callBack) {
                 storage.delete(key)
@@ -43,7 +46,56 @@ Object.assign(global, {chrome: {
             }
         }
     },
+    runtime: {
+        connect({name}) {
+            const port = new Port(name)
+            return port
+        },
+        onConnect:{
+            addListener(msg) {
+
+            }
+        }
+    },
     setTestToken() {
         storage.set("tokenInfo", tokenInfo)
+    },
+    sleep(mill:number) {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve(true), mill)
+        })
     }
-}})
+ }
+
+class Port {
+    name: string
+    callBack: Function
+    postHandler: Function
+    onMessage:any = {
+        addListener: (callBack) => {
+            this.callBack = callBack
+        }
+    }
+    async postMessage(msg) {
+        const backPort = new BackPort(this.callBack)
+        const resp = await apiWrap[this.name](msg, backPort)
+    }
+    constructor(name:string) {
+        this.name = name
+    }
+}
+
+class BackPort {
+    callBack: Function
+    postMessage(res) {
+        this.callBack(res)
+    }
+    constructor(callBack) {
+        this.callBack = callBack
+    }
+}
+
+Object.assign(global, {chrome})
+
+Object.assign(global, {notest: () => {}})
+

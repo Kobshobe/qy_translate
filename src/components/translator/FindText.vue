@@ -8,7 +8,7 @@
         "
         v-on:mouseup.stop="findTextMouseup"
       >
-        {{ translator.find.text }}
+        {{ transHook.find.text }}
       </div>
 
       <div
@@ -27,25 +27,25 @@
         result-text-box-wsrfhedsoufheqiwrhew
       "
     >
-      {{ translator.find.result?.text }}
+      {{ transHook.find.result?.text }}
     </div>
     <!-- <div
-      v-if="mode === 'foundText' && translator.find.result.srcTranslit && localeLang !== translator.find.result.resultFrom"
+      v-if="mode === 'foundText' && transHook.find.result.srcTranslit && localeLang !== transHook.find.result.resultFrom"
       class="
         result-text-box-wsrfhedsoufheqiwrhew
         pronunciation-wsrfhedsoufheqiwrhew
       "
     >
-      [{{ translator.find.result.srcTranslit }}]
+      [{{ transHook.find.result.srcTranslit }}]
     </div>
     <div
-      v-else-if="mode === 'resultText' && translator.find.result?.translit && localeLang !== translator.find.result.resultTo"
+      v-else-if="mode === 'resultText' && transHookfind.result?.translit && localeLang !== transHook.find.result.resultTo"
       class="
         result-text-box-wsrfhedsoufheqiwrhew
         pronunciation-wsrfhedsoufheqiwrhew
       "
     >
-      [{{ translator.find.result.translit }}]
+      [{{ transHook.find.result.translit }}]
     </div> -->
   </div>
 </template>
@@ -59,37 +59,37 @@ export default defineComponent({
     mode: String, // foundText, resultText
   },
   setup(props) {
-    const translator = <ITranslatorHook>inject("translator");
+    const transHook = <ITranslatorHook>inject("transHook");
     const markHtml = ref("");
     const foundScrollDOM = ref<any | null>(null);
     const localeLang = navigator.language
 
-    markHtml.value = translator.getMarkHtml();
+    markHtml.value = transHook.getMarkHtml();
 
     const findTextMouseup = (e: any) => {
       const sel: any = window.getSelection();
       if (sel.toString().replace(/[\s|\n]/g, "") !== "") {
-        translator.subTranslator.top =
-          e.offsetY - foundScrollDOM.value.scrollTop + 30;
-        translator.subTranslator.left = e.offsetX;
-        translator.subTranslator.selectText = sel.toString();
-        translator.subTranslator.selectRange = [
+        transHook.subTranslator.top =
+          e.offsetY - foundScrollDOM.value.scrollTop + 15;
+        transHook.subTranslator.left = e.offsetX;
+        transHook.subTranslator.selectText = sel.toString();
+        transHook.subTranslator.selectRange = [
           sel.getRangeAt(0).startOffset,
           sel.getRangeAt(0).endOffset,
         ];
-        translator.subTranslator.bookMark();
-        translator.subTranslator.status = "showGate";
+        transHook.subTranslator.bookMark();
+        transHook.subTranslator.status = "showGate";
       }
     };
 
     watch(
-      () => translator.marksList,
+      () => transHook.marksList,
       () => {
-        markHtml.value = translator.getMarkHtml();
+        markHtml.value = transHook.getMarkHtml();
       }
     );
 
-    return { translator, markHtml, findTextMouseup, foundScrollDOM, localeLang };
+    return { transHook, markHtml, findTextMouseup, foundScrollDOM, localeLang };
   },
 });
 </script>

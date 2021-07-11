@@ -3,7 +3,7 @@
 import { baseFetch } from '../api/api'
 import splitLongText from './splitLongText';
 import { eventToGoogle } from '@/utils/analytics'
-import {IRequestResult} from '@/utils/interface'
+import {IResponse,IContext, IConfig} from '@/utils/interface'
 
 interface Option {
   lang?: string;
@@ -41,25 +41,27 @@ const assertInputTypes = (text: string, lang: string, slow: boolean, host: strin
  * @param {number?}  option.timeout default is 10000 (ms)
  * @returns {Promise<string>} url
  */
-export const getAudioBase64 = async (
-  text: string,
-  audioType: string,
-  { lang = 'en', slow = false, host = 'https://translate.google.cn', timeout = 10000 }: Option = {}
-): Promise<IRequestResult> => {
-  assertInputTypes(text, lang, slow, host);
+export const getAudioBase64 = async (c:IContext): Promise<IContext> => {
+  // assertInputTypes(c.req.text, c.req.lang, slow, host);
 
-  if (text.length > 200) {
+  // text: string,
+  // audioType: string,
+  // { lang = 'en', slow = false, host = 'https://translate.google.cn', timeout = 10000 }: Option = {}
+
+
+  if (c.req.text.length > 200) {
     eventToGoogle({
       name: "tts_too_long_err",
-      params: {textLenght: text.length}
+      params: {textLenght: c.req.text.length}
     })
-    return {
+    c.resp = {
       errMsg: 'too long',
       toastMsg: {
         type: 'i18n',
         message: '__textTooLong__',
       }
     }
+    return c
   }
 
   const start = new Date().getTime()
@@ -73,7 +75,7 @@ export const getAudioBase64 = async (
       'f.req=' +
       encodeURIComponent(
         JSON.stringify([
-          [['jQ1olc', JSON.stringify([text, lang, slow ? true : null, 'null']), null, 'generic']],
+          [['jQ1olc', JSON.stringify([c.req.text, c.req.lang, false, 'null']), null, 'generic']],
         ])
       ),
     successStatusCode: [200]
@@ -86,13 +88,12 @@ export const getAudioBase64 = async (
       params: {
         status: res.status,
         cost: new Date().getTime() - start,
-        len: text.length,
-        audioType,
+        len: c.req.text.length,
+        audioType: c.req.audioType,
       }
     })
-    return {
-      errMsg: ''
-    }
+    // mark handler err
+    return c
   } else {
     result = res.data
   }
@@ -105,36 +106,34 @@ export const getAudioBase64 = async (
     eventToGoogle({
       name: 'parse_tts_data_err',
       params: {
-        len: text.length,
-        audioType,
+        len: c.req.text.length,
+        audioType: c.req.audioType,
       }
     })
-    return {
+    c.resp = {
       errMsg: 'parse tts data err',
       toastMsg: {
         type: 'i18n',
         message: '__textTooLong__',
       }
     }
+    return c
   }
 
   // Check the result. The result will be null if given the lang doesn't exist
   if (!result) {
-    throw new Error(`lang "${lang}" might not exist`);
+    // throw new Error(`lang "${lang}" might not exist`);
     eventToGoogle({
       name: 'tts_may_not_support',
       params: {
-        len: text.length,
-        audioType,
+        len: c.req.text.length,
+        audioType: c.req.audioType,
       }
     })
-    return {
+    c.resp = {
       errMsg: 'may_not_support_lang',
-      // toastMsg: {
-      //   type: 'i18n',
-      //   message: '__langMayNoSupport__',
-      // }
     }
+    return c
   }
 
   // 2. continue to parse audio base64 string
@@ -143,15 +142,16 @@ export const getAudioBase64 = async (
   } catch (e) {
     eventToGoogle({
       name: 'parse_tts_base64_err',
-      params: {audioType}
+      params: {audioType: c.req.audioType}
     })
-    return {
+    c.resp = {
       errMsg: 'parse_tts_base64_err',
       toastMsg: {
         type: 'i18n',
         message: '__hasErr__'
       }
-    };
+    }
+    return c
   }
 
   eventToGoogle({
@@ -159,15 +159,16 @@ export const getAudioBase64 = async (
     params: {
       status: res.status,
       cost: new Date().getTime() - start,
-      len: text.length,
-      audioType
+      len: c.req.text.length,
+      audioType: c.req.audioType
     }
   })
 
-  return {
+  c.resp =  {
     errMsg:'',
     data: result[0]
   };
+  return c
 };
 
 interface LongTextOption extends Option {

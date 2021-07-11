@@ -1,14 +1,14 @@
 <template>
   <div
     class="dialog-overlay-wsrfhedsoufheqiwrhew"
-    v-if="translator.dialogMsg.show"
-    @click="translator.dialogMsg.show = false"
+    v-if="transHook.dialogMsg.show"
+    @click="transHook.dialogMsg.show = false"
   >
     <div class="dialog-content-box-wsrfhedsoufheqiwrhew" @click.stop="">
-      <div class="content-text-wsrfhedsoufheqiwrhew">{{translator.dialogMsg.message}}</div>
+      <div class="content-text-wsrfhedsoufheqiwrhew">{{transHook.dialogMsg.message}}</div>
       <div class="dialog-control-bar-wsrfhedsoufheqiwrhew">
-        <div class="cancel-wsrfhedsoufheqiwrhew" :style="translator.dialogMsg.confirmText ? 'color: #777;':''" @click="translator.dialogMsg.show = false">{{translator.dialogMsg.cancelText}}</div>
-        <div class="comfirm-wsrfhedsoufheqiwrhew" @click="translator.dialogMsg.confirmAction">{{translator.dialogMsg.confirmText}}</div>
+        <div class="cancel-wsrfhedsoufheqiwrhew" :style="transHook.dialogMsg.confirmText ? 'color: #777;':''" @click="transHook.dialogMsg.show = false">{{transHook.dialogMsg.cancelText}}</div>
+        <div class="comfirm-wsrfhedsoufheqiwrhew" @click="transHook.dialogMsg.confirmAction">{{transHook.dialogMsg.confirmText}}</div>
       </div>
     </div>
   </div>
@@ -20,10 +20,10 @@ import {ITranslatorHook} from '@/utils/interface';
 
 export default defineComponent({
   setup() {
-      const translator = <ITranslatorHook>inject('translator')
+      const transHook = <ITranslatorHook>inject('transHook')
 
       return {
-          translator
+          transHook
       }
   },
 });
@@ -34,6 +34,7 @@ export default defineComponent({
 @import "../../app.scss";
 
 .dialog-overlay-wsrfhedsoufheqiwrhew {
+  box-sizing: border-box;
   position: absolute;
   top: 0;
   left: 0;
@@ -42,6 +43,7 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0 20px 0 20px;
 //   background-color: rgba(0,0,0,0.5);
   .dialog-content-box-wsrfhedsoufheqiwrhew {
     display: flex;

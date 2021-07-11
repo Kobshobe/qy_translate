@@ -1,5 +1,5 @@
 import {IClientInfo} from '@/utils/interface'
-export const Mode:'test'|'jest'|'public'|'public_test' = 'jest'
+export const Mode:'test'|'jest'|'public'|'public_test' = 'public_test'
 export const clientVersion = "1.2.1"
 export const platform:'chrome'|'edge'|'crx'|'crx_v2'|'_test' = "_test"
 export const client:IClientInfo = getClient()

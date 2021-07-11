@@ -1,12 +1,15 @@
 <template>
-  <div class="translator-main-wsrfhedsoufheqiwrhew" @mouseup.stop="up">
-    <TransTopBar :mode="translator.mode" />
-    <TransResult v-if="translator.status !== 'editing'" />
-    <Editor v-else />
-    <Options v-if="translator.options.isShow" :mode="translator.mode" />
-    <SubTranslator />
-    <TransDialog />
-    <TransToast />
+  <div class="tool-trans-main-wsrfhedsoufheqiwrhew">
+    <TransTopBar :mode="transHook.mode" :uiMode="transHook.conf.C.mode" />
+    <LangController v-if="transHook.conf.C.mode !== 'simple'" />
+    <div class="transHook-main-wsrfhedsoufheqiwrhew" @mouseup.stop="up">
+      <TransResult v-if="transHook.status !== 'editing'" />
+      <Editor v-else />
+      <Options v-if="transHook.options.isShow" :mode="transHook.mode" />
+      <SubTranslator />
+      <TransDialog />
+      <TransToast />
+    </div>
   </div>
 </template>
 
@@ -21,21 +24,22 @@ import {
 } from "vue";
 import IconBtn from "../base/IconBtn.vue";
 import SoundBtn from "./SoundBtn.vue";
+import TransTopBar from './TransTopBar.vue';
 import CollectBtn from "./CollectBtn.vue";
 import Options from "./Options.vue";
 import TransDialog from "./TransDialog.vue";
 import TransToast from "./TransToast.vue";
 import SubTranslator from "./SubTranslator.vue";
 import FindText from "./FindText.vue";
-import TransTopBar from "./TransTopBar.vue";
 import Editor from "./Editor.vue";
 import TransResult from "./TransResult.vue";
+import LangController from "./LangController.vue";
 import { ITranslatorHook } from "@/utils/interface";
 
 export default defineComponent({
   emits: ["loadOK"],
   setup(props, context) {
-    const translator = <ITranslatorHook>inject("translator");
+    const transHook = <ITranslatorHook>inject("transHook");
 
     function messageHandler(event: any) {
       if (
@@ -45,7 +49,7 @@ export default defineComponent({
         return;
       }
       if (event.data.action === "playAudio") {
-        translator.getTTS(event.data.audioType, event.data.id);
+        transHook.getTTS(event.data.audioType, event.data.id);
       }
     }
 
@@ -63,11 +67,12 @@ export default defineComponent({
     }
 
     return {
-      translator,
+      transHook,
       up,
     };
   },
   components: {
+    TransTopBar,
     SoundBtn,
     CollectBtn,
     IconBtn,
@@ -76,9 +81,9 @@ export default defineComponent({
     TransToast,
     SubTranslator,
     FindText,
-    TransTopBar,
     Editor,
     TransResult,
+    LangController,
   },
 });
 </script>
@@ -86,26 +91,31 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import "../../app.scss";
 
-.translator-main-wsrfhedsoufheqiwrhew {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  // font-weight: normal;
-  // font-family: Arial, Helvetica, sans-serif;
-  // font-style: normal;
-  // line-height: normal;
-  // text-align: left;
-}
 ::v-deep(*) {
   padding: 0;
   margin: 0;
-  background-color: rgba(0,0,0,0);
+  background-color: rgba(0, 0, 0, 0);
   font-weight: normal;
   font-family: Arial, Helvetica, sans-serif;
   font-style: normal;
   line-height: normal;
-  text-align: left;
   list-style: none;
+}
+
+.tool-trans-main-wsrfhedsoufheqiwrhew {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  .transHook-main-wsrfhedsoufheqiwrhew {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    // font-weight: normal;
+    // font-family: Arial, Helvetica, sans-serif;
+    // font-style: normal;
+    // line-height: normal;
+    // text-align: left;
+  }
 }
 </style>
 

@@ -88,6 +88,7 @@ export default defineComponent({
   align-items: center;
   color: #777;
   font-size: 15px;
+  background-color: white;
   .bottom-text {
     text-decoration: underline;
     cursor: pointer;

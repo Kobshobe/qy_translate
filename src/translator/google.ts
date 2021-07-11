@@ -1,8 +1,11 @@
 import {BaseTrans} from '@/translator/share'
+import {SToGoogle} from '@/translator/language'
 import { getMainLang, getSecondLang } from '@/utils/chromeApi'
-import {IRequestResult, ITransResult, ITransResultFromApi,IWrapTransInfo} from '@/utils/interface'
+import {IContext,IResponse, ITransResult, IGTransResult,IWrapTransInfo} from '@/utils/interface'
 import {eventToGoogle, getTextLimit} from '@/utils/analytics'
 import {calcHash} from '@/translator/tk'
+import {baseFetch} from '@/api/api'
+import _Result from 'element-plus/lib/el-result'
 
 class TkAndClient {
   ttkList = ["444444.1050258596", "445678.1618007056", "445767.3058494238", "444000.1270171236", "445111.1710346305"]
@@ -25,12 +28,13 @@ class TkAndClient {
 }
 
 export class GoogleTrans extends BaseTrans {
-  
   tkTool = new TkAndClient()
+  HOST = 'https://translate.googleapis.com/translate_a/single'
 
   constructor() {
     super()
     this.maxLenght = 5000
+    this.setSELang(SToGoogle)
   }
 
   getParamsUrlPart(data:Object) :string {
@@ -40,14 +44,19 @@ export class GoogleTrans extends BaseTrans {
     }).join("&")
   }
 
-  async trans({text, from, to, type, mode}:IWrapTransInfo) :Promise<IRequestResult> {
+  async trans(c:IContext) :Promise<IContext> {
+    const info:IWrapTransInfo = c.req
 
-    const tooLongErr = this.checkTextLen(text)
-    if(tooLongErr) {
-      return tooLongErr
+    const tooLongErr = this.checkTextLen(c)
+    if(c.resp && c.resp.errMsg) {
+      return c
     }
 
-    const baseUrl = 'https://translate.googleapis.com/translate_a/single'
+    await this.setLangCode(c)
+
+    if (!info.toCode || !info.fromCode) {
+      this.noSupportLang(c)
+    }
 
     /*
     [dt代表]
@@ -58,139 +67,111 @@ export class GoogleTrans extends BaseTrans {
     md: definitions of source text, if it's one word
     ss:同义词synsets
     ex:例句examples.example
-    rw:
-    dj:
-    qc:
-    ld:
+    rw: 
+    dj: 
+    qc: 
+    ld: 
     */
 
-    const dtPramas = type === 'sub' ? 'dt=rm&dt=ex&dt=bd&' : 'dt=rm&'
+    const dtPramas = info.type === 'sub' ? 'dt=rm&dt=ex&dt=bd&' : 'dt=rm&'
     
     //@ts-ignore
     const paramsData = new URLSearchParams({
       client: 'webapp',
-      sl: from,
-      tl: to,
+      sl: info.fromCode,
+      tl: info.toCode,
       dj: '1',
-      q: text,
+      q: info.text,
       dt: 't',
     })
 
-    const realUrl = baseUrl + '?' + dtPramas + paramsData.toString() + this.tkTool.getTk(text)
+    const realUrl = this.HOST + '?' + dtPramas + paramsData.toString() + this.tkTool.getTk(info.text)
     const start = new Date().getTime()
-    let errRes:IRequestResult|undefined = undefined;
 
-    let find:Response|undefined = undefined;
-    try {
-      find = await fetch(realUrl)
-    } catch {
-      if (!find) {
-        return <IRequestResult>{
-          errMsg: 'unkown err!',
-          toastMsg: {
-            type: 'i18n',
-            message: '__fetchErr__'
-          }
-        }
-      }
-    }
+    let resp = await this.oneTrans(info, realUrl)
     
-    const cost = new Date().getTime() - start
-    if(find.status !== 200) {
-      console.log('trans err')
-      if(find.status == 429) {
-        errRes = {
-          status: find.status,
-          errMsg: 'gl_trans_err_429',
-          toastMsg: {
-            type: 'i18n',
-            message: '__reqErr__'
-          }
-        }
-      } else if (find.status === 403) {
-        errRes = {
-          status: find.status,
-          errMsg: 'gl_trans_err_403',
-          toastMsg: {
-            type: 'i18n',
-            message: '__reqErr__'
-          }
-        }
-      } else {
-        errRes = {
-          status: find.status,
-          errMsg: `gl_trans_bad_${find.status}`,
-          toastMsg: {
-            type: 'i18n',
-            message: '__reqErr__'
-          }
+    if(resp.status !== 200) {
+      const errResp:IResponse = {
+        status: resp.status,
+        errMsg: `gg_trans_err_${resp.status}`,
+        toastMsg: {
+          type: 'i18n',
+          message: '__reqErr__'
         }
       }
-    }
-
-    if(errRes) {
-      eventToGoogle({
-        name: 'google_trans_err',
-        params: {
-          from: from,
-          to: to,
-          type: type,
-          textLenght: text.length,
-          cost,
-          errMsg: errRes.errMsg,
-          tClient: this.tkTool.client,
-          ttk: this.tkTool.ttk,
-          lt: getTextLimit(text, 20),
-          trans_mode: mode
-        }
-      })
       this.tkTool.next()
-      return errRes
+      this.transErrToAnalytic(c, resp)
+      c.resp = errResp
+      return c
     }
-
-    const body = await find.text()
-
-    const jsonBody:ITransResultFromApi = JSON.parse(body)
     
     const result:ITransResult = {
       text: '',
-      resultFrom: jsonBody.src,
+      resultFrom: resp.data.src,
       //@ts-ignore
-      resultTo: to,
+      resultTo: info.toCode,
       sPronunciation: '',
       tPronunciation: '',
-      data: jsonBody,
+      data: resp.data,
       engine: 'ggTrans__common'
     }
-    // if(type === 'sub') {
-      jsonBody.sentences.slice(0, -1).forEach((s:any) => {
-        result.text += s.trans
-      })
-      result.sPronunciation = jsonBody.sentences.slice(-1)[0].src_translit
-      result.tPronunciation = jsonBody.sentences.slice(-1)[0].translit
-    // } else {
-    //   jsonBody.sentences.forEach((s:any) => {
-    //     result.text += s.trans
-    //   })
-    // }
-    eventToGoogle({
-      name: 'google_trans',
-      params: {
-        from: from,
-        to: to,
-        resultFrom: result.resultFrom,
-        type: type,
-        textLenght: text.length,
-        cost,
-        lt: getTextLimit(text, 20),
-        trans_mode: mode
-      }
+
+    resp.data.sentences.slice(0, -1).forEach((s:any) => {
+      result.text += s.trans
     })
-    return {
-      status: find.status,
+    result.sPronunciation = resp.data.sentences.slice(-1)[0].src_translit
+    result.tPronunciation = resp.data.sentences.slice(-1)[0].translit
+    result.examples = resp.data.examples && resp.data.examples.example;
+    if (result.data.dict) {
+      result.dict = []
+      result.data.dict.forEach((item:any) => {
+        //@ts-ignore
+        result.dict.push({
+          pos: item.pos,
+          trans: item.terms.toString()
+        })
+      })
+    }
+
+    this.transOKToAnalytic(c, resp)
+    c.resp = {
+      status: resp.status,
       errMsg: '',
       data: result,
     }
+    return c
+  }
+
+  async oneTrans(info:IWrapTransInfo, url:string) :Promise<IResponse> {
+    const start = new Date().getTime()
+
+    const resp = await baseFetch({
+      url: url,
+      method: 'GET',
+    });
+
+    info.cost == undefined && (info.cost = 0);
+    info.cost = info.cost + new Date().valueOf() - start
+
+    return resp
+  }
+
+  async detect(c:IContext) {
+    const info:IWrapTransInfo = c.req
+    const paramsData = new URLSearchParams({
+      client: 'webapp',
+      sl: 'auto',
+      tl: 'zh-CN',
+      dj: '1',
+      q: c.req.text,
+      dt: 't',
+    })
+
+    const url = 'https://translate.googleapis.com/translate_a/single' + '?' + paramsData.toString() + this.tkTool.getTk(info.text)
+
+    const resp = await this.oneTrans(info, url)
+
+    return resp.data.src
   }
 
 }

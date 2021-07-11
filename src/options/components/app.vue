@@ -11,15 +11,14 @@
       </div>
     </div>
     <FootBar />
-    <el-dialog
+    <!-- <el-dialog
       v-model="optionPageHook.DMTrans.applyDialog"
       title=""
       width="300px"
     >
       <img class="qr-img" :src="applyBDDMQRURL" alt="" />
-      <!-- marks -->
       <div style="width:100%;text-align:center;">使用微信扫码申请专业翻译服务</div>
-    </el-dialog>
+    </el-dialog> -->
   </div>
 </template>
 
@@ -36,13 +35,13 @@ export default defineComponent({
     const optionPageHook = hook();
     provide("optionPageHook", optionPageHook);
 
-    const applyBDDMQRURL = chrome.runtime.getURL(
-      "assets/images/qr_applyBDDM.png"
-    );
+    // const applyBDDMQRURL = chrome.runtime.getURL(
+    //   "assets/images/qr_applyBDDM.png"
+    // );
 
     return {
       optionPageHook,
-      applyBDDMQRURL,
+      // applyBDDMQRURL,
     };
   },
   components: {

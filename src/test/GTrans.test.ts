@@ -1,0 +1,103 @@
+global.fetch = require('node-fetch');
+
+import { GoogleTrans } from '@/translator/google'
+import {IWrapTransInfo} from '@/utils/interface'
+
+function delay(second:number) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(true), second * 1000)
+    })
+}
+
+jest.setTimeout(40000);
+
+test('google trans test set lang', async () => {
+    expect('').toBe('')
+    const trans = new GoogleTrans()
+    chrome.storage.sync.set({
+        mainLang: 'zh-CN',
+        secondLang: 'en'
+    })
+    const langs = chrome.storage.sync.get(['mainLang','secondLang'], (res) => {
+        expect(res.mainLang).toBe('zh-CN')
+        expect(res.secondLang).toBe('en')
+    })
+    let info:IWrapTransInfo = {
+        text: 'app',
+        from: 'en',
+        to: 'zh-CN',
+        type: 'edit_icon',
+        engine: 'ggTrans__common',
+        mode: 'popup'
+    }
+
+    await trans.setLangCode({req:info})
+    expect(info.from).toBe('en')
+    expect(info.fromCode).toBe('en')
+    expect(info.toCode).toBe('zh-CN')
+    expect(info.isDetectedLang).toBe(true)
+
+    info = {
+        text: 'app',
+        from: 'zh-CN',
+        to: '',
+        type: 'edit_icon',
+        engine: 'ggTrans__common',
+        mode: 'popup'
+    }
+    await trans.setLangCode({req:info})
+    expect(info.from).toBe('zh-CN')
+    expect(info.fromCode).toBe('zh-CN')
+    expect(info.toCode).toBe('en')
+
+    info = {
+        text: 'app',
+        from: '',
+        to: '',
+        type: 'edit_icon',
+        engine: 'ggTrans__common',
+        mode: 'popup'
+    }
+    await trans.setLangCode({req:info})
+    expect(info.from).toBe('en')
+    expect(info.fromCode).toBe('en')
+    expect(info.toCode).toBe('zh-CN')
+
+    info = {
+        text: 'app',
+        from: undefined,
+        to: undefined,
+        type: 'edit_icon',
+        engine: 'ggTrans__common',
+        mode: 'popup'
+    }
+
+    await trans.setLangCode({req:info})
+    expect(info.from).toBe('en')
+    expect(info.fromCode).toBe('en')
+    expect(info.toCode).toBe('zh-CN')
+    expect(info.isDetectedLang).toBe(true)
+})
+
+test('translate text test', async (done) => {
+    chrome.storage.sync.set({
+        mainLang: 'zh-CN',
+        secondLang: 'en'
+    })
+    const langs = chrome.storage.sync.get(['mainLang','secondLang'], (res) => {
+        expect(res.mainLang).toBe('zh-CN')
+        expect(res.secondLang).toBe('en')
+    })
+    const trans = new GoogleTrans()
+    const c = await trans.trans({req:{text:'apple', from:'', to:'zh-CN', type: '', mode: '', engine: 'ggTrans__common'}})
+    expect(c.resp?.errMsg).toBe('')
+    expect(c.resp?.data.resultFrom).toEqual('en')
+    expect(c.resp?.data.text).toEqual('苹果')
+
+    // for (let i = 0; i < 8; i++) {
+    //     await delay(0.5)
+    //     const msg = await transHook.findUseApi('apple', '', 'zh-CN')
+    //     expect(msg.errMsg).toBe('')
+    // }
+    done()
+})

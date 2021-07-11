@@ -1,46 +1,50 @@
 import { Mode } from '@/config'
-import { ITokenInfo, ITokenInfoFromCloud, IOptionPageOpenParma, IConfigInfo, IAllStorage } from '@/utils/interface'
+import { IAnalyticEvent, ITokenInfo, ITokenInfoFromCloud, IOptionPageOpenParma, IConfigInfo, IAllStorage } from '@/utils/interface'
 // @ts-ignore
 import { v4 } from "uuid";
 import {eventToGoogle} from './analytics'
 
-export async function getFromeStorage(field:string[]) :Promise<any> {
-    return new Promise<any>((resolve) => {
+export async function getTransConf() {
+    const conf:IAllStorage = await getFromeStorage([
+        'isTreadWord', 'fromLang', 'toLang', 'mode', 'transEngine'
+    ])
+    // console.log('conf1: ', conf)
+    conf.isTreadWord = dealTreadWord(conf.isTreadWord);
+    conf.menuTrans = dealTreadWord(conf.menuTrans);
+
+    conf.fromLang || (conf.fromLang = 'auto');
+    conf.toLang || (conf.toLang = '__auto__');
+    conf.mode || (conf.mode = 'simple');
+    conf.transEngine || (conf.transEngine = 'ggTrans__common');
+    conf.mainLang || (conf.mainLang = 'en');
+    conf.secondLang || (conf.secondLang = 'en');
+
+    // console.log('conf2: ', conf)
+    
+    return conf
+}
+
+function dealTreadWord(isTreadWord:any) :boolean {
+    if(isTreadWord === false) {
+        return false
+    } else {
+        return true
+    }
+}
+
+export async function getFromeStorage(field:string[]) :Promise<IAllStorage> {
+    return new Promise<IAllStorage>((resolve) => {
         chrome.storage.sync.get(field, (result) => {
             resolve(result)
         })
     })
 }
 
-
 async function checkMainLang() {
     let mainLang = await getMainLang()
     if (!mainLang && navigator.language) {
         mainLang = navigator.language
         setMainLang(navigator.language, "init")
-    }
-}
-
-export function setTreadWord(treadWordInfo:any) {
-    return new Promise((resolve) => {
-        chrome.storage.sync.set({isTreadWord: treadWordInfo.data})
-        eventToGoogle({name:"changeTreadWord", params: {status: treadWordInfo.data}})
-    })
-}
-
-export function getTreadWord() :Promise<boolean> {
-    return new Promise<boolean>((resolve) => {
-        chrome.storage.sync.get(['isTreadWord'], (result) => {
-            resolve(result.isTreadWord)
-        })
-    })
-}
-
-export function isTreadWord(treadWordInfo: any) :boolean {
-    if(treadWordInfo === false) {
-        return false
-    } else {
-        return true
     }
 }
 
@@ -176,26 +180,14 @@ export function setSecondLang(lang: string) {
 
 // 打开设置页面
 export function openOptionsPage(msg:any) {
-    switch (msg.type) {
-        case 'login':
-            chrome.storage.sync.set({
-                optionPageOpenParmas: {
-                    tab: 'login'
-                }
-            })
-        case 'applyBDTransDM':
-            chrome.storage.sync.set({
-                optionPageOpenParmas: {
-                    action: 'applyBDTransDM'
-                }
-            })
-    }
-    chrome.runtime.openOptionsPage()
-    eventToGoogle({
-        name: "open_options_page",
-        params: {
-            type: msg.type
-        }
+    chrome.storage.sync.set({
+        optionPageOpenParmas: msg
+    }, () => {
+        chrome.runtime.openOptionsPage()
+        eventToGoogle({
+            name: "open_options_page",
+            params: msg
+        })
     })
 }
 
@@ -218,8 +210,7 @@ export function getOptionPageOpenParmasUsePort() {
 
 export function getOptionOpenParmas(): Promise<IAllStorage> {
     return new Promise<IAllStorage>((resolve, _) => {
-        chrome.storage.sync.get(['optionPageOpenParmas', 'isTreadWord'], (result: any) => {
-            console.log(result)
+        chrome.storage.sync.get(['optionPageOpenParmas'], (result: any) => {
             resolve(result)
             // chrome.storage.sync.remove('optionPageOpenParmas')
         })
@@ -326,7 +317,7 @@ function getCurrentTabUrl() :Promise<string> {
     })
 }
 
-
-export function setTransEngine(engine:string) {
-    chrome.storage.sync.set({transEngine:engine})
+export function eventToAnalytics(event:IAnalyticEvent) {
+    const port = chrome.runtime.connect({name:'analytic'})
+    port.postMessage({req:event})
 }

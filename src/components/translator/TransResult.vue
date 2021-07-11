@@ -14,17 +14,17 @@
           <SoundBtn audioType="from" />
           <div class="edge-width-wsrfhedsoufheqiwrhew"></div>
           <CollectBtn
-            :isCollected="translator.find.isCollected"
-            @collect="translator.collect({})"
-            @reduceCollect="translator.reduceCollect"
+            :isCollected="transHook.find.isCollected"
+            @collect="transHook.collect({})"
+            @reduceCollect="transHook.reduceCollect"
           />
         </div>
         <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
           <IconBtn
-            v-if="translator.mode === 'popup'"
+            v-if="transHook.mode === 'popup'"
             type="icon-bianji1"
             iconSize="16"
-            @click="translator.toEdit"
+            @click="transHook.toEdit"
           />
         </div>
       </div>
@@ -42,15 +42,15 @@
           <IconBtn
             type="icon-fuzhi3"
             iconSize="15"
-            @click="translator.copyResult"
+            @click="transHook.copyResult"
           />
         </div>
         <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
           <el-tooltip
-            v-if="translator.tips.message !== ''"
+            v-if="transHook.tips.message !== ''"
             class="item"
             effect="dark"
-            :content="translator.tips.message"
+            :content="transHook.tips.message"
             placement="top-end"
           >
             <IconBtn type="icon-tishi" iconSize="15" color="#FFB715" />
@@ -58,7 +58,7 @@
           <IconBtn
             type="icon-gengduo1"
             iconSize="17"
-            @click="translator.options.show"
+            @click="transHook.options.show"
           />
         </div>
       </div>
@@ -68,7 +68,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject } from "vue";
+import { defineComponent, inject, watch } from "vue";
 import IconBtn from "../base/IconBtn.vue";
 import SoundBtn from "./SoundBtn.vue";
 import CollectBtn from "./CollectBtn.vue";
@@ -80,10 +80,16 @@ import { ITranslatorHook } from "@/utils/interface";
 
 export default defineComponent({
   setup() {
-    const translator = <ITranslatorHook>inject("translator");
+    const transHook = <ITranslatorHook>inject("transHook");
+
+    watch(() => transHook.subTranslator.selectText, (newVal:string) => {
+        if (newVal !== '') {
+            transHook.subTranslator.status = 'showGate'
+        }
+    })
 
     return {
-      translator
+      transHook
     };
   },
   components: {

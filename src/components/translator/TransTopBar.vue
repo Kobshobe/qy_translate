@@ -1,12 +1,12 @@
 <template>
-  <div class="main-top-tool-bar-wsrfhedsoufheqiwrhew">
+  <div class="main-top-tool-bar-wsrfhedsoufheqiwrhew" :style="uiMode==='simple' ? '':'height:10px'">
     <div v-if="resultStyle" class="main-top-tool-bar-content-wsrfhedsoufheqiwrhew">
       <div class="main-top-around-box-wsrfhedsoufheqiwrhew" @mouseup.stop=""></div>
       <div class="main-top-move-bar-wsrfhedsoufheqiwrhew" @mousedown.stop="down">
         <div class="move-bar-ui-wsrfhedsoufheqiwrhew"></div>
       </div>
       <div class="main-top-around-box-wsrfhedsoufheqiwrhew" style="justify-content: flex-end">
-        <div :class="resultStyle.hold ? '' : 'hold-btn-box-wsrfhedsoufheqiwrhew'">
+        <div v-if="uiMode === 'simple'" :class="resultStyle.hold ? '' : 'hold-btn-box-wsrfhedsoufheqiwrhew'">
           <IconBtn
             type="icon-269"
             :color="resultStyle.hold ? '#4C8BF5' : '#ccc'"
@@ -26,6 +26,7 @@ import IconBtn from "../base/IconBtn.vue";
 export default defineComponent({
   props: {
     mode: String, // popup
+    uiMode: String, // simple
   },
   setup(props) {
     const resultStyle =
@@ -59,6 +60,9 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .main-top-tool-bar-wsrfhedsoufheqiwrhew {
+  // position: absolute;
+  // top: 0;
+  // left: 0;
   box-sizing: border-box;
   width: 100%;
   height: 20px;

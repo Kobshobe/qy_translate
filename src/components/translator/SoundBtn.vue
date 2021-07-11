@@ -14,7 +14,7 @@ export default defineComponent({
   setup(props) {
     const id = v4();
 
-    const translator = inject("translator");
+    const transHook = inject("transHook");
 
     const iframeHtmlURL = chrome.runtime.getURL("iframe.html");
     const theIframe = document.createElement("iframe");
@@ -23,7 +23,7 @@ export default defineComponent({
     theIframe.setAttribute("src", iframeHtmlURL);
     theIframe.setAttribute("frameborder", "0");
     theIframe.setAttribute("scrolling", "no");
-    translator[`${props.audioType}Iframe`] = theIframe;
+    transHook[`${props.audioType}Iframe`] = theIframe;
 
     theIframe.addEventListener(
       "load",

@@ -1,39 +1,40 @@
 <template>
-  <div class="inner-options-main-wsrfhedsoufheqiwrhew" @click="translator.options.close">
+  <div class="inner-options-main-wsrfhedsoufheqiwrhew" @click="transHook.options.close">
     <div class="option-content-wsrfhedsoufheqiwrhew" @click.stop="">
       <el-select
         placeholder="请选择"
-        :filterable="translator.mode !== 'popup'"
-        v-model="translator.options.from"
+        :filterable="transHook.mode !== 'popup'"
+        v-model="transHook.options.from"
         :popperAppendToBody="true"
         @visibleChange="popupVisibleChange($event, 'fromLangPopup-wsrfhedsoufheqiwrhew')"
         popperClass="fromLangPopup-wsrfhedsoufheqiwrhew"
-        @change="translator.options.close"
+        @change="transHook.options.close"
       >
         <el-option
           v-for="(lang, key, index) in languages"
           :key="index"
           :label="lang['zh-CN']"
           :value="key"
+          v-show="key !== 'auto' && key !== '__auto__'"
         >
         </el-option>
       </el-select>
-      <IconBtn type="icon-fanyi" :rotate="90" @click="translator.options.exchange" />
+      <IconBtn type="icon-fanyi" :rotate="90" @click="transHook.options.exchange" />
       <el-select
         placeholder="请选择"
-        :filterable="translator.mode !== 'popup'"
-        v-model="translator.options.to"
+        :filterable="transHook.mode !== 'popup'"
+        v-model="transHook.options.to"
         :popperAppendToBody="true"
         @visibleChange="popupVisibleChange($event, 'toLangPopup-wsrfhedsoufheqiwrhew')"
         popperClass="toLangPopup-wsrfhedsoufheqiwrhew"
-        @change="translator.options.close"
+        @change="transHook.options.close"
       >
         <el-option
           v-for="(lang, key, index) in languages"
           :key="index"
           :label="lang['zh-CN']"
           :value="key"
-          v-show="key !== 'auto'"
+          v-show="key !== 'auto' && key !== '__auto__'"
         >
         </el-option>
       </el-select>
@@ -43,11 +44,11 @@
       <el-select
         placeholder="请选择"
         :filterable="false"
-        v-model="translator.options.engine"
+        v-model="transHook.options.engine"
         :popperAppendToBody="true"
         @visibleChange="popupVisibleChange($event, 'enginePopup-wsrfhedsoufheqiwrhew')"
         popperClass="enginePopup-wsrfhedsoufheqiwrhew"
-        @change="translator.options.changeEngine"
+        @change="transHook.options.changeEngine"
       >
         <el-option-group
           v-for="group in engines"
@@ -64,7 +65,7 @@
         </el-option-group>
       </el-select>
       <div style="height: 1px; width: 100%; background-color: #e4e7ed"></div>
-      <div class="more-option-wsrfhedsoufheqiwrhew" @click="translator.options.openOptionsPage">{{moreMsg}}</div>
+      <div class="more-option-wsrfhedsoufheqiwrhew" @click="transHook.options.openOptionsPage">{{moreMsg}}</div>
     </div>
   </div>
 </template>
@@ -77,10 +78,10 @@ import {ITranslatorHook} from '@/utils/interface';
 
 export default defineComponent({
   setup() {
-    const translator = <ITranslatorHook>inject("translator");
+    const transHook = <ITranslatorHook>inject("transHook");
 
     function popupVisibleChange(event: boolean, className: string) {
-      if (translator.mode!== "popup") return;
+      if (transHook.mode!== "popup") return;
       if (!event) return;
       // @ts-ignore
       const popupList: HTMLElement[] = document.getElementsByClassName(
@@ -108,7 +109,7 @@ export default defineComponent({
     return {
       languages,
       engines,
-      translator,
+      transHook,
       popupVisibleChange,
       moreMsg
     };

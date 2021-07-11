@@ -13,7 +13,9 @@
     "test:watch": "jest --watchAll",
     "test:marks": "jest --watch -f src/test/mark.test.ts",
     "test:bddl": "jest --watch -f baiduDomainAndLang.test.ts",
-    "test:bdc": "jest --watch -f baiduCommonTrans.test.ts"
+    "test:bdc": "jest --watch -f baiduCommonTrans.test.ts",
+    "test:ggt": "jest --watch -f GTrans.test.ts",
+    "test:transHook": "jest --watch -f transHook.test.ts"
   },
   "test": {
     "presets": [

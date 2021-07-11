@@ -1,7 +1,13 @@
 <template>
   <div
-    v-if="(translator.mode === 'pdf' || translator.configInfo.isTreadWord) && text.replace(/\s/g, '') !== ''"
-    class="tap-to-translate to-translate-icon"
+    v-if="
+      (trans.mode === 'pdf' || trans.conf.C.isTreadWord) &&
+      text.replace(/\s/g, '') !== ''
+    "
+    class="
+      tap-to-translate-wsrfhedsoufheqiwrhew
+      to-translate-icon-wsrfhedsoufheqiwrhew
+    "
     @click="translate"
     :style="toTranslateStyle"
   >
@@ -62,9 +68,9 @@
   </div>
 
   <div
-    v-if="translator.findStatus === 'loading'"
+    v-if="trans.findStatus === 'loading'"
     ref="transLoadingDOM"
-    class="content-trans-loading"
+    class="content-trans-loading-wsrfhedsoufheqiwrhew"
     :style="toTranslateStyle"
   >
     <Loading />
@@ -73,10 +79,10 @@
   <div
     v-if="
       resultStyle.hold ||
-      (translator.findStatus !== 'none' && translator.findStatus !== 'loading')
+      (trans.findStatus !== 'none' && trans.findStatus !== 'loading')
     "
     ref="resultDOM"
-    class="result"
+    class="result-wsrfhedsoufheqiwrhew"
     :style="resultStyle"
   >
     <Translator @loadOK="setResultPostion" />
@@ -93,7 +99,7 @@ import {
   reactive,
   watchEffect,
 } from "vue";
-import { translatorHook } from "@/hook/translatorHook";
+import { transHook } from "@/hook/translatorHook";
 import Translator from "./Translator.vue";
 // import {eventToGoogle} from "../../utils/analytics"
 
@@ -125,23 +131,22 @@ export default defineComponent({
       left: `5px`,
       width: `${resultStyleData.width}px`,
       setHold() {
-        translator.toAnalytics({
+        resultStyle.hold = !resultStyle.hold;
+        trans.eventToAnalytic({
           name: "setHold",
           params: { status: !resultStyle.hold },
         });
-        resultStyle.hold = !resultStyle.hold;
       },
       moveBarTap() {
-        translator.toAnalytics({ name: "moveTap", params: {} });
+        trans.eventToAnalytic({ name: "moveTap", params: {} });
       },
     });
 
     provide("resultStyle", resultStyle);
-
     //@ts-ignore
-    const translator = translatorHook(props.mode);
+    const trans = transHook(props.mode);
 
-    provide("translator", translator);
+    provide("transHook", trans);
     const popupElm = reactive({
       from: ref(null),
       to: ref(null),
@@ -150,7 +155,7 @@ export default defineComponent({
 
     function translate(e: any) {
       // translate want select text and click logo
-      translator.trans({
+      trans.trans({
         text: text.value,
         type: "select",
         findStatus: "loading",
@@ -159,10 +164,10 @@ export default defineComponent({
 
     watchEffect(() => {
       // auto change Geometric size
-      if (!translator.find.result) return;
+      if (!trans.find.result) return;
       const maxLen = Math.max(
-        translator.find.text.length,
-        translator.find.result.text.length
+        trans.find.text.length,
+        trans.find.result.text.length
       );
       if (maxLen > 180) {
         resultStyle.width = 380 + "px";
@@ -177,9 +182,7 @@ export default defineComponent({
           let out = true;
           e.path.some((elm: any) => {
             if (typeof elm.className === "string") {
-              if (
-                elm.className.indexOf("wsrfhedsoufheqiwrhew") !== -1
-              ) {
+              if (elm.className.indexOf("wsrfhedsoufheqiwrhew") !== -1) {
                 out = false;
                 return true;
               }
@@ -188,11 +191,11 @@ export default defineComponent({
           if (!out) return;
 
           if (!resultDOM.value.contains(e.target)) {
-            translator.findStatus = "none";
+            trans.findStatus = "none";
           }
         } else if (transLoadingDOM.value) {
           if (!transLoadingDOM.value.contains(e.target)) {
-            translator.findStatus = "none";
+            trans.findStatus = "none";
           }
         }
 
@@ -200,7 +203,7 @@ export default defineComponent({
           //@ts-ignore
           text.value = window.getSelection().toString();
           if (!text.value.replace(/\s/g, "")) return;
-          translator.configInfo.getTreadWord()
+          trans.conf.getConf();
           // if (resultDOM.value) {
           //   showToTrans.value = false;
           // } else {
@@ -208,6 +211,12 @@ export default defineComponent({
           // }
           setToTranslatePostion(e.clientX, e.clientY);
         });
+      });
+
+      chrome.runtime.onMessage.addListener(function (msg, sender) {
+        console.log(msg.text, sender)
+        if(sender.id !== chrome.runtime.id) return
+        trans.trans({text: msg.text, from: 'auto', to: '', type: 'menu', findStatus: 'loading'})
       });
     });
 
@@ -267,12 +276,11 @@ export default defineComponent({
       resultDOM,
       transLoadingDOM,
       text,
-      translator,
+      trans,
       resultStyle,
       toTranslateStyle,
       translate,
       setResultPostion,
-      
     };
   },
   components: {
@@ -285,25 +293,25 @@ export default defineComponent({
 <style scoped lang="scss">
 @import "../../app.scss";
 
-.tap-to-translate {
+.tap-to-translate-wsrfhedsoufheqiwrhew {
   position: fixed;
-  z-index: 2147483647;
+  z-index: 2147483600;
   width: 23px;
   height: 23px;
   background-size: cover;
 }
 
-.to-translate-icon {
+.to-translate-icon-wsrfhedsoufheqiwrhew {
   width: 23px;
   height: 23px;
 }
 
-.content-trans-loading {
+.content-trans-loading-wsrfhedsoufheqiwrhew {
   position: fixed;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2147483647;
+  z-index: 2147483610;
   width: 35px;
   height: 35px;
   background-color: white;
@@ -311,9 +319,9 @@ export default defineComponent({
   box-shadow: 0 0 3px #444;
 }
 
-.result {
+.result-wsrfhedsoufheqiwrhew {
   position: fixed;
-  z-index: 21474836;
+  z-index: 2147483630;
   background-color: white;
   box-shadow: 0 0 3px #444;
   border-radius: $transRadius;

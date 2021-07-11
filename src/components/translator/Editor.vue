@@ -5,8 +5,8 @@
         <textarea
           name=""
           id="phrase-editing-wsrfhedsoufheqiwrhew"
-          v-model="translator.editingText"
-          @keydown="translator.translateFromEdit"
+          v-model="transHook.editingText"
+          @keydown="transHook.translateFromEdit"
           :placeholder="enterTextMsg"
           :autofocus="true"
           ref="editorDOM"
@@ -14,24 +14,26 @@
       </div>
       <div class="editing-clear-wsrfhedsoufheqiwrhew">
         <IconBtn
-          v-if="translator.editingText !== ''"
+          v-if="transHook.editingText !== ''"
           type="icon-guanbi"
           color="#AAAAAA"
-          @click="translator.clear"
+          @click="transHook.clear"
         />
         <IconBtn
-          v-else-if="translator.lastFindText !== ''"
+          v-else-if="transHook.lastFindText !== ''"
           type="icon-lishijilu"
           color="#AAAAAA"
           iconSize="16"
-          @click="translator.getLastFindText"
+          @click="transHook.getLastFindText"
         />
         <IconBtn
-          v-else-if="translator.lastFindText === '' && translator.lastFindText === ''"
+          v-else-if="
+            transHook.lastFindText === '' && transHook.lastFindText === ''
+          "
           type="icon-niantie1"
           color="#AAAAAA"
           iconSize="16"
-          @click="translator.pasteAndTrans"
+          @click="transHook.pasteAndTrans"
         />
       </div>
     </div>
@@ -42,9 +44,9 @@
             {{ treadWordMsg }}
           </div>
           <el-switch
-            v-model="translator.configInfo.isTreadWord"
+            v-model="transHook.conf.C.isTreadWord"
             active-color="#4C8BF5"
-            @change="translator.configInfo.changeTreadWord"
+            @change="transHook.conf.changeTreadWord"
           >
           </el-switch>
         </div>
@@ -52,15 +54,15 @@
       <div class="editing-tool-bar-right-wsrfhedsoufheqiwrhew">
         <div class="edge-width-wsrfhedsoufheqiwrhew"></div>
         <div
-          v-if="translator.findStatus !== 'loading'"
+          v-if="transHook.findStatus !== 'loading'"
           style="transform: rotate(180deg)"
         >
           <IconBtn
             type="icon-zuojiantou"
             iconSize="20"
             @click="
-              translator.trans({
-                text: translator.editingText,
+              transHook.trans({
+                text: transHook.editingText,
                 type: 'edit_icon',
                 findStatus: 'loading',
               })
@@ -81,10 +83,10 @@ import Loading from "../base/Loading.vue";
 
 export default defineComponent({
   setup() {
-    const translator = <ITranslatorHook>inject("translator");
+    const transHook = <ITranslatorHook>inject("transHook");
     const editorDOM = ref<any | null>(null);
     const on = ref(true);
-    const text = ref('')
+    const text = ref("");
 
     onMounted(() => {
       editorDOM.value?.focus();
@@ -94,11 +96,11 @@ export default defineComponent({
     const treadWordMsg = chrome.i18n.getMessage("treadWord");
 
     return {
-      translator,
+      transHook,
       on,
       enterTextMsg,
       treadWordMsg,
-      editorDOM
+      editorDOM,
     };
   },
   components: {
@@ -111,15 +113,6 @@ export default defineComponent({
 <style lang="scss" scoped>
 @import "../../app.scss";
 
-#phrase-editing-wsrfhedsoufheqiwrhew {
-  height: 100%;
-  width: 100%;
-  font-size: 18px;
-  border: none;
-  resize: none;
-  outline: none;
-}
-
 .editing-main-wsrfhedsoufheqiwrhew {
   box-sizing: border-box;
   width: 100%;
@@ -128,16 +121,24 @@ export default defineComponent({
     display: flex;
     flex-wrap: nowrap;
     width: 100%;
-    height: 188px;
+    height: 240px;
     .textarea-box-wsrfhedsoufheqiwrhew {
       box-sizing: border-box;
       height: 100%;
       width: 100%;
-      padding: 10px $transEdgePadding 0 $transEdgePadding;
+      padding: 8px $transEdgePadding 0 $transEdgePadding;
+      #phrase-editing-wsrfhedsoufheqiwrhew {
+        height: 100%;
+        width: 100%;
+        font-size: 18px;
+        border: none;
+        resize: none;
+        outline: none;
+      }
     }
     .editing-clear-wsrfhedsoufheqiwrhew {
       position: absolute;
-      top: 0;
+      top: -17px;
       right: 0;
       display: flex;
       justify-content: center;

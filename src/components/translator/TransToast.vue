@@ -1,10 +1,10 @@
 <template>
   <div
-    v-if="translator.toast.show"
+    v-if="transHook.toast.show"
     class="toast-main-wsrfhedsoufheqiwrhew"
-    @click="translator.toast.show = false"
+    @click="transHook.toast.show = false"
   >
-    <div class="toast-content-box-wsrfhedsoufheqiwrhew">{{ translator.toast.msg }}</div>
+    <div class="toast-content-box-wsrfhedsoufheqiwrhew">{{ transHook.toast.msg }}</div>
   </div>
 </template>
 
@@ -13,10 +13,10 @@ import { defineComponent, inject } from "vue";
 
 export default defineComponent({
   setup() {
-    const translator = inject<any>("translator");
+    const transHook = inject<any>("transHook");
 
     return {
-      translator,
+      transHook,
     };
   },
 });

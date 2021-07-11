@@ -1,4 +1,4 @@
-import {BAIDULANG, languages, GToBaidu} from '@/translator/language'
+import {BAIDULANG, languages, SToBaidu} from '@/translator/language'
 import {BaiduTrans} from '@/translator/baiduTrans'
 import {IWrapTransInfo} from '@/utils/interface'
 
@@ -21,10 +21,7 @@ test('baidu domain and lang support check', async () => {
     const trans = new BaiduTrans()
     expect(trans.getELang('zh-CN')).toBe('zh')
     expect(trans.getSLang('zh')).toBe('zh-CN')
-    expect(trans.checkELang('en','zh','bdTrans__common')).toBe('')
-    expect(trans.checkELang('en','ara','bdTrans__common')).toBe('')
-    //@ts-ignore
-    expect(trans.checkELang('en',undefined,'bdTrans__common')).toBe('__noSupport__')
+
 
     expect(trans.checkELang('en','zh','bdDM__finance')).toBe('')
     expect(trans.checkELang('zh','en','bdDM__finance')).toBe('')
@@ -56,7 +53,7 @@ test('baidu domain and lang support check', async () => {
         mode: 'popup'
     }
 
-    await trans.setLangCode(info)
+    await trans.setLangCode({req:info})
     expect(info.from).toBe('en')
     expect(info.fromCode).toBe('en')
     expect(info.toCode).toBe('zh')
@@ -70,7 +67,7 @@ test('baidu domain and lang support check', async () => {
         engine: 'bdTrans__common',
         mode: 'popup'
     }
-    await trans.setLangCode(info)
+    await trans.setLangCode({req:info})
     expect(info.from).toBe('zh-CN')
     expect(info.fromCode).toBe('zh')
     expect(info.toCode).toBe('en')
@@ -83,7 +80,7 @@ test('baidu domain and lang support check', async () => {
         engine: 'bdTrans__common',
         mode: 'popup'
     }
-    await trans.setLangCode(info)
+    await trans.setLangCode({req:info})
     expect(info.from).toBe('en')
     expect(info.fromCode).toBe('en')
     expect(info.toCode).toBe('zh')
@@ -96,7 +93,7 @@ test('baidu domain and lang support check', async () => {
         engine: 'bdTrans__common',
         mode: 'popup'
     }
-    await trans.setLangCode(info)
+    await trans.setLangCode({req:info})
     console.log(info)
     expect(info.from).toBe('zh-CN')
     expect(info.to).toBe('en')

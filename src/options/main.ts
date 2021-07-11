@@ -1,9 +1,10 @@
 import { createApp } from 'vue'
 import app from './components/app.vue'
-import {setUI} from '@/components/ElementUIImport'
-import { ElDialog } from 'element-plus';
+import {setUI, handleErr} from '@/components/appSetup'
+import { ElDialog, ElRadio } from 'element-plus';
 
 const theApp = createApp(app)
-setUI(theApp, [ElDialog])
+setUI(theApp, [ElDialog, ElRadio])
+handleErr(theApp)
 
 theApp.mount('#options')

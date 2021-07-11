@@ -4,16 +4,15 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, provide, ref } from "vue";
-import { translatorHook } from '../../hook/translatorHook'
-import Translator from "../../components/translator/Translator.vue";
+import { transHook } from '@/hook/translatorHook'
+import Translator from "@/components/translator/Translator.vue";
 
 export default defineComponent({
   setup() {
-    const translator = translatorHook('popup');
-    translator.status = "editing"
-    provide("translator", translator);
+    const trans = transHook('popup', 'editing');
+    provide("transHook", trans);
   },
   components: {
     Translator,

@@ -1,8 +1,6 @@
 import { createApp } from 'vue'
 import app from './components/app.vue'
-import {setUI} from '@/components/ElementUIImport';
-
-console.log("content js in......")
+import {setUI} from '@/components/appSetup';
 
 function joinContent() {
   const id = 'phraseJoinewrskdfdswerhnyikyofd'

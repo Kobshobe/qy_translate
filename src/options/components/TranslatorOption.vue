@@ -2,9 +2,9 @@
   <div class="colume-option">
     <OptionItem :title="`${'默认翻译来源'}:`">
       <el-select
-        v-model="transEngine"
+        v-model="hook.conf.C.transEngine"
         placeholder="请选择"
-        @change="setTransEngine(transEngine)"
+        @change="hook.conf.changeTransEngine"
         :filterable="false"
         size="medium"
       >
@@ -23,21 +23,29 @@
         </el-option-group>
       </el-select>
     </OptionItem>
-    <OptionItem :title="`${treadWordMsg}:`">
-      <el-switch
-        v-model="optionPageHook.configInfo.isTreadWord"
-        active-color="#4C8BF5"
-        @change="optionPageHook.configInfo.changeTreadWord"
-      ></el-switch>
+    <!-- mark i18n -->
+    <OptionItem title="界面风格">
+      <el-radio
+        v-model="hook.conf.C.mode"
+        label="simple"
+        @change="hook.conf.changeMode"
+        >简约</el-radio
+      >
+      <el-radio
+        v-model="hook.conf.C.mode"
+        label="profession"
+        @change="hook.conf.changeMode"
+        >专业</el-radio
+      >
     </OptionItem>
   </div>
 
   <div class="colume-option">
     <OptionItem :title="mainLangMsg">
       <el-select
-        v-model="mainLang"
+        v-model="hook.conf.C.mainLang"
         placeholder="请选择"
-        @change="changeMainLang"
+        @change="hook.conf.changeMainLang"
         filterable
         size="medium"
       >
@@ -46,19 +54,16 @@
           :key="index"
           :label="lang['zh-CN']"
           :value="key"
-          v-show="key !== 'auto'"
+          v-show="key !== 'auto' && key !== '__auto__'"
         >
         </el-option>
       </el-select>
     </OptionItem>
-    <OptionItem
-      v-if="mainLang === 'zh-CN' || mainLang === 'zh-TW'"
-      :title="secondLangMsg"
-    >
+    <OptionItem :title="secondLangMsg">
       <el-select
-        v-model="secondLang"
+        v-model="hook.conf.C.secondLang"
         placeholder="请选择"
-        @change="changeSecondLang"
+        @change="hook.conf.changeSecondLang"
         filterable
         size="medium"
       >
@@ -67,10 +72,26 @@
           :key="index"
           :label="lang['zh-CN']"
           :value="key"
-          v-show="key !== 'auto'"
+          v-show="key !== 'auto' && key !== '__auto__'"
         >
         </el-option>
       </el-select>
+    </OptionItem>
+  </div>
+  <div class="colume-option">
+    <OptionItem :title="`${treadWordMsg}:`">
+      <el-switch
+        v-model="hook.conf.C.isTreadWord"
+        active-color="#4C8BF5"
+        @change="hook.conf.changeTreadWord"
+      ></el-switch>
+    </OptionItem>
+    <OptionItem :title="`${menuTransMsg}:`">
+      <el-switch
+        v-model="hook.conf.C.menuTrans"
+        active-color="#4C8BF5"
+        @change="hook.conf.changeMenuTrans"
+      ></el-switch>
     </OptionItem>
   </div>
 
@@ -84,23 +105,12 @@
 import { defineComponent, ref, inject } from "vue";
 import OptionItem from "./OptionItem.vue";
 import { languages, engines } from "@/translator/language";
-import {
-  setMainLang,
-  setSecondLang,
-  getTreadWord,
-  setTreadWord,
-  setTransEngine,
-} from "@/utils/chromeApi";
 import { platform } from "@/config";
+import {IOptionHook} from '@/utils/interface'
 
 export default defineComponent({
   setup() {
-    const optionPageHook = inject("optionPageHook");
-    const isTreadWord = ref(false);
-
-    const mainLang = ref<string>("");
-    const secondLang = ref<string>("");
-    const transEngine = ref<string>("");
+    const hook = <IOptionHook>inject("optionPageHook");
 
     let qrSrc = "";
     if (platform === "edge") {
@@ -109,55 +119,26 @@ export default defineComponent({
       qrSrc = "assets/images/qr_chrome_option.png";
     }
 
-    const changeMainLang = (lang: string) => {
-      setMainLang(lang, "optionSet");
-    };
-
-    const changeSecondLang = (lang: string) => {
-      setSecondLang(lang);
-    };
-
-    chrome.storage.sync.get(
-      ["mainLang", "secondLang", "transEngine"],
-      (result: any) => {
-        if (result.mainLang) mainLang.value = result.mainLang;
-        if (result.secondLang) {
-          secondLang.value = result.secondLang;
-        } else {
-          secondLang.value = "en";
-        }
-        if (result.transEngine) {
-          transEngine.value = result.transEngine;
-        } else {
-          transEngine.value = "ggTrans__common";
-        }
-      }
-    );
 
     const treadWordMsg = chrome.i18n.getMessage("treadWord");
     const mainLangMsg = chrome.i18n.getMessage("mainLang");
     const secondLangMsg = chrome.i18n.getMessage("secondLang");
     const collManagerMsg = chrome.i18n.getMessage("collManager");
     const weChatCollManaMsg = chrome.i18n.getMessage("weChatCollMana");
+    const menuTransMsg = chrome.i18n.getMessage("__menuTrans__")
     // const isPronunciationMsg = chrome.i18n.getMessage("isPronunciation");
 
     return {
-      optionPageHook,
+      hook,
       languages,
       engines,
-      mainLang,
-      secondLang,
-      transEngine,
-      changeMainLang,
-      changeSecondLang,
-      setTransEngine,
       qrSrc,
-      isTreadWord,
       treadWordMsg,
       mainLangMsg,
       secondLangMsg,
       collManagerMsg,
       weChatCollManaMsg,
+      menuTransMsg
       // isPronunciationMsg
     };
   },

@@ -1,8 +1,8 @@
 <template>
-  <div v-if="example">
+  <div v-if="transHook.subTranslator.resultData?.examples">
     <div class="examples-title-wsrfhedsoufheqiwrhew">{{transExampleMsg}}</div>
     <div
-      v-for="(item, index) in example"
+      v-for="(item, index) in transHook.subTranslator.resultData.examples"
       class="examples-items-wsrfhedsoufheqiwrhew"
       :key="index"
       v-html="item.text"
@@ -12,16 +12,15 @@
 
 <script lang="ts">
 import { defineComponent, inject } from "vue";
+import {ITranslatorHook} from '@/utils/interface' 
 
 export default defineComponent({
   setup() {
-    const example = inject<any>("translator").subTranslator.resultData.data
-      .examples?.example;
-
+    const transHook = <ITranslatorHook>inject("transHook")
     const transExampleMsg = chrome.i18n.getMessage("transExampple")
 
     return {
-      example,transExampleMsg
+      transHook,transExampleMsg
     };
   },
 });

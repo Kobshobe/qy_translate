@@ -1,72 +1,33 @@
 import { applyBDDM, collectResult, reduceCollect, updateMark } from '@/api/api'
 import { wrapTranslator } from '@/translator/transWrap'
 import { getAudioBase64 } from '@/translator/tts'
-import { openOptionsPage, getTreadWord, setTreadWord } from '@/utils/chromeApi'
-import { IRequestResult, IWrapTransInfo } from '@/utils/interface'
-import { eventToGoogle, eventToAnalytic } from './analytics'
+import { openOptionsPage, getTransConf } from '@/utils/chromeApi'
+import { IContext, IResponse, IWrapTransInfo } from '@/utils/interface'
+import { eventToGoogle } from './analytics'
 
-const apiWrap = {
-  // ---------- trans
-  translate: async (msg: IWrapTransInfo, port: any) => {
-    const result: any = await wrapTranslator.trans(msg)
-    return getRequestResultMsg({ port, res: result })
+export const apiWrap = {
+  translate: async (msg: IContext, port: any) => {
+    port.postMessage(await wrapTranslator.trans(msg))
   },
-  // ---------- collect or mark collect
-  collect: async (msg: any, port: any) => {
-    return await HandleResultCanTest(collectResult, msg, port)
+  collect: async (c: IContext, port:any) => {
+    port.postMessage(await collectResult(c))
   },
-  // ---------- reduce collected
-  reduceCollect: async (msg: any, port: any) => {
-    return await HandleResultCanTest(reduceCollect, msg, port)
+  reduceCollect: async (c: IContext, port: any) => {
+    port.postMessage(await reduceCollect(c))
   },
-  // ---------- update marks
-  updateMark: async (msg: any, port: any) => {
-    return await HandleResultCanTest(updateMark, msg, port)
+  updateMark: async (c: IContext, port: any) => {
+    port.postMessage(await updateMark(c))
   },
-  // ---------- 播放声音
-  tts: async (msg: any, port: any) => {
-    const result = await getAudioBase64(msg.text, msg.audioType, {
-      lang: msg.lang,
-      slow: false,
-      host: 'https://translate.google.cn',
-    })
-    port.postMessage(result)
+  tts: async (c: IContext, port: any) => {
+    port.postMessage(await getAudioBase64(c))
   },
-  openOptionsPage: (msg: any, port: any) => {
-    openOptionsPage(msg)
+  openOptionsPage: (c: IContext, port: any) => {
+    openOptionsPage(c)
   },
-  analytic: async (msg: any, port: any) => {
-    return await HandleResultCanTest(eventToAnalytic, msg, port)
+  analytic: async (c: IContext, port: any) => {
+    eventToGoogle(c.req)
   },
-  setTreadWord: async (msg: any, port: any) => {
-    return await HandleResultCanTest(setTreadWord, msg, port)
-  },
-  getTreadWordConf: async (msg: any, port: any) => {
-    return await HandleResultCanTest(getTreadWord, msg, port)
-  },
-  applyBDDM: async (msg: any, port: any) => {
-    return await HandleResultCanTest(applyBDDM, msg, port)
+  applyBDDM: async (c: IContext, port: any) => {
+    port.postMessage(await applyBDDM(c))
   }
 }
-
-function getRequestResultMsg({ port, res }: { port: chrome.runtime.Port | null, res: IRequestResult, extra?: any }) {
-
-  if (port) {
-    port.postMessage(res)
-  } else {
-    return res
-  }
-
-}
-
-async function HandleResultCanTest(getResultFunc: Function, msg: any, port: null | chrome.runtime.Port): Promise<any> {
-  const res = await getResultFunc({ data: msg })
-
-  if (port) {
-    port.postMessage(res)
-  } else {
-    return res
-  }
-}
-
-export default apiWrap

@@ -47,6 +47,7 @@ import { defineComponent, ref, watch } from "vue";
 import Loading from "../../components/base/Loading.vue";
 import { qrLogin } from "../../api/api";
 import { removeTokenInfo, getTokenFromStorage } from "../../utils/chromeApi";
+import { eventToGoogle } from "@/utils/analytics";
 
 export default defineComponent({
   props: {
@@ -70,12 +71,20 @@ export default defineComponent({
 
     const reLoadQr = () => {
       qrLogin({ qrUrl, loginStatus });
+      eventToGoogle({
+        name: 'reLoadQr',
+        params: {}
+      })
     };
 
     function logout() {
       removeTokenInfo(() => {
         qrLogin({ qrUrl, loginStatus });
       });
+      eventToGoogle({
+        name: 'logout',
+        params: {}
+      })
     }
 
     watch(

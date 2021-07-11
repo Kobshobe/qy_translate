@@ -2,33 +2,33 @@
   <div
     class="popup-overlay-wsrfhedsoufheqiwrhew"
     v-if="
-      translator.subTranslator.status !== 'hide' ||
-      translator.subTranslator.status === 'loading'
+      transHook.subTranslator.status !== 'hide' ||
+      transHook.subTranslator.status === 'loading'
     "
-    @click="translator.subTranslator.init"
+    @click="transHook.subTranslator.init"
   >
     <div
-      v-if="translator.subTranslator.status !== 'result'"
+      v-if="transHook.subTranslator.status !== 'result'"
       class="gate-box-wsrfhedsoufheqiwrhew"
-      :style="{ top: translator.subTranslator.top + 'px' }"
+      :style="{ top: transHook.subTranslator.top + 'px' }"
     >
-      <div :style="{ width: translator.subTranslator.left + 'px' }"></div>
+      <div :style="{ width: transHook.subTranslator.left + 'px' }"></div>
       <div class="gate-content-box-wsrfhedsoufheqiwrhew" @click.stop="">
         <div
-          v-if="translator.subTranslator.status === 'showGate'"
+          v-if="transHook.subTranslator.status === 'showGate'"
           class="gate-trans-mark-wsrfhedsoufheqiwrhew"
         >
-          <div class="gate-btn-wsrfhedsoufheqiwrhew" @click="translator.subTranslator.translate">
+          <div class="gate-btn-wsrfhedsoufheqiwrhew" @click="transHook.subTranslator.translate">
             {{subTransMsg}}
           </div>
           <div class="gate-divider-wsrfhedsoufheqiwrhew">|</div>
-          <div class="gate-btn-wsrfhedsoufheqiwrhew" @click="translator.subTranslator.mark">
-            {{ translator.canReduceMark ? reduceMarkMsg : markMsg }}
+          <div class="gate-btn-wsrfhedsoufheqiwrhew" @click="transHook.subTranslator.mark">
+            {{ transHook.canReduceMark ? reduceMarkMsg : markMsg }}
           </div>
         </div>
 
         <div
-          v-else-if="translator.subTranslator.status === 'loading'"
+          v-else-if="transHook.subTranslator.status === 'loading'"
           class="loading-wsrfhedsoufheqiwrhew"
         >
           <Loading />
@@ -36,7 +36,6 @@
       </div>
     </div>
     <div v-else class="sub-trans-result-box-wsrfhedsoufheqiwrhew">
-      
       <SubTransResult />
     </div>
   </div>
@@ -49,14 +48,14 @@ import SubTransResult from "./SubTransResult.vue";
 
 export default defineComponent({
   setup() {
-    const translator = inject<any>("translator");
+    const transHook = inject<any>("transHook");
 
     const markMsg = chrome.i18n.getMessage("mark")
     const subTransMsg = chrome.i18n.getMessage("subTrans")
     const reduceMarkMsg = chrome.i18n.getMessage("reduceMark")
 
     return {
-      translator,markMsg,subTransMsg,reduceMarkMsg
+      transHook,markMsg,subTransMsg,reduceMarkMsg
     };
   },
   components: {
@@ -118,11 +117,14 @@ export default defineComponent({
     }
   }
   .sub-trans-result-box-wsrfhedsoufheqiwrhew {
+    box-sizing: border-box;
+    padding: 50px 10px 10px 10px;
+    overflow: hidden;
     width: 100%;
     height: 100%;
   }
   ::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
   }
   /* 滚动槽 */
   ::-webkit-scrollbar-track {
@@ -133,7 +135,7 @@ export default defineComponent({
   ::-webkit-scrollbar-thumb {
     border-radius: 10px;
     background: rgba(0, 0, 0, 0.1);
-    -webkit-box-shadow: inset006pxrgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: inset006pxrgba(0, 0, 0, 0.3);
   }
 }
 </style>

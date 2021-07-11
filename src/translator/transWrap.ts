@@ -1,36 +1,51 @@
-import {IWrapTransInfo, ITransResult, IRequestResult} from '@/utils/interface'
+import {IContext, IWrapTransInfo, ITransResult, IResponse} from '@/utils/interface'
 import {GoogleTrans} from '@/translator/google'
 import {BaiduTrans} from '@/translator/baiduTrans'
 import {getMainLang, getSecondLang, getFromeStorage} from '@/utils/chromeApi'
+import {Mode} from '@/config'
 
 class WrapTranslator {
     google: GoogleTrans
     baidu: BaiduTrans
+    lastTrans = new Date().valueOf()
+
     constructor() {
         this.google = new GoogleTrans()
         this.baidu = new BaiduTrans()
     }
-    async trans(transInfo:IWrapTransInfo) :Promise<IRequestResult> {
 
-        if (!transInfo.engine) {
-          const info = await getFromeStorage(['transEngine'])
-          transInfo.engine = info.transEngine
-        }
-        const engineInfo = transInfo.engine ? transInfo.engine.split("__") : undefined
-        if(!engineInfo) {
-          return await this.google.trans(transInfo)
-        }
+    async trans(c:IContext) :Promise<IContext> {
+      console.log(c.req)
+      const info: IWrapTransInfo = c.req
+      const now = new Date().valueOf();
+      
+      if(Mode !== 'jest' && now - this.lastTrans < 300) {
+        this.lastTrans = now
+        return c
+      }
+      
+      this.lastTrans = now;
+      
+      if (!info.engine) {
+        const conf = await getFromeStorage(['transEngine'])
+        info.engine = conf.transEngine
+      }
+      
+      const engineInfo = info.engine ? info.engine.split("__") : undefined
+      if(!engineInfo) {
+        return await this.google.trans(c)
+      }
 
-        switch (engineInfo[0]) {
-          case 'ggTrans':
-            return await this.google.trans(transInfo)
-          case 'bdTrans':
-            return await this.baidu.CTrans(transInfo)
-          case 'bdDM':
-            return await this.baidu.transDomain(transInfo)
-          default:
-            return await this.google.trans(transInfo)
-        }       
+      switch (engineInfo[0]) {
+        case 'ggTrans':
+          return await this.google.trans(c)
+        case 'bdTrans':
+          return await this.baidu.CTrans(c)
+        case 'bdDM':
+          return await this.baidu.transDomain(c)
+        default:
+          return await this.google.trans(c)
+      }
     }
 
     isChinese(text: string) {

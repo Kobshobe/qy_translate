@@ -158,7 +158,13 @@
     "__applyFail__": {
         "message": "申请失败，刚需可联系我们"
     },
+    "__changeEngineForLang__": {
+        "message": "语种不支持默认翻译源，已切换到其它翻译源"
+    },
     "__changeEngine__": {
-        "message": "语种不支持默认翻译源，已切换到通用翻译源"
+        "message": "翻译源已切换"
+    },
+    "__menuTrans__": {
+        "message": "右键翻译"
     }
 }

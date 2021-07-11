@@ -1,7 +1,7 @@
 <template>
   <div class="divider-wsrfhedsoufheqiwrhew">
     <div
-      v-if="translator.findStatus === 'reLoading' || translator.findStatus === 'willOK' "
+      v-if="transHook.findStatus === 'reLoading' || transHook.findStatus === 'willOK' "
       class="proccess-wsrfhedsoufheqiwrhew"
       :style="proccessStyle"
     ></div>
@@ -18,7 +18,7 @@ export default defineComponent({
       width: "50%",
     });
 
-    const translator = <ITranslatorHook>inject("translator");
+    const transHook = <ITranslatorHook>inject("transHook");
 
     //   onMounted(() => {
     //     setTimeout(() => {
@@ -27,17 +27,17 @@ export default defineComponent({
     //   })
 
     watchEffect(() => {
-      if (translator.findStatus === "reLoading") {
+      if (transHook.findStatus === "reLoading") {
         proccessStyle.width = "70%";
-      } else if (translator.findStatus === "willOK") {
+      } else if (transHook.findStatus === "willOK") {
         proccessStyle.width = "100%";
-      }else if (translator.findStatus === "ok") {
+      }else if (transHook.findStatus === "ok") {
         proccessStyle.width = "0%";
       }
     });
 
     return {
-      translator,
+      transHook,
       proccessStyle,
     };
   },

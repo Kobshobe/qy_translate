@@ -4,9 +4,9 @@ import { getClientId } from '@/utils/chromeApi'
 
 
 export async function eventToGoogle(event: IAnalyticEvent) {
-    if(Mode !== 'public') {
-        return
-    }
+    // if(Mode !== 'public') {
+    //     return
+    // }
     const id = await getClientId()
     Object.assign(event.params, {uid: id}, client)
     fetch(

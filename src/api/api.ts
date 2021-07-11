@@ -1,8 +1,8 @@
-import { getTokenFromStorage, saveTokenInfo } from '../utils/chromeApi'
+import { getTokenFromStorage, saveTokenInfo } from '@/utils/chromeApi'
 import { Ref } from 'vue'
-import { Mode, client } from '../config'
-import { IBaseReqParams,IBaseReqResult,IServerReqParams, IRequestResult, IQrLoginParams, ITokenInfo,IToastMsg, IDialogMsg } from '@/utils/interface'
-import { eventToGoogle } from '../utils/analytics'
+import { Mode, client } from '@/config'
+import { IContext,IBaseReqParams,IBaseReqResult,IServerReqParams, IResponse, IQrLoginParams, ITokenInfo,IToastMsg, IDialogMsg, IConfig } from '@/utils/interface'
+import { eventToGoogle } from '@/utils/analytics'
 
 let protocol = 'https://'
 let webSocketProtocol = 'wss://'
@@ -33,7 +33,8 @@ export async function qrLogin({ qrUrl, loginStatus }: IQrLoginParams) {
 
   ws.onmessage = (event) => {
     const msg = getStrFromBuf(event.data);
-    if (msg.slice(0, 9) === `{'token':`) {
+
+    if (msg.slice(0, 9) === `{"token":`) {
       ws.send('loginOk');
       const tokenInfo:ITokenInfo = JSON.parse(msg)
       saveTokenInfo(tokenInfo, (msg: string) => {
@@ -133,10 +134,10 @@ export async function baseFetch({ url, method, success, fail, data, headers = {}
 
 export async function serveBaseReq(
   { url, method, success, fail, query, data = {}, headers = {}, auth = false, successStatusCode = [200, 201] }:
-  IServerReqParams): Promise<IRequestResult> {
+  IServerReqParams): Promise<IResponse> {
 
   const start = new Date().getTime()
-  return new Promise<IRequestResult>(async (resolve, reject) => {
+  return new Promise<IResponse>(async (resolve, reject) => {
     if (auth === true) {
       headers.Authorization = await getTokenFromStorage()
       if (headers.Authorization === '__needLogin__' || headers.Authorization === '__needRelogin__') {
@@ -216,7 +217,7 @@ function makeQuery(queryObject:any) {
   return encodeURI(`?${query}`)
 }
 
-function getResult(res: IBaseReqResult):IRequestResult {
+function getResult(res: IBaseReqResult):IResponse {
     let toastMsg:IToastMsg|undefined = res.data && res.data.toastMsg;
     let dialogMsg: IDialogMsg|undefined = res.data && res.data.dialogMsg;
 
@@ -249,42 +250,37 @@ function getResult(res: IBaseReqResult):IRequestResult {
   
 }
 
-export async function collectResult({ success, fail, data }: { success?: Function, fail?: Function, data: any }) {
-  return await serveBaseReq({
+export async function collectResult(c:IContext) {
+  c.resp =  await serveBaseReq({
     url: '/phrase',
     method: 'POST',
-    data,
-    success: (res: any) => {
-      success && success(res)
-    },
-    fail: (err: any) => fail && fail(err),
+    data: c.req,
     auth: true,
     successStatusCode: [201]
   })
+  return c
 }
 
-export async function reduceCollect({ success, fail, data }: { success?: Function, fail?: Function, data: any }): Promise<any> {
-  return await serveBaseReq({
+export async function reduceCollect(c:IContext): Promise<any> {
+  c.resp = await serveBaseReq({
     url: '/phrase',
     method: 'DELETE',
-    data,
-    success: (res: any) => success && success(res),
-    fail: (err: any) => fail && fail(err),
+    data:c.req,
     auth: true,
     successStatusCode: [200]
   })
+  return c
 }
 
-export async function updateMark({ success, fail, data }: { success?: Function, fail?: Function, data: any }) {
-  return await serveBaseReq({
+export async function updateMark(c:IContext) {
+  c.resp = await serveBaseReq({
     url: '/phrase',
     method: 'PUT',
-    data,
-    success: (res: any) => success && success(res),
-    fail: (err: any) => fail && fail(err),
+    data:c.req,
     auth: true,
     successStatusCode: [200]
   })
+  return c
 }
 
 export async function baiduDomainTransApi(query:any) {
@@ -296,11 +292,17 @@ export async function baiduDomainTransApi(query:any) {
     successStatusCode: [200]
   })
 
+
+  if (resp.errMsg === '__needLogin__' || resp.errMsg === '__needRelogin__') {
+    return resp
+  }
+
   if(resp.status === 200) {
     return resp
   }
 
-  if (resp.data.msg === '__noRice__') {
+  if (resp.data && resp.data.msg === '__noRice__') {
+    resp.errMsg = '__noRice__'
     resp.dialogMsg = {
       message: '__wantToApplyTrans__',
       confirmText: '__applyServiceFree__',
@@ -315,31 +317,44 @@ export async function baiduDomainTransApi(query:any) {
   return resp
 }
 
-export async function applyBDDM() {
-  const resp = await serveBaseReq({
+export async function applyBDDM(c:IContext) :Promise<IContext> {
+
+  c.resp = await serveBaseReq({
     url: '/trans/baidu/applyDM/10000',
     method: 'POST',
     auth: true,
   })
 
-  if (resp.status === 201) {
-    resp.dialogMsg = {
+  if (c.resp.errMsg === '__needLogin__' || c.resp.errMsg === '__needRelogin__') {
+    return c
+  }
+
+  if (c.resp.status === 201) {
+    c.resp.dialogMsg = {
       message: '__applyOK__',
       type: 'i18n'
     }
+    return c
+  }
+  
+  if(c.resp.data && c.resp.data.msg === '__noRice__') {
+    c.resp.dialogMsg = {
+      message: '__noRice__',
+      type: 'i18n'
+    }
 
-  } else if(resp.data.msg === '__noMouthAccess__') {
-    resp.dialogMsg = {
+  } else if(c.resp.data && c.resp.data.msg === '__noMouthAccess__') {
+    c.resp.dialogMsg = {
       message: '__noMouthAccess__',
       type: 'i18n'
     }
 
   } else {
-    resp.dialogMsg = {
+    c.resp.dialogMsg = {
       message: '__applyFail__',
       type: 'i18n'
     }
   }
 
-  return resp
+  return c
 }

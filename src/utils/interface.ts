@@ -1,5 +1,117 @@
 import {Ref} from 'vue'
 
+declare type ITransEngine = ''|'ggTrans__common'|'bdTrans__common'|'bdDM__finance'|
+'bdDM__electronics'|'bdDM__mechanics'|'bdDM__medicine'|'bdDM__novel'
+
+declare type ITransType = 'sub'|'edit_icon'|'select'|'changeLang'|'edit_enter'|'test'|
+'exchange'|'edit_paste'|'menu'|'changeEngine'
+
+declare type IPortName = 'translate'|'collect'|'reduceCollect'|'updateMark'|'tts'|
+'openOptionsPage'|'analytic'|'applyBDDM'
+
+declare type ITransStatus = 'none'|'ok'|'loading'|'reLoading'|'willOK'
+
+export interface IContext {
+    req: any
+    resp?: IResponse
+}
+
+export interface ITranslatorHook {
+    mode: 'resultOnly'|'popup'|'pdf'
+    status: 'result' | 'editing'
+    editingText: string
+    lastFindText: string
+    show: boolean
+    find: Find
+    findStatus: ITransStatus
+    fromIframe: any
+    toIframe: any
+    subIfram: any
+    dialogMsg: {
+        show: boolean
+        message: string
+        confirmText: string|undefined
+        cancelText: string|undefined
+        confirmAction: any
+        showDialog(dialogMsg:IDialogMsg): void
+    }
+    toast: {
+        show: boolean
+        msg: string
+        closeTimer: any
+        showToast(toastMsg:IToastMsg): void
+    }
+    marksList: any[]
+    canReduceMark: boolean
+    subTranslator: {
+        status: 'loading'|'hide'|'result'|'showGate'
+        selectText: string
+        selectRange: number[]
+        top: number
+        left: number
+        isLoading: boolean
+        resultData: ITransResult | undefined
+        marksStr: string,
+        translate(): void
+        afterMark(canReduce: boolean): void
+        bookMark(): void
+        mark(): void
+        init(): void
+    }
+    options: {
+        isShow: boolean
+        from: string|undefined
+        to: string|undefined
+        engine: ITransEngine
+        getData():void
+        close():void
+        openOptionsPage():void
+        show() :void
+        exchange() :void
+        changeEngine():void
+        setLang():void
+    }
+    conf: IConfig
+    usePort({ name, context, onMsgHandle}:IPortHandler): void
+    handleWebErr(msg: IContext): void
+    getMarkHtml(): string
+    updateMark({ success, fail, info }: { success: Function, fail: Function, info: {marks: string, tid: number } }): void
+    reduceCollect(): void
+    collect({ success, fail }: { success?: Function, fail?: Function }): void
+    trans(info: ITranslateMsg): void
+    translateFromEdit(e: any): void
+    getTTS(audioType: string, id: string): void
+    clear(): void
+    toEdit(): void
+    copyResult(): void
+    eventToAnalytic(eventData: any): void
+    getLastFindText() :void
+    applyBDDM() :void
+    pasteAndTrans() :void
+    tips: {
+        message: string
+    }
+}
+
+export interface IAllStorage {
+    mainLang?: string
+    secondLang?: string
+    fromLang?: string
+    toLang?:string
+    isTreadWord?: boolean
+    tokenInfo?: ITokenInfo
+    mode?: 'simple'| 'profession'
+    optionPageOpenParmas?: IOptionPageOpenParma
+    menuTrans?: boolean
+    transEngine?: ITransEngine
+}
+
+export interface IConfig {
+    C: IAllStorage
+    getConf() :void
+    changeTreadWord() :void
+}
+
 export interface IToastMsg {
     type: 'normal'|'i18n'|'lang'
     message: string
@@ -81,15 +193,18 @@ export interface IWrapTransInfo {
     to?: string
     readonly type: string
     readonly mode: string
-    engine: string
+    engine?: string
     isDetectedLang?: boolean
-    extraMsg?: any
     fromCode?: string
     toCode?: string
+    fromCp?: string
+    toCp?: string
+    cost?: number
+    extraMsg?: Map<string, any>
 }
 
 
-export interface IRequestResult {
+export interface IResponse {
     errMsg?: string
     data?: any
     status?: number
@@ -107,9 +222,21 @@ export interface ITransResult {
     tPronunciation?: string
     data?: any
     domain?: string
+    examples?: ITransExample[]
+    dict?: ITransDict[]
 }
 
-export interface ITransResultFromApi {
+export interface ITransExample {
+    text: string
+    trans?: string
+}
+
+export interface ITransDict {
+    pos: string
+    trans: string
+}
+
+export interface IGTransResult {
     sentences: any[]
     dict?: IDictItem[]
     src: string
@@ -147,7 +274,6 @@ export interface ILangInfo {
 export interface IAnalyticEvent {
     name: string
     params: any
-
 }
 
 export interface eventItem {
@@ -159,101 +285,17 @@ export interface eventItem {
 
 export interface ITranslateMsg {
     text: string,
-    type: 'sub' | 'edit_icon' | 'select' | 'changeLang' | 'edit_enter' | 'test'|'exchange'|'edit_paste'
+    type: ITransType
     from?: string
     to?: string
-    findStatus?: 'loading'|undefined
+    findStatus?: ITransStatus
     engine?: string
 }
 
 export interface IPortHandler {
-    name: 'translate'|'collect'|'reduceCollect'|'updateMark'|'tts'|
-    'openOptionsPage'|'analytic'|'setTreadWord'|'getTreadWordConf'|
-    'applyBDDM'
-    msg?:any
-    onMsgHandle?(msg:any) :void
-}
-
-export interface ITranslatorHook {
-    mode: 'resultOnly'|'popup'|'pdf'
-    status: 'result' | 'editing'
-    editingText: string
-    lastFindText: string
-    show: boolean
-    find: Find
-    findStatus: 'none' | 'ok' | 'loading' | 'reLoading' | 'willOK'
-    fromIframe: any
-    toIframe: any
-    subIfram: any
-    dialogMsg: {
-        show: boolean
-        message: string
-        confirmText: string|undefined
-        cancelText: string|undefined
-        confirmAction: any
-        showDialog(dialogMsg:IDialogMsg): void
-    }
-    toast: {
-        show: boolean
-        msg: string
-        closeTimer: any
-        showToast(toastMsg:IToastMsg): void
-    }
-    marksList: any[]
-    canReduceMark: boolean
-    subTranslator: {
-        status: 'loading' | 'hide' | 'result' | 'showGate'
-        selectText: string
-        selectRange: number[]
-        top: number
-        left: number
-        isLoading: boolean
-        resultData: ITransResult | undefined
-        marksStr: string,
-        translate(): void
-        afterMark(canReduce: boolean): void
-        bookMark(): void
-        mark(): void
-        init(): void
-    }
-    options: {
-        isShow: boolean
-        from: string|undefined
-        to: string|undefined
-        engine: string
-        close():void
-        openOptionsPage():void
-        show() :void
-        exchange() :void
-        changeEngine():void
-    }
-    configInfo: {
-        isTreadWord: boolean
-        engine: string
-        info: IConfigInfo|{}
-        getTreadWord() :void
-        changeTreadWord() :void
-    }
-    usePort({ name, msg, onMsgHandle}:IPortHandler): void
-    handleWebErr(msg: IRequestResult): void
-    getMarkHtml(): string
-    updateMark({ success, fail, info }: { success: Function, fail: Function, info: {marks: string, tid: number } }): void
-    reduceCollect(): void
-    collect({ success, fail }: { success?: Function, fail?: Function }): void
-    trans({ text, from, to, type, findStatus, engine }: ITranslateMsg): void
-    translateFromEdit(e: any): void
-    getTTS(audioType: string, id: string): void
-    clear(): void
-    toEdit(): void
-    copyResult(): void
-    eventToAnalytic(eventData: any): void
-    toAnalytics(event: IAnalyticEvent) :void
-    getLastFindText() :void
-    applyBDDM() :void
-    pasteAndTrans() :void
-    tips: {
-        message: string
-    }
+    name: IPortName
+    context: IContext
+    onMsgHandle?(context:IContext) :void
 }
 
 export interface IQrLoginParams {
@@ -278,10 +320,19 @@ export interface IBDDMTransResult {
     from: string
 }
 
-export interface IAllStorage {
-    mainLang: string
-    isTreadWord: boolean
-    tokenInfo: ITokenInfo
-    secondLang: string
-    optionPageOpenParmas: IOptionPageOpenParma
+export interface IOptionHook {
+    tabsInfo: string[]
+    activeTabIndex: number
+    conf: {
+        C:IAllStorage,
+        changeTransEngine() :void
+        changeTreadWord() :void
+        changeMode() :void
+        changeMenuTrans() :void
+        changeMainLang() :void
+        changeSecondLang() :void
+    }
+    getOpenParams():void
+    selectTab(index:number):void
+    init():void
 }
