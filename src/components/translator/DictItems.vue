@@ -1,7 +1,7 @@
 <template>
-  <div v-if="transHook.subTranslator.resultData?.dict">
+  <div v-if="baseHook.T.subTranslator.resultData?.dict">
     <div
-      v-for="(item, index) in transHook.subTranslator.resultData.dict.slice(0, 8)"
+      v-for="(item, index) in baseHook.T.subTranslator.resultData.dict.slice(0, 8)"
       class="dict-item-box-wsrfhedsoufheqiwrhew"
       :key="index"
     >
@@ -12,20 +12,20 @@
     </div>
   </div>
   <div v-else class="no-dict-text-wsrfhedsoufheqiwrhew">
-    {{ transHook.subTranslator.resultData?.text }}
+    {{ baseHook.T.subTranslator.resultData?.text }}
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, inject } from "vue";
-import {ITranslatorHook} from '@/utils/interface'
+import {IBaseHook} from '@/utils/interface'
 
 export default defineComponent({
   setup() {
-    const transHook = <ITranslatorHook>inject("transHook")
+    const baseHook = <IBaseHook>inject("baseHook")
 
     return {
-      transHook,
+      baseHook,
     };
   },
 });

@@ -1,14 +1,27 @@
 <template>
   <div
     class="dialog-overlay-wsrfhedsoufheqiwrhew"
-    v-if="transHook.dialogMsg.show"
-    @click="transHook.dialogMsg.show = false"
+    v-if="baseHook.dialog.show"
+    @click="baseHook.dialog.show = false"
   >
     <div class="dialog-content-box-wsrfhedsoufheqiwrhew" @click.stop="">
-      <div class="content-text-wsrfhedsoufheqiwrhew">{{transHook.dialogMsg.message}}</div>
+      <div class="content-text-wsrfhedsoufheqiwrhew">
+        {{ baseHook.dialog.message }}
+      </div>
       <div class="dialog-control-bar-wsrfhedsoufheqiwrhew">
-        <div class="cancel-wsrfhedsoufheqiwrhew" :style="transHook.dialogMsg.confirmText ? 'color: #777;':''" @click="transHook.dialogMsg.show = false">{{transHook.dialogMsg.cancelText}}</div>
-        <div class="comfirm-wsrfhedsoufheqiwrhew" @click="transHook.dialogMsg.confirmAction">{{transHook.dialogMsg.confirmText}}</div>
+        <div
+          class="cancel-wsrfhedsoufheqiwrhew"
+          :style="baseHook.dialog.confirmText ? 'color: #777;' : ''"
+          @click="baseHook.dialog.show = false"
+        >
+          {{ baseHook.dialog.cancelText }}
+        </div>
+        <div
+          class="comfirm-wsrfhedsoufheqiwrhew"
+          @click="baseHook.dialog.confirmAction"
+        >
+          {{ baseHook.dialog.confirmText }}
+        </div>
       </div>
     </div>
   </div>
@@ -16,22 +29,22 @@
 
 <script lang='ts'>
 import { defineComponent, inject } from "vue";
-import {ITranslatorHook} from '@/utils/interface';
+import { IBaseHook } from "@/utils/interface";
 
 export default defineComponent({
   setup() {
-      const transHook = <ITranslatorHook>inject('transHook')
+    const baseHook = <IBaseHook>inject("baseHook");
 
-      return {
-          transHook
-      }
+    return {
+      baseHook,
+    };
   },
 });
 </script>
 
 
 <style scoped lang="scss">
-@import "../../app.scss";
+@import "@/app.scss";
 
 .dialog-overlay-wsrfhedsoufheqiwrhew {
   box-sizing: border-box;
@@ -44,7 +57,7 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   padding: 0 20px 0 20px;
-//   background-color: rgba(0,0,0,0.5);
+  //   background-color: rgba(0,0,0,0.5);
   .dialog-content-box-wsrfhedsoufheqiwrhew {
     display: flex;
     flex-direction: column;
@@ -56,7 +69,7 @@ export default defineComponent({
     min-width: 210px;
     background-color: white;
     // box-shadow: 0 0 20px #555;
-    border: solid 1px #E4E7ED;
+    border: solid 1px #e4e7ed;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
     font-size: 14px;
     .content-text-wsrfhedsoufheqiwrhew {
@@ -70,9 +83,9 @@ export default defineComponent({
       justify-content: flex-end;
       color: $mainColor;
       .cancel-wsrfhedsoufheqiwrhew {
-          font-weight: bold;
-          padding-right: 10px;
-          cursor: pointer;
+        font-weight: bold;
+        padding-right: 10px;
+        cursor: pointer;
       }
       .comfirm-wsrfhedsoufheqiwrhew {
         font-weight: bold;

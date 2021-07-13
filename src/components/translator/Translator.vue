@@ -1,15 +1,14 @@
 <template>
-  <div class="tool-trans-main-wsrfhedsoufheqiwrhew">
-    <TransTopBar :mode="transHook.mode" :uiMode="transHook.conf.C.mode" />
-    <LangController v-if="transHook.conf.C.mode !== 'simple'" />
-    <div class="transHook-main-wsrfhedsoufheqiwrhew" @mouseup.stop="up">
-      <TransResult v-if="transHook.status !== 'editing'" />
-      <Editor v-else />
-      <Options v-if="transHook.options.isShow" :mode="transHook.mode" />
-      <SubTranslator />
-      <TransDialog />
-      <TransToast />
+  <div>
+    <div class="tool-trans-main-wsrfhedsoufheqiwrhew">
+      <TransTopBar />
+      <div class="transHook-main-wsrfhedsoufheqiwrhew" @mouseup.stop="up">
+        <Editor v-if="baseHook.status === 'editing'" />
+        <TransResult v-if="baseHook.isResultInit" />
+      </div>
     </div>
+    <TransDialog />
+    <TransToast />
   </div>
 </template>
 
@@ -22,67 +21,34 @@ import {
   provide,
   ref,
 } from "vue";
-import IconBtn from "../base/IconBtn.vue";
-import SoundBtn from "./SoundBtn.vue";
-import TransTopBar from './TransTopBar.vue';
-import CollectBtn from "./CollectBtn.vue";
-import Options from "./Options.vue";
-import TransDialog from "./TransDialog.vue";
-import TransToast from "./TransToast.vue";
-import SubTranslator from "./SubTranslator.vue";
-import FindText from "./FindText.vue";
+import { baseTransHook } from "@/hook/translatorHook";
 import Editor from "./Editor.vue";
 import TransResult from "./TransResult.vue";
+import TransTopBar from "./TransTopBar.vue";
+import TransDialog from "./TransDialog.vue";
+import TransToast from "./TransToast.vue";
 import LangController from "./LangController.vue";
-import { ITranslatorHook } from "@/utils/interface";
+import { ITranslatorHook, IBaseHook } from "@/utils/interface";
 
 export default defineComponent({
-  emits: ["loadOK"],
-  setup(props, context) {
-    const transHook = <ITranslatorHook>inject("transHook");
-
-    function messageHandler(event: any) {
-      if (
-        !event.data.sourceID &&
-        event.data.sourceID !== "dsfiuasguwheuirhudfkssdhfiwehri"
-      ) {
-        return;
-      }
-      if (event.data.action === "playAudio") {
-        transHook.getTTS(event.data.audioType, event.data.id);
-      }
-    }
-
-    onMounted(() => {
-      context.emit("loadOK");
-      window.addEventListener("message", messageHandler);
-    });
-
-    onUnmounted(() => {
-      window.removeEventListener("message", messageHandler);
-    });
+  setup() {
+    const baseHook = <IBaseHook>inject("baseHook");
 
     function up() {
       document.onmousemove = null;
     }
 
     return {
-      transHook,
+      baseHook,
       up,
     };
   },
   components: {
     TransTopBar,
-    SoundBtn,
-    CollectBtn,
-    IconBtn,
-    Options,
-    TransDialog,
-    TransToast,
-    SubTranslator,
-    FindText,
     Editor,
     TransResult,
+    TransDialog,
+    TransToast,
     LangController,
   },
 });

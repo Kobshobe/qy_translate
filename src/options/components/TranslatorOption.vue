@@ -1,41 +1,40 @@
 <template>
   <div class="colume-option">
-    <OptionItem :title="`${'默认翻译来源'}:`">
+    <OptionItem :title="`${defaultTransEngineMsg}:`">
       <el-select
         v-model="hook.conf.C.transEngine"
-        placeholder="请选择"
+        :placeholder="choiceMsg"
         @change="hook.conf.changeTransEngine"
         :filterable="false"
         size="medium"
       >
         <el-option-group
           v-for="group in engines"
-          :key="group.name"
-          :label="group.name"
+          :key="group.code"
+          :label="geti18nMsg(group.code)"
         >
           <el-option
             v-for="(engine, key, index) in group.engines"
             :key="index"
-            :label="engine.name"
+            :label="geti18nMsg(engine.code)"
             :value="engine.code"
           >
           </el-option>
         </el-option-group>
       </el-select>
     </OptionItem>
-    <!-- mark i18n -->
-    <OptionItem title="界面风格">
+    <OptionItem :title="`${interfaceMsg}:`">
       <el-radio
         v-model="hook.conf.C.mode"
         label="simple"
         @change="hook.conf.changeMode"
-        >简约</el-radio
+        >{{simpleAndIntellgentMsg}}</el-radio
       >
       <el-radio
         v-model="hook.conf.C.mode"
         label="profession"
         @change="hook.conf.changeMode"
-        >专业</el-radio
+        >{{professionMsg}}</el-radio
       >
     </OptionItem>
   </div>
@@ -44,7 +43,7 @@
     <OptionItem :title="mainLangMsg">
       <el-select
         v-model="hook.conf.C.mainLang"
-        placeholder="请选择"
+        :placeholder="choiceMsg"
         @change="hook.conf.changeMainLang"
         filterable
         size="medium"
@@ -52,7 +51,7 @@
         <el-option
           v-for="(lang, key, index) in languages"
           :key="index"
-          :label="lang['zh-CN']"
+          :label="lang[localeLang]"
           :value="key"
           v-show="key !== 'auto' && key !== '__auto__'"
         >
@@ -62,7 +61,7 @@
     <OptionItem :title="secondLangMsg">
       <el-select
         v-model="hook.conf.C.secondLang"
-        placeholder="请选择"
+        :placeholder="choiceMsg"
         @change="hook.conf.changeSecondLang"
         filterable
         size="medium"
@@ -70,7 +69,7 @@
         <el-option
           v-for="(lang, key, index) in languages"
           :key="index"
-          :label="lang['zh-CN']"
+          :label="lang[localeLang]"
           :value="key"
           v-show="key !== 'auto' && key !== '__auto__'"
         >
@@ -94,11 +93,31 @@
       ></el-switch>
     </OptionItem>
   </div>
-
-  <OptionItem :title="collManagerMsg">
-    <div style="padding-bottom: 20px">{{ weChatCollManaMsg }}</div>
-    <img class="to-min-qr" :src="qrSrc" alt="" />
-  </OptionItem>
+  <div class="colume-option">
+    <OptionItem :title="`${showProunMsg}:`">
+      <el-switch
+        v-model="hook.conf.C.showProun"
+        active-color="#4C8BF5"
+        @change="hook.conf.changeShowProun"
+      ></el-switch>
+    </OptionItem>
+    <OptionItem :title="`${geti18nMsg('__enterTrans__')}:`">
+      <el-radio
+        v-model="hook.conf.C.keyDownTrans"
+        label="Shift+Enter"
+        @change="hook.conf.changeKeyDownTrans"
+        >Shift+Enter</el-radio>
+      <el-radio
+        v-model="hook.conf.C.keyDownTrans"
+        label="Enter"
+        @change="hook.conf.changeKeyDownTrans"
+        >Enter</el-radio>
+    </OptionItem>
+    <!-- <OptionItem :title="collManagerMsg">
+      <div style="padding-bottom: 20px">{{ weChatCollManaMsg }}</div>
+      <img class="to-min-qr" :src="qrSrc" alt="" />
+    </OptionItem> -->
+  </div>
 </template>
 
 <script lang="ts">
@@ -106,11 +125,13 @@ import { defineComponent, ref, inject } from "vue";
 import OptionItem from "./OptionItem.vue";
 import { languages, engines } from "@/translator/language";
 import { platform } from "@/config";
-import {IOptionHook} from '@/utils/interface'
+import { IOptionHook } from "@/utils/interface";
+import {getLocaleLang, geti18nMsg} from '@/utils/share'
 
 export default defineComponent({
   setup() {
     const hook = <IOptionHook>inject("optionPageHook");
+    const localeLang = getLocaleLang()
 
     let qrSrc = "";
     if (platform === "edge") {
@@ -119,27 +140,39 @@ export default defineComponent({
       qrSrc = "assets/images/qr_chrome_option.png";
     }
 
-
     const treadWordMsg = chrome.i18n.getMessage("treadWord");
     const mainLangMsg = chrome.i18n.getMessage("mainLang");
     const secondLangMsg = chrome.i18n.getMessage("secondLang");
     const collManagerMsg = chrome.i18n.getMessage("collManager");
     const weChatCollManaMsg = chrome.i18n.getMessage("weChatCollMana");
-    const menuTransMsg = chrome.i18n.getMessage("__menuTrans__")
-    // const isPronunciationMsg = chrome.i18n.getMessage("isPronunciation");
+    const menuTransMsg = chrome.i18n.getMessage("__menuTrans__");
+    const showProunMsg = chrome.i18n.getMessage("__showProun__");
+    const choiceMsg = chrome.i18n.getMessage('__choice__')
+    const interfaceMsg = chrome.i18n.getMessage('__interface__')
+    const defaultTransEngineMsg = chrome.i18n.getMessage('__defaultTransEngine__')
+    const simpleAndIntellgentMsg = chrome.i18n.getMessage('__simpleAndIntellgent__')
+    const professionMsg = chrome.i18n.getMessage('__profession__')
+    // __simpleAndIntellgent__ __profession__
 
     return {
       hook,
       languages,
       engines,
       qrSrc,
+      localeLang,
       treadWordMsg,
       mainLangMsg,
       secondLangMsg,
       collManagerMsg,
       weChatCollManaMsg,
-      menuTransMsg
-      // isPronunciationMsg
+      menuTransMsg,
+      showProunMsg,
+      choiceMsg,
+      interfaceMsg,
+      defaultTransEngineMsg,
+      simpleAndIntellgentMsg,
+      professionMsg,
+      geti18nMsg
     };
   },
   components: {

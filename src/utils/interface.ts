@@ -1,33 +1,46 @@
 import {Ref} from 'vue'
+import {baseTransHook} from '@/hook/translatorHook'
 
-declare type ITransEngine = ''|'ggTrans__common'|'bdTrans__common'|'bdDM__finance'|
+export declare type ITransMode = 'popup'|'contentInject'|'pdf'
+
+export declare type ITransStatus = 'editing'|'result'|'none'
+
+export declare type ITransEngine = ''|'ggTrans__common'|'bdTrans__common'|'bdDM__finance'|
 'bdDM__electronics'|'bdDM__mechanics'|'bdDM__medicine'|'bdDM__novel'
 
-declare type ITransType = 'sub'|'edit_icon'|'select'|'changeLang'|'edit_enter'|'test'|
+export declare type ITransType = 'sub'|'edit_icon'|'select'|'changeLang'|'edit_enter'|'edit_shift_enter'|'test'|
 'exchange'|'edit_paste'|'menu'|'changeEngine'
 
-declare type IPortName = 'translate'|'collect'|'reduceCollect'|'updateMark'|'tts'|
+export declare type IPortName = 'translate'|'collect'|'reduceCollect'|'updateMark'|'tts'|
 'openOptionsPage'|'analytic'|'applyBDDM'
 
-declare type ITransStatus = 'none'|'ok'|'loading'|'reLoading'|'willOK'
+export declare type ITransFindStatus = 'none'|'ok'|'popLoading'|'reLoading'|'willOK'|'editLoading'
 
 export interface IContext {
     req: any
     resp?: IResponse
 }
 
-export interface ITranslatorHook {
-    mode: 'resultOnly'|'popup'|'pdf'
-    status: 'result' | 'editing'
-    editingText: string
-    lastFindText: string
-    show: boolean
-    find: Find
-    findStatus: ITransStatus
-    fromIframe: any
-    toIframe: any
-    subIfram: any
-    dialogMsg: {
+export interface IBaseHook {
+    mode: ITransMode
+    isResultInit: boolean
+    status:ITransStatus
+    findStatus: ITransFindStatus
+    transID: number
+    isHold: boolean
+    bridge: any
+    C: IAllStorage
+    init(mode:ITransMode, status:ITransStatus) :void
+    getConf() :void
+    changeTreadWord() :void
+    exchangeLang():void
+    changeLang(isExchange:boolean):void
+    eventToAnalytic(eventData:any) :void
+    usePort({ name, context, onMsgHandle}:IPortHandler): void
+    setNoneStatus():void
+    setHold() :void
+    openOptionsPage(type:string):void
+    dialog: {
         show: boolean
         message: string
         confirmText: string|undefined
@@ -40,7 +53,33 @@ export interface ITranslatorHook {
         msg: string
         closeTimer: any
         showToast(toastMsg:IToastMsg): void
+    },
+    tips: {
+        message: string
     }
+    E: IEditHook
+    T:ITranslatorHook
+}
+
+export interface IEditHook {
+    base: IBaseHook
+    editingText: string
+    lastFindText: string
+    clear() :void
+    getLastFindText() :void
+    pasteAndTrans() :void
+    trans(type?:ITransType) :void
+    enterTrans(e:any) :void
+}
+
+export interface ITranslatorHook {
+    base: IBaseHook
+    lastFindText: string
+    show: boolean
+    find: Find
+    fromIframe: any
+    toIframe: any
+    subIfram: any
     marksList: any[]
     canReduceMark: boolean
     subTranslator: {
@@ -65,32 +104,45 @@ export interface ITranslatorHook {
         engine: ITransEngine
         getData():void
         close():void
-        openOptionsPage():void
         show() :void
         exchange() :void
         changeEngine():void
         setLang():void
     }
-    conf: IConfig
     usePort({ name, context, onMsgHandle}:IPortHandler): void
     handleWebErr(msg: IContext): void
     getMarkHtml(): string
     updateMark({ success, fail, info }: { success: Function, fail: Function, info: {marks: string, tid: number } }): void
     reduceCollect(): void
     collect({ success, fail }: { success?: Function, fail?: Function }): void
-    trans(info: ITranslateMsg): void
-    translateFromEdit(e: any): void
+    trans(info: ITransMsg): void
+    translateFromEdit(): void
     getTTS(audioType: string, id: string): void
-    clear(): void
     toEdit(): void
     copyResult(): void
     eventToAnalytic(eventData: any): void
-    getLastFindText() :void
     applyBDDM() :void
-    pasteAndTrans() :void
-    tips: {
-        message: string
+    setResultPostion():void
+}
+
+export interface IOptionHook {
+    tabsInfo: string[]
+    activeTabIndex: number
+    conf: {
+        C:IAllStorage,
+        changeTransEngine() :void
+        changeTreadWord() :void
+        changeMode() :void
+        changeMenuTrans() :void
+        changeMainLang() :void
+        changeSecondLang() :void
+        changeShowProun() :void
+        changeShowProun() :void
+        changeKeyDownTrans() :void
     }
+    getOpenParams():void
+    selectTab(index:number):void
+    init():void
 }
 
 export interface IAllStorage {
@@ -101,9 +153,12 @@ export interface IAllStorage {
     isTreadWord?: boolean
     tokenInfo?: ITokenInfo
     mode?: 'simple'| 'profession'
+    proMode?: 'float'|'edge'
     optionPageOpenParmas?: IOptionPageOpenParma
     menuTrans?: boolean
     transEngine?: ITransEngine
+    showProun?: boolean
+    keyDownTrans?: 'Enter'|'Shift+Enter'
 }
 
 export interface IConfig {
@@ -283,13 +338,14 @@ export interface eventItem {
     duration: number
 }
 
-export interface ITranslateMsg {
+export interface ITransMsg {
     text: string,
     type: ITransType
     from?: string
     to?: string
-    findStatus?: ITransStatus
+    findStatus: ITransFindStatus
     engine?: string
+    id?: number
 }
 
 export interface IPortHandler {
@@ -303,10 +359,6 @@ export interface IQrLoginParams {
     loginStatus: Ref<'loginOk' | 'none' | 'scanQr' | 'loadingQr' | 'invalidQr' | 'loadQrFail'>
 }
 
-export interface IConfigInfo {
-    isTreadWord?: boolean
-}
-
 export interface IClientInfo {
     c: string
     os: string
@@ -318,21 +370,4 @@ export interface IClientInfo {
 export interface IBDDMTransResult {
     result: string[]
     from: string
-}
-
-export interface IOptionHook {
-    tabsInfo: string[]
-    activeTabIndex: number
-    conf: {
-        C:IAllStorage,
-        changeTransEngine() :void
-        changeTreadWord() :void
-        changeMode() :void
-        changeMenuTrans() :void
-        changeMainLang() :void
-        changeSecondLang() :void
-    }
-    getOpenParams():void
-    selectTab(index:number):void
-    init():void
 }

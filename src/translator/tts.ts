@@ -92,7 +92,14 @@ export const getAudioBase64 = async (c:IContext): Promise<IContext> => {
         audioType: c.req.audioType,
       }
     })
-    // mark handler err
+
+    c.resp = {
+      errMsg: "google trans err",
+      toastMsg: {
+        message: '__reqErr__',
+        type: 'i18n'
+      }
+    }
     return c
   } else {
     result = res.data

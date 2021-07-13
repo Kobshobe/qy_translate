@@ -5,14 +5,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, provide, ref } from "vue";
-import { transHook } from '@/hook/translatorHook'
+import { defineComponent, provide, ref, reactive } from "vue";
+import { baseTransHook } from '@/hook/translatorHook'
 import Translator from "@/components/translator/Translator.vue";
 
 export default defineComponent({
   setup() {
-    const trans = transHook('popup', 'editing');
-    provide("transHook", trans);
+    const baseHook = baseTransHook('popup', 'editing')
+    provide('baseHook', baseHook)
   },
   components: {
     Translator,
@@ -28,6 +28,6 @@ export default defineComponent({
 }
 
 .popup_main {
-  width: 400px;
+  width: 415px;
 }
 </style>

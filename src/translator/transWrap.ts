@@ -1,13 +1,13 @@
 import {IContext, IWrapTransInfo, ITransResult, IResponse} from '@/utils/interface'
 import {GoogleTrans} from '@/translator/google'
 import {BaiduTrans} from '@/translator/baiduTrans'
-import {getMainLang, getSecondLang, getFromeStorage} from '@/utils/chromeApi'
+import {getFromeStorage} from '@/utils/chromeApi'
 import {Mode} from '@/config'
 
 class WrapTranslator {
     google: GoogleTrans
     baidu: BaiduTrans
-    lastTrans = new Date().valueOf()
+    lastTrans = 0
 
     constructor() {
         this.google = new GoogleTrans()
@@ -15,13 +15,17 @@ class WrapTranslator {
     }
 
     async trans(c:IContext) :Promise<IContext> {
-      console.log(c.req)
       const info: IWrapTransInfo = c.req
       const now = new Date().valueOf();
       
-      if(Mode !== 'jest' && now - this.lastTrans < 300) {
+      // check frequency want menu trans
+      if(info.type === 'menu') {
+        const now = new Date().valueOf();
+        if (now - this.lastTrans < 200) {
+          this.lastTrans = now
+          return c
+        }
         this.lastTrans = now
-        return c
       }
       
       this.lastTrans = now;
@@ -54,22 +58,6 @@ class WrapTranslator {
         return false;
       }
     
-      async autoGetLang(text:string, from:string, to:string) :Promise<string> {
-    
-        return await this.detectLang(text)
-      }
-    
-      async detectLang(text:string) {
-        const mainLang = await getMainLang()
-        if(mainLang === 'zh-CN') {
-          if (this.isChinese(text)) {
-            return await getSecondLang()
-          } else {
-            return await getMainLang()
-          }
-        }
-        return await getMainLang()
-      }
 }
 
 export const wrapTranslator = new WrapTranslator()

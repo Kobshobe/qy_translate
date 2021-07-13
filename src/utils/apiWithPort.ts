@@ -22,7 +22,7 @@ export const apiWrap = {
     port.postMessage(await getAudioBase64(c))
   },
   openOptionsPage: (c: IContext, port: any) => {
-    openOptionsPage(c)
+    openOptionsPage(c.req)
   },
   analytic: async (c: IContext, port: any) => {
     eventToGoogle(c.req)

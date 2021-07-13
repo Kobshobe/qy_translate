@@ -27,12 +27,10 @@ export class BaiduTrans extends BaseTrans {
             return c
         }
 
-        // detect lang and set engine lang
-        await this.setLangCode(c)
+        // detect lang and set engine lang //marks
+        let err = await this.setLangCode(c)
 
-        if(!info.fromCode || !info.toCode) {
-            // mark err
-            this.noSupportLang(c)
+        if (err) {
             return c
         }
 
@@ -44,7 +42,7 @@ export class BaiduTrans extends BaseTrans {
             return await this.CTrans(c)
         }
 
-        // mark true to common domain and give tips
+        //@ts-ignore true to common domain and give tips
         const supportErr = this.checkELang(info.fromCode, info.toCode, info.engine)
         if(supportErr !== '') {
             this.setExtraMsg(c, '__changeEngineForLang__', {
@@ -111,12 +109,10 @@ export class BaiduTrans extends BaseTrans {
         }
 
         if (!info.isDetectedLang) {
-            await this.setLangCode(c)
-        }
-
-        if(!info.toCode || !info.fromCode) {
-            this.noSupportLang(c)
-            return c
+            const err = await this.setLangCode(c)
+            if(err) {
+                return c
+            }
         }
 
         const trans:any = async () :Promise<IResponse> => {
@@ -241,7 +237,7 @@ export class BaiduTrans extends BaseTrans {
     }
 
     async detect(c:IContext) :Promise<string> {
-        const response = await baseFetch({
+        const resp = await baseFetch({
             method: "post",
             url: this.CHOST+"langdetect",
             headers: this.CHEADERS,
@@ -250,11 +246,10 @@ export class BaiduTrans extends BaseTrans {
             }),
         });
 
-        if (!response.errMsg) {
-            //@ts-ignore
-            return response.data.lan
+        if (!resp.errMsg) {
+            return resp.data.lan
         }
-        return ''
+        return '__reqErr__'
     }
 
     async getTokenGtk() {

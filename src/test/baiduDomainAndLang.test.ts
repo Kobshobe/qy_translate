@@ -94,7 +94,6 @@ test('baidu domain and lang support check', async () => {
         mode: 'popup'
     }
     await trans.setLangCode({req:info})
-    console.log(info)
     expect(info.from).toBe('zh-CN')
     expect(info.to).toBe('en')
     expect(info.fromCode).toBe('zh')

@@ -2,33 +2,32 @@
   <div
     class="popup-overlay-wsrfhedsoufheqiwrhew"
     v-if="
-      transHook.subTranslator.status !== 'hide' ||
-      transHook.subTranslator.status === 'loading'
+      baseHook.T.subTranslator.status !== 'hide'
     "
-    @click="transHook.subTranslator.init"
+    @click="baseHook.T.subTranslator.init"
   >
     <div
-      v-if="transHook.subTranslator.status !== 'result'"
+      v-if="baseHook.T.subTranslator.status !== 'result'"
       class="gate-box-wsrfhedsoufheqiwrhew"
-      :style="{ top: transHook.subTranslator.top + 'px' }"
+      :style="{ top: baseHook.T.subTranslator.top + 'px' }"
     >
-      <div :style="{ width: transHook.subTranslator.left + 'px' }"></div>
+      <div :style="{ width: baseHook.T.subTranslator.left + 'px' }"></div>
       <div class="gate-content-box-wsrfhedsoufheqiwrhew" @click.stop="">
         <div
-          v-if="transHook.subTranslator.status === 'showGate'"
+          v-if="baseHook.T.subTranslator.status === 'showGate'"
           class="gate-trans-mark-wsrfhedsoufheqiwrhew"
         >
-          <div class="gate-btn-wsrfhedsoufheqiwrhew" @click="transHook.subTranslator.translate">
+          <div class="gate-btn-wsrfhedsoufheqiwrhew" @click="baseHook.T.subTranslator.translate">
             {{subTransMsg}}
           </div>
           <div class="gate-divider-wsrfhedsoufheqiwrhew">|</div>
-          <div class="gate-btn-wsrfhedsoufheqiwrhew" @click="transHook.subTranslator.mark">
-            {{ transHook.canReduceMark ? reduceMarkMsg : markMsg }}
+          <div class="gate-btn-wsrfhedsoufheqiwrhew" @click="baseHook.T.subTranslator.mark">
+            {{ baseHook.T.canReduceMark ? reduceMarkMsg : markMsg }}
           </div>
         </div>
 
         <div
-          v-else-if="transHook.subTranslator.status === 'loading'"
+          v-else-if="baseHook.T.subTranslator.status === 'loading'"
           class="loading-wsrfhedsoufheqiwrhew"
         >
           <Loading />
@@ -45,17 +44,18 @@
 import { defineComponent, inject } from "vue";
 import Loading from "../base/Loading.vue";
 import SubTransResult from "./SubTransResult.vue";
+import {IBaseHook} from '@/utils/interface'
 
 export default defineComponent({
   setup() {
-    const transHook = inject<any>("transHook");
+    const baseHook = <IBaseHook>inject("baseHook");
 
     const markMsg = chrome.i18n.getMessage("mark")
     const subTransMsg = chrome.i18n.getMessage("subTrans")
     const reduceMarkMsg = chrome.i18n.getMessage("reduceMark")
 
     return {
-      transHook,markMsg,subTransMsg,reduceMarkMsg
+      baseHook,markMsg,subTransMsg,reduceMarkMsg
     };
   },
   components: {

@@ -5,24 +5,24 @@
         <div class="sub-find-text-wsrfhedsoufheqiwrhew">
           <span
             :class="
-              transHook.canReduceMark
+              baseHook.T.canReduceMark
                 ? 'sub-find-text-mark-wsrfhedsoufheqiwrhew'
                 : ''
             "
-            >{{ transHook.subTranslator.selectText }}</span
+            >{{ baseHook.T.subTranslator.selectText }}</span
           >
         </div>
         <div class="sub-top-right-wsrfhedsoufheqiwrhew">
           <IconBtn
             type="icon-biaoji"
             iconSize=17
-            :color="transHook.canReduceMark ? '#4C8BF5':'#ccc'"
-            @click="transHook.subTranslator.mark"
+            :color="baseHook.T.canReduceMark ? '#4C8BF5':'#ccc'"
+            @click="baseHook.T.subTranslator.mark"
           />
           <IconBtn
-            type="icon-guanbi"
-            iconSize="13"
-            @click="transHook.subTranslator.init"
+            type="icon-guanbi1"
+            iconSize="15"
+            @click="baseHook.T.subTranslator.init"
           />
         </div>
       </div>
@@ -32,7 +32,7 @@
             v-if="showPronunciation"
             class="sub-pronunciation-wsrfhedsoufheqiwrhew"
           >
-            {{ transHook.subTranslator.resultData?.sPronunciation }}
+            [{{ baseHook.T.subTranslator.resultData?.sPronunciation }}]
           </div>
           <SoundBtn audioType="sub" />
           <div v-if="showPronunciation" style="width: 5px"></div>
@@ -51,11 +51,11 @@ import SoundBtn from "./SoundBtn.vue";
 import DictItems from "./DictItems.vue";
 import Examples from "./Examples.vue";
 import IconBtn from "../base/IconBtn.vue";
-import { ITranslatorHook } from "@/utils/interface";
+import { IBaseHook } from "@/utils/interface";
 
 export default defineComponent({
   setup() {
-    const transHook = <ITranslatorHook>inject("transHook");
+    const baseHook = <IBaseHook>inject("baseHook");
 
     const opacityStyle = reactive({
       opacity: 0.2,
@@ -63,8 +63,8 @@ export default defineComponent({
 
     const showPronunciation = computed(() => {
       return (
-        transHook.subTranslator.resultData?.sPronunciation &&
-        transHook.subTranslator.resultData.sPronunciation.length < 30
+        baseHook.T.subTranslator.resultData?.sPronunciation &&
+        baseHook.T.subTranslator.resultData.sPronunciation.length < 30
       );
     });
 
@@ -75,7 +75,7 @@ export default defineComponent({
     });
 
     return {
-      transHook,
+      baseHook,
       showPronunciation,
       opacityStyle,
     };
@@ -144,14 +144,15 @@ export default defineComponent({
         min-width: 27px;
         width: auto;
         align-items: center;
-        border-radius: 13px;
-        background-color: #eee;
+        // border-radius: 13px;
+        // background-color: #eee;
         margin-bottom: 16px;
         .sub-pronunciation-wsrfhedsoufheqiwrhew {
           color: #ddd;
           font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
-          padding-left: 12px;
-          color: #555;
+          // padding-left: 12px;
+          color: #aaa;
+          font-size: 13px;
         }
       }
     }

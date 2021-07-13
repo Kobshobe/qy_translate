@@ -1,25 +1,30 @@
 import { Mode } from '@/config'
-import { IAnalyticEvent, ITokenInfo, ITokenInfoFromCloud, IOptionPageOpenParma, IConfigInfo, IAllStorage } from '@/utils/interface'
+import { IAnalyticEvent, ITokenInfo, ITokenInfoFromCloud, IOptionPageOpenParma, IAllStorage } from '@/utils/interface'
 // @ts-ignore
 import { v4 } from "uuid";
 import {eventToGoogle} from './analytics'
+import {languages} from '@/translator/language'
+import { setConfig } from 'element-plus/lib/utils/config';
 
 export async function getTransConf() {
     const conf:IAllStorage = await getFromeStorage([
-        'isTreadWord', 'fromLang', 'toLang', 'mode', 'transEngine'
+        'isTreadWord', 'fromLang', 'toLang', 'mode', 'transEngine', 'showProun', 'keyDownTrans',
+        'mainLang', 'secondLang',
     ])
-    // console.log('conf1: ', conf)
     conf.isTreadWord = dealTreadWord(conf.isTreadWord);
     conf.menuTrans = dealTreadWord(conf.menuTrans);
-
     conf.fromLang || (conf.fromLang = 'auto');
     conf.toLang || (conf.toLang = '__auto__');
     conf.mode || (conf.mode = 'simple');
     conf.transEngine || (conf.transEngine = 'ggTrans__common');
-    conf.mainLang || (conf.mainLang = 'en');
-    conf.secondLang || (conf.secondLang = 'en');
-
-    // console.log('conf2: ', conf)
+    conf.keyDownTrans || (conf.keyDownTrans = 'Shift+Enter');
+    if(!conf.mainLang) {
+        [conf.mainLang, conf.secondLang] = setLang();
+        eventToGoogle({
+            name: 'errConfSetLang',
+            params: {}
+        })
+    }
     
     return conf
 }
@@ -40,14 +45,6 @@ export async function getFromeStorage(field:string[]) :Promise<IAllStorage> {
     })
 }
 
-async function checkMainLang() {
-    let mainLang = await getMainLang()
-    if (!mainLang && navigator.language) {
-        mainLang = navigator.language
-        setMainLang(navigator.language, "init")
-    }
-}
-
 export async function getClientId(): Promise<string> {
     return new Promise<string>((resolve) => {
         chrome.storage.sync.get(['tokenInfo', 'uuid'], (result: any) => {
@@ -63,17 +60,6 @@ export async function getClientId(): Promise<string> {
                     resolve("nuuid:"+uuid)
                 }
             }
-        })
-    })
-}
-
-// 通过runtime.connect的port获取token
-export async function getTokenUsePort(): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-        const port: chrome.runtime.Port = chrome.runtime.connect({ name: "getToken" });
-        port.postMessage({})
-        port.onMessage.addListener(function (token: any) {
-            resolve(token)
         })
     })
 }
@@ -127,33 +113,6 @@ export function removeTokenInfo(callback: Function) {
     });
 }
 
-// 通过runtime.connect的port删除token
-export async function removeTokenInfoUsePort(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-        const port = chrome.runtime.connect({ name: "removeTokenInfo" });
-        port.postMessage({});
-        port.onMessage.addListener(function (isRemove: boolean) {
-            resolve(isRemove)
-        });
-    });
-}
-
-export function getMainLang(): Promise<string> {
-    return new Promise((resolve, _) => {
-        chrome.storage.sync.get(['mainLang'], (obj: any) => {
-            resolve(obj.mainLang)
-        })
-    })
-}
-
-export function getSecondLang(): Promise<string> {
-    return new Promise((resolve, _) => {
-        chrome.storage.sync.get(['secondLang'], (obj: any) => {
-            resolve(obj.secondLang || 'en')
-        })
-    })
-}
-
 export function setMainLang(lang: string, scene: string) {
     chrome.storage.sync.set({ mainLang: lang })
     if(scene != "init") {
@@ -191,23 +150,6 @@ export function openOptionsPage(msg:any) {
     })
 }
 
-// 获取打开设置页面的参数
-export function getOptionPageOpenParmasUsePort() {
-    return new Promise((resolve, _) => {
-        const port = chrome.runtime.connect({ name: "getOptionPageOpenParmas" });
-        port.postMessage({});
-        port.onMessage.addListener(function (optionPageOpenParmas: any) {
-            if (optionPageOpenParmas === null) {
-                resolve(null)
-                return
-            } else {
-                resolve(optionPageOpenParmas)
-                chrome.storage.sync.remove('optionPageOpenParmas')
-            }
-        })
-    })
-}
-
 export function getOptionOpenParmas(): Promise<IAllStorage> {
     return new Promise<IAllStorage>((resolve, _) => {
         chrome.storage.sync.get(['optionPageOpenParmas'], (result: any) => {
@@ -217,39 +159,27 @@ export function getOptionOpenParmas(): Promise<IAllStorage> {
     })
 }
 
-export class Install {
-    noFirstInstall() :Promise<boolean> {
-        checkMainLang()
+export function onInstall(details:any) {
 
-        return new Promise<boolean>((resolve, reject) => {
-            chrome.storage.sync.get(['noFirstInstall'], (result:any) => {
-                if (result.noFirstInstall) {
-                    eventToGoogle({
-                        name: "onInstall",
-                        params:{}
-                    })
-                    resolve(true)
-                } else {
-                    this.setInfo()
-                    // chrome.tabs.create({url:"https://www.jd.com"})
-                    eventToGoogle({
-                        name: "firstInstall",
-                        params:{}
-                    })
-                    resolve(false)
-                }
-            })
-        })
+    if(details.reason === 'install') {
+        chrome.tabs.create({url:"https://www.fishfit.fun:8080/p/web/install"})
+        chrome.storage.sync.set({installTime: new Date().valueOf()})
     }
+    eventToGoogle({
+        name: details.reason,
+        params: {
+            previousVersion: details.previousVersion
+        }
+    })
 
-    setInfo() {
-        chrome.storage.sync.set({noFirstInstall: true})
-    }
+    checkLang()
 }
 
 export function bgInit() {
-    chrome.storage.sync.get(['bgInit'], (res:any) => {
+    // _mark add conf data
+    chrome.storage.sync.get(['bgInit', 'mode'], (res:any) => {
         const now = new Date().valueOf()
+        if (!res.mode) res.mode = 'noset'
         if (res.bgInit) {
             if (now - res.bgInit.lastToAnalytic < 1800000) return
             chrome.storage.sync.set({
@@ -258,18 +188,10 @@ export function bgInit() {
                 }
             })
             eventToGoogle({
-                name: "bg_init",
-                params: {}
-            })
-        } else {
-            chrome.storage.sync.set({
-                bgInit: {
-                    lastToAnalytic: new Date().valueOf()
+                name: "bg_init__",
+                params: {
+                    transMode: res.mode
                 }
-            })
-            eventToGoogle({
-                name: "bg_init",
-                params: {}
             })
         }
     })
@@ -317,7 +239,44 @@ function getCurrentTabUrl() :Promise<string> {
     })
 }
 
-export function eventToAnalytics(event:IAnalyticEvent) {
-    const port = chrome.runtime.connect({name:'analytic'})
-    port.postMessage({req:event})
+export function checkLang() {
+    chrome.storage.sync.get(['mainLang'], (res) => {
+        if(!res.mainLang) {
+            const [mainLang, secondLang] = setLang()
+            eventToGoogle({
+                name: 'firstSetLang',
+                params: {
+                    mainLang,
+                    secondLang,
+                }
+            })
+        }
+        
+    })
+}
+
+function setLang() :string[] {
+  let secondLang:string;
+  let mainLang:string
+  const lang = navigator.language
+  if (lang === 'zh-CN' || lang === 'zh') {
+    mainLang = 'zh-CN';
+  } else if (lang === 'zh-TW' || lang === 'zh-HK') {
+    mainLang = 'zh-TW';
+  } else {
+    //@ts-ignore
+    if(languages[lang]) {
+      mainLang = lang
+    } else {
+      mainLang = 'en'
+    }
+  }
+  if(mainLang !== 'en') {
+    secondLang = 'en'
+  } else {
+    secondLang = 'zh-CN'
+  }
+    chrome.storage.sync.set({mainLang, secondLang})
+    return [mainLang, secondLang]
+
 }

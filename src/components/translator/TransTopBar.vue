@@ -1,17 +1,17 @@
 <template>
-  <div class="main-top-tool-bar-wsrfhedsoufheqiwrhew" :style="uiMode==='simple' ? '':'height:10px'">
-    <div v-if="resultStyle" class="main-top-tool-bar-content-wsrfhedsoufheqiwrhew">
+  <div class="main-top-tool-bar-wsrfhedsoufheqiwrhew" :style="baseHook.C.mode==='simple' ? '':'height:10px'">
+    <div v-if="baseHook.mode !== 'popup'" class="main-top-tool-bar-content-wsrfhedsoufheqiwrhew">
       <div class="main-top-around-box-wsrfhedsoufheqiwrhew" @mouseup.stop=""></div>
       <div class="main-top-move-bar-wsrfhedsoufheqiwrhew" @mousedown.stop="down">
         <div class="move-bar-ui-wsrfhedsoufheqiwrhew"></div>
       </div>
       <div class="main-top-around-box-wsrfhedsoufheqiwrhew" style="justify-content: flex-end">
-        <div v-if="uiMode === 'simple'" :class="resultStyle.hold ? '' : 'hold-btn-box-wsrfhedsoufheqiwrhew'">
+        <div v-if="baseHook.C.mode === 'simple'" :class="baseHook.isHold ? '' : 'hold-btn-box-wsrfhedsoufheqiwrhew'">
           <IconBtn
             type="icon-269"
-            :color="resultStyle.hold ? '#4C8BF5' : '#ccc'"
-            :rotate="resultStyle.hold ? -45 : 0"
-            @click="resultStyle.setHold"
+            :color="baseHook.isHold ? '#4C8BF5' : '#ccc'"
+            :rotate="baseHook.isHold ? -45 : 0"
+            @click="baseHook.setHold"
           />
         </div>
       </div>
@@ -21,16 +21,15 @@
 
 <script lang="ts">
 import { defineComponent, inject } from "vue";
+import {IBaseHook} from '@/utils/interface';
 import IconBtn from "../base/IconBtn.vue";
 
 export default defineComponent({
-  props: {
-    mode: String, // popup
-    uiMode: String, // simple
-  },
-  setup(props) {
+  setup() {
+    const baseHook = <IBaseHook>inject('baseHook');
+
     const resultStyle =
-      props.mode !== "popup" ? inject<any>("resultStyle") : null;
+      baseHook.mode !== "popup" ? inject<any>("resultStyle") : null;
 
     const down = (e: any) => {
       const xDist = e.clientX - parseInt(resultStyle.left);
@@ -47,8 +46,8 @@ export default defineComponent({
     };
 
     return {
+      baseHook,
       down,
-      resultStyle,
     };
   },
   components: {

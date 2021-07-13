@@ -1,7 +1,7 @@
 <template>
   <div class="divider-wsrfhedsoufheqiwrhew">
     <div
-      v-if="transHook.findStatus === 'reLoading' || transHook.findStatus === 'willOK' "
+      v-if="baseHook.findStatus === 'reLoading' || baseHook.findStatus === 'willOK' "
       class="proccess-wsrfhedsoufheqiwrhew"
       :style="proccessStyle"
     ></div>
@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import { defineComponent, inject, reactive, onMounted, watchEffect } from "vue";
-import { ITranslatorHook } from "@/utils/interface";
+import { IBaseHook } from "@/utils/interface";
 
 export default defineComponent({
   setup() {
@@ -18,26 +18,20 @@ export default defineComponent({
       width: "50%",
     });
 
-    const transHook = <ITranslatorHook>inject("transHook");
-
-    //   onMounted(() => {
-    //     setTimeout(() => {
-    //         proccessStyle.width = '100%'
-    //     }, 500)
-    //   })
+    const baseHook = <IBaseHook>inject("baseHook");
 
     watchEffect(() => {
-      if (transHook.findStatus === "reLoading") {
+      if (baseHook.findStatus === "reLoading") {
         proccessStyle.width = "70%";
-      } else if (transHook.findStatus === "willOK") {
+      } else if (baseHook.findStatus === "willOK") {
         proccessStyle.width = "100%";
-      }else if (transHook.findStatus === "ok") {
+      }else if (baseHook.findStatus === "ok") {
         proccessStyle.width = "0%";
       }
     });
 
     return {
-      transHook,
+      baseHook,
       proccessStyle,
     };
   },

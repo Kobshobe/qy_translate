@@ -26,7 +26,7 @@
     "@pdftron/webviewer": "^7.3.2",
     "axios-chrome-messaging-adapter": "^0.5.0",
     "core-js": "^3.6.5",
-    "element-plus": "^1.0.2-beta.41",
+    "element-plus": "^1.0.2-beta.55",
     "franc": "^5.0.0",
     "langs": "^2.0.0",
     "languagedetect": "^2.0.0",

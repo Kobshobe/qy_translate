@@ -1,5 +1,5 @@
 <template>
-  <ContentTrans mode="resultOnly" />
+  <ContentTrans />
 </template>
 
 <script lang="ts">

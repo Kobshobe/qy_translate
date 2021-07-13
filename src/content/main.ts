@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import app from './components/app.vue'
-import {setUI} from '@/components/appSetup';
+import {setUI, handleErrAndWarn} from '@/components/appSetup';
 
 function joinContent() {
   const id = 'phraseJoinewrskdfdswerhnyikyofd'
@@ -9,6 +9,7 @@ function joinContent() {
   document.body?.appendChild(div)
 
   const theApp = createApp(app)
+  handleErrAndWarn(theApp)
   setUI(theApp)
   theApp.mount('#' + id)
 }

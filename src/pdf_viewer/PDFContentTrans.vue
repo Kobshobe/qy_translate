@@ -7,7 +7,7 @@
   >
     <el-input
       v-model="input"
-      placeholder="请输入链接地址"
+      :placeholder="enterLinkMsg"
       size="medium"
     ></el-input>
     <template #footer>
@@ -40,10 +40,13 @@ export default defineComponent({
       }
     }
 
+    const enterLinkMsg = chrome.i18n.getMessage('__enterLink__')
+
     return {
       dialogVisible,
       input,
       openLinkPDF,
+      enterLinkMsg
     };
   },
   components: {

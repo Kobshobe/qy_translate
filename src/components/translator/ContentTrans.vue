@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="
-      (trans.mode === 'pdf' || trans.conf.C.isTreadWord) &&
+      (baseHook.mode === 'pdf' || baseHook.C.isTreadWord) &&
       text.replace(/\s/g, '') !== ''
     "
     class="
@@ -68,7 +68,7 @@
   </div>
 
   <div
-    v-if="trans.findStatus === 'loading'"
+    v-if="baseHook.findStatus === 'popLoading'"
     ref="transLoadingDOM"
     class="content-trans-loading-wsrfhedsoufheqiwrhew"
     :style="toTranslateStyle"
@@ -78,14 +78,15 @@
 
   <div
     v-if="
-      resultStyle.hold ||
-      (trans.findStatus !== 'none' && trans.findStatus !== 'loading')
+      baseHook.isHold ||
+      (baseHook.status !== 'none' && baseHook.findStatus !== 'popLoading') ||
+      (baseHook.toast.show || baseHook.dialog.show)
     "
     ref="resultDOM"
     class="result-wsrfhedsoufheqiwrhew"
     :style="resultStyle"
   >
-    <Translator @loadOK="setResultPostion" />
+    <Translator />
   </div>
 </template>
 
@@ -99,15 +100,21 @@ import {
   reactive,
   watchEffect,
 } from "vue";
-import { transHook } from "@/hook/translatorHook";
+import { baseTransHook,transHook } from "@/hook/translatorHook";
 import Translator from "./Translator.vue";
-// import {eventToGoogle} from "../../utils/analytics"
 
 export default defineComponent({
   props: {
     mode: String,
   },
   setup(props) {
+    const baseHook = baseTransHook('contentInject', 'none')
+    provide('baseHook', baseHook);
+    //@ts-ignore
+    baseHook.T = transHook(baseHook);
+    baseHook.T.setResultPostion = setResultPostion
+    baseHook.isResultInit = true
+
     const resultDOM = ref<any | null>(null);
     const transLoadingDOM = ref<any | null>(null);
     const text = ref("");
@@ -126,27 +133,15 @@ export default defineComponent({
     });
 
     const resultStyle = reactive({
-      hold: false,
       top: `5px`,
       left: `5px`,
       width: `${resultStyleData.width}px`,
-      setHold() {
-        resultStyle.hold = !resultStyle.hold;
-        trans.eventToAnalytic({
-          name: "setHold",
-          params: { status: !resultStyle.hold },
-        });
-      },
       moveBarTap() {
-        trans.eventToAnalytic({ name: "moveTap", params: {} });
+        baseHook.T.eventToAnalytic({ name: "moveTap", params: {} });
       },
     });
 
     provide("resultStyle", resultStyle);
-    //@ts-ignore
-    const trans = transHook(props.mode);
-
-    provide("transHook", trans);
     const popupElm = reactive({
       from: ref(null),
       to: ref(null),
@@ -155,19 +150,20 @@ export default defineComponent({
 
     function translate(e: any) {
       // translate want select text and click logo
-      trans.trans({
+      baseHook.T.trans({
         text: text.value,
         type: "select",
-        findStatus: "loading",
+        findStatus: "popLoading",
       });
+      text.value = ''
     }
 
     watchEffect(() => {
       // auto change Geometric size
-      if (!trans.find.result) return;
+      if (!baseHook.T.find.result) return;
       const maxLen = Math.max(
-        trans.find.text.length,
-        trans.find.result.text.length
+        baseHook.T.find.text.length,
+        baseHook.T.find.result.text.length
       );
       if (maxLen > 180) {
         resultStyle.width = 380 + "px";
@@ -191,11 +187,11 @@ export default defineComponent({
           if (!out) return;
 
           if (!resultDOM.value.contains(e.target)) {
-            trans.findStatus = "none";
+            baseHook.setNoneStatus()
           }
         } else if (transLoadingDOM.value) {
           if (!transLoadingDOM.value.contains(e.target)) {
-            trans.findStatus = "none";
+            baseHook.setNoneStatus()
           }
         }
 
@@ -203,20 +199,14 @@ export default defineComponent({
           //@ts-ignore
           text.value = window.getSelection().toString();
           if (!text.value.replace(/\s/g, "")) return;
-          trans.conf.getConf();
-          // if (resultDOM.value) {
-          //   showToTrans.value = false;
-          // } else {
-          //   showToTrans.value = true;
-          // }
+          baseHook.getConf();
           setToTranslatePostion(e.clientX, e.clientY);
         });
       });
 
       chrome.runtime.onMessage.addListener(function (msg, sender) {
-        console.log(msg.text, sender)
         if(sender.id !== chrome.runtime.id) return
-        trans.trans({text: msg.text, from: 'auto', to: '', type: 'menu', findStatus: 'loading'})
+        baseHook.T.trans({text: msg.text, from: 'auto', to: '', type: 'menu', findStatus: 'popLoading'})
       });
     });
 
@@ -237,7 +227,7 @@ export default defineComponent({
     }
 
     function setResultPostion() {
-      if (resultStyle.hold) return;
+      if (baseHook.isHold) return;
       const rw = resultDOM.value.offsetWidth;
       const rh = resultDOM.value.offsetHeight;
       const ww = window.innerWidth;
@@ -276,11 +266,10 @@ export default defineComponent({
       resultDOM,
       transLoadingDOM,
       text,
-      trans,
+      baseHook,
       resultStyle,
       toTranslateStyle,
       translate,
-      setResultPostion,
     };
   },
   components: {
@@ -326,5 +315,6 @@ export default defineComponent({
   box-shadow: 0 0 3px #444;
   border-radius: $transRadius;
   overflow: hidden;
+  min-height: 150px;
 }
 </style>

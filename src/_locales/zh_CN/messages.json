@@ -4,7 +4,7 @@
         "description": "ext_name"
     },
     "extDesc": {
-        "message": "极简设计风格，可划词翻译，PDF翻译，有移动端收藏管理(学习利器)"
+        "message": "划词翻译，PDF翻译，电子科技、金融等专业领域翻译，并提供小程序端收藏管理"
     },
     "sName": {
         "message": "轻氧翻译"
@@ -23,9 +23,6 @@
     },
     "treadWord": {
         "message": "划词翻译"
-    },
-    "isPronunciation": {
-        "message": "显示音标"
     },
     "scanQR": {
         "message": "扫码登录"
@@ -166,5 +163,59 @@
     },
     "__menuTrans__": {
         "message": "右键翻译"
+    },
+    "__cannotDoIt__": {
+        "message": "当前不可操作"
+    },
+    "__showProun__": {
+        "message": "显示音标"
+    },
+    "__choice__": {
+        "message": "请选择"
+    },
+    "__enterLink__": {
+        "message": "请输入链接地址"
+    },
+    "__defaultTransEngine__": {
+        "message": "默认翻译来源"
+    },
+    "__interface__": {
+        "message": "界面与交互"
+    },
+    "__simpleAndIntellgent__": {
+        "message": "简约智能"
+    },
+    "__profession__": {
+        "message": "专业"
+    },
+    "__commonTrans__": {
+        "message": "通用翻译"
+    },
+    "__domainTrans__": {
+        "message": "专业翻译"
+    },
+    "bdTrans__common": {
+        "message": "百度翻译"
+    },
+    "ggTrans__common": {
+        "message": "谷歌翻译"
+    },
+    "bdDM__finance": {
+        "message": "百度金融财经"
+    },
+    "bdDM__electronics": {
+        "message": "百度电子科技"
+    },
+    "bdDM__mechanics": {
+        "message": "百度水利机械"
+    },
+    "bdDM__medicine": {
+        "message": "百度生物医药"
+    },
+    "bdDM__novel": {
+        "message": "百度网络文学"
+    },
+    "__enterTrans__": {
+        "message": "Enter键入翻译"
     }
 }

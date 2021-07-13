@@ -1,74 +1,91 @@
 <template>
-  <div class="result-main-wsrfhedsoufheqiwrhew">
+  <div v-show="baseHook.status === 'result'">
+    <LangController v-if="baseHook.C.mode === 'profession'" />
     <div
-      class="
-        text-container-wsrfhedsoufheqiwrhew
-        text-container-top-wsrfhedsoufheqiwrhew
-      "
+      class="result-main-wsrfhedsoufheqiwrhew"
     >
-      <div class="found-result-text-wsrfhedsoufheqiwrhew" ref="findTextDOM">
-        <FindText mode="foundText" />
-      </div>
-      <div class="tool-bar-wsrfhedsoufheqiwrhew">
-        <div class="tool-bar-left-wsrfhedsoufheqiwrhew">
-          <SoundBtn audioType="from" />
-          <div class="edge-width-wsrfhedsoufheqiwrhew"></div>
-          <CollectBtn
-            :isCollected="transHook.find.isCollected"
-            @collect="transHook.collect({})"
-            @reduceCollect="transHook.reduceCollect"
-          />
+      <div
+        class="
+          text-container-wsrfhedsoufheqiwrhew
+          text-container-top-wsrfhedsoufheqiwrhew
+        "
+      >
+        <div class="found-result-text-wsrfhedsoufheqiwrhew" ref="findTextDOM">
+          <FindText mode="foundText" />
         </div>
-        <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
-          <IconBtn
-            v-if="transHook.mode === 'popup'"
-            type="icon-bianji1"
-            iconSize="16"
-            @click="transHook.toEdit"
-          />
-        </div>
-      </div>
-    </div>
-    <Divider />
-    <div class="text-container-wsrfhedsoufheqiwrhew">
-      <div class="found-result-text-wsrfhedsoufheqiwrhew">
-        <div style="height: 18px"></div>
-        <FindText mode="resultText" />
-      </div>
-      <div class="tool-bar-wsrfhedsoufheqiwrhew">
-        <div class="tool-bar-left-wsrfhedsoufheqiwrhew">
-          <SoundBtn audioType="to" />
-          <div style="width: 10px"></div>
-          <IconBtn
-            type="icon-fuzhi3"
-            iconSize="15"
-            @click="transHook.copyResult"
-          />
-        </div>
-        <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
-          <el-tooltip
-            v-if="transHook.tips.message !== ''"
-            class="item"
-            effect="dark"
-            :content="transHook.tips.message"
-            placement="top-end"
-          >
-            <IconBtn type="icon-tishi" iconSize="15" color="#FFB715" />
-          </el-tooltip>
-          <IconBtn
-            type="icon-gengduo1"
-            iconSize="17"
-            @click="transHook.options.show"
-          />
+        <div class="tool-bar-wsrfhedsoufheqiwrhew">
+          <div class="tool-bar-left-wsrfhedsoufheqiwrhew">
+            <SoundBtn audioType="from" />
+            <div class="edge-width-wsrfhedsoufheqiwrhew"></div>
+            <CollectBtn
+              :isCollected="baseHook.T.find.isCollected"
+              @collect="baseHook.T.collect({})"
+              @reduceCollect="baseHook.T.reduceCollect"
+            />
+          </div>
+          <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
+            <IconBtn
+              v-if="baseHook.T.base.mode === 'popup'"
+              type="icon-bianji1"
+              iconSize="16"
+              @click="baseHook.T.toEdit"
+            />
+          </div>
         </div>
       </div>
-      <div style="height: 8px"></div>
+      <Divider />
+      <div class="text-container-wsrfhedsoufheqiwrhew">
+        <div class="found-result-text-wsrfhedsoufheqiwrhew">
+          <div style="height: 18px"></div>
+          <FindText mode="resultText" />
+        </div>
+        <div class="tool-bar-wsrfhedsoufheqiwrhew">
+          <div class="tool-bar-left-wsrfhedsoufheqiwrhew">
+            <SoundBtn audioType="to" />
+            <div style="width: 10px"></div>
+            <IconBtn
+              type="icon-fuzhi3"
+              iconSize="15"
+              @click="baseHook.T.copyResult"
+            />
+          </div>
+          <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
+            <el-tooltip
+              v-if="baseHook.tips.message !== ''"
+              class="item"
+              effect="dark"
+              :content="baseHook.tips.message"
+              placement="top-end"
+            >
+              <IconBtn type="icon-tishi" iconSize="15" color="#FFB715"  @click="baseHook.openOptionsPage('tipTool')" />
+            </el-tooltip>
+            <IconBtn
+              type="icon-gengduo1"
+              iconSize="17"
+              @click="baseHook.T.options.show"
+            />
+          </div>
+        </div>
+        <div style="height: 8px"></div>
+      </div>
+      <SubTranslator />
     </div>
   </div>
+  <Options v-if="baseHook.T.options.isShow" :mode="baseHook.T.base.mode" />
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, watch } from "vue";
+import {
+  defineComponent,
+  inject,
+  onMounted,
+  provide,
+  watch,
+  onUnmounted,
+  watchEffect,
+} from "vue";
+import { transHook } from "@/hook/translatorHook";
+import LangController from "./LangController.vue";
 import IconBtn from "../base/IconBtn.vue";
 import SoundBtn from "./SoundBtn.vue";
 import CollectBtn from "./CollectBtn.vue";
@@ -76,20 +93,47 @@ import Options from "./Options.vue";
 import SubTranslator from "./SubTranslator.vue";
 import FindText from "./FindText.vue";
 import Divider from "./Divider.vue";
-import { ITranslatorHook } from "@/utils/interface";
+import { ITranslatorHook, IBaseHook } from "@/utils/interface";
 
 export default defineComponent({
   setup() {
-    const transHook = <ITranslatorHook>inject("transHook");
+    const baseHook = <IBaseHook>inject("baseHook");
+    if (!baseHook.T) {
+      baseHook.T = transHook(baseHook);
+    }
 
-    watch(() => transHook.subTranslator.selectText, (newVal:string) => {
-        if (newVal !== '') {
-            transHook.subTranslator.status = 'showGate'
+    watch(
+      () => baseHook.T.subTranslator.selectText,
+      (newVal: string) => {
+        if (newVal !== "") {
+          baseHook.T.subTranslator.status = "showGate";
         }
-    })
+      }
+    );
+
+    function messageHandler(event: any) {
+      if (
+        !event.data.sourceID &&
+        event.data.sourceID !== "dsfiuasguwheuirhudfkssdhfiwehri"
+      ) {
+        return;
+      }
+      if (event.data.action === "playAudio") {
+        baseHook.T.getTTS(event.data.audioType, event.data.id);
+      }
+    }
+
+    onMounted(() => {
+      window.addEventListener("message", messageHandler);
+      baseHook.T.setResultPostion();
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener("message", messageHandler);
+    });
 
     return {
-      transHook
+      baseHook,
     };
   },
   components: {
@@ -100,6 +144,7 @@ export default defineComponent({
     SubTranslator,
     FindText,
     Divider,
+    LangController,
   },
 });
 </script>
@@ -109,6 +154,7 @@ export default defineComponent({
 @import "../../app.scss";
 
 .result-main-wsrfhedsoufheqiwrhew {
+  position: relative;
   .text-container-wsrfhedsoufheqiwrhew {
     box-sizing: border-box;
     width: 100%;

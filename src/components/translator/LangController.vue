@@ -1,57 +1,104 @@
 <template>
   <div class="controller-main" @click.stop="">
-    <!-- <div class="bgxx"></div> -->
-    <div class="lang-wrap">
+
+    <div v-if="baseHook.status === 'editing'" class="lang-wrap">
       <el-select
-        placeholder="请选择"
-        :filterable="transHook.mode !== 'popup'"
-        v-model="transHook.options.from"
+        :placeholder="choiceMsg"
+        v-model="baseHook.C.fromLang"
         :popperAppendToBody="true"
-        @change="transHook.options.setLang"
+        filterable
+        @change="baseHook.changeLang($event)"
+        popperClass="popup-wsrfhedsoufheqiwrhew"
       >
         <el-option
           v-for="(lang, key, index) in languages"
           :key="index"
-          :label="lang['zh-CN']"
+          :label="lang[localeLang]"
           :value="key"
           v-show="key !== '__auto__'"
         >
         </el-option>
       </el-select>
-      <IconBtn type="icon-fanyi" @click="transHook.options.exchange" />
+      <IconBtn type="icon-fanyi" @click="baseHook.exchangeLang" />
       <el-select
-        placeholder="请选择"
-        :filterable="transHook.mode !== 'popup'"
-        v-model="transHook.options.to"
+        :placeholder="choiceMsg"
+        filterable
+        v-model="baseHook.C.toLang"
         :popperAppendToBody="true"
-        @change="transHook.options.setLang"
+        @change="baseHook.changeLang"
+        popperClass="popup-wsrfhedsoufheqiwrhew"
       >
         <el-option
           v-for="(lang, key, index) in languages"
           :key="index"
-          :label="lang['zh-CN']"
+          :label="lang[localeLang]"
           :value="key"
           v-show="key !== 'auto'"
         >
         </el-option>
       </el-select>
     </div>
+
+    <div v-else class="lang-wrap">
+      <el-select
+        :placeholder="choiceMsg"
+        v-model="baseHook.T.options.from"
+        filterable
+        :popperAppendToBody="true"
+        @change="baseHook.T.options.close"
+        popperClass="popup-wsrfhedsoufheqiwrhew"
+      >
+        <el-option
+          v-for="(lang, key, index) in languages"
+          :key="index"
+          :label="lang[localeLang]"
+          :value="key"
+          v-show="key !== '__auto__' && key !== 'auto'"
+        >
+        </el-option>
+      </el-select>
+      <IconBtn type="icon-fanyi" @click="baseHook.T.options.exchange" />
+      <el-select
+        :placeholder="choiceMsg"
+        filterable
+        v-model="baseHook.T.options.to"
+        :popperAppendToBody="true"
+        @change="baseHook.T.options.close"
+        popperClass="popup-wsrfhedsoufheqiwrhew"
+      >
+        <el-option
+          v-for="(lang, key, index) in languages"
+          :key="index"
+          :label="lang[localeLang]"
+          :value="key"
+          v-show="key !== '__auto__' && key !== 'auto'"
+        >
+        </el-option>
+      </el-select>
+    </div>
+
   </div>
 </template>
 
 <script lang="ts">
 import IconBtn from "@/components/base/IconBtn.vue";
-import { defineComponent, inject } from "vue";
-import { ITranslatorHook } from "@/utils/interface";
+import { defineComponent, inject, watchEffect } from "vue";
 import { languages } from "@/translator/language";
+import {baseTransHook} from '@/hook/translatorHook'
+import {IBaseHook} from '@/utils/interface'
+import {getLocaleLang} from '@/utils/share'
 
 export default defineComponent({
   setup() {
-    const transHook = <ITranslatorHook>inject("transHook");
+    const baseHook = <IBaseHook>inject("baseHook");
+    const choiceMsg = chrome.i18n.getMessage('__choice__')
+    const localeLang = getLocaleLang()
 
     return {
-      transHook,
+      baseHook,
       languages,
+      choiceMsg,
+      localeLang
     };
   },
   components: {
@@ -70,15 +117,6 @@ export default defineComponent({
   height: 30px;
   padding: 0 8px 0 8px;
   margin-bottom: 5px;
-  // .bgxx {
-  //   position: absolute;
-  //   bottom: 2px;
-  //   left: 8px;
-  //   right: 8px;
-  //   height: 12px;
-  //   background-color: #efefef;
-  //   border-radius: 2px;
-  // }
   .lang-wrap {
     display: flex;
     justify-content: space-between;

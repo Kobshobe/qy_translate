@@ -6,39 +6,32 @@ interface ILangInfoWrap {
 
 export const engines = [
   {
-    name: '通用翻译',
+    code: '__commonTrans__',
     engines: {
       google: {
-        name: '谷歌翻译',
         code: 'ggTrans__common'
       },
       baidu:{
-        name: '百度翻译',
         code: 'bdTrans__common'
       }
     }
   },
   {
-    name: '专业翻译',
+    code: '__domainTrans__',
     engines: {
       bdFinance: {
-        name: '百度金融财经',
         code: 'bdDM__finance'
       },
       bdElectronics: {
-        name: '百度电子科技',
         code: 'bdDM__electronics'
       },
       bdMechanics: {
-        name: '百度水利机械',
         code: 'bdDM__mechanics'
       },
       bdMedicine: {
-        name: '百度生物医药',
         code: 'bdDM__medicine'
       },
       bdNovel: {
-        name: '百度网络文学',
         code: 'bdDM__novel'
       },
     }
@@ -54,114 +47,113 @@ export function checkDomainLang(from:string, to:string, engine:string, support:a
 
 
 export const languages = {
-    auto: { en: 'auto', 'zh-CN': '自动检测', baidu: 'auto' },
-    __auto__: { en: 'auto exchange', 'zh-CN': '智能转换', baidu: 'auto' },
-    'zh-CN': { en: 'Chinese', 'zh-CN': '中文', baidu: 'zh' },
-    'zh-TW': { en: 'Chinese(TW)', 'zh-CN': '繁体中文', baidu: 'cht' },
-    af: { en: 'Afrikaans', 'zh-CN': '南非荷兰语', baidu: 'afr' },
-    am: { en: 'Amharic', 'zh-CN': '阿姆哈拉语', baidu: 'amh' },
-    ar: { en: 'Arabic', 'zh-CN': '阿拉伯语', baidu: 'ara' },
-    az: { en: 'Azerbaijani', 'zh-CN': '阿塞拜疆语', baidu: 'aze' },
-    be: { en: 'Belarusian', 'zh-CN': '白俄罗斯语', baidu: 'bel' },
-    bg: { en: 'Bulgarian', 'zh-CN': '保加利亚语', baidu: 'bul' },
-    bn: { en: 'Bengali', 'zh-CN': '孟加拉语', baidu: 'ben' },
-    bs: { en: 'Bosnian', 'zh-CN': '波斯尼亚语', baidu: 'bos' },
-    ca: { en: 'Catalan', 'zh-CN': '加泰罗尼亚语', baidu: 'cat' },
-    ceb: { en: 'Cebuano', 'zh-CN': '宿务语.', baidu: 'ceb' },
-    co: { en: 'Corsican', 'zh-CN': '科西嘉语', baidu: 'cos' },
-    cs: { en: 'Czech', 'zh-CN': '捷克语', baidu: 'cs' },
-    cy: { en: 'Welsh', 'zh-CN': '威尔士语', baidu: 'wel' },
-    da: { en: 'Danish', 'zh-CN': '丹麦语', baidu: 'dan' },
-    de: { en: 'German', 'zh-CN': '德语', baidu: 'de' },
-    el: { en: 'Greek', 'zh-CN': '希腊语', baidu: 'el' },
-    en: { en: 'English', 'zh-CN': '英文', baidu: 'en' },
-    eo: { en: 'Esperanto', 'zh-CN': '世界语', baidu: 'epo' },
-    es: { en: 'Spanish', 'zh-CN': '西班牙语', baidu: 'spa' },
-    et: { en: 'Estonian', 'zh-CN': '爱沙尼亚语', baidu: 'est' },
-    eu: { en: 'Basque', 'zh-CN': '巴斯克语', baidu: 'baq' },
-    fa: { en: 'Persian', 'zh-CN': '波斯语', baidu: 'per' },
-    fi: { en: 'Finnish', 'zh-CN': '芬兰', baidu: 'fin' },
-    fr: { en: 'French', 'zh-CN': '法语', baidu: 'fra' },
-    fy: { en: 'Frisian', 'zh-CN': '弗里西亚语', baidu: undefined },
-    ga: { en: 'Irish', 'zh-CN': '爱尔兰语', baidu: 'gle' },
-    gd: { en: 'Scots Gaelic', 'zh-CN': '苏格兰语', baidu: 'gla' },
-    gl: { en: 'Galician', 'zh-CN': '加利西亚语', baidu: 'glg' },
-    gu: { en: 'Gujarati', 'zh-CN': '古吉拉特语', baidu: 'guj' },
-    ha: { en: 'Hausa', 'zh-CN': 'Hausa.', baidu: undefined },
-    haw: { en: 'Hawaiian', 'zh-CN': '夏威夷语', baidu: 'haw' },
-    he: { en: 'Hebrew', 'zh-CN': '希伯来语', baidu: 'heb' },
-    hi: { en: 'Hindi', 'zh-CN': '印地语', baidu: 'hi' },
-    hmn: { en: 'Hmong', 'zh-CN': '苗语', baidu: 'hmn' },
-    hr: { en: 'Croatian', 'zh-CN': '克罗地亚语', baidu: 'hrv' },
-    ht: { en: 'Haitian Creole', 'zh-CN': '海地语', baidu: 'ht' },
-    hu: { en: 'Hungarian', 'zh-CN': '匈牙利语', baidu: 'hu' },
-    hy: { en: 'Armenian', 'zh-CN': '亚美尼亚语', baidu: 'arm' },
-    id: { en: 'Indonesian', 'zh-CN': '印尼语', baidu: 'id' },
-    ig: { en: 'Igbo', 'zh-CN': 'IGBO.', baidu: undefined },
-    is: { en: 'Icelandic', 'zh-CN': '冰岛语', baidu: 'ice' },
-    it: { en: 'Italian', 'zh-CN': '意大利语', baidu: 'it' },
-    iw: { en: 'Hebrew', 'zh-CN': '希伯来语', baidu: 'heb' },
-    ja: { en: 'Japanese', 'zh-CN': '日语', baidu: 'jp' },
-    jw: { en: 'Javanese', 'zh-CN': '爪哇语', baidu: 'jav' },
-    ka: { en: 'Georgian', 'zh-CN': '格鲁吉亚语', baidu: 'geo' },
-    kk: { en: 'Kazakh', 'zh-CN': '哈萨克', baidu: undefined },
-    km: { en: 'Khmer', 'zh-CN': '高棉', baidu: 'hkm' },
-    kn: { en: 'Kannada', 'zh-CN': '凯纳达', baidu: undefined },
-    ko: { en: 'Korean', 'zh-CN': '韩语', baidu: 'kor' },
-    ku: {en: 'Kurdish(Kurmanji)','zh-CN': '库尔德',baidu: 'kur'},
-    ky: { en: 'Kyrgyz', 'zh-CN': '吉尔吉斯语', baidu: 'kir' },
-    la: { en: 'Latin', 'zh-CN': '拉丁语', baidu: 'lat' },
-    lb: { en: 'Luxembourgish', 'zh-CN': '卢森堡语', baidu: 'ltz' },
-    lo: { en: 'Lao', 'zh-CN': '老挝', baidu: 'lao' },
-    lt: { en: 'Lithuanian', 'zh-CN': '立陶宛语', baidu: 'lit' },
-    lv: { en: 'Latvian', 'zh-CN': '拉脱维亚语', baidu: 'lav' },
-    mg: { en: 'Malagasy', 'zh-CN': '马尔加什', baidu: undefined },
-    mi: { en: 'Maori', 'zh-CN': '毛利语', baidu: 'mao' },
-    mk: { en: 'Macedonian', 'zh-CN': '马其顿语', baidu: 'mac' },
-    ml: { en: 'Malayalam', 'zh-CN': '马拉雅拉姆', baidu: 'mal' },
-    mn: { en: 'Mongolian', 'zh-CN': '蒙古语', baidu: undefined },
-    mr: { en: 'Marathi', 'zh-CN': '马拉地语', baidu: 'mar' },
-    ms: { en: 'Malay', 'zh-CN': '马来语', baidu: 'may' },
-    mt: { en: 'Maltese', 'zh-CN': '马耳他语', baidu: 'mlt' },
-    my: { en: 'Myanmar (Burmese)', 'zh-CN': '缅甸语', baidu: 'bur' },
-    ne: { en: 'Nepali', 'zh-CN': '尼泊尔语', baidu: 'nep' },
-    nl: { en: 'Dutch', 'zh-CN': '荷兰语', baidu: 'nl' },
-    no: { en: 'Norwegian', 'zh-CN': '挪威语', baidu: 'nor' },
-    ny: { en: 'Chichewa', 'zh-CN': 'Chichewa.', baidu: undefined },
-    pa: { en: 'Punjabi', 'zh-CN': '旁遮普语', baidu: 'pan' },
-    pl: { en: 'Polish', 'zh-CN': '波兰语', baidu: 'pl' },
-    ps: { en: 'Pashto', 'zh-CN': '普什图语', baidu: 'pus' },
-    pt: { en: 'Portuguese', 'zh-CN': '葡萄牙语', baidu: 'pt' },
-    ro: { en: 'Romanian', 'zh-CN': '罗马尼亚语', baidu: 'rom' },
-    ru: { en: 'Russian', 'zh-CN': '俄语', baidu: 'ru' },
-    sd: { en: 'Sindhi', 'zh-CN': '信德语', baidu: 'snd' },
-    si: { en: 'Sinhala', 'zh-CN': '僧伽罗语', baidu: 'sin' },
-    sk: { en: 'Slovak', 'zh-CN': '斯洛伐克语', baidu: 'sk' },
-    sl: { en: 'Slovenian', 'zh-CN': '斯洛文尼亚语', baidu: 'slo' },
-    sm: { en: 'Samoan', 'zh-CN': '萨摩亚语', baidu: 'sm' },
-    sn: { en: 'Shona', 'zh-CN': 'Shona', baidu: undefined },
-    so: { en: 'Somali', 'zh-CN': '索马里语', baidu: 'som' },
-    sq: { en: 'Albanian', 'zh-CN': '阿尔巴尼亚语', baidu: 'alb' },
-    sr: { en: 'Serbian', 'zh-CN': '塞尔维亚语', baidu: 'srp' },
-    st: { en: 'Sesotho', 'zh-CN': '索托托', baidu: undefined },
-    su: { en: 'Sundanese', 'zh-CN': '巽他语', baidu: 'sun' },
-    sv: { en: 'Swedish', 'zh-CN': '瑞典语', baidu: 'swe' },
-    sw: { en: 'Swahili', 'zh-CN': '斯瓦希里语', baidu: 'swa' },
-    ta: { en: 'Tamil', 'zh-CN': '泰米尔', baidu: 'tam' },
-    te: { en: 'Telugu', 'zh-CN': '泰卢固语', baidu: 'tel' },
-    tg: { en: 'Tajik', 'zh-CN': '塔吉克语', baidu: 'tgk' },
-    th: { en: 'Thai', 'zh-CN': '泰语', baidu: 'th' },
-    tl: { en: 'Filipino', 'zh-CN': '菲律宾语', baidu: 'fil' },
-    tr: { en: 'Turkish', 'zh-CN': '土耳其语', baidu: 'tr' },
-    uk: { en: 'Ukrainian', 'zh-CN': '乌克兰语', baidu: 'ukr' },
-    ur: { en: 'Urdu', 'zh-CN': '乌尔都语', baidu: 'urd' },
-    uz: { en: 'Uzbek', 'zh-CN': '乌兹别克语', baidu: undefined },
-    vi: { en: 'Vietnamese', 'zh-CN': '越南语', baidu: 'vie' },
-    xh: { en: 'Xhosa', 'zh-CN': '科萨', baidu: 'xho' },
-    yi: { en: 'Yiddish', 'zh-CN': '意第绪语', baidu: 'yid' },
-    yo: { en: 'Yoruba', 'zh-CN': '约鲁巴语', baidu: 'yor' },
-    zu: { en: 'Zulu', 'zh-CN': '祖鲁', baidu: 'zul' }
-} // 105 106
+    auto: { en: 'auto detect', 'zh-CN': '自动检测'},
+    __auto__: { en: 'auto exchange', 'zh-CN': '智能转换'},
+    'zh-CN': { en: 'Chinese', 'zh-CN': '简体中文'},
+    'zh-TW': { en: 'Chinese(TW)', 'zh-CN': '繁体中文'},
+    af: { en: 'Afrikaans', 'zh-CN': '南非荷兰语'},
+    am: { en: 'Amharic', 'zh-CN': '阿姆哈拉语'},
+    ar: { en: 'Arabic', 'zh-CN': '阿拉伯语'},
+    az: { en: 'Azerbaijani', 'zh-CN': '阿塞拜疆语'},
+    be: { en: 'Belarusian', 'zh-CN': '白俄罗斯语'},
+    bg: { en: 'Bulgarian', 'zh-CN': '保加利亚语'},
+    bn: { en: 'Bengali', 'zh-CN': '孟加拉语'},
+    bs: { en: 'Bosnian', 'zh-CN': '波斯尼亚语'},
+    ca: { en: 'Catalan', 'zh-CN': '加泰罗尼亚语'},
+    ceb: { en: 'Cebuano', 'zh-CN': '宿务语'},
+    co: { en: 'Corsican', 'zh-CN': '科西嘉语'},
+    cs: { en: 'Czech', 'zh-CN': '捷克语'},
+    cy: { en: 'Welsh', 'zh-CN': '威尔士语'},
+    da: { en: 'Danish', 'zh-CN': '丹麦语'},
+    de: { en: 'German', 'zh-CN': '德语'},
+    el: { en: 'Greek', 'zh-CN': '希腊语'},
+    en: { en: 'English', 'zh-CN': '英文'},
+    eo: { en: 'Esperanto', 'zh-CN': '世界语'},
+    es: { en: 'Spanish', 'zh-CN': '西班牙语'},
+    et: { en: 'Estonian', 'zh-CN': '爱沙尼亚语'},
+    eu: { en: 'Basque', 'zh-CN': '巴斯克语'},
+    fa: { en: 'Persian', 'zh-CN': '波斯语'},
+    fi: { en: 'Finnish', 'zh-CN': '芬兰'},
+    fr: { en: 'French', 'zh-CN': '法语'},
+    fy: { en: 'Frisian', 'zh-CN': '弗里西亚语'},
+    ga: { en: 'Irish', 'zh-CN': '爱尔兰语'},
+    gd: { en: 'Scots Gaelic', 'zh-CN': '苏格兰语'},
+    gl: { en: 'Galician', 'zh-CN': '加利西亚语'},
+    gu: { en: 'Gujarati', 'zh-CN': '古吉拉特语'},
+    ha: { en: 'Hausa', 'zh-CN': 'Hausa.'},
+    haw: { en: 'Hawaiian', 'zh-CN': '夏威夷语'},
+    he: { en: 'Hebrew', 'zh-CN': '希伯来语'},
+    hi: { en: 'Hindi', 'zh-CN': '印地语'},
+    hmn: { en: 'Hmong', 'zh-CN': '苗语'},
+    hr: { en: 'Croatian', 'zh-CN': '克罗地亚语'},
+    ht: { en: 'Haitian', 'zh-CN': '海地语'},
+    hu: { en: 'Hungarian', 'zh-CN': '匈牙利语'},
+    hy: { en: 'Armenian', 'zh-CN': '亚美尼亚语'},
+    id: { en: 'Indonesian', 'zh-CN': '印尼语'},
+    is: { en: 'Icelandic', 'zh-CN': '冰岛语'},
+    it: { en: 'Italian', 'zh-CN': '意大利语'},
+    iw: { en: 'Hebrew', 'zh-CN': '希伯来语'},
+    ja: { en: 'Japanese', 'zh-CN': '日语'},
+    jw: { en: 'Javanese', 'zh-CN': '爪哇语'},
+    ka: { en: 'Georgian', 'zh-CN': '格鲁吉亚语'},
+    kk: { en: 'Kazakh', 'zh-CN': '哈萨克'},
+    km: { en: 'Khmer', 'zh-CN': '高棉'},
+    kn: { en: 'Kannada', 'zh-CN': '凯纳达'},
+    ko: { en: 'Korean', 'zh-CN': '韩语'},
+    ku: {en: 'Kurdish','zh-CN': '库尔德'},
+    ky: { en: 'Kyrgyz', 'zh-CN': '吉尔吉斯语'},
+    la: { en: 'Latin', 'zh-CN': '拉丁语'},
+    lb: { en: 'Luxembourgish', 'zh-CN': '卢森堡语'},
+    lo: { en: 'Lao', 'zh-CN': '老挝'},
+    lt: { en: 'Lithuanian', 'zh-CN': '立陶宛语'},
+    lv: { en: 'Latvian', 'zh-CN': '拉脱维亚语'},
+    mg: { en: 'Malagasy', 'zh-CN': '马尔加什'},
+    mi: { en: 'Maori', 'zh-CN': '毛利语'},
+    mk: { en: 'Macedonian', 'zh-CN': '马其顿语'},
+    ml: { en: 'Malayalam', 'zh-CN': '马拉雅拉姆'},
+    mn: { en: 'Mongolian', 'zh-CN': '蒙古语'},
+    mr: { en: 'Marathi', 'zh-CN': '马拉地语'},
+    ms: { en: 'Malay', 'zh-CN': '马来语'},
+    mt: { en: 'Maltese', 'zh-CN': '马耳他语'},
+    my: { en: 'Myanmar', 'zh-CN': '缅甸语'},
+    ne: { en: 'Nepali', 'zh-CN': '尼泊尔语'},
+    nl: { en: 'Dutch', 'zh-CN': '荷兰语'},
+    no: { en: 'Norwegian', 'zh-CN': '挪威语'},
+    ny: { en: 'Chichewa', 'zh-CN': 'Chichewa.'},
+    pa: { en: 'Punjabi', 'zh-CN': '旁遮普语'},
+    pl: { en: 'Polish', 'zh-CN': '波兰语'},
+    ps: { en: 'Pashto', 'zh-CN': '普什图语'},
+    pt: { en: 'Portuguese', 'zh-CN': '葡萄牙语'},
+    ro: { en: 'Romanian', 'zh-CN': '罗马尼亚语'},
+    ru: { en: 'Russian', 'zh-CN': '俄语'},
+    sd: { en: 'Sindhi', 'zh-CN': '信德语'},
+    si: { en: 'Sinhala', 'zh-CN': '僧伽罗语'},
+    sk: { en: 'Slovak', 'zh-CN': '斯洛伐克语'},
+    sl: { en: 'Slovenian', 'zh-CN': '斯洛文尼亚语'},
+    sm: { en: 'Samoan', 'zh-CN': '萨摩亚语'},
+    sn: { en: 'Shona', 'zh-CN': 'Shona'},
+    so: { en: 'Somali', 'zh-CN': '索马里语'},
+    sq: { en: 'Albanian', 'zh-CN': '阿尔巴尼亚语'},
+    sr: { en: 'Serbian', 'zh-CN': '塞尔维亚语'},
+    st: { en: 'Sesotho', 'zh-CN': '索托托'},
+    su: { en: 'Sundanese', 'zh-CN': '巽他语'},
+    sv: { en: 'Swedish', 'zh-CN': '瑞典语'},
+    sw: { en: 'Swahili', 'zh-CN': '斯瓦希里语'},
+    ta: { en: 'Tamil', 'zh-CN': '泰米尔'},
+    te: { en: 'Telugu', 'zh-CN': '泰卢固语'},
+    tg: { en: 'Tajik', 'zh-CN': '塔吉克语'},
+    th: { en: 'Thai', 'zh-CN': '泰语'},
+    tl: { en: 'Filipino', 'zh-CN': '菲律宾语'},
+    tr: { en: 'Turkish', 'zh-CN': '土耳其语'},
+    uk: { en: 'Ukrainian', 'zh-CN': '乌克兰语'},
+    ur: { en: 'Urdu', 'zh-CN': '乌尔都语'},
+    uz: { en: 'Uzbek', 'zh-CN': '乌兹别克语'},
+    vi: { en: 'Vietnamese', 'zh-CN': '越南语'},
+    xh: { en: 'Xhosa', 'zh-CN': '科萨'},
+    yi: { en: 'Yiddish', 'zh-CN': '意第绪语'},
+    yo: { en: 'Yoruba', 'zh-CN': '约鲁巴语'},
+    zu: { en: 'Zulu', 'zh-CN': '祖鲁'}
+}
 
 export const BAIDULANG:Iterable<readonly [string, string]> = [
   ["ach", "ach"],
@@ -430,59 +422,59 @@ export const SToGoogle: Iterable<readonly [string, string]> = [
 ]
 
 
-  export const bdLangSupport = {
-    bdTrans__common: {
-      support: '__noSupport__'
+export const bdLangSupport = {
+  bdTrans__common: {
+    support: '__noSupport__'
+  },
+  bdDM__finance: {
+    from: {
+      // auto: 'auto',
+      zh: 'zh-CN',
+      en: 'en',
     },
-    bdDM__finance: {
-      from: {
-        // auto: 'auto',
-        zh: 'zh-CN',
-        en: 'en',
-      },
-      to: {
-        zh: 'zh-CN',
-        en: 'en',
-      },
-      support: '__onlyEnAndZh__'
+    to: {
+      zh: 'zh-CN',
+      en: 'en',
     },
-    bdDM__medicine: {
-      from: {
-        // auto: 'auto',
-        zh: 'zh-CN',
-        en: 'en',
-      },
-      to: {
-        zh: 'zh-CN',
-        en: 'en',
-      },
-      support: '__onlyEnAndZh__'
+    support: '__onlyEnAndZh__'
+  },
+  bdDM__medicine: {
+    from: {
+      // auto: 'auto',
+      zh: 'zh-CN',
+      en: 'en',
     },
-    bdDM__electronics: {
-      from: {
-        zh: 'zh-CN',
-      },
-      to: {
-        en: 'en',
-      },
-      support: '__onlyZhToZh__'
+    to: {
+      zh: 'zh-CN',
+      en: 'en',
     },
-    bdDM__mechanics: {
-      from: {
-        zh: 'zh-CN',
-      },
-      to: {
-        en: 'en',
-      },
-      support: '__onlyZhToZh__'
+    support: '__onlyEnAndZh__'
+  },
+  bdDM__electronics: {
+    from: {
+      zh: 'zh-CN',
     },
-    bdDM__novel: {
-      from: {
-        zh: 'zh-CN',
-      },
-      to: {
-        en: 'en',
-      },
-      support: '__onlyZhToZh__'
-    }
+    to: {
+      en: 'en',
+    },
+    support: '__onlyZhToZh__'
+  },
+  bdDM__mechanics: {
+    from: {
+      zh: 'zh-CN',
+    },
+    to: {
+      en: 'en',
+    },
+    support: '__onlyZhToZh__'
+  },
+  bdDM__novel: {
+    from: {
+      zh: 'zh-CN',
+    },
+    to: {
+      en: 'en',
+    },
+    support: '__onlyZhToZh__'
   }
+}

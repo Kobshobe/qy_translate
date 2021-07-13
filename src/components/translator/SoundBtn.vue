@@ -1,12 +1,13 @@
 <template>
   <div class="btn-box-wsrfhedsoufheqiwrhew">
     <SvgIcon type="icon-shengyin-copy" size="15" />
-    <div class="iframeBtn-wsrfhedsoufheqiwrhew" :id="id" @click="play"></div>
+    <div class="iframeBtn-wsrfhedsoufheqiwrhew" :id="id"></div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, onMounted, inject, watchEffect } from "vue";
+import {IBaseHook} from '@/utils/interface'
 import SvgIcon from "../base/SvgIcon.vue";
 import { v4 } from "uuid";
 
@@ -14,20 +15,22 @@ export default defineComponent({
   setup(props) {
     const id = v4();
 
-    const transHook = inject("transHook");
+    const baseHook = <IBaseHook>inject("baseHook");
 
     const iframeHtmlURL = chrome.runtime.getURL("iframe.html");
-    const theIframe = document.createElement("iframe");
+    const theIframe = <HTMLIFrameElement>document.createElement("iframe");
     theIframe.setAttribute("width", "100%");
     theIframe.setAttribute("height", "100%");
     theIframe.setAttribute("src", iframeHtmlURL);
     theIframe.setAttribute("frameborder", "0");
     theIframe.setAttribute("scrolling", "no");
-    transHook[`${props.audioType}Iframe`] = theIframe;
+    //@ts-ignore
+    baseHook.T[`${props.audioType}Iframe`] = theIframe;
 
     theIframe.addEventListener(
       "load",
       () => {
+        //@ts-ignore
         theIframe.contentWindow.postMessage(
           {
             source: "phrase",
@@ -42,7 +45,12 @@ export default defineComponent({
     );
 
     onMounted(() => {
-      document.getElementById(id).appendChild(theIframe);
+      setTimeout(() => {
+        const elem = document.getElementById(id)
+        if (elem) {
+          elem.appendChild(theIframe);
+        }
+      });
     });
 
     return {
@@ -54,7 +62,6 @@ export default defineComponent({
   },
   props: {
     audioType: {
-      // from to sub
       require: true,
       type: String,
     },

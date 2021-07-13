@@ -1,60 +1,103 @@
-import { reactive, watch, computed, onMounted } from 'vue'
-import { IAllStorage, ITransResult } from '@/utils/interface'
+import { reactive, watch, computed, onMounted, markRaw, watchEffect } from 'vue'
+import { IBaseHook,IAllStorage, ITransResult,  } from '@/utils/interface'
 import { newMarkManager, getMarkHtml } from '@/utils/mark'
 import {apiWrap} from '@/utils/apiWithPort'
-import { IContext, IResponse, ITranslateMsg, ITranslatorHook, Find, IAnalyticEvent, IWrapTransInfo, IConfigInfo } from '@/utils/interface'
+import { ITransStatus,IEditHook, ITransMode, ITransType, IContext, IResponse, ITransMsg, ITranslatorHook, Find, IAnalyticEvent, IWrapTransInfo } from '@/utils/interface'
 import {getTransConf} from '@/utils/chromeApi'
 import { engines } from '@/translator/language'
 
-export function baseTransHook(status:string) {
-    const hook = {
-        status,
-    }
-
-    return hook
-}
-
-
-export function transHook(mode: 'resultOnly' | 'popup', status:'result'|'editing' = 'result') {
-    const hook: ITranslatorHook = reactive({
+export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook {
+    const hook:IBaseHook = reactive({
         mode,
+        isResultInit: false,
         status,
-        editingText: `take`,
-        lastFindText: '',
-        show: false,
-        find: new Find(''),
         findStatus: 'none',
-        fromIframe: undefined,
-        toIframe: undefined,
-        subIfram: undefined,
-        dialogMsg: {
+        transID: 0,
+        isHold: false,
+        bridge: markRaw({}),
+        C: {},
+        init(mode, status) {
+            hook.mode = mode
+            hook.status = status
+            hook.getConf()
+        },
+        async getConf() {
+            hook.C = await getTransConf()
+        },
+        changeTreadWord() {
+            if(!hook.C.isTreadWord) {
+                hook.toast.showToast({type: 'i18n', message: 'treadWordOff'})
+            }
+            chrome.storage.sync.set({isTreadWord:hook.C.isTreadWord})
+            hook.eventToAnalytic({
+                name: 'changeTreadWord',
+                params: {
+                    value: hook.C.isTreadWord,
+                    scene: hook.mode
+                }
+            })
+        },
+        exchangeLang() {
+            if(hook.C.toLang === '__auto__' || hook.C.fromLang === 'auto') {
+                hook.toast.showToast({
+                    message: '__cannotDoIt__',
+                    type: 'i18n'
+                })
+                return
+            }
+            [hook.C.fromLang, hook.C.toLang] = [hook.C.toLang, hook.C.fromLang]
+            hook.changeLang(true)
+        },
+        changeLang(isExchange:boolean = false) {
+            if(hook.status === 'result') return
+            chrome.storage.sync.set({
+                fromLang: hook.C.fromLang,
+                toLang: hook.C.toLang
+            })
+            hook.eventToAnalytic({
+                name: 'changeLang',
+                params: {
+                    fromLang: hook.C.fromLang,
+                    toLang: hook.C.toLang,
+                    isExchange,
+                    scene: hook.mode,
+                }
+            })
+        },
+        openOptionsPage(type:string) {
+            hook.usePort({
+                name: 'openOptionsPage',
+                context: {req: { tab: '', type}}
+            })
+        },
+        dialog: {
             show: false,
             message: '',
             confirmText: '',
             cancelText: '',
             confirmAction: undefined,
             showDialog: ({message, confirmText, cancelText, confirmAction, type}) => {
-                hook.dialogMsg.cancelText = ''
-                hook.dialogMsg.confirmText = ''
-                hook.dialogMsg.confirmAction = undefined
+                hook.dialog.cancelText = ''
+                hook.dialog.confirmText = ''
+                hook.dialog.confirmAction = undefined
                 if (type === 'i18n') {
-                    hook.dialogMsg.message = chrome.i18n.getMessage(message)
-                    cancelText && (hook.dialogMsg.cancelText = chrome.i18n.getMessage(cancelText));
-                    confirmText && (hook.dialogMsg.confirmText = chrome.i18n.getMessage(confirmText));
+                    hook.dialog.message = chrome.i18n.getMessage(message)
+                    cancelText && (hook.dialog.cancelText = chrome.i18n.getMessage(cancelText));
+                    confirmText && (hook.dialog.confirmText = chrome.i18n.getMessage(confirmText));
                     switch (confirmText) {
                         case '__applyServiceFree__':
-                            confirmAction = hook.applyBDDM
+                            // confirmAction = hook.applyBDDM
                     }
                 } else {
-                    hook.dialogMsg.message = message
-                    hook.dialogMsg.cancelText = cancelText
-                    hook.dialogMsg.confirmText = confirmText
+                    hook.dialog.message = message
+                    hook.dialog.cancelText = cancelText
+                    hook.dialog.confirmText = confirmText
                 }
-                if (!hook.dialogMsg.confirmText && !hook.dialogMsg.cancelText) {
-                    hook.dialogMsg.cancelText = chrome.i18n.getMessage("__gotIt__")
+                if (!hook.dialog.confirmText && !hook.dialog.cancelText) {
+                    hook.dialog.cancelText = chrome.i18n.getMessage("__gotIt__")
                 }
-                hook.dialogMsg.confirmAction = confirmAction
-                if(hook.dialogMsg.message) hook.dialogMsg.show = true
+                hook.dialog.confirmAction = confirmAction
+                if(hook.dialog.message) hook.dialog.show = true
             }
         },
         toast: {
@@ -76,6 +119,126 @@ export function transHook(mode: 'resultOnly' | 'popup', status:'result'|'editing
                 }, duration)
             }
         },
+        tips: {
+            message: ''
+        },
+        eventToAnalytic(eventData) {
+            eventData.params.locale = chrome.i18n.getMessage("@@ui_locale")
+            hook.usePort({
+                name: 'analytic',
+                context: {req: eventData},
+            })
+        },
+        async usePort({ name, context, onMsgHandle }) {
+            const port = chrome.runtime.connect({ name: name })
+            port.onMessage.addListener((context: IContext) => {
+                onMsgHandle && onMsgHandle(context)
+            })
+            await port.postMessage(context)
+        },
+        setNoneStatus() {
+            if(!hook.isHold) {
+                hook.status = 'none'
+                hook.dialog.show = false
+                hook.toast.show = false
+            }
+            hook.findStatus = 'none'
+            hook.transID ++
+        },
+        setHold() {
+            hook.isHold = !hook.isHold
+            hook.eventToAnalytic({
+                name: 'setHold',
+                params: {
+                    value: hook.isHold
+                }
+            })
+        },
+        //@ts-ignore
+        E: undefined,
+        //@ts-ignore
+        T:undefined
+    })
+
+    watch(()=>hook.status, () => {
+        if(hook.status === 'editing') {
+            hook.getConf()
+        }
+    })
+
+    hook.getConf()
+
+    return hook
+}
+
+export function editHook(baseHook:IBaseHook) :IEditHook {
+    const hook:IEditHook = reactive({
+        base: baseHook,
+        editingText: '',
+        lastFindText: '',
+        clear() {
+            hook.editingText = ''
+            hook.base.findStatus = 'none'
+            hook.base.transID ++
+        },
+        getLastFindText() {
+            hook.editingText = hook.lastFindText
+        },
+        pasteAndTrans() {
+            const t = document.createElement("input");
+            document.body.appendChild(t);
+            t.focus();
+            document.execCommand("paste");
+            const clipboardText = t.value;
+            hook.editingText = clipboardText
+            document.body.removeChild(t);
+            hook.trans('edit_paste')
+        },
+        trans(type = 'edit_icon') {
+            if (hook.editingText.replace(/\s+|[\r\n]+/g, "").length === 0) {
+                return
+            }
+            let from, to;
+            if(hook.base.C.mode !== 'simple') {
+                from = hook.base.C.fromLang
+                to = hook.base.C.toLang
+                if(from !== 'auto' && to === '__auto__') {
+                    if(from !== hook.base.C.mainLang) {
+                        to = hook.base.C.mainLang
+                    } else {
+                        to = hook.base.C.secondLang
+                    }
+                }
+            }
+            hook.base.bridge.editTrans = <ITransMsg>{text:hook.editingText, type, from, to, findStatus: 'editLoading'}
+            hook.base.isResultInit = true
+            hook.base.findStatus = 'editLoading'
+        },
+        enterTrans(e:any) {
+            if (e.code === 'Enter' && !e.shiftKey) {
+                if (hook.base.C.keyDownTrans === 'Enter') {
+                    hook.trans('edit_enter')
+                } 
+            } else if(e.code === 'Enter' && e.shiftKey) {
+                if (hook.base.C.keyDownTrans === 'Shift+Enter') {
+                    hook.trans('edit_shift_enter')
+                }
+            }
+        }
+    })
+
+    return hook
+}
+
+export function transHook(baseHook:IBaseHook) :ITranslatorHook {
+    const hook: ITranslatorHook = reactive({
+        base: baseHook,
+        lastFindText: '',
+        show: false,
+        find: new Find(''),
+        fromIframe: undefined,
+        toIframe: undefined,
+        subIfram: undefined,
         marksList: [],
         canReduceMark: false,
         subTranslator: {
@@ -159,27 +322,19 @@ export function transHook(mode: 'resultOnly' | 'popup', status:'result'|'editing
             to: '',
             engine: '',
             getData() {
-                if(hook.status === 'editing') {
-                    hook.options.from = hook.conf.C.fromLang
-                    hook.options.to = hook.conf.C.toLang
-                } else {
-                    if(!hook.find.result) return
-                    hook.options.from = hook.find.result.resultFrom
-                    hook.options.to = hook.find.result.resultTo
+                if(hook.base.status === 'result') {
                     //@ts-ignore
                     hook.options.engine = hook.find.result.engine
+                    hook.options.from = hook.find.result?.resultFrom
+                    hook.options.to = hook.find.result?.resultTo
+                } else {
+                    hook.options.from = hook.base.C.fromLang
+                    hook.options.to = hook.base.C.toLang
                 }
+                
             },
             async setLang() {
-                // console.log('setLang', hook.status, hook.options)
-                if(hook.status === 'editing') {
-                    chrome.storage.sync.set({
-                        fromLang: hook.options.from,
-                        toLang: hook.options.to
-                    })
-                } else if(hook.status === 'result') {
-                    await hook.options.close()
-                }
+                await hook.options.close()
             },
             async close() {
                 hook.options.isShow = false
@@ -191,10 +346,8 @@ export function transHook(mode: 'resultOnly' | 'popup', status:'result'|'editing
                 }
             },
             openOptionsPage() {
-                hook.usePort({
-                    name: 'openOptionsPage',
-                    context: {req: { tab: ''}}
-                })
+                hook.base.openOptionsPage('resultOption')
+                hook.options.isShow = false
             },
             show() {
                 if(!hook.find.result) return
@@ -203,45 +356,15 @@ export function transHook(mode: 'resultOnly' | 'popup', status:'result'|'editing
                 hook.eventToAnalytic({name: "result_option_show", params: {}})
             },
             async exchange() {
-                // [transHook.options.from, transHook.options.to,] = [transHook.options.to,, transHook.options.from,]
-                if(hook.status === 'editing') {
-                    if(hook.options.from ==='auto' || hook.options.to === 'auto' || hook.options.from ==='__auto__' || hook.options.to === '__auto__') {
-                        return
-                    }
-                    [hook.options.from, hook.options.to] = [hook.options.to, hook.options.from]
-                    hook.options.setLang()
-                } else {
-                    // @ts-ignore
-                    await hook.trans({ text: hook.find.result.text, type: 'exchange', from: hook.options.to, to: hook.options.from, findStatus: 'reLoading' })
-                    hook.options.isShow = false
-                }
-                
+                //@ts-ignore
+                await hook.trans({ text: hook.find.result.text, type: 'exchange', from: hook.options.to, to: hook.options.from, findStatus: 'reLoading' })
+                hook.options.isShow = false
             },
             async changeEngine() {
                 // @ts-ignore
                 hook.options.isShow = false
                 await hook.trans({ text: hook.find.text, type: 'changeEngine', findStatus: 'reLoading' })
                 
-            }
-        },
-        conf: {
-            C: {},
-            changeTreadWord() {
-                if(!hook.conf.C?.isTreadWord) {
-                    hook.toast.showToast({type: 'i18n', message: 'treadWordOff'})
-                }
-                chrome.storage.sync.set({isTreadWord:hook.conf.C.isTreadWord})
-                hook.eventToAnalytic({
-                    name: 'changeTreadWord',
-                    params: {
-                        value: hook.conf.C.isTreadWord,
-                        scene: 'popup'
-                    }
-                })
-            },
-            async getConf() {
-                hook.conf.C = await getTransConf()
-                hook.options.getData()
             }
         },
         async usePort({ name, context, onMsgHandle }) {
@@ -255,12 +378,12 @@ export function transHook(mode: 'resultOnly' | 'popup', status:'result'|'editing
         handleWebErr(context) {
             if (!context.resp) return
             if(context.resp.tipsMessage) {
-                hook.tips.message = chrome.i18n.getMessage(context.resp.tipsMessage)
+                hook.base.tips.message = chrome.i18n.getMessage(context.resp.tipsMessage)
             } else {
-                hook.tips.message = ''
+                hook.base.tips.message = ''
             }
             if (context.resp.errMsg === '__needLogin__' || context.resp.errMsg === '__needRelogin__') {
-                hook.dialogMsg.showDialog({
+                hook.base.dialog.showDialog({
                     type: 'i18n',
                     message: context.resp.errMsg,
                     confirmText: 'scanQR',
@@ -274,11 +397,15 @@ export function transHook(mode: 'resultOnly' | 'popup', status:'result'|'editing
             } 
 
             else if (context.resp.dialogMsg) {
-                hook.dialogMsg.showDialog(context.resp.dialogMsg)
+                switch (context.resp.dialogMsg.message) {
+                    case '__wantToApplyTrans__':
+                        context.resp.dialogMsg.confirmAction = hook.applyBDDM
+                }
+                hook.base.dialog.showDialog(context.resp.dialogMsg)
             }
             
             else if (context.resp.toastMsg) {
-                hook.toast.showToast(context.resp.toastMsg)
+                hook.base.toast.showToast(context.resp.toastMsg)
             }
         },
         getMarkHtml() {
@@ -312,7 +439,7 @@ export function transHook(mode: 'resultOnly' | 'popup', status:'result'|'editing
         async collect({ success, fail }) {
             if (!hook.find.result) return
             if (hook.find.text.length > 500 || hook.find.result.text.length > 500) {
-                hook.toast.showToast({ type: 'i18n', message: 'collTooLong' })
+                hook.base.toast.showToast({ type: 'i18n', message: 'collTooLong' })
                 fail?.call(hook)
                 return
             }
@@ -325,81 +452,83 @@ export function transHook(mode: 'resultOnly' | 'popup', status:'result'|'editing
                     resultFrom: hook.find.result.resultFrom,
                     resultTo: hook.find.result.resultTo
                 }},
-                onMsgHandle: (context) => {
-                    if (!context.resp?.errMsg) {
+                onMsgHandle: (c) => {
+                    if (!c.resp?.errMsg) {
                         hook.find.isCollected = true
-                        hook.find.tid = context.resp?.data.tid
-                        success && success(context.resp)
+                        hook.find.tid = c.resp?.data.tid
+                        success && success(c.resp)
                     } else {
                         if (fail) fail({ msg: "needLogin" })
                     }
                 }
             })
         },
-        async trans({ text, type, findStatus, from, to }) {
-            const t = text
+        async trans(info) {
+            const t = info.text
             if (t.replace(/\s+|[\r\n]+/g, "").length === 0) {
                 return
             }
 
-            console.log(from, to, hook.options)
-            if(hook.conf.C.mode !== 'simple') {
-                from || (from = hook.options.from);
-                to || (to = hook.options.to);
-            } else {
-                
+            if(hook.base.status === 'result' && info.findStatus !== 'popLoading') {
+                info.from || (info.from = hook.options.from);
+                info.to || (info.to = hook.options.to);
             }
 
-            console.log(from, to)
-            const find = new Find(text)
+            const find = new Find(info.text)
             hook.show = true;
-            if (findStatus) {
-                hook.findStatus = findStatus
+            if (info.findStatus) {
+                hook.base.findStatus = info.findStatus
             }
 
             await hook.usePort({
                 name: 'translate',
-                context: {req:{ text: find.text, from, to, type, mode, engine:hook.options.engine }},
+                context: {req:{ text: find.text, from:info.from, to: info.to, type:info.type,
+                    mode: hook.base.mode, engine:hook.options.engine, id: ++hook.base.transID }},
                 onMsgHandle: (context: IContext) => {
-                    console.log('onMsgHandle: ', context)
-                    if (!context.resp) return
+                    if(!context.resp) return
+                    if (context.req.id !== hook.base.transID) {
+                        context.resp.errMsg = 'no equal id'
+                    }
                     if (context.resp.errMsg) {
-                        if(hook.findStatus === 'reLoading') {
-                            hook.findStatus = 'willOK'
+                        if(hook.base.findStatus === 'reLoading') {
+                            hook.base.findStatus = 'willOK'
                             setTimeout(() => {
-                                if(hook.findStatus === 'willOK') hook.findStatus = 'ok';
+                                if(hook.base.findStatus === 'willOK') hook.base.findStatus = 'ok';
                             }, 400)
                         } else {
-                            hook.findStatus = 'none'
+                            hook.base.findStatus = 'none'
                         }
                         return
                     }
                     if (!context.resp.data) {
-                        hook.findStatus = 'ok'
+                        hook.base.findStatus = 'ok'
                         return
                     }
-                    hook.status = "result"
+                    hook.base.status = "result"
                     hook.find = find
                     hook.find.result = context.resp.data;
                     hook.marksList = [];
+                    hook.options.isShow = false
                     hook.options.getData();
-                    if(hook.findStatus === 'reLoading') {
-                        hook.findStatus = 'willOK'
+                    if(hook.base.findStatus === 'reLoading') {
+                        hook.base.findStatus = 'willOK'
                         setTimeout(() => {
-                            if(hook.findStatus === 'willOK') hook.findStatus = 'ok';
+                            if(hook.base.findStatus === 'willOK') hook.base.findStatus = 'ok';
                         }, 400)
                     } else {
-                        hook.findStatus = 'ok'
+                        hook.base.findStatus = 'ok'
                     }
                     
                     hook.subTranslator.init()
+                    // setTimeout(() => {
+
+                    // }, 1)
+                    
                 }
             })
         },
-        translateFromEdit(e) {
-            if ((e.code === 'Enter') && (e.ctrlKey || e.shiftKey || e.altKey)) {
-                hook.trans({ text: hook.editingText, type: 'edit_enter', findStatus: 'loading' })
-            }
+        translateFromEdit() {
+            hook.trans(hook.base.bridge.editTrans)
         },
         getTTS(audioType, id) {
             let text, lang;
@@ -418,7 +547,6 @@ export function transHook(mode: 'resultOnly' | 'popup', status:'result'|'editing
                 name: 'tts',
                 context: {req:{ text: text, lang: lang, audioType: audioType}},
                 onMsgHandle: (context: IContext) => {
-                    console.log('tts: ', context)
                     if (!context.resp || context.resp.errMsg) {
                         return
                     }
@@ -433,19 +561,10 @@ export function transHook(mode: 'resultOnly' | 'popup', status:'result'|'editing
                 }
             })
         },
-        clear() {
-            hook.editingText = ''
-            hook.eventToAnalytic({
-                name: 'clear_edit_text',
-                params: {}
-            })
-        },
         toEdit() {
-            hook.lastFindText = hook.editingText
-            hook.editingText = ''
-            hook.status = 'editing'
-            hook.editingText = ''
-            hook.conf.getConf()
+            hook.base.E.lastFindText = hook.base.E.editingText
+            hook.base.E.editingText = ''
+            hook.base.status = 'editing'
             hook.eventToAnalytic({
                 name: 'to_edit',
                 params: {}
@@ -459,7 +578,7 @@ export function transHook(mode: 'resultOnly' | 'popup', status:'result'|'editing
             tempInput.select();
             document.execCommand("copy");
             document.body.removeChild(tempInput);
-            hook.toast.showToast({ type: 'i18n', message: 'copyOK' })
+            hook.base.toast.showToast({ type: 'i18n', message: 'copyOK' })
             hook.eventToAnalytic({
                 name: 'copy_trans_result',
                 params: {
@@ -474,37 +593,26 @@ export function transHook(mode: 'resultOnly' | 'popup', status:'result'|'editing
                 context: {req: eventData},
             })
         },
-        getLastFindText() {
-            hook.editingText = hook.lastFindText
-            hook.eventToAnalytic({
-                name: 'getLastFindText',
-                params: {}
-            })
-        },
         async applyBDDM() {
             await hook.usePort({
                 name: "applyBDDM",
                 context: {req: {}}
             })
         },
-        pasteAndTrans() {
-            const t = document.createElement("input");
-            document.body.appendChild(t);
-            t.focus();
-            document.execCommand("paste");
-            const clipboardText = t.value;
-            hook.editingText = clipboardText
-            document.body.removeChild(t);
-            hook.trans({text: hook.editingText, from: '', to: '', type: 'edit_paste', engine: '', findStatus: 'loading'})
-        },
-        tips: {
-            message: ''
-        }
+        setResultPostion() {}
     })
 
+    hook.options.getData()
 
-    hook.conf.getConf()
+    // if(hook.base.findStatus === 'editLoading') {
+    //     hook.translateFromEdit()
+    // }
 
+    watchEffect(() => {
+        if(hook.base.findStatus === 'editLoading') {
+            hook.translateFromEdit()
+        }
+    })
 
     return hook
 }

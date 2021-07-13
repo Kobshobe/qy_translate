@@ -1,38 +1,36 @@
 <template>
-  <div class="inner-options-main-wsrfhedsoufheqiwrhew" @click="transHook.options.close">
+  <div class="inner-options-main-wsrfhedsoufheqiwrhew" @click="baseHook.T.options.close">
     <div class="option-content-wsrfhedsoufheqiwrhew" @click.stop="">
       <el-select
-        placeholder="请选择"
-        :filterable="transHook.mode !== 'popup'"
-        v-model="transHook.options.from"
+        :placeholder="choiceMsg"
+        filterable
+        v-model="baseHook.T.options.from"
         :popperAppendToBody="true"
-        @visibleChange="popupVisibleChange($event, 'fromLangPopup-wsrfhedsoufheqiwrhew')"
         popperClass="fromLangPopup-wsrfhedsoufheqiwrhew"
-        @change="transHook.options.close"
+        @change="baseHook.T.options.close"
       >
         <el-option
           v-for="(lang, key, index) in languages"
           :key="index"
-          :label="lang['zh-CN']"
+          :label="lang[localeLang]"
           :value="key"
           v-show="key !== 'auto' && key !== '__auto__'"
         >
         </el-option>
       </el-select>
-      <IconBtn type="icon-fanyi" :rotate="90" @click="transHook.options.exchange" />
+      <IconBtn type="icon-fanyi" :rotate="90" @click="baseHook.T.options.exchange" />
       <el-select
-        placeholder="请选择"
-        :filterable="transHook.mode !== 'popup'"
-        v-model="transHook.options.to"
+        :placeholder="choiceMsg"
+        filterable
+        v-model="baseHook.T.options.to"
         :popperAppendToBody="true"
-        @visibleChange="popupVisibleChange($event, 'toLangPopup-wsrfhedsoufheqiwrhew')"
         popperClass="toLangPopup-wsrfhedsoufheqiwrhew"
-        @change="transHook.options.close"
+        @change="baseHook.T.options.close"
       >
         <el-option
           v-for="(lang, key, index) in languages"
           :key="index"
-          :label="lang['zh-CN']"
+          :label="lang[localeLang]"
           :value="key"
           v-show="key !== 'auto' && key !== '__auto__'"
         >
@@ -42,30 +40,29 @@
       <!-- 翻译源 -->
       <div style="height: 1px; width: 100%; background-color: #e4e7ed" @click.stop=""></div>
       <el-select
-        placeholder="请选择"
-        :filterable="false"
-        v-model="transHook.options.engine"
+        :placeholder="choiceMsg"
+        filterable
+        v-model="baseHook.T.options.engine"
         :popperAppendToBody="true"
-        @visibleChange="popupVisibleChange($event, 'enginePopup-wsrfhedsoufheqiwrhew')"
         popperClass="enginePopup-wsrfhedsoufheqiwrhew"
-        @change="transHook.options.changeEngine"
+        @change="baseHook.T.options.changeEngine"
       >
         <el-option-group
           v-for="group in engines"
-          :key="group.name"
-          :label="group.name"
+          :key="group.code"
+          :label="geti18nMsg(group.code)"
         >
           <el-option
             v-for="(engine, key, index) in group.engines"
             :key="index"
-            :label="engine.name"
+            :label="geti18nMsg(engine.code)"
             :value="engine.code"
           >
           </el-option>
         </el-option-group>
       </el-select>
       <div style="height: 1px; width: 100%; background-color: #e4e7ed"></div>
-      <div class="more-option-wsrfhedsoufheqiwrhew" @click="transHook.options.openOptionsPage">{{moreMsg}}</div>
+      <div class="more-option-wsrfhedsoufheqiwrhew" @click="baseHook.T.options.openOptionsPage">{{moreMsg}}</div>
     </div>
   </div>
 </template>
@@ -74,44 +71,50 @@
 import { defineComponent, ref, inject, watchEffect, Ref } from "vue";
 import IconBtn from "../base/IconBtn.vue";
 import { languages, engines } from "@/translator/language";
-import {ITranslatorHook} from '@/utils/interface';
+import {IBaseHook} from '@/utils/interface';
+import {getLocaleLang, geti18nMsg} from '@/utils/share'
 
 export default defineComponent({
   setup() {
-    const transHook = <ITranslatorHook>inject("transHook");
+    const baseHook = <IBaseHook>inject("baseHook");
+    const choiceMsg = chrome.i18n.getMessage('__choice__')
+    const localeLang = getLocaleLang()
 
-    function popupVisibleChange(event: boolean, className: string) {
-      if (transHook.mode!== "popup") return;
-      if (!event) return;
-      // @ts-ignore
-      const popupList: HTMLElement[] = document.getElementsByClassName(
-        "el-select__popper " + className
-      );
-      popupList.forEach((element) => {
-        setTimeout(() => {
-          element.setAttribute(
-            "style",
-            "position:absolute;right:150px;bottom:10px;z-index:22222222;"
-          );
-          //@ts-ignore
-          const arrows: HTMLElement[] = element.getElementsByClassName(
-            "el-popper__arrow"
-          );
-          arrows.forEach((elm) => {
-            elm.setAttribute("style", "display:none;");
-          })
-        })
-      })
-    }
+
+    // function popupVisibleChange(event: boolean, className: string) {
+      // if (baseHook.mode!== "popup") return;
+      // if (!event) return;
+      // // @ts-ignore
+      // const popupList: HTMLElement[] = document.getElementsByClassName(
+      //   "el-select__popper " + className
+      // );
+      // popupList.forEach((element) => {
+      //   setTimeout(() => {
+      //     element.setAttribute(
+      //       "style",
+      //       "position:absolute;right:150px;bottom:10px;z-index:22222222;"
+      //     );
+      //     //@ts-ignore
+      //     const arrows: HTMLElement[] = element.getElementsByClassName(
+      //       "el-popper__arrow"
+      //     );
+      //     arrows.forEach((elm) => {
+      //       elm.setAttribute("style", "display:none;");
+      //     })
+      //   })
+      // })
+    // }
 
     const moreMsg = chrome.i18n.getMessage("moreOption")
 
     return {
       languages,
       engines,
-      transHook,
-      popupVisibleChange,
-      moreMsg
+      baseHook,
+      moreMsg,
+      choiceMsg,
+      localeLang,
+      geti18nMsg
     };
   },
   components: {
@@ -122,7 +125,7 @@ export default defineComponent({
 
 
 <style scoped lang="scss">
-@import "../../app.scss";
+@import "@/app.scss";
 
 .inner-options-main-wsrfhedsoufheqiwrhew {
   position: absolute;
@@ -145,16 +148,20 @@ export default defineComponent({
     justify-content: center;
     align-items: center;
     width: 148px;
-    padding: 8px;
+    padding: 9px;
     background-color: white;
     border-radius: 8px;
     border: $normalBorder;
     box-shadow: $normalBoxShadow;
     .more-option-wsrfhedsoufheqiwrhew {
-      padding-top: 7px;
+      margin-top: 7px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       cursor: pointer;
       font-size: 14px;
       color: #555;
+      height: 20px;
     }
     ::v-deep(.el-select-dropdown__ite) {
       list-style: none;
@@ -167,6 +174,11 @@ export default defineComponent({
       font-weight: bold;
       box-shadow: none;
       background-color: white;
+    }
+    ::v-deep(input:focus) {
+      border: none;
+      text-align: center;
+      box-shadow: none;
     }
     ::v-deep(.el-popper__arrow) {
       display: none;

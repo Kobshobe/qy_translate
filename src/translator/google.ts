@@ -1,6 +1,5 @@
 import {BaseTrans} from '@/translator/share'
 import {SToGoogle} from '@/translator/language'
-import { getMainLang, getSecondLang } from '@/utils/chromeApi'
 import {IContext,IResponse, ITransResult, IGTransResult,IWrapTransInfo} from '@/utils/interface'
 import {eventToGoogle, getTextLimit} from '@/utils/analytics'
 import {calcHash} from '@/translator/tk'
@@ -8,10 +7,10 @@ import {baseFetch} from '@/api/api'
 import _Result from 'element-plus/lib/el-result'
 
 class TkAndClient {
-  ttkList = ["444444.1050258596", "445678.1618007056", "445767.3058494238", "444000.1270171236", "445111.1710346305"]
+  ttkList = ["434217.1534559001", "444444.1050258596", "445678.1618007056", "445767.3058494238", "444000.1270171236", "445111.1710346305"]
 
   client = "webapp"
-  ttk: string = "444444.1050258596"
+  ttk: string = "434217.1534559001"
   getTk(text:string) {
 
     return '&client=' + this.client + '&tk=' + calcHash(text, this.ttk)
@@ -52,11 +51,8 @@ export class GoogleTrans extends BaseTrans {
       return c
     }
 
-    await this.setLangCode(c)
-
-    if (!info.toCode || !info.fromCode) {
-      this.noSupportLang(c)
-    }
+    let err = await this.setLangCode(c)
+    if (err) return c
 
     /*
     [dt代表]
@@ -150,7 +146,7 @@ export class GoogleTrans extends BaseTrans {
       method: 'GET',
     });
 
-    info.cost == undefined && (info.cost = 0);
+    info.cost !== undefined || (info.cost = 0);
     info.cost = info.cost + new Date().valueOf() - start
 
     return resp
@@ -170,6 +166,10 @@ export class GoogleTrans extends BaseTrans {
     const url = 'https://translate.googleapis.com/translate_a/single' + '?' + paramsData.toString() + this.tkTool.getTk(info.text)
 
     const resp = await this.oneTrans(info, url)
+
+    if (resp.errMsg) {
+      return '__reqErr__'
+    }
 
     return resp.data.src
   }
@@ -336,7 +336,6 @@ export enum languages {
     }
 
     if (to === '' || to === 'auto') {
-      to = await getMainLang()
       if (this.isChinese(text)) {
         to = "en"
       }

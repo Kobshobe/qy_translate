@@ -1,10 +1,10 @@
 import { createApp } from 'vue'
 import app from './components/app.vue'
-import {setUI, handleErr} from '@/components/appSetup';
+import {setUI, handleErrAndWarn} from '@/components/appSetup';
 
 const theApp = createApp(app)
 setUI(theApp)
-handleErr(theApp)
+handleErrAndWarn(theApp)
 
 
 theApp.mount('#app')

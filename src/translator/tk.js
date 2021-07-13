@@ -59,5 +59,4 @@ export function calcHash(query, windowTkk) {
 }
 // usage example:
 // let tk = calcHash('hola', '409837.2120040981');
-// console.log('tk=' + tk);
  

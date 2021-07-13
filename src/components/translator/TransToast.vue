@@ -1,22 +1,23 @@
 <template>
   <div
-    v-if="transHook.toast.show"
+    v-if="baseHook.toast.show"
     class="toast-main-wsrfhedsoufheqiwrhew"
-    @click="transHook.toast.show = false"
+    @click="baseHook.toast.show = false"
   >
-    <div class="toast-content-box-wsrfhedsoufheqiwrhew">{{ transHook.toast.msg }}</div>
+    <div class="toast-content-box-wsrfhedsoufheqiwrhew">{{ baseHook.toast.msg }}</div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, inject } from "vue";
+import {IBaseHook} from '@/utils/interface';
 
 export default defineComponent({
   setup() {
-    const transHook = inject<any>("transHook");
+    const baseHook = <IBaseHook>inject("baseHook");
 
     return {
-      transHook,
+      baseHook,
     };
   },
 });
@@ -35,6 +36,9 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   .toast-content-box-wsrfhedsoufheqiwrhew {
+    display: flex;
+    justify-content: center;
+    align-content: center;
     padding: 10px;
     border-radius: 3px;
     border: $toastBorder;
@@ -42,6 +46,7 @@ export default defineComponent({
     box-shadow: $normalBoxShadow;
     font-size: 13px;
     color: $toastColor;
+    text-align: center;
   }
 }
 </style>

@@ -1,8 +1,9 @@
 import {apiWrap} from '../utils/apiWithPort'
-import {openPDFReader,Install, bgInit} from '../utils/chromeApi'
+import {openPDFReader,onInstall, bgInit} from '../utils/chromeApi'
 import {eventToAnalytic, eventToGoogle} from "@/utils/analytics"
+// import {setLang} from '@/utils/chromeApi'
 
-bgInit()
+// bgInit()
 
 chrome.runtime.onConnect.addListener(function (port:chrome.runtime.Port) {
 
@@ -22,19 +23,32 @@ chrome.commands.onCommand.addListener(function (command: any) {
   // console.log('Conmmand', command)
 })
 
-// mark i18n
-chrome.runtime.onInstalled.addListener(() => {
-  const install = new Install()
-  install.noFirstInstall()
+// _mark i18n
+chrome.runtime.onInstalled.addListener((details) => {
+  let transMsg:string;
+  let openPDFMsg:string;
+  const lang = navigator.language
+  if (lang === 'zh-CN' || lang === 'zh') {
+    transMsg = '翻译';
+    openPDFMsg = 'PDF阅读器';
+  } else if (lang === 'zh-TW' || lang === 'zh-HK') {
+    transMsg = '翻譯'
+    openPDFMsg = 'PDF閱讀器';
+  } else {
+    transMsg = 'translate'
+    openPDFMsg = 'Open PDF Reader'
+    //@ts-ignore
+  }
+
   const pdfActionMenu:chrome.contextMenus.CreateProperties = {
     id: "actionPdfReader",
-    title: "PDF阅读器",
+    title: openPDFMsg,
     contexts: ["action", "browser_action"],
   }
-  // mark i18n
+  // _mark i18n
   const transMenuItem:chrome.contextMenus.CreateProperties = {
     id: "trans",
-    title: "翻译",
+    title: transMsg,
     contexts: ['selection']
   }
   chrome.contextMenus.create(pdfActionMenu)
@@ -42,6 +56,8 @@ chrome.runtime.onInstalled.addListener(() => {
     if(res.menuTrans === false) return
     chrome.contextMenus.create(transMenuItem)
   })
+
+  onInstall(details)
   
 })
 
@@ -52,11 +68,10 @@ chrome.contextMenus.onClicked.addListener(function (clickData) {
   if(clickData.menuItemId === "actionPdfReader") {
     openPDFReader('actionMenu')
   } if(clickData.menuItemId === 'trans') {
-    console.log('trans: ', clickData)
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs:any) {
       chrome.tabs.sendMessage(tabs[0].id, {text: clickData.selectionText});
     });
   }
-
 })
 
+bgInit()

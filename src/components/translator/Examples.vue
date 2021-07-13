@@ -1,26 +1,32 @@
 <template>
-  <div v-if="transHook.subTranslator.resultData?.examples">
-    <div class="examples-title-wsrfhedsoufheqiwrhew">{{transExampleMsg}}</div>
+  <div v-if="baseHook.T.subTranslator.resultData?.examples">
+    <div class="examples-title-wsrfhedsoufheqiwrhew">{{ transExampleMsg }}</div>
     <div
-      v-for="(item, index) in transHook.subTranslator.resultData.examples"
-      class="examples-items-wsrfhedsoufheqiwrhew"
+      v-for="(item, index) in baseHook.T.subTranslator.resultData.examples"
       :key="index"
-      v-html="item.text"
-    ></div>
+      class="examples-item-wsrfhedsoufheqiwrhew"
+    >
+      <div class="examples-text-wsrfhedsoufheqiwrhew" v-html="item.text"></div>
+      <div
+        class="examples-trans-wsrfhedsoufheqiwrhew"
+        v-html="item.trans"
+      ></div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, inject } from "vue";
-import {ITranslatorHook} from '@/utils/interface' 
+import { IBaseHook } from "@/utils/interface";
 
 export default defineComponent({
   setup() {
-    const transHook = <ITranslatorHook>inject("transHook")
-    const transExampleMsg = chrome.i18n.getMessage("transExampple")
+    const baseHook = <IBaseHook>inject("baseHook");
+    const transExampleMsg = chrome.i18n.getMessage("transExampple");
 
     return {
-      transHook,transExampleMsg
+      baseHook,
+      transExampleMsg,
     };
   },
 });
@@ -35,11 +41,23 @@ export default defineComponent({
   font-weight: bold;
   padding-bottom: 10px;
 }
-.examples-items-wsrfhedsoufheqiwrhew {
-  font-size: 14px;
-  padding-bottom: 15px;
-  ::v-deep(b) {
-     color: $mainColor;
+
+.examples-item-wsrfhedsoufheqiwrhew {
+  padding-bottom: 16px;
+  .examples-text-wsrfhedsoufheqiwrhew {
+    font-size: 14px;
+    padding-bottom: 8px;
+    ::v-deep(b) {
+      color: $mainColor;
+    }
+  }
+
+  .examples-trans-wsrfhedsoufheqiwrhew {
+    font-size: 14px;
+    color: #555;
+    ::v-deep(b) {
+      color: $mainColor;
+    }
   }
 }
 </style>

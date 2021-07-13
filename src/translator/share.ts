@@ -1,5 +1,5 @@
 import {IContext,IResponse,IWrapTransInfo} from '@/utils/interface'
-import {getMainLang, getSecondLang, getFromeStorage} from '@/utils/chromeApi'
+import {getFromeStorage} from '@/utils/chromeApi'
 import {eventToGoogle} from '@/utils/analytics'
 import { languages } from './language'
 
@@ -10,7 +10,7 @@ export class BaseTrans {
   LangSupport: any
   start = 0
 
-  async setLangCode(c:IContext) :Promise<boolean> {
+  async setLangCode(c:IContext) :Promise<string> {
     const info:IWrapTransInfo = c.req
     info.fromCp = info.from
     info.toCp = info.to
@@ -20,6 +20,11 @@ export class BaseTrans {
 
     if (!info.from || info.from === 'auto') {
       info.fromCode = await this.detect(c)
+      if (info.fromCode === '__reqErr__') {
+        this.setDetectLangErrResp(c)
+        info.fromCode = undefined
+        return '__reqErr__'
+      }
       info.from = this.getSLang(info.fromCode)
     } else {
       info.fromCode = this.getELang(info.from)
@@ -38,21 +43,10 @@ export class BaseTrans {
 
     info.isDetectedLang = true
     if(!info.fromCode || !info.toCode) {
-      eventToGoogle({
-        name: 'transErrLang',
-        params: {
-          engine:info.engine,
-          tLen: info.text.length,
-          form: info.from,
-          to: info.to,
-          fromCp: info.fromCp,
-          toCp: info.toCp
-        }
-      })
-      return false
-    } else {
-      return true
+      this.setLangNotSupportResp(c)
+      return '__noSupportLang__'
     }
+    return ''
   }
 
   async detect(c:IContext) :Promise<any> {
@@ -89,18 +83,6 @@ export class BaseTrans {
     this.ELangToSLang = new Map(SToElang.map(([a, b]) => [b, a]))
   }
 
-  async detectLang(text:string) {
-    const mainLang = await getMainLang()
-    if(mainLang === 'zh-CN') {
-      if (this.isChinese(text)) {
-        return await getSecondLang()
-      } else {
-        return await getMainLang()
-      }
-    }
-    return await getMainLang()
-  }
-
   isChinese(text: string) {
     const re = /[\u4E00-\u9FA5]+/;
     if (re.test(text)) return true;
@@ -132,7 +114,7 @@ export class BaseTrans {
     info.extraMsg.set(key, value)
   }
 
-  noSupportLang(c:IContext , err:'__noSupportLang__'|'__onlyEnAndZh__'|'__onlyZhToZh__' = '__noSupportLang__') {
+  setLangNotSupportResp(c:IContext , err:'__noSupportLang__'|'__onlyEnAndZh__'|'__onlyZhToZh__' = '__noSupportLang__') {
     c.resp = {
       errMsg: err,
       dialogMsg: {
@@ -140,6 +122,38 @@ export class BaseTrans {
         type: 'i18n'
       }
     }
+    eventToGoogle({
+      name: '__noSupportLang__',
+      params: {
+        engine:c.req.engine,
+        tLen: c.req.text.length,
+        form: c.req.from,
+        to: c.req.to,
+        fromCp: c.req.fromCp,
+        toCp: c.req.toCp
+      }
+    })
+  }
+
+  setDetectLangErrResp(c:IContext) {
+    c.resp = {
+      errMsg: 'transDetectLangErr',
+      toastMsg: {
+        message: '__reqErr__',
+        type: 'i18n'
+      }
+    }
+    eventToGoogle({
+      name: 'detectLangReqErr',
+      params: {
+        engine:c.req.engine,
+        tLen: c.req.text.length,
+        form: c.req.from,
+        to: c.req.to,
+        fromCp: c.req.fromCp,
+        toCp: c.req.toCp
+      }
+    })
   }
 
   transErrToAnalytic(c:IContext, resp: IResponse, other:any = {}) {

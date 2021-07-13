@@ -4,34 +4,25 @@
         "description": "ext_name"
     },
     "extDesc": {
-        "message": "Translate selected text."
+        "message": "Translate selected text. Professional domain translate."
     },
     "sName": {
         "message": "QY Translate"
     },
     "enterText": {
-        "message": "Enter text"
+        "message": "Enter Text"
     },
     "moreOption": {
-        "message": "More Option"
+        "message": "MORE OPTION"
     },
     "copyOK": {
         "message": "Copy success"
     },
     "treadWordOff": {
-        "message": "Select text translate off"
-    },
-    "isPronunciation": {
-        "message": "Show Pronunciation"
+        "message": "Unable Select Translate"
     },
     "treadWord": {
-        "message": "Select text translate"
-    },
-    "needLogin": {
-        "message": "Need to log in, do you go to login?"
-    },
-    "needRelogin": {
-        "message": "Need to log in, do you go to login？"
+        "message": "Select text to translate"
     },
     "scanQR": {
         "message": "Login"
@@ -40,7 +31,7 @@
         "message": "More than 500 can't be collected"
     },
     "subTrans": {
-        "message": "translate"
+        "message": "Translate"
     },
     "reduceMark": {
         "message": "Unhighlight"
@@ -51,14 +42,8 @@
     "transExampple": {
         "message": "Example"
     },
-    "fetchErr": {
-        "message": "Network error!"
-    },
-    "netErr": {
-        "message": "Network Error!"
-    },
     "optionTrans": {
-        "message": "Tranlate"
+        "message": "Translate"
     },
     "optionLogin": {
         "message": "WeChat Login"
@@ -113,5 +98,124 @@
     },
     "copyShareLink": {
         "message": "Sharing links have been copied"
+    },
+
+
+    "__noSupportLang__": {
+        "message": "Language does not support"
+    },
+    "__onlyEnAndZh__": {
+        "message": "This translator source only supports Chinese and English interpretation"
+    },
+    "__onlyZhToZh__": {
+        "message": "This translator only supports Chinese to English"
+    },
+    "__reqErr__": {
+        "message": "Request error!"
+    },
+    "__textTooLong__": {
+        "message": "Text is too long!"
+    },
+    "__hasErr__": {
+        "message": "An error occurred!"
+    },
+    "__fetchErr__": {
+        "message": "Please check your network!"
+    },
+    "__netErr__": {
+        "message": "Network error!"
+    },
+    "__needLogin__": {
+        "message": "Need to log in, do you go to login?"
+    },
+    "__needRelogin__": {
+        "message": "Need to log in, do you go to login?"
+    },
+    "__wantToApplyTrans__": {
+        "message": "Apply for free professional translation services?"
+    },
+    "__gotIt__": {
+        "message": "Got it"
+    },
+    "__reduce__": {
+        "message": "Cancel"
+    },
+    "__scanApply__": {
+        "message": "Apply"
+    },
+    "__noMouthAccess__": {
+        "message": "You can't apply for this service again within 30 days. Please contact us if you need it."
+    },
+    "__applyServiceFree__": {
+        "message": "Apply for free"
+    },
+    "__applyOK__": {
+        "message": "Congratulations, apply for success!"
+    },
+    "__applyFail__": {
+        "message": "Application failed, please contact us if necessary!"
+    },
+    "__changeEngineForLang__": {
+        "message": "Language does not support default translator. translator switched!"
+    },
+    "__changeEngine__": {
+        "message": "Translator switched"
+    },
+    "__menuTrans__": {
+        "message": "Click menu to translate"
+    },
+    "__cannotDoIt__": {
+        "message": "Currently unable!"
+    },
+    "__showProun__": {
+        "message": "Show Pronunciation"
+    },
+    "__choice__": {
+        "message": "Select"
+    },
+    "__enterLink__": {
+        "message": "Please enter the link address"
+    },
+    "__defaultTransEngine__": {
+        "message": "Default translator"
+    },
+    "__interface__": {
+        "message": "Interface and interaction"
+    },
+    "__simpleAndIntellgent__": {
+        "message": "Minimalist"
+    },
+    "__profession__": {
+        "message": "Profession"
+    },
+    "__commonTrans__": {
+        "message": "Common"
+    },
+    "__domainTrans__": {
+        "message": "Domain"
+    },
+    "bdTrans__common": {
+        "message": "Baidu"
+    },
+    "ggTrans__common": {
+        "message": "Google"
+    },
+    "bdDM__finance": {
+        "message": "Baidu Finance"
+    },
+    "bdDM__electronics": {
+        "message": "Baidu Electronics"
+    },
+    "bdDM__mechanics": {
+        "message": "Baidu Mechanics"
+    },
+    "bdDM__medicine": {
+        "message": "Baidu Medicine"
+    },
+    "bdDM__novel": {
+        "message": "Baidu Novel"
+    },
+    "__enterTrans__": {
+        "message": "Enter Keydown to Translate"
     }
 }

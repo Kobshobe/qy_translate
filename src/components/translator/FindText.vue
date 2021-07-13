@@ -2,23 +2,23 @@
   <div class="text-scroll-box-wsrfhedsoufheqiwrhew" ref="foundScrollDOM">
     <div v-if="mode === 'foundText'" class="found-box-wsrfhedsoufheqiwrhew">
       <div
+        v-if="mode === 'foundText'"
+        class="
+          text-style-wsrfhedsoufheqiwrhew
+          mark-text-box-wsrfhedsoufheqiwrhew
+          no-color-box-wsrfhedsoufheqiwrhew
+        "
+        v-html="markHtml"
+      ></div>
+      <div
         class="
           text-style-wsrfhedsoufheqiwrhew
           found-text-box-wsrfhedsoufheqiwrhew
         "
         v-on:mouseup.stop="findTextMouseup"
       >
-        {{ transHook.find.text }}
+        {{ baseHook.T.find.text }}
       </div>
-
-      <div
-        v-if="mode === 'foundText'"
-        class="
-          text-style-wsrfhedsoufheqiwrhew
-          mark-text-box-wsrfhedsoufheqiwrhew
-        "
-        v-html="markHtml"
-      ></div>
     </div>
     <div
       v-else
@@ -27,75 +27,74 @@
         result-text-box-wsrfhedsoufheqiwrhew
       "
     >
-      {{ transHook.find.result?.text }}
-    </div>
-    <!-- <div
-      v-if="mode === 'foundText' && transHook.find.result.srcTranslit && localeLang !== transHook.find.result.resultFrom"
-      class="
-        result-text-box-wsrfhedsoufheqiwrhew
-        pronunciation-wsrfhedsoufheqiwrhew
-      "
-    >
-      [{{ transHook.find.result.srcTranslit }}]
+      {{ baseHook.T.find.result?.text }}
     </div>
     <div
-      v-else-if="mode === 'resultText' && transHookfind.result?.translit && localeLang !== transHook.find.result.resultTo"
+      v-if="baseHook.C.showProun && mode === 'foundText' && baseHook.T.find.result?.sPronunciation"
       class="
         result-text-box-wsrfhedsoufheqiwrhew
         pronunciation-wsrfhedsoufheqiwrhew
       "
     >
-      [{{ transHook.find.result.translit }}]
-    </div> -->
+      [{{ baseHook.T.find.result.sPronunciation }}]
+    </div>
+    <div
+      v-else-if="baseHook.C.showProun && mode === 'resultText' && baseHook.T.find.result?.tPronunciation"
+      class="
+        result-text-box-wsrfhedsoufheqiwrhew
+        pronunciation-wsrfhedsoufheqiwrhew
+      "
+    >
+      [{{ baseHook.T.find.result.tPronunciation }}]
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, inject, watch, ref } from "vue";
-import { ITranslatorHook } from "@/utils/interface";
+import { IBaseHook } from "@/utils/interface";
 
 export default defineComponent({
   props: {
     mode: String, // foundText, resultText
   },
   setup(props) {
-    const transHook = <ITranslatorHook>inject("transHook");
+    const baseHook = <IBaseHook>inject("baseHook");
     const markHtml = ref("");
     const foundScrollDOM = ref<any | null>(null);
-    const localeLang = navigator.language
 
-    markHtml.value = transHook.getMarkHtml();
+    markHtml.value = baseHook.T.getMarkHtml();
 
     const findTextMouseup = (e: any) => {
       const sel: any = window.getSelection();
       if (sel.toString().replace(/[\s|\n]/g, "") !== "") {
-        transHook.subTranslator.top =
+        baseHook.T.subTranslator.top =
           e.offsetY - foundScrollDOM.value.scrollTop + 15;
-        transHook.subTranslator.left = e.offsetX;
-        transHook.subTranslator.selectText = sel.toString();
-        transHook.subTranslator.selectRange = [
+        baseHook.T.subTranslator.left = e.offsetX;
+        baseHook.T.subTranslator.selectText = sel.toString();
+        baseHook.T.subTranslator.selectRange = [
           sel.getRangeAt(0).startOffset,
           sel.getRangeAt(0).endOffset,
         ];
-        transHook.subTranslator.bookMark();
-        transHook.subTranslator.status = "showGate";
+        baseHook.T.subTranslator.bookMark();
+        baseHook.T.subTranslator.status = "showGate";
       }
     };
 
     watch(
-      () => transHook.marksList,
+      () => baseHook.T.marksList,
       () => {
-        markHtml.value = transHook.getMarkHtml();
+        markHtml.value = baseHook.T.getMarkHtml();
       }
     );
 
-    return { transHook, markHtml, findTextMouseup, foundScrollDOM, localeLang };
+    return { baseHook, markHtml, findTextMouseup, foundScrollDOM };
   },
 });
 </script>
 
 <style scoped lang="scss">
-@import "../../app.scss";
+@import "@/app.scss";
 
 $foundPaddingTop: 0;
 
@@ -124,6 +123,20 @@ $foundPaddingTop: 0;
     font-family: Arial, Helvetica, sans-serif;
     text-align: left;
   }
+
+  .found-box-wsrfhedsoufheqiwrhew {
+    box-sizing: border-box;
+    position: relative;
+  }
+  .found-text-box-wsrfhedsoufheqiwrhew {
+    box-sizing: border-box;
+    padding: 0 $transEdgePadding 0 $transEdgePadding;
+    line-height: 25px;
+    color: black;
+  }
+  .no-color-box-wsrfhedsoufheqiwrhew {
+    color: rgba(222, 222, 222, 0);
+  }
   .mark-text-box-wsrfhedsoufheqiwrhew {
     box-sizing: border-box;
     position: absolute;
@@ -134,17 +147,6 @@ $foundPaddingTop: 0;
     z-index: -100;
     padding: 0 $transEdgePadding 0 $transEdgePadding;
     line-height: 25px;
-    color: black;
-  }
-  .found-box-wsrfhedsoufheqiwrhew {
-    box-sizing: border-box;
-    position: relative;
-  }
-  .found-text-box-wsrfhedsoufheqiwrhew {
-    box-sizing: border-box;
-    padding: 0 $transEdgePadding 0 $transEdgePadding;
-    color: rgba(222, 222, 222, 0);
-    line-height: 25px;
   }
   .result-text-box-wsrfhedsoufheqiwrhew {
     box-sizing: border-box;
@@ -153,6 +155,7 @@ $foundPaddingTop: 0;
   }
   .pronunciation-wsrfhedsoufheqiwrhew {
     color: #aaa;
+    font-size: 12px;
   }
 }
 </style>

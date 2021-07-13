@@ -90,6 +90,26 @@ export default function optionHook():IOptionHook {
                         scene: 'option'
                     }
                 })
+            },
+            changeShowProun() {
+                chrome.storage.sync.set({showProun: hook.conf.C.showProun})
+                eventToGoogle({
+                    name: 'changeShowProun',
+                    params: {
+                        value: hook.conf.C.showProun,
+                        scene: 'option'
+                    }
+                })
+            },
+            changeKeyDownTrans() {
+                chrome.storage.sync.set({keyDownTrans: hook.conf.C.keyDownTrans})
+                eventToGoogle({
+                    name: 'changeKeyDownTrans',
+                    params: {
+                        value: hook.conf.C.keyDownTrans,
+                        scene: 'option'
+                    }
+                })
             }
         },
         
