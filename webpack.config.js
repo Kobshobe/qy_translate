@@ -7,7 +7,7 @@ if(process.env.NODE_ENV === 'development') {
     mode = 'development'
 }
 
-console.log(mode)
+console.log(`building background.js for ${mode}`)
 
 
 module.exports = {

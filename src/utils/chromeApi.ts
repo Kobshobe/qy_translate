@@ -5,8 +5,9 @@ import { v4 } from "uuid";
 import {eventToGoogle} from './analytics'
 import {languages} from '@/translator/language'
 import { setConfig } from 'element-plus/lib/utils/config';
+import {clientVersion} from '@/config'
 
-export async function getTransConf() {
+export async function getTransConf() :Promise<IAllStorage> {
     const conf:IAllStorage = await getFromeStorage([
         'isTreadWord', 'fromLang', 'toLang', 'mode', 'transEngine', 'showProun', 'keyDownTrans',
         'mainLang', 'secondLang',
@@ -160,13 +161,19 @@ export function getOptionOpenParmas(): Promise<IAllStorage> {
 }
 
 export function onInstall(details:any) {
-
+    let reason = 'unknown'
     if(details.reason === 'install') {
         chrome.tabs.create({url:"https://www.fishfit.fun:8080/p/web/install"})
         chrome.storage.sync.set({installTime: new Date().valueOf()})
+        reason = 'install'
+        console.log(reason)
+    } else {
+        reason = details.reason + '_' + clientVersion
+        reason = reason.replace(/\./g, '_')
+        console.log(reason)
     }
     eventToGoogle({
-        name: details.reason,
+        name: reason,
         params: {
             previousVersion: details.previousVersion
         }

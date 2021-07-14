@@ -30,7 +30,7 @@
       {{ baseHook.T.find.result?.text }}
     </div>
     <div
-      v-if="baseHook.C.showProun && mode === 'foundText' && baseHook.T.find.result?.sPronunciation"
+      v-if="baseHook.C.showProun && mode === 'foundText' && baseHook.T.find.result?.sPronunciation && baseHook.T.find.text.length < 27"
       class="
         result-text-box-wsrfhedsoufheqiwrhew
         pronunciation-wsrfhedsoufheqiwrhew
@@ -39,7 +39,7 @@
       [{{ baseHook.T.find.result.sPronunciation }}]
     </div>
     <div
-      v-else-if="baseHook.C.showProun && mode === 'resultText' && baseHook.T.find.result?.tPronunciation"
+      v-else-if="baseHook.C.showProun && mode === 'resultText' && baseHook.T.find.result?.tPronunciation && baseHook.T.find.text.length < 27"
       class="
         result-text-box-wsrfhedsoufheqiwrhew
         pronunciation-wsrfhedsoufheqiwrhew

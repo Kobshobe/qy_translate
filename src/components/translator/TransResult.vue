@@ -24,6 +24,7 @@
             />
           </div>
           <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
+            <!-- <div class="lang-tips">English</div> -->
             <IconBtn
               v-if="baseHook.T.base.mode === 'popup'"
               type="icon-bianji1"
@@ -50,6 +51,7 @@
             />
           </div>
           <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
+            <div class="lang-tips">{{resultLang}}</div>
             <el-tooltip
               v-if="baseHook.tips.message !== ''"
               class="item"
@@ -83,6 +85,7 @@ import {
   watch,
   onUnmounted,
   watchEffect,
+  computed
 } from "vue";
 import { transHook } from "@/hook/translatorHook";
 import LangController from "./LangController.vue";
@@ -94,6 +97,7 @@ import SubTranslator from "./SubTranslator.vue";
 import FindText from "./FindText.vue";
 import Divider from "./Divider.vue";
 import { ITranslatorHook, IBaseHook } from "@/utils/interface";
+import {languages} from '@/translator/language'
 
 export default defineComponent({
   setup() {
@@ -101,6 +105,18 @@ export default defineComponent({
     if (!baseHook.T) {
       baseHook.T = transHook(baseHook);
     }
+
+    const resultLang = computed(() => {
+      if(!baseHook.T.find.result) return ''
+      if(baseHook.C.mode === 'simple') {
+        if((baseHook.T.find.result.resultFrom !== baseHook.C.mainLang && baseHook.T.find.result.resultFrom !== baseHook.C.secondLang) ||
+        (baseHook.T.find.result.resultTo !== baseHook.C.mainLang && baseHook.T.find.result.resultTo !== baseHook.C.secondLang)) {
+          //@ts-ignore
+          return `${languages[baseHook.T.find.result.resultFrom].en} > ${languages[baseHook.T.find.result.resultTo].en}`
+        }
+        return ''
+      }
+    })
 
     watch(
       () => baseHook.T.subTranslator.selectText,
@@ -134,6 +150,7 @@ export default defineComponent({
 
     return {
       baseHook,
+      resultLang
     };
   },
   components: {
@@ -179,6 +196,10 @@ export default defineComponent({
       display: flex;
       height: 100%;
       align-items: center;
+      .lang-tips {
+        color: #ccc;
+        font-size: 12px;
+      }
     }
   }
 }

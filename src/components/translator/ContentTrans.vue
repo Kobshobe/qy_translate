@@ -108,7 +108,7 @@ export default defineComponent({
     mode: String,
   },
   setup(props) {
-    const baseHook = baseTransHook('contentInject', 'none')
+    const baseHook = baseTransHook(props.mode as 'contentInject', 'none')
     provide('baseHook', baseHook);
     //@ts-ignore
     baseHook.T = transHook(baseHook);

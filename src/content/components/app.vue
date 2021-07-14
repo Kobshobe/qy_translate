@@ -1,5 +1,5 @@
 <template>
-  <ContentTrans />
+  <ContentTrans mode='contentInject' />
 </template>
 
 <script lang="ts">
