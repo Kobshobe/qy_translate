@@ -6,6 +6,9 @@
     "extDesc": {
         "message": "Translate selected text. Professional domain translate."
     },
+    "title": {
+        "message": "QY Translate"
+    },
     "sName": {
         "message": "QY Translate"
     },
@@ -217,5 +220,8 @@
     },
     "__enterTrans__": {
         "message": "Enter Keydown to Translate"
+    },
+    "__totalFreeOver__": {
+        "message": "This month's free quota has been used, more needs can contact us"
     }
 }

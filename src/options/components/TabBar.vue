@@ -14,7 +14,6 @@
 <script lang="ts">
 import { defineComponent, inject } from "vue";
 import TabBtn from "./TabBtn.vue";
-import {eventToGoogle} from '@/utils/analytics'
 
 export default defineComponent({
   setup() {

@@ -308,6 +308,11 @@ export async function baiduDomainTransApi(query:any) {
       confirmText: '__applyServiceFree__',
       type: 'i18n'
     }
+  } else if (resp.data.msg === '__totalFreeOver__') {
+    resp.dialogMsg = {
+      message: '__totalFreeOver__',
+      type: 'i18n'
+    }
   } else {
     resp.toastMsg = {
       message: '__reqErr__',
@@ -324,6 +329,8 @@ export async function applyBDDM(c:IContext) :Promise<IContext> {
     method: 'POST',
     auth: true,
   })
+
+  console.log(c.resp.data)
 
   if (c.resp.errMsg === '__needLogin__' || c.resp.errMsg === '__needRelogin__') {
     return c

@@ -6,6 +6,9 @@
     "extDesc": {
         "message": "划词翻译，PDF翻译，电子科技、金融等专业领域翻译，并提供小程序端收藏管理"
     },
+    "title": {
+        "message": "轻氧翻译 - QY Translate"
+    },
     "sName": {
         "message": "轻氧翻译"
     },
@@ -217,5 +220,8 @@
     },
     "__enterTrans__": {
         "message": "Enter键入翻译"
+    },
+    "__totalFreeOver__": {
+        "message": "本月免费额度已用光，更多需求可联系我们"
     }
 }

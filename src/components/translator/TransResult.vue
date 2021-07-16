@@ -26,7 +26,7 @@
           <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
             <!-- <div class="lang-tips">English</div> -->
             <IconBtn
-              v-if="baseHook.T.base.mode === 'popup'"
+              v-if="baseHook.T.base.mode === 'popup' || baseHook.C.mode === 'profession'"
               type="icon-bianji1"
               iconSize="16"
               @click="baseHook.T.toEdit"
@@ -197,7 +197,7 @@ export default defineComponent({
       height: 100%;
       align-items: center;
       .lang-tips {
-        color: #ccc;
+        color: #999;
         font-size: 12px;
       }
     }

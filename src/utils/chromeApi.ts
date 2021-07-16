@@ -195,7 +195,7 @@ export function bgInit() {
                 }
             })
             eventToGoogle({
-                name: "bg_init__",
+                name: "bg_init",
                 params: {
                     transMode: res.mode
                 }

@@ -42,7 +42,7 @@ export class BaseTrans {
     }
 
     info.isDetectedLang = true
-    if(!info.fromCode || !info.toCode) {
+    if(!info.from || !info.to) {
       this.setLangNotSupportResp(c)
       return '__noSupportLang__'
     }
@@ -123,7 +123,7 @@ export class BaseTrans {
       }
     }
     eventToGoogle({
-      name: '__noSupportLang__',
+      name: 'noSupportLang',
       params: {
         engine:c.req.engine,
         tLen: c.req.text.length,

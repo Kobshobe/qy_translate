@@ -28,6 +28,7 @@ export interface IBaseHook {
     findStatus: ITransFindStatus
     transID: number
     isHold: boolean
+    lockLang: boolean
     bridge: any
     C: IAllStorage
     init(mode:ITransMode, status:ITransStatus) :void

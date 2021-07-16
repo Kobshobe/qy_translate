@@ -86,7 +86,6 @@ import {IBaseHook} from '@/utils/interface';
 export default defineComponent({
   setup() {
     const baseHook = <IBaseHook>inject("baseHook")
-    baseHook.E || (baseHook.E = editHook(baseHook));
     const editorDOM = ref<any | null>(null);
 
     function clear() {
@@ -165,7 +164,7 @@ export default defineComponent({
     align-items: center;
     width: 100%;
     height: 50px;
-    padding: 0 $transEdgePadding 0 $transEdgePadding;
+    padding: 0 $transEdgePadding 0 12px;
     .editing-tool-bar-left-wsrfhedsoufheqiwrhew {
       display: flex;
       flex-wrap: nowrap;

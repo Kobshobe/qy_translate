@@ -15,6 +15,7 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
         transID: 0,
         isHold: false,
         bridge: markRaw({}),
+        lockLang: false,
         C: {},
         init(mode, status) {
             hook.mode = mode
@@ -167,6 +168,7 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
     })
 
     hook.getConf()
+    hook.E = editHook(hook)
 
     return hook
 }
@@ -469,9 +471,15 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                 return
             }
 
+            // when change engine
             if(hook.base.status === 'result' && info.findStatus !== 'popLoading') {
                 info.from || (info.from = hook.options.from);
                 info.to || (info.to = hook.options.to);
+            }
+
+            if(hook.base.C.mode === 'profession' && info.type === 'select') {
+                info.from = hook.base.C.fromLang
+                info.to = hook.base.C.toLang
             }
 
             const find = new Find(info.text)

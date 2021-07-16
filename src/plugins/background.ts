@@ -1,6 +1,5 @@
 import {apiWrap} from '../utils/apiWithPort'
 import {openPDFReader,onInstall, bgInit} from '../utils/chromeApi'
-import {eventToAnalytic, eventToGoogle} from "@/utils/analytics"
 // import {setLang} from '@/utils/chromeApi'
 
 // bgInit()
