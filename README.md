@@ -1,31 +1,13 @@
 # 轻氧翻译 - QY Translate
 
-## 这是一个划词翻译插件
+### 这是一个划词翻译插件
+
+[详细说明](https://github.com/Kobshobe/qy_translate/blob/main/docs/Instructions/%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87).md)
+![engine](docs/images/engine.png)
+
+### 应用商店下载
+[chrome商店](https://chrome.google.com/webstore/detail/fjldhjdclpmehigldnbgbllchcjdgccc) | [edge应用商店](https://microsoftedge.microsoft.com/addons/detail/%E8%BD%BB%E6%B0%A7%E7%BF%BB%E8%AF%91/gldjnohpkhoipopkgkoepimoaoekhioo)  
 &nbsp;
-
-#### 极简设计风格，就差把箭头图标抠掉了   
-![avatar](http://img.fishfit.fun/qy_edit.png)  
-&nbsp;
-
-#### 翻译一个句子后，可以做子翻译、标记和收藏 
-![avatar](http://img.fishfit.fun/qy_mark_php.png) 
-&nbsp;
-
-还有PDF阅读翻译等功能
-
-[下载地址](https://www.fishfit.fun:8080/p/web/home/github)  
-&nbsp;
-
-#### 收藏后，如果想随便学习一下，还可以使用`轻氧翻译`微信小程序，翻译学习两不误  
-&nbsp;
-
-<img src="http://img.fishfit.fun/qr_github.png" width="300" height="300" alt="加载中"/>  
-&nbsp;  
-
-[chrome商店](https://chrome.google.com/webstore/detail/fjldhjdclpmehigldnbgbllchcjdgccc)  [edge应用商店](https://microsoftedge.microsoft.com/addons/detail/%E8%BD%BB%E6%B0%A7%E7%BF%BB%E8%AF%91/gldjnohpkhoipopkgkoepimoaoekhioo)  
-&nbsp;  
-
-[crx安装文件下载，提取码：jiog](https://pan.baidu.com/s/1BMD-lCMkq84S-pWCEdRb2w)
 
 
 ## Project setup

@@ -223,5 +223,8 @@
     },
     "__totalFreeOver__": {
         "message": "This month's free quota has been used, more needs can contact us"
+    },
+    "__instructions__": {
+        "message": "Instructions"
     }
 }

@@ -223,5 +223,8 @@
     },
     "__totalFreeOver__": {
         "message": "本月免费额度已用光，更多需求可联系我们"
+    },
+    "__instructions__": {
+        "message": "使用说明"
     }
 }

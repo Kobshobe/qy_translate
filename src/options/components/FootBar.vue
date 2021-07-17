@@ -1,14 +1,16 @@
 <template>
   <div class="option-bottom">
-    <div class="bottom-text" @click="toIndex">{{sNameMsg}}</div>
+    <div class="bottom-text" @click="toIndex">{{geti18nMsg('sName')}}</div>
     <div style="width: 10px"></div>
-    <div class="bottom-text" @click="toPDFReader" title="在图标右键菜单处也可以打开哦">{{PDFViewerMsg}}</div>
+    <div class="bottom-text" @click="toPDFReader" title="在图标右键菜单处也可以打开哦">{{geti18nMsg('PDFViewer')}}</div>
     <div style="width: 10px"></div>
-    <div class="bottom-text" @click="toStore">{{appStoreMsg}}</div>
+    <div class="bottom-text" @click="toStore">{{geti18nMsg('appStore')}}</div>
     <div style="width: 10px"></div>
     <div class="bottom-text" @click="toGitHub">GitHub</div>
     <div style="width: 10px"></div>
-    <a class="bottom-text" href="mailto: phraseanywhere@outlook.com">{{contactUsMsg}}</a>
+    <a class="bottom-text" href="mailto: phraseanywhere@outlook.com">{{geti18nMsg('contactUs')}}</a>
+    <div style="width: 10px"></div>
+    <div class="bottom-text" @click="toInstructions">{{geti18nMsg('__instructions__')}}</div>
   </div>
 </template>
 
@@ -18,6 +20,7 @@ import { ElMessage } from "element-plus";
 import { storeUrl, client } from "../../config";
 import { eventToGoogle } from "../../utils/analytics";
 import {openPDFReader} from '@/utils/chromeApi'
+import {geti18nMsg} from '@/utils/share'
 
 export default defineComponent({
   setup() {
@@ -54,10 +57,14 @@ export default defineComponent({
       openPDFReader("option")
     }
 
-    const PDFViewerMsg = chrome.i18n.getMessage("PDFViewer")
-    const appStoreMsg = chrome.i18n.getMessage("appStore")
-    const sNameMsg = chrome.i18n.getMessage("sName")
-    const contactUsMsg = chrome.i18n.getMessage("contactUs")
+    function toInstructions() {
+      window.open(`https://github.com/Kobshobe/qy_translate/blob/main/docs/Instructions/%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87).md`);
+
+      eventToGoogle({
+        name: "toInstructions",
+        params: {locale: chrome.i18n.getMessage("@@ui_locale")},
+      });
+    }
 
 
     return {
@@ -65,10 +72,8 @@ export default defineComponent({
       toIndex,
       toGitHub,
       toPDFReader,
-      PDFViewerMsg,
-      appStoreMsg,
-      sNameMsg,
-      contactUsMsg,
+      geti18nMsg,
+      toInstructions
     };
   },
 });
