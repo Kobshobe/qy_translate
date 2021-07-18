@@ -166,11 +166,9 @@ export function onInstall(details:any) {
         chrome.tabs.create({url:"https://github.com/Kobshobe/qy_translate/blob/main/docs/Instructions/%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87).md"}) // https://www.fishfit.fun:8080/p/web/install
         chrome.storage.sync.set({installTime: new Date().valueOf()})
         reason = 'install'
-        console.log(reason)
     } else {
         reason = details.reason + '_' + clientVersion
         reason = reason.replace(/\./g, '_')
-        console.log(reason)
     }
     eventToGoogle({
         name: reason,

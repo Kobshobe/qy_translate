@@ -45,13 +45,8 @@ export class BaiduTrans extends BaseTrans {
         //@ts-ignore true to common domain and give tips
         const supportErr = this.checkELang(info.fromCode, info.toCode, info.engine)
         if(supportErr !== '') {
-            this.setExtraMsg(c, '__changeEngineForLang__', {
-                message: supportErr,
-                type: 'i18n'
-            });
-            // info.extraMsg.set('supportErr', supportErr)
+            this.setExtraMsg(c, 'tipsMessages', [supportErr, '__changeEngineForLang__']);
             return await this.CTrans(c)
-            // return this.noSupportLang(supportErr)
         }
 
         this.startTiming()
@@ -92,19 +87,15 @@ export class BaiduTrans extends BaseTrans {
 
     async CTrans(c:IContext) :Promise<IContext> {
         const info:IWrapTransInfo = c.req
-        let tipsMessage = ''
+        let tipsMessages = []
         let dialogMsg = undefined
 
-
-        if (info.extraMsg && info.extraMsg.has('__changeEngine__')) {
-            tipsMessage = '__changeEngine__'
+        if (info.extraMsg) {
             if(info.extraMsg.get('__noRice__')) {
                 dialogMsg = info.extraMsg.get('__noRice__')
             }
-        } else if (info.extraMsg && info.extraMsg.has('__changeEngineForLang__')) {
-            tipsMessage = '__changeEngineForLang__'
-            if(info.extraMsg.get('supportErr')) {
-                dialogMsg = info.extraMsg.get('supportErr')
+            if(info.extraMsg.has('tipsMessages')) {
+                tipsMessages = info.extraMsg.get('tipsMessages')
             }
         }
 
@@ -163,13 +154,13 @@ export class BaiduTrans extends BaseTrans {
         }
 
         this.getCost(c)
-        resp.tipsMessage = tipsMessage
+        resp.tipsMessages = tipsMessages
         resp.dialogMsg = dialogMsg
 
         if (!resp.errMsg) {
             this.transOKToAnalytic(c, resp)
         } else {
-            this.transErrToAnalytic(c, resp, )
+            this.transErrToAnalytic(c, resp)
         }
 
         c.resp = resp

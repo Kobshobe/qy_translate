@@ -330,8 +330,6 @@ export async function applyBDDM(c:IContext) :Promise<IContext> {
     auth: true,
   })
 
-  console.log(c.resp.data)
-
   if (c.resp.errMsg === '__needLogin__' || c.resp.errMsg === '__needRelogin__') {
     return c
   }

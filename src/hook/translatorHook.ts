@@ -85,10 +85,6 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
                     hook.dialog.message = chrome.i18n.getMessage(message)
                     cancelText && (hook.dialog.cancelText = chrome.i18n.getMessage(cancelText));
                     confirmText && (hook.dialog.confirmText = chrome.i18n.getMessage(confirmText));
-                    switch (confirmText) {
-                        case '__applyServiceFree__':
-                            // confirmAction = hook.applyBDDM
-                    }
                 } else {
                     hook.dialog.message = message
                     hook.dialog.cancelText = cancelText
@@ -121,7 +117,15 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
             }
         },
         tips: {
-            message: ''
+            messages: [],
+            message: computed(() => {
+                if (hook.tips.messages.length < 1) {
+                    return ''
+                }
+                return hook.tips.messages.reduce((total:string, message:string) => {
+                    return total += chrome.i18n.getMessage(message)
+                })
+            })
         },
         eventToAnalytic(eventData) {
             eventData.params.locale = chrome.i18n.getMessage("@@ui_locale")
@@ -379,10 +383,10 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
         },
         handleWebErr(context) {
             if (!context.resp) return
-            if(context.resp.tipsMessage) {
-                hook.base.tips.message = chrome.i18n.getMessage(context.resp.tipsMessage)
+            if(context.resp.tipsMessages) {
+                hook.base.tips.messages = ['', ...context.resp.tipsMessages]
             } else {
-                hook.base.tips.message = ''
+                hook.base.tips.messages = []
             }
             if (context.resp.errMsg === '__needLogin__' || context.resp.errMsg === '__needRelogin__') {
                 hook.base.dialog.showDialog({

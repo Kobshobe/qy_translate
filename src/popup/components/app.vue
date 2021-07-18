@@ -28,6 +28,6 @@ export default defineComponent({
 }
 
 .popup_main {
-  width: 415px;
+  width: 400px;
 }
 </style>

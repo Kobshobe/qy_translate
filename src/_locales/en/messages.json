@@ -105,13 +105,13 @@
 
 
     "__noSupportLang__": {
-        "message": "Language does not support"
+        "message": "Language does not support."
     },
     "__onlyEnAndZh__": {
-        "message": "This translator source only supports Chinese and English interpretation"
+        "message": "This translator source only supports Chinese and English interpretation."
     },
     "__onlyZhToZh__": {
-        "message": "This translator only supports Chinese to English"
+        "message": "This translator only supports Chinese to English."
     },
     "__reqErr__": {
         "message": "Request error!"
@@ -159,7 +159,7 @@
         "message": "Application failed, please contact us if necessary!"
     },
     "__changeEngineForLang__": {
-        "message": "Language does not support default translator. translator switched!"
+        "message": "Language does not support.Translator switched!"
     },
     "__changeEngine__": {
         "message": "Translator switched"

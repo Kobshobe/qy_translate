@@ -56,7 +56,8 @@ export interface IBaseHook {
         showToast(toastMsg:IToastMsg): void
     },
     tips: {
-        message: string
+        messages: string[]
+        message: any
     }
     E: IEditHook
     T:ITranslatorHook
@@ -266,7 +267,7 @@ export interface IResponse {
     status?: number
     toastMsg?: IToastMsg
     dialogMsg?: IDialogMsg
-    tipsMessage?: string
+    tipsMessages?: string[]
 }
 
 export interface ITransResult {

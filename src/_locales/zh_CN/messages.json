@@ -105,13 +105,13 @@
     
 
     "__noSupportLang__": {
-        "message": "语种不支持"
+        "message": "语种不支持。"
     },
     "__onlyEnAndZh__": {
-        "message": "此翻译源仅支持中英互译"
+        "message": "设置的翻译源仅支持中英互译。"
     },
     "__onlyZhToZh__": {
-        "message": "此翻译源仅支持中译英"
+        "message": "设置的翻译源仅支持中译英。"
     },
     "__reqErr__": {
         "message": "请求出错"
@@ -159,7 +159,7 @@
         "message": "申请失败，刚需可联系我们"
     },
     "__changeEngineForLang__": {
-        "message": "语种不支持默认翻译源，已切换到其它翻译源"
+        "message": "语种不支持已切换到其它翻译源。"
     },
     "__changeEngine__": {
         "message": "翻译源已切换"
