@@ -1,6 +1,6 @@
 ## QY Translate Instructions
 
-[English](https://github.com/Kobshobe/qy_translate/blob/main/docs/Instructions/Instructions(English).md) | [简体中文](https://github.com/Kobshobe/qy_translate/blob/main/docs/Instructions/%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87).md) | [繁體中文](https://github.com/Kobshobe/qy_translate/blob/main/docs/Instructions/%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E(%E7%B9%81%E4%BD%93%E4%B8%AD%E6%96%87).md)
+[English](https://github.com/Kobshobe/qy_translate/blob/main/docs/Instructions/Instructions(English).md) | [简体中文](https://github.com/Kobshobe/qy_translate/blob/main/docs/Instructions/%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87).md) | [繁體中文](https://github.com/Kobshobe/qy_translate/blob/main/docs/Instructions/%E4%BD%BF%E7%94%A8%E8%AA%AA%E6%98%8E(%E7%B9%81%E4%BD%93%E4%B8%AD%E6%96%87).md)
 
 tips: After installation, the opened page needs to be refreshed before it can be used normally!
 
