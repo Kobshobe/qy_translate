@@ -44,7 +44,7 @@
 import { defineComponent, inject } from "vue";
 import Loading from "../base/Loading.vue";
 import SubTransResult from "./SubTransResult.vue";
-import {IBaseHook} from '@/utils/interface'
+import {IBaseHook} from '@/interface/trans'
 
 export default defineComponent({
   setup() {

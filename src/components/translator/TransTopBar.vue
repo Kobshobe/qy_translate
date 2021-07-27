@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import { defineComponent, inject } from "vue";
-import {IBaseHook} from '@/utils/interface';
+import {IBaseHook} from '@/interface/trans';
 import IconBtn from "../base/IconBtn.vue";
 
 export default defineComponent({

@@ -28,7 +28,7 @@ import TransTopBar from "./TransTopBar.vue";
 import TransDialog from "./TransDialog.vue";
 import TransToast from "./TransToast.vue";
 import LangController from "./LangController.vue";
-import { ITranslatorHook, IBaseHook } from "@/utils/interface";
+import { ITranslatorHook, IBaseHook } from "@/interface/trans";
 
 export default defineComponent({
   setup() {

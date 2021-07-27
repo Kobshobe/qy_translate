@@ -32,28 +32,22 @@
     </div>
 
     <div v-else-if="loginStatus === 'loginOk'">
-      <div class="qr-logged">
-        <div class="logged-text">
-          {{ loggedMsg }}
-        </div>
-        <el-button plain @click="logout">{{ logoutMsg }}</el-button>
-      </div>
+      <i class="el-icon-circle-check" style="font-size: 25px; color: #888"></i>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue";
+import { defineComponent, ref, watch, inject } from "vue";
 import Loading from "../../components/base/Loading.vue";
 import { qrLogin } from "../../api/api";
 import { removeTokenInfo, getTokenFromStorage } from "../../utils/chromeApi";
 import { eventToGoogle } from "@/utils/analytics";
+import {IOptionBaseHook} from '@/interface/options'
 
 export default defineComponent({
-  props: {
-    show: Boolean,
-  },
-  setup(props) {
+  setup() {
+    const hook = <IOptionBaseHook>inject('baseHook')
     const qrUrl = ref("");
     const loginStatus =
       ref<
@@ -66,6 +60,8 @@ export default defineComponent({
       const token = await getTokenFromStorage();
       if (token !== "__needLogin__" && token !== "__needRelogin__") {
         loginStatus.value = "loginOk";
+      } else {
+        qrLogin({ qrUrl, loginStatus });
       }
     }
 
@@ -87,19 +83,14 @@ export default defineComponent({
       })
     }
 
-    watch(
-      () => props.show,
-      (newVal) => {
-        if (newVal) {
-          if (
-            loginStatus.value !== "scanQr" &&
-            loginStatus.value !== "loginOk"
-          ) {
-            qrLogin({ qrUrl, loginStatus });
-          }
-        }
+    watch(()=>loginStatus.value ,(newVal, oldVal)=> {
+      if(newVal === 'loginOk' && oldVal !== 'none') {
+        hook.user.isLogin = true
+        hook.user.isShowLogin = false
+
+        hook.coll.initColl()
       }
-    );
+    })
 
     const loggedMsg = chrome.i18n.getMessage("logged");
     const logoutMsg = chrome.i18n.getMessage("logout");
@@ -139,7 +130,7 @@ export default defineComponent({
   flex-direction: column;
   flex-wrap: nowrap;
   align-items: center;
-  justify-content: center;
+  height: 250px;
   .qr-loaded-box {
     display: flex;
     flex-direction: column;
@@ -191,10 +182,10 @@ export default defineComponent({
     align-items: center;
     width: 370px;
     .logged-text {
-      padding: 120px 0 30px 0;
-      font-size: 15px;
-      text-align: center;
-      color: #555;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
     }
     ::v-deep(.el-button) {
       width: 80px

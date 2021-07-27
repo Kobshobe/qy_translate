@@ -10,6 +10,7 @@
           :placeholder="enterTextMsg"
           :autofocus="true"
           ref="editorDOM"
+          :style="baseHook.C.mode !== 'simple' ? 'padding-top:10px;': ''"
         ></textarea>
       </div>
       <div class="editing-clear-wsrfhedsoufheqiwrhew">
@@ -76,12 +77,12 @@ import {
   onMounted,
   ref
 } from "vue";
-import { ITranslatorHook } from "@/utils/interface";
+import { ITranslatorHook } from "@/interface/trans";
 import IconBtn from "../base/IconBtn.vue";
 import Loading from "../base/Loading.vue";
 import LangController from "./LangController.vue";
 import { editHook } from "@/hook/translatorHook";
-import {IBaseHook} from '@/utils/interface';
+import {IBaseHook} from '@/interface/trans';
 
 export default defineComponent({
   setup() {
@@ -134,7 +135,7 @@ export default defineComponent({
       box-sizing: border-box;
       height: 100%;
       width: 100%;
-      padding: 10px $transEdgePadding 0 $transEdgePadding;
+      padding: 1px $transEdgePadding 0 $transEdgePadding;
       #phrase-editing-wsrfhedsoufheqiwrhew {
         height: 100%;
         width: 100%;

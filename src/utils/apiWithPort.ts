@@ -2,7 +2,7 @@ import { applyBDDM, collectResult, reduceCollect, updateMark } from '@/api/api'
 import { wrapTranslator } from '@/translator/transWrap'
 import { getAudioBase64 } from '@/translator/tts'
 import { openOptionsPage, getTransConf } from '@/utils/chromeApi'
-import { IContext, IResponse, IWrapTransInfo } from '@/utils/interface'
+import { IContext, IResponse, IWrapTransInfo } from '@/interface/trans'
 import { eventToGoogle } from './analytics'
 
 export const apiWrap = {

@@ -51,7 +51,7 @@ import SoundBtn from "./SoundBtn.vue";
 import DictItems from "./DictItems.vue";
 import Examples from "./Examples.vue";
 import IconBtn from "../base/IconBtn.vue";
-import { IBaseHook } from "@/utils/interface";
+import { IBaseHook } from "@/interface/trans";
 
 export default defineComponent({
   setup() {

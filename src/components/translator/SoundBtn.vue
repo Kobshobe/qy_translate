@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, inject, watchEffect } from "vue";
-import {IBaseHook} from '@/utils/interface'
+import {IBaseHook} from '@/interface/trans'
 import SvgIcon from "../base/SvgIcon.vue";
 import { v4 } from "uuid";
 

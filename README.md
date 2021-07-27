@@ -9,7 +9,6 @@
 [chrome商店](https://chrome.google.com/webstore/detail/fjldhjdclpmehigldnbgbllchcjdgccc) | [edge应用商店](https://microsoftedge.microsoft.com/addons/detail/%E8%BD%BB%E6%B0%A7%E7%BF%BB%E8%AF%91/gldjnohpkhoipopkgkoepimoaoekhioo)  
 &nbsp;
 
-
 ## Project setup
 ```
 yarn install

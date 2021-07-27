@@ -1,7 +1,7 @@
 global.fetch = require('node-fetch');
 
 import { GoogleTrans } from '@/translator/google'
-import {IWrapTransInfo} from '@/utils/interface'
+import {IWrapTransInfo} from '@/interface/trans'
 
 function delay(second:number) {
     return new Promise((resolve) => {

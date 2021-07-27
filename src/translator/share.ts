@@ -1,4 +1,4 @@
-import {IContext,IResponse,IWrapTransInfo} from '@/utils/interface'
+import {IContext,IResponse,IWrapTransInfo} from '@/interface/trans'
 import {getFromeStorage} from '@/utils/chromeApi'
 import {eventToGoogle} from '@/utils/analytics'
 import { languages } from './language'

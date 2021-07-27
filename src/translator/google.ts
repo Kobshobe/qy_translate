@@ -1,6 +1,6 @@
 import {BaseTrans} from '@/translator/share'
 import {SToGoogle} from '@/translator/language'
-import {IContext,IResponse, ITransResult, IGTransResult,IWrapTransInfo} from '@/utils/interface'
+import {IContext,IResponse, ITransResult, IGTransResult,IWrapTransInfo} from '@/interface/trans'
 import {eventToGoogle, getTextLimit} from '@/utils/analytics'
 import {calcHash} from '@/translator/tk'
 import {baseFetch} from '@/api/api'

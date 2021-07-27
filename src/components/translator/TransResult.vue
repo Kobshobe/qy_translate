@@ -96,7 +96,7 @@ import Options from "./Options.vue";
 import SubTranslator from "./SubTranslator.vue";
 import FindText from "./FindText.vue";
 import Divider from "./Divider.vue";
-import { ITranslatorHook, IBaseHook } from "@/utils/interface";
+import { ITranslatorHook, IBaseHook } from "@/interface/trans";
 import {languages} from '@/translator/language'
 
 export default defineComponent({

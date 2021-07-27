@@ -1,4 +1,4 @@
-import {IMarkInfo} from '@/utils/interface'
+import {IMarkInfo} from '@/interface/trans'
 
 export function newMarkManager(mark:number[], marksList:number[][]) :IMarkInfo {
     const newMarksList = []
@@ -51,4 +51,15 @@ export function getMarkHtml(marksList:number[][], text:string) :string {
     }
     markText += text.slice(point);
     return markText
+}
+
+export function getMarkHtmlFromStr(marksStr:string, text:string) {
+    if(!marksStr) return text
+    let marksList:number[][];
+    try {
+       marksList = JSON.parse(marksStr)
+       return getMarkHtml(marksList, text)
+    } catch {
+        return text
+    }
 }

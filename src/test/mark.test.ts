@@ -1,5 +1,5 @@
 import { newMarkManager, getMarkHtml } from '../utils/mark'
-import {IMarkInfo} from '@/utils/interface'
+import {IMarkInfo} from '@/interface/trans'
 
 let marksList = [[3, 5], [10, 14], [18, 22]]
 let mark = [4, 7]

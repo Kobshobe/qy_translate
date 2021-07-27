@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import { defineComponent, inject, reactive, onMounted, watchEffect } from "vue";
-import { IBaseHook } from "@/utils/interface";
+import { IBaseHook } from "@/interface/trans";
 
 export default defineComponent({
   setup() {

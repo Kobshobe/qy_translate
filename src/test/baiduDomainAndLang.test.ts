@@ -1,6 +1,6 @@
 import {BAIDULANG, languages, SToBaidu} from '@/translator/language'
 import {BaiduTrans} from '@/translator/baiduTrans'
-import {IWrapTransInfo} from '@/utils/interface'
+import {IWrapTransInfo} from '@/interface/trans'
 
 // function cp() {
 //     const l = []

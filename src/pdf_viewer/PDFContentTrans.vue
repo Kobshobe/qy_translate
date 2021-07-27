@@ -1,7 +1,7 @@
 <template>
   <ContentTrans mode="pdf" />
   <el-dialog
-    title="打开网络PDF文件"
+    :title="geti18nMsg('__openRemotePDF__')"
     v-model="dialogVisible"
     width="500px"
   >
@@ -12,8 +12,8 @@
     ></el-input>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="openLinkPDF">确 定</el-button>
+        <el-button @click="dialogVisible = false">{{geti18nMsg('__reduce__')}}</el-button>
+        <el-button type="primary" @click="openLinkPDF">{{geti18nMsg('__confirm__')}}</el-button>
       </span>
     </template>
   </el-dialog>
@@ -23,9 +23,11 @@
 import { defineComponent, ref } from "vue";
 import ContentTrans from "../components/translator/ContentTrans.vue";
 import { openPDFReader } from "@/utils/chromeApi";
+import {geti18nMsg} from '@/utils/share'
 
 export default defineComponent({
   setup() {
+    document.title = `${geti18nMsg('title')} PDF`
     const dialogVisible = ref(false);
     const input = ref("");
 
@@ -46,7 +48,8 @@ export default defineComponent({
       dialogVisible,
       input,
       openLinkPDF,
-      enterLinkMsg
+      enterLinkMsg,
+      geti18nMsg
     };
   },
   components: {

@@ -1,5 +1,5 @@
 import {BaseTrans} from '@/translator/share'
-import {IContext,IWrapTransInfo, ITransResult, IBDDMTransResult, IResponse, IToastMsg, IDialogMsg} from '@/utils/interface'
+import {IContext,IWrapTransInfo, ITransResult, IBDDMTransResult, IResponse, IToastMsg, IDialogMsg} from '@/interface/trans'
 import {baiduDomainTransApi, baseFetch} from '@/api/api'
 import {languages, SToBaidu, checkDomainLang as checkDomainLang, bdLangSupport, engines} from '@/translator/language'
 

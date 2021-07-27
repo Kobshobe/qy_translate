@@ -127,26 +127,6 @@ export interface ITranslatorHook {
     setResultPostion():void
 }
 
-export interface IOptionHook {
-    tabsInfo: string[]
-    activeTabIndex: number
-    conf: {
-        C:IAllStorage,
-        changeTransEngine() :void
-        changeTreadWord() :void
-        changeMode() :void
-        changeMenuTrans() :void
-        changeMainLang() :void
-        changeSecondLang() :void
-        changeShowProun() :void
-        changeShowProun() :void
-        changeKeyDownTrans() :void
-    }
-    getOpenParams():void
-    selectTab(index:number):void
-    init():void
-}
-
 export interface IAllStorage {
     mainLang?: string
     secondLang?: string

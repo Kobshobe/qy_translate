@@ -1,4 +1,4 @@
-import {IContext, IWrapTransInfo, ITransResult, IResponse} from '@/utils/interface'
+import {IContext, IWrapTransInfo, ITransResult, IResponse} from '@/interface/trans'
 import {GoogleTrans} from '@/translator/google'
 import {BaiduTrans} from '@/translator/baiduTrans'
 import {getFromeStorage} from '@/utils/chromeApi'
@@ -33,6 +33,7 @@ class WrapTranslator {
       if (!info.engine) {
         const conf = await getFromeStorage(['transEngine'])
         info.engine = conf.transEngine
+        info.engine || (info.engine = 'ggTrans__common')
       }
       
       const engineInfo = info.engine ? info.engine.split("__") : undefined

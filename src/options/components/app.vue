@@ -1,87 +1,107 @@
 <template>
-  <div class="option-main">
-    <div class="option-container">
-      <TabBar />
-      <div class="option-content-box">
-        <TranslatorOption v-if="optionPageHook.activeTabIndex === 0" />
-        <QrLogin
-          v-show="optionPageHook.activeTabIndex === 1"
-          :show="optionPageHook.activeTabIndex === 1"
-        />
+  <div class="header">
+    <div class="hearder-side">
+      <div class="header-title">{{geti18nMsg('title')}}</div>
+      <div class="header-tab">
+        <router-link to="/collections"
+          ><div class="tab-item">{{geti18nMsg('__collection__')}}</div></router-link
+        >
+        <router-link to="/"><div class="tab-item">{{geti18nMsg('__options__')}}</div></router-link>
+        
+        <router-link to="/other"
+          ><div class="tab-item">{{geti18nMsg('__others__')}}</div></router-link
+        >
       </div>
     </div>
-    <FootBar />
-    <!-- <el-dialog
-      v-model="optionPageHook.DMTrans.applyDialog"
-      title=""
-      width="300px"
-    >
-      <img class="qr-img" :src="applyBDDMQRURL" alt="" />
-      <div style="width:100%;text-align:center;">使用微信扫码申请专业翻译服务</div>
-    </el-dialog> -->
+
+    <div class="hearder-side">
+      <User />
+    </div>
   </div>
+  <div class="content">
+    <router-view></router-view>
+  </div>
+  <el-dialog v-model="baseHook.user.isShowLogin" width="300px">
+    <QRLogin v-if="baseHook.user.isShowLogin"/>
+  </el-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, provide } from "vue";
 import hook from "@/hook/optionPageHook";
-import QrLogin from "./QrLogin.vue";
-import TabBar from "./TabBar.vue";
-import FootBar from "./FootBar.vue";
-import TranslatorOption from "./TranslatorOption.vue";
+import { optionBaseHook } from "@/hook/optionPageHook";
+import User from "@/options/components/User.vue";
+import QRLogin from '@/options/components/QRLogin.vue'
+import {geti18nMsg} from '@/utils/share'
+import {IOptionBaseHook} from '@/interface/options'
+
 
 export default defineComponent({
   setup() {
-    const optionPageHook = hook();
-    provide("optionPageHook", optionPageHook);
-
-    // const applyBDDMQRURL = chrome.runtime.getURL(
-    //   "assets/images/qr_applyBDDM.png"
-    // );
+    document.title = geti18nMsg('title')
+    const baseHook = <IOptionBaseHook>optionBaseHook();
+    provide("baseHook", baseHook);
 
     return {
-      optionPageHook,
-      // applyBDDMQRURL,
+      baseHook,
+      geti18nMsg
     };
   },
   components: {
-    QrLogin,
-    TabBar,
-    TranslatorOption,
-    FootBar,
+    User,QRLogin
   },
 });
 </script>
 
 
 <style scoped lang="scss">
-.option-main {
+@import "@/app.scss";
+
+a {
+  text-decoration: none;
+}
+
+.header {
+  box-sizing: border-box;
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
   display: flex;
   align-items: center;
-  flex-direction: column;
-  width: 100%;
-  padding-top: 75px;
+  justify-content: space-between;
+  height: 70px;
+  border-bottom: 1px solid #efefef;
+  z-index: 100;
+  background-color: #fff;
+  padding: 0 20px 0 20px;
+  .hearder-side {
+    display: flex;
+  }
+  .header-title {
+    font-size: 20px;
+    padding-right: 20px;
+    color: #333;
+  }
+  .header-tab {
+    display: flex;
+    .tab-item {
+      padding: 3px 20px 0 20px;
+      font-size: 15px;
+      color: #6e6d7a;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .tab-item:hover {
+      color: $mainColor;
+    }
+  }
 }
 
-.option-container {
-  width: 760px;
-  /* border-radius: 10px; */
-  background-color: white;
-}
-
-.option-content-box {
+.content {
   box-sizing: border-box;
-  min-height: 500px;
-  width: 100%;
-  padding: 50px 85px 50px 85px;
-}
-
-::v-deep(.el-dialog__header) {
-  padding: 0;
-}
-
-.qr-img {
-  width: 100%;
+  display: flex;
   height: 100%;
+  padding-top: 70px;
 }
 </style>

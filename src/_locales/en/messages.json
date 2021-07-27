@@ -13,10 +13,10 @@
         "message": "QY Translate"
     },
     "enterText": {
-        "message": "Enter Text"
+        "message": "Enter content for translation"
     },
     "moreOption": {
-        "message": "MORE OPTION"
+        "message": "More Options"
     },
     "copyOK": {
         "message": "Copy success"
@@ -67,7 +67,7 @@
         "message": "Logged"
     },
     "logout": {
-        "message": "Logout"
+        "message": "Sign Out"
     },
     "loadingQR": {
         "message": "loading..."
@@ -226,5 +226,54 @@
     },
     "__instructions__": {
         "message": "Instructions"
+    },
+
+    "__collection__": {
+        "message": "Collection"
+    },
+    "__options__": {
+        "message": "Options"
+    },
+    "__others__": {
+        "message": "Others"
+    },
+    "__newCollection__": {
+        "message": "New Collection"
+    },
+    "__delete__": {
+        "message": "Delete"
+    },
+    "__manage__": {
+        "message": "Manage"
+    },
+    "__move__": {
+        "message": "Move"
+    },
+    "__confirm__": {
+        "message": "Confirm"
+    },
+    "__rename__": {
+        "message": "Rename"
+    },
+    "__confirmToDelete__": {
+        "message": "Are you sure you want to delete?"
+    },
+    "__default__": {
+        "message": "Default"
+    },
+    "__qyMiniProgram__": {
+        "message": "QY Translate WeChat Mini Program"
+    },
+    "__defaultLang__": {
+        "message": "Default Translation Language"
+    },
+    "__transMethods__": {
+        "message": "Methods of translation"
+    },
+    "__transItemDisplay__": {
+        "message": "Translation Results Item Display"
+    },
+    "__openRemotePDF__": {
+        "message": "Open The Remote PDF File"
     }
 }

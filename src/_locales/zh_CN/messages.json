@@ -4,10 +4,10 @@
         "description": "ext_name"
     },
     "extDesc": {
-        "message": "划词翻译，PDF翻译，电子科技、金融等专业领域翻译，并提供小程序端收藏管理"
+        "message": "划词翻译，电子科技、金融等专业领域翻译，提供多端收藏管理"
     },
     "title": {
-        "message": "轻氧翻译 - QY Translate"
+        "message": "轻氧翻译"
     },
     "sName": {
         "message": "轻氧翻译"
@@ -141,7 +141,7 @@
         "message": "知道了"
     },
     "__reduce__": {
-        "message": "取消"
+        "message": "取 消"
     },
     "__scanApply__": {
         "message": "扫码申请"
@@ -226,5 +226,54 @@
     },
     "__instructions__": {
         "message": "使用说明"
+    },
+
+    "__collection__": {
+        "message": "收藏夹"
+    },
+    "__options__": {
+        "message": "设置"
+    },
+    "__others__": {
+        "message": "其它"
+    },
+    "__newCollection__": {
+        "message": "新建收藏夹"
+    },
+    "__delete__": {
+        "message": "删除"
+    },
+    "__manage__": {
+        "message": "管理"
+    },
+    "__move__": {
+        "message": "移动"
+    },
+    "__confirm__": {
+        "message": "确 认"
+    },
+    "__rename__": {
+        "message": "重命名"
+    },
+    "__confirmToDelete__": {
+        "message": "确认删除?"
+    },
+    "__default__": {
+        "message": "默认"
+    },
+    "__qyMiniProgram__": {
+        "message": "轻氧翻译小程序"
+    },
+    "__defaultLang__": {
+        "message": "默认翻译语言"
+    },
+    "__transMethods__": {
+        "message": "翻译方式"
+    },
+    "__transItemDisplay__": {
+        "message": "翻译结果显示"
+    },
+    "__openRemotePDF__": {
+        "message": "打开网络PDF文件"
     }
 }

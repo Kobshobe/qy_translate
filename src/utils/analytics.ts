@@ -1,4 +1,4 @@
-import { IAnalyticEvent } from '@/utils/interface'
+import { IAnalyticEvent } from '@/interface/trans'
 import { googleAnalytic, client, Mode } from '@/config'
 import { getClientId } from '@/utils/chromeApi'
 

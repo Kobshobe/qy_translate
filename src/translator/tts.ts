@@ -3,13 +3,51 @@
 import { baseFetch } from '../api/api'
 import splitLongText from './splitLongText';
 import { eventToGoogle } from '@/utils/analytics'
-import {IResponse,IContext, IConfig} from '@/utils/interface'
+import {IResponse,IContext, IConfig} from '@/interface/trans'
 
 interface Option {
   lang?: string;
   slow?: boolean;
   host?: string;
   timeout?: number;
+}
+
+export class TTS {
+  player = new Audio()
+
+  play(text:string, lang:string, delay:number) {
+    eventToGoogle({
+      name: 'optionPlayTTS',
+      params: {
+        lang,
+        tLen: text.length
+      }
+    })
+    return new Promise((resolve) => {
+      this.player.pause()
+      this.player = new Audio()
+      this.player.addEventListener('ended', () => {
+        resolve('')
+      })
+      this.player.addEventListener('pause', () => {
+        resolve('')
+      })
+      this.player.src = this.getAudioSrc(text, lang)
+      setTimeout(()=> {
+        this.player.play()
+      }, delay)
+      
+    })
+    
+  }
+
+  getAudioSrc(text:string, lang:string) {
+    return `https://translate.google.cn/translate_tts?ie=UTF-8&q=${text}&tl=${lang}&total=1&idx=0&textlen=5&client=dict-chrome-ex&prev=input&ttsspeed=1`
+  }
+}
+
+export function getAudioSrc(text:string, lang:string) {
+  return `https://translate.google.cn/translate_tts?ie=UTF-8&q=${text}&tl=${lang}&total=1&idx=0&textlen=5&client=dict-chrome-ex&prev=input&ttsspeed=1`
 }
 
 const assertInputTypes = (text: string, lang: string, slow: boolean, host: string) => {

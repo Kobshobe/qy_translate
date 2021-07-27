@@ -85,7 +85,7 @@ import IconBtn from "@/components/base/IconBtn.vue";
 import { defineComponent, inject, watchEffect } from "vue";
 import { languages } from "@/translator/language";
 import {baseTransHook} from '@/hook/translatorHook'
-import {IBaseHook} from '@/utils/interface'
+import {IBaseHook} from '@/interface/trans'
 import {getLocaleLang} from '@/utils/share'
 
 export default defineComponent({

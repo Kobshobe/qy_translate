@@ -1,6 +1,5 @@
 import { Mode } from '@/config'
-import { IAnalyticEvent, ITokenInfo, ITokenInfoFromCloud, IOptionPageOpenParma, IAllStorage } from '@/utils/interface'
-// @ts-ignore
+import { IAnalyticEvent, ITokenInfo, ITokenInfoFromCloud, IOptionPageOpenParma, IAllStorage } from '@/interface/trans'
 import { v4 } from "uuid";
 import {eventToGoogle} from './analytics'
 import {languages} from '@/translator/language'
@@ -163,7 +162,7 @@ export function getOptionOpenParmas(): Promise<IAllStorage> {
 export function onInstall(details:any) {
     let reason = 'unknown'
     if(details.reason === 'install') {
-        chrome.tabs.create({url:"https://github.com/Kobshobe/qy_translate/blob/main/docs/Instructions/%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87).md"}) // https://www.fishfit.fun:8080/p/web/install
+        chrome.tabs.create({url:"https://www.fishfit.fun:8080/p/web/install"})
         chrome.storage.sync.set({installTime: new Date().valueOf()})
         reason = 'install'
     } else {

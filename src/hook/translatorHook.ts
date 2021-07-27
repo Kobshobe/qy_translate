@@ -1,8 +1,8 @@
 import { reactive, watch, computed, onMounted, markRaw, watchEffect } from 'vue'
-import { IBaseHook,IAllStorage, ITransResult,  } from '@/utils/interface'
+import { IBaseHook,IAllStorage, ITransResult,  } from '@/interface/trans'
 import { newMarkManager, getMarkHtml } from '@/utils/mark'
 import {apiWrap} from '@/utils/apiWithPort'
-import { ITransStatus,IEditHook, ITransMode, ITransType, IContext, IResponse, ITransMsg, ITranslatorHook, Find, IAnalyticEvent, IWrapTransInfo } from '@/utils/interface'
+import { ITransStatus,IEditHook, ITransMode, ITransType, IContext, IResponse, ITransMsg, ITranslatorHook, Find, IAnalyticEvent, IWrapTransInfo } from '@/interface/trans'
 import {getTransConf} from '@/utils/chromeApi'
 import { engines } from '@/translator/language'
 
@@ -456,7 +456,8 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                     translation: hook.find.result.text,
                     marks: hook.subTranslator.marksStr,
                     resultFrom: hook.find.result.resultFrom,
-                    resultTo: hook.find.result.resultTo
+                    resultTo: hook.find.result.resultTo,
+                    engine: hook.find.result.engine
                 }},
                 onMsgHandle: (c) => {
                     if (!c.resp?.errMsg) {

@@ -1,7 +1,7 @@
 import { getTokenFromStorage, saveTokenInfo } from '@/utils/chromeApi'
 import { Ref } from 'vue'
 import { Mode, client } from '@/config'
-import { IContext,IBaseReqParams,IBaseReqResult,IServerReqParams, IResponse, IQrLoginParams, ITokenInfo,IToastMsg, IDialogMsg, IConfig } from '@/utils/interface'
+import { IContext,IBaseReqParams,IBaseReqResult,IServerReqParams, IResponse, IQrLoginParams, ITokenInfo,IToastMsg, IDialogMsg, IConfig } from '@/interface/trans'
 import { eventToGoogle } from '@/utils/analytics'
 
 let protocol = 'https://'
@@ -119,7 +119,6 @@ export async function baseFetch({ url, method, success, fail, data, headers = {}
         success && success(res)
       })
       .catch(res => {
-        console.log('fetch err: ', res)
         resolve({
           errMsg: '__fetchErr__',
           status: 0,
@@ -362,4 +361,116 @@ export async function applyBDDM(c:IContext) :Promise<IContext> {
   }
 
   return c
+}
+
+export async function getCollList(c:IContext) :Promise<IContext> {
+  c.resp = await serveBaseReq({
+    url: '/phrase/collection',
+    method: 'GET',
+    auth: true,
+  })
+  return c
+}
+
+export async function getPhraseList(c:IContext) :Promise<IContext> {
+  c.resp = await serveBaseReq({
+    url: '/phrase',
+    query: c.req,
+    method: 'GET',
+    auth: true,
+  })
+  return c
+  // if(!collId) {
+  //   collId = 0
+  // }
+  // AuthRequest({
+  //   url: "/phrase",
+  //   method: "GET",
+  //   data: {collId, page, size: 100},
+  //   success: res => success(res.data),
+  //   fail: err => fail(err)
+  // }).then()
+}
+
+export async function addCollection(c:IContext) :Promise<IContext> {
+  c.resp = await serveBaseReq({
+    url: '/phrase/collection',
+    data: c.req,
+    method: 'POST',
+    auth: true,
+  })
+  return c
+  // AuthRequest({
+  //   url: '/phrase/collection',
+  //   data: {
+  //     name
+  //   },
+  //   success: res => success(res),
+  //   fail: err => fail(err),
+  //   method: 'POST'
+  // }).then()
+}
+
+export async function renameCollection(c:IContext) :Promise<IContext> {
+  c.resp = await serveBaseReq({
+    url: `/phrase/collection?tid=${c.req.tid}`,
+    data: {
+      name: c.req.name
+    },
+    method: 'PUT',
+    auth: true,
+  })
+  return c
+  // AuthRequest({
+  //   url: `/phrase/collection?tid=${tid}`,
+  //   data: {
+  //     name
+  //   },
+  //   success: res => success(res),
+  //   fail: err => fail(err),
+  //   method: 'PUT'
+  // }).then()
+}
+
+export async function deleteCollection(c:IContext) :Promise<IContext> {
+  c.resp = await serveBaseReq({
+    url: `/phrase/collection?tid=${c.req.tid}`,
+    method: 'DELETE',
+    auth: true,
+  })
+  return c
+  // AuthRequest({
+  //   url: '/phrase/collection?tid=' + tid,
+  //   data: {},
+  //   success: res => success(res),
+  //   fail: err => fail(err),
+  //   method: 'DELETE'
+  // }).then()
+}
+
+export async function moveToOtherColl(c:IContext) :Promise<IContext> {
+  c.resp = await serveBaseReq({
+    url: '/phrase/move',
+    data: c.req,
+    method: 'PUT',
+    auth: true,
+  })
+  return c
+}
+
+export async function mulDelete(c:IContext) :Promise<IContext> {
+  c.resp = await serveBaseReq({
+    url: `/phrase/mul`,
+    data: c.req,
+    method: 'DELETE',
+    auth: true,
+  })
+  return c
+  // AuthRequest({
+  //   url: '/phrase/mul',
+  //   data,
+  //   success: success,
+  //   fail: fail,
+  //   method: 'DELETE'
+  // })
 }

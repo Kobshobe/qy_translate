@@ -29,13 +29,13 @@ chrome.runtime.onInstalled.addListener((details) => {
   const lang = navigator.language
   if (lang === 'zh-CN' || lang === 'zh') {
     transMsg = '翻译';
-    openPDFMsg = 'PDF阅读器';
+    openPDFMsg = 'PDF阅读器(用于翻译)';
   } else if (lang === 'zh-TW' || lang === 'zh-HK') {
     transMsg = '翻譯'
-    openPDFMsg = 'PDF閱讀器';
+    openPDFMsg = 'PDF閱讀器(用於翻譯)';
   } else {
     transMsg = 'translate'
-    openPDFMsg = 'Open PDF Reader'
+    openPDFMsg = 'PDF Reader For Translate'
     //@ts-ignore
   }
 
