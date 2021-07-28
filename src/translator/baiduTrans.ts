@@ -122,7 +122,7 @@ export class BaiduTrans extends BaseTrans {
                     sign: this.generateSign(info.text, this.CGTK),
                     token: this.CTOKEN,
                     domain: "common",
-                }),
+                })
             });
 
 
@@ -136,7 +136,7 @@ export class BaiduTrans extends BaseTrans {
             return {
                 errMsg: resp.data.errno,
                 dialogMsg: {
-                    message: '__reqErr__',
+                    message: '__transReqErr__',
                     type: 'i18n'
                 }
             }
@@ -227,20 +227,26 @@ export class BaiduTrans extends BaseTrans {
         return r;
     }
 
-    async detect(c:IContext) :Promise<string> {
-        const resp = await baseFetch({
-            method: "post",
-            url: this.CHOST+"langdetect",
-            headers: this.CHEADERS,
-            data: new URLSearchParams({
-                query: c.req.text,
-            }),
-        });
-
-        if (!resp.errMsg) {
-            return resp.data.lan
+    async detect(c:IContext) :Promise<IContext> {
+        const oneDetect = async () => {
+            return await baseFetch({
+                method: "post",
+                url: this.CHOST+"langdetect",
+                headers: this.CHEADERS,
+                data: new URLSearchParams({
+                    query: c.req.text.slice(0,150),
+                }),
+                timeout: 20000
+            });
         }
-        return '__reqErr__'
+
+        c.resp = await oneDetect()
+
+        if (!c.resp.errMsg) {
+            c.resp.data.langdetected = c.resp.data.lan
+        }
+        console.log('bd detect: ', c.resp)
+        return c
     }
 
     async getTokenGtk() {

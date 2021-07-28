@@ -1,10 +1,15 @@
 import {IClientInfo} from '@/interface/trans'
-export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
-export const clientVersion = "1.5.1"
-export const platform:'chrome'|'edge'|'crx'|'crx_v2'|'_test' = "edge"
+export const Mode:'test'|'jest'|'public'|'public_test' = 'public_test'
+export const clientVersion = "1.5.2"
+export const platform:'chrome'|'edge'|'crx'|'crx_v2'|'_test' = "_test"
 export const client:IClientInfo = getClient()
 export const os:'mac'|'windows'|'linux'|'unknow' = getOS()
 export const storeUrl = 'https://www.fishfit.fun:8080/p/web/download/option'
+export const reqTimeout = 50000
+//@ts-ignore
+export let store = platform === 'chrome' ?
+'https://chrome.google.com/webstore/detail/fjldhjdclpmehigldnbgbllchcjdgccc' :
+'https://microsoftedge.microsoft.com/addons/detail/%E8%BD%BB%E6%B0%A7%E7%BF%BB%E8%AF%91/gldjnohpkhoipopkgkoepimoaoekhioo';
 
 export const googleAnalytic = {
     measurementId: `G-4XZ65P0G94`,

@@ -1,6 +1,6 @@
 import { getTokenFromStorage, saveTokenInfo } from '@/utils/chromeApi'
 import { Ref } from 'vue'
-import { Mode, client } from '@/config'
+import { Mode, client, reqTimeout } from '@/config'
 import { IContext,IBaseReqParams,IBaseReqResult,IServerReqParams, IResponse, IQrLoginParams, ITokenInfo,IToastMsg, IDialogMsg, IConfig } from '@/interface/trans'
 import { eventToGoogle } from '@/utils/analytics'
 
@@ -86,7 +86,7 @@ export async function qrLogin({ qrUrl, loginStatus }: IQrLoginParams) {
 };
 
 
-export async function baseFetch({ url, method, success, fail, data, headers = {}, successStatusCode = [200, 201] }:IBaseReqParams) :Promise<IBaseReqResult> {
+export async function baseFetch({ url, method, success, fail, data, headers = {}, successStatusCode = [200, 201], timeout=reqTimeout }:IBaseReqParams) :Promise<IBaseReqResult> {
   return new Promise<IBaseReqResult>((resolve, reject) => {
     const fetchData:RequestInit = {headers,method}
     if(method !== 'GET') {
@@ -127,6 +127,15 @@ export async function baseFetch({ url, method, success, fail, data, headers = {}
         })
         fail && fail(res)
       })
+      setTimeout(() => {
+        resolve({
+          errMsg: '__timeout__',
+          status: 0,
+          data: null,
+          //@ts-ignore
+          response: null
+        })
+      }, timeout)
   })
 }
 

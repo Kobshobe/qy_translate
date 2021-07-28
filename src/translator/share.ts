@@ -19,12 +19,18 @@ export class BaseTrans {
     langs.secondLang || (langs.secondLang = 'en');
 
     if (!info.from || info.from === 'auto') {
-      info.fromCode = await this.detect(c)
-      if (info.fromCode === '__reqErr__') {
-        this.setDetectLangErrResp(c)
+
+      const detected = await this.detect({req:{text:c.req.text}})
+      if(!detected.resp) return '__transReqErr__'
+
+      if (detected.resp.errMsg) {
+        this.setDetectLangErrResp(c, detected)
         info.fromCode = undefined
-        return '__reqErr__'
+        return '__transReqErr__'
+      } else {
+        info.fromCode = detected.resp.data.langdetected
       }
+      
       info.from = this.getSLang(info.fromCode)
     } else {
       info.fromCode = this.getELang(info.from)
@@ -49,7 +55,13 @@ export class BaseTrans {
     return ''
   }
 
-  async detect(c:IContext) :Promise<any> {
+  async detect(c:IContext) :Promise<IContext> {
+    return {
+      req: {},
+      resp: {data: {
+        langdetected: 'en' // need when success
+      }}
+    }
   }
 
   async getStorageLang() {
@@ -130,19 +142,39 @@ export class BaseTrans {
         form: c.req.from,
         to: c.req.to,
         fromCp: c.req.fromCp,
-        toCp: c.req.toCp
+        toCp: c.req.toCp,
+        context: c.req.text.slice(0, 100)
       }
     })
   }
 
-  setDetectLangErrResp(c:IContext) {
-    c.resp = {
-      errMsg: 'transDetectLangErr',
-      toastMsg: {
-        message: '__reqErr__',
+  setDetectLangErrResp(c:IContext, detected:IContext) {
+    console.log('errMsg', detected.resp)
+    if(!detected.resp) {
+      c.resp = {
+        errMsg: 'unknown',
+        dialogMsg: {
+          message: "__reqErr__",
+          type: 'i18n'
+        }
+      }
+    } else if(detected.resp.errMsg === '__fetchErr__') {
+      detected.resp.toastMsg = {
+        message: "__fetchErr__",
         type: 'i18n'
       }
+    } else {
+      detected.resp = {
+        errMsg: 'transDetectLangErr',
+        dialogMsg: {
+          message: '__transReqErr__',
+          type: 'i18n'
+        }
+      }
     }
+
+    c.resp = detected.resp
+    
     eventToGoogle({
       name: 'detectLangReqErr',
       params: {
@@ -151,7 +183,9 @@ export class BaseTrans {
         form: c.req.from,
         to: c.req.to,
         fromCp: c.req.fromCp,
-        toCp: c.req.toCp
+        toCp: c.req.toCp,
+        //@ts-ignore
+        errMsg: `${c.resp.errMsg}_${c.resp.status}`
       }
     })
   }

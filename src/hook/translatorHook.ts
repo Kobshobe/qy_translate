@@ -2,7 +2,7 @@ import { reactive, watch, computed, onMounted, markRaw, watchEffect } from 'vue'
 import { IBaseHook,IAllStorage, ITransResult,  } from '@/interface/trans'
 import { newMarkManager, getMarkHtml } from '@/utils/mark'
 import {apiWrap} from '@/utils/apiWithPort'
-import { ITransStatus,IEditHook, ITransMode, ITransType, IContext, IResponse, ITransMsg, ITranslatorHook, Find, IAnalyticEvent, IWrapTransInfo } from '@/interface/trans'
+import { ITransEngine,ITransStatus,IEditHook, ITransMode, ITransType, IContext, IResponse, ITransMsg, ITranslatorHook, Find, IAnalyticEvent, IWrapTransInfo } from '@/interface/trans'
 import {getTransConf} from '@/utils/chromeApi'
 import { engines } from '@/translator/language'
 
@@ -198,9 +198,9 @@ export function editHook(baseHook:IBaseHook) :IEditHook {
             const clipboardText = t.value;
             hook.editingText = clipboardText
             document.body.removeChild(t);
-            hook.trans('edit_paste')
+            hook.trans('popup_paste')
         },
-        trans(type = 'edit_icon') {
+        trans(type = 'popup_icon') {
             if (hook.editingText.replace(/\s+|[\r\n]+/g, "").length === 0) {
                 return
             }
@@ -223,11 +223,11 @@ export function editHook(baseHook:IBaseHook) :IEditHook {
         enterTrans(e:any) {
             if (e.code === 'Enter' && !e.shiftKey) {
                 if (hook.base.C.keyDownTrans === 'Enter') {
-                    hook.trans('edit_enter')
+                    hook.trans('popup_enter')
                 } 
             } else if(e.code === 'Enter' && e.shiftKey) {
                 if (hook.base.C.keyDownTrans === 'Shift+Enter') {
-                    hook.trans('edit_shift_enter')
+                    hook.trans('popup_shift_enter')
                 }
             }
         }
@@ -406,6 +406,32 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                 switch (context.resp.dialogMsg.message) {
                     case '__wantToApplyTrans__':
                         context.resp.dialogMsg.confirmAction = hook.applyBDDM
+                    case '__transReqErr__':
+                        if (hook.options.engine) {
+                            hook.base.toast.showToast({
+                                message: '__reqErr__',
+                                type: 'i18n'
+                            })
+                            
+                            return
+                        }
+                        context.resp.dialogMsg.confirmText = '__change__'
+                        context.resp.dialogMsg.confirmAction = () => {
+                            let transEngine:ITransEngine = 'ggTrans__common'
+                            if(hook.base.C.transEngine === 'ggTrans__common' || !hook.base.C.transEngine) {
+                                transEngine = 'bdTrans__common'
+                            } else {
+                                transEngine = 'ggTrans__common'
+                            }
+                            chrome.storage.sync.set({transEngine}, () => {
+                                hook.base.dialog.show = false
+                                hook.base.C.transEngine = transEngine
+                                hook.base.toast.showToast({
+                                    message: '__changeSuccess__',
+                                    type: 'i18n'
+                                })
+                            })
+                        }
                 }
                 hook.base.dialog.showDialog(context.resp.dialogMsg)
             }

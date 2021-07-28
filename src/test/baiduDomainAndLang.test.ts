@@ -1,4 +1,4 @@
-import {BAIDULANG, languages, SToBaidu} from '@/translator/language'
+import {languages, SToBaidu} from '@/translator/language'
 import {BaiduTrans} from '@/translator/baiduTrans'
 import {IWrapTransInfo} from '@/interface/trans'
 
@@ -48,7 +48,7 @@ test('baidu domain and lang support check', async () => {
         text: 'app',
         from: 'en',
         to: 'zh-CN',
-        type: 'edit_icon',
+        type: 'popup_icon',
         engine: 'bdTrans__common',
         mode: 'popup'
     }
@@ -63,7 +63,7 @@ test('baidu domain and lang support check', async () => {
         text: 'app',
         from: 'zh-CN',
         to: '',
-        type: 'edit_icon',
+        type: 'popup_icon',
         engine: 'bdTrans__common',
         mode: 'popup'
     }
@@ -76,7 +76,7 @@ test('baidu domain and lang support check', async () => {
         text: 'app',
         from: '',
         to: '',
-        type: 'edit_icon',
+        type: 'popup_icon',
         engine: 'bdTrans__common',
         mode: 'popup'
     }
@@ -89,7 +89,7 @@ test('baidu domain and lang support check', async () => {
         text: '应用程序',
         from: 'auto',
         to: '',
-        type: 'edit_icon',
+        type: 'popup_icon',
         engine: 'bdTrans__common',
         mode: 'popup'
     }

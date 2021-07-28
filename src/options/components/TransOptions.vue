@@ -94,15 +94,15 @@
     <OptionItem :title="`${geti18nMsg('__enterTrans__')}:`">
       <el-radio
         v-model="hook.OP.conf.C.keyDownTrans"
-        label="Shift+Enter"
-        @change="hook.OP.conf.changeKeyDownTrans"
-        >Shift+Enter</el-radio
-      >
-      <el-radio
-        v-model="hook.OP.conf.C.keyDownTrans"
         label="Enter"
         @change="hook.OP.conf.changeKeyDownTrans"
         >Enter</el-radio
+      >
+      <el-radio
+        v-model="hook.OP.conf.C.keyDownTrans"
+        label="Shift+Enter"
+        @change="hook.OP.conf.changeKeyDownTrans"
+        >Shift+Enter</el-radio
       >
     </OptionItem>
     <OptionItem :title="`${geti18nMsg('__transItemDisplay__')}:`">

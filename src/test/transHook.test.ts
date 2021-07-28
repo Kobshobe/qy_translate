@@ -14,7 +14,7 @@
 //     // 翻译
 //     trans.editingText = 'apple'
 //     expect(trans.editingText).toBe('apple')
-//     await trans.trans({text:'apple', type: 'edit_icon'})
+//     await trans.trans({text:'apple', type: 'popup_icon'})
 //     expect(trans.find.result?.text).toBe('apple')
 //     chrome.storage.sync.set({
 //         mainLang: 'zh-CN',
@@ -27,7 +27,7 @@
 //     trans = transHook('popup')
 //     //@ts-ignore
 //     await chrome.sleep(200)
-//     await trans.trans({text:'apple', type: 'edit_icon'})
+//     await trans.trans({text:'apple', type: 'popup_icon'})
 //     expect(trans.find.result?.text).toBe('苹果')
 //     // 收藏
 //     await trans.collect({
@@ -124,7 +124,7 @@
 //     expect(trans.status).toBe('editing')
 //     //@ts-ignore
 //     await chrome.sleep(20)
-//     await trans.trans({text:'apple', type: 'edit_icon'})
+//     await trans.trans({text:'apple', type: 'popup_icon'})
 //     expect(trans.find.result?.text).toBe('苹果')
 //     expect(trans.find.result?.engine).toBe('ggTrans__common')
 //     //@ts-ignore exchange trans

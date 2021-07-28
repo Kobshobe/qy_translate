@@ -61,7 +61,7 @@
           <IconBtn
             type="icon-zuojiantou"
             iconSize="20"
-            @click="baseHook.E.trans"
+            @click="baseHook.E.trans('popup_icon')"
           />
         </div>
         <Loading v-else />

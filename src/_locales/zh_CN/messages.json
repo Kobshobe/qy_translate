@@ -275,5 +275,33 @@
     },
     "__openRemotePDF__": {
         "message": "打开网络PDF文件"
+    },
+
+    "__transReqErr__": {
+        "message": "翻译失败，是否切换默认翻译源?"
+    },
+    "__change__": {
+        "message": "切换"
+    },
+    "__changeSuccess__": {
+        "message": "已切换"
+    },
+    "__giveFiveStar__": {
+        "message": "如果觉得本应用对您有帮助，点我到应用商店给出<span>5星</span>好评，让更多的人知道本应用。"
+    },
+    "__giveMeCharge__": {
+        "message": "给开发者充电"
+    },
+    "__or__": {
+        "message": "或"
+    },
+    "__IWantBoth__": {
+        "message": "如果可以，我两者都要!"
+    },
+    "__supportDeveloper__": {
+        "message": "支持开发者"
+    },
+    "__fiveStar__": {
+        "message": "五星好评"
     }
 }

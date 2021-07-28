@@ -14,33 +14,72 @@
       <a class="other-item-text" href="mailto: phraseanywhere@outlook.com">{{
         geti18nMsg("contactUs")
       }}</a>
+      <div style="width: 15px"></div>
+      <div class="other-item-text" @click="showSupport">{{geti18nMsg('__fiveStar__')}}</div>
     </div>
     <div class="mini-program-qr">
       <img class="qr-img" :src="qrSrc" alt="" />
-      <div>{{geti18nMsg('__qyMiniProgram__')}}</div>
+      <div>{{ geti18nMsg("__qyMiniProgram__") }}</div>
     </div>
   </div>
+  <el-dialog width="400px" v-model="isShowSupport" :title="geti18nMsg('__supportDeveloper__')">
+    <div class="support-content">
+      <div class="to-store-link" @click="toStore" v-html="geti18nMsg('__giveFiveStar__')">
+        
+      </div>
+      <div class="or">{{geti18nMsg('__or__')}}</div>
+      <div class="charge" @click="toSupport">{{geti18nMsg('__giveMeCharge__')}}</div>
+      <div class="both-i-want">
+        <SvgIcon type="icon-fun" />
+        <div style="paddingLeft:5px;">{{geti18nMsg('__IWantBoth__')}}</div>
+      </div>
+    </div>
+  </el-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import { geti18nMsg } from "@/utils/share";
 import { eventToGoogle } from "@/utils/analytics";
 import {} from "@/config";
 import { openPDFReader } from "@/utils/chromeApi";
-import { platform } from "@/config";
+import { platform, store, client } from "@/config";
+import SvgIcon from '@/components/base/SvgIcon.vue'
+
 
 export default defineComponent({
   setup() {
-    // function toStore() {
-    //   window.open(`${storeUrl}?c=${client.c}&cv=${client.cv}`);
-    //   eventToGoogle({
-    //     name: "toStore",
-    //     params: {
-    //       locale: chrome.i18n.getMessage("@@ui_locale"),
-    //     },
-    //   });
-    // }
+    function toStore() {
+      window.open(store);
+      eventToGoogle({
+        name: "toStore_for_start",
+        params: {
+          locale: chrome.i18n.getMessage("@@ui_locale"),
+        },
+      });
+    }
+
+    const isShowSupport = ref(false);
+
+    function showSupport() {
+      isShowSupport.value = true;
+      eventToGoogle({
+        name: "showSupport",
+        params: {
+          locale: chrome.i18n.getMessage("@@ui_locale"),
+        },
+      });
+    }
+
+    function toSupport() {
+      window.open('https://www.fishfit.fun:8000/phrase/support.html')
+      eventToGoogle({
+        name: "toSupport",
+        params: {
+          locale: chrome.i18n.getMessage("@@ui_locale"),
+        },
+      });
+    }
 
     let qrSrc = "";
     if (platform === "edge") {
@@ -91,13 +130,21 @@ export default defineComponent({
       toPDFReader,
       toInstructions,
       qrSrc,
+      isShowSupport,
+      showSupport,
+      toStore,
+      toSupport
     };
   },
+  components: {
+    SvgIcon
+  }
 });
 </script>
 
 
 <style lang="scss">
+@import '@/app.scss';
 .other-container {
   display: flex;
   flex-direction: column;
@@ -136,5 +183,39 @@ export default defineComponent({
 
 a:link {
   color: #333;
+}
+.support-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  .to-store-link {
+    text-align: center;
+    cursor: pointer;
+    color: #333;
+    span {
+      color: $mainColor;
+      font-weight: bold;
+    }
+  }
+  .to-store-link:hover {
+    text-decoration: underline;
+  }
+  .or {
+    padding: 10px 0 10px 0;
+  }
+  .charge {
+    cursor: pointer;
+    color: $mainColor;
+  }
+  .both-i-want {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 40px;
+    font-size: 12px;
+    padding-bottom: 30px;
+  }
 }
 </style>

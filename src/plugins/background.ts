@@ -42,7 +42,7 @@ chrome.runtime.onInstalled.addListener((details) => {
   const pdfActionMenu:chrome.contextMenus.CreateProperties = {
     id: "actionPdfReader",
     title: openPDFMsg,
-    contexts: ["action", "browser_action"],
+    contexts: ['action', 'browser_action', 'page_action'],
   }
   // _mark i18n
   const transMenuItem:chrome.contextMenus.CreateProperties = {

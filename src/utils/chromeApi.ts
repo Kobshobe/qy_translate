@@ -13,11 +13,12 @@ export async function getTransConf() :Promise<IAllStorage> {
     ])
     conf.isTreadWord = dealTreadWord(conf.isTreadWord);
     conf.menuTrans = dealTreadWord(conf.menuTrans);
+    conf.showProun = dealTreadWord(conf.showProun)
     conf.fromLang || (conf.fromLang = 'auto');
     conf.toLang || (conf.toLang = '__auto__');
     conf.mode || (conf.mode = 'simple');
     conf.transEngine || (conf.transEngine = 'ggTrans__common');
-    conf.keyDownTrans || (conf.keyDownTrans = 'Shift+Enter');
+    conf.keyDownTrans || (conf.keyDownTrans = 'Enter');
     if(!conf.mainLang) {
         [conf.mainLang, conf.secondLang] = setLang();
         eventToGoogle({
@@ -181,11 +182,30 @@ export function onInstall(details:any) {
 
 export function bgInit() {
     // _mark add conf data
-    chrome.storage.sync.get(['bgInit', 'mode'], (res:any) => {
+    chrome.storage.sync.get(['bgInit', 'mode', 'mainLang', 'secondLang', 'showProun', 'isTreadWord', 'transEngine', 'keyDownTrans'], (res:any) => {
         const now = new Date().valueOf()
         if (!res.mode) res.mode = 'noset'
         if (res.bgInit) {
-            if (now - res.bgInit.lastToAnalytic < 60000) return
+            if (now - res.bgInit < 600000) return
+            console.log('bg old', res.bgInit)
+            chrome.storage.sync.set({
+                bgInit: new Date().valueOf()
+            })
+            eventToGoogle({
+                name: "bg_init",
+                params: {
+                    transMode: res.mode,
+                    mainLang: res.mainLang,
+                    secondLang: res.secondLang,
+                    showProun: res.showProun,
+                    isTreadWord: res.isTreadWord,
+                    transEngine: res.transEngine,
+                    keyDownTrans: res.keyDownTrans,
+                    wrap: `${res.mode}_${res.mainLang}_${res.secondLang}_${res.showProun}_${res.isTreadWord}_${res.transEngine}_${res.keyDownTrans}`
+                }
+            })
+        } else {
+            console.log('bg new')
             chrome.storage.sync.set({
                 bgInit: {
                     lastToAnalytic: new Date().valueOf()
@@ -194,7 +214,14 @@ export function bgInit() {
             eventToGoogle({
                 name: "bg_init",
                 params: {
-                    transMode: res.mode
+                    transMode: res.mode,
+                    mainLang: res.mainLang,
+                    secondLang: res.secondLang,
+                    showProun: res.showProun,
+                    isTreadWord: res.isTreadWord,
+                    transEngine: res.transEngine,
+                    keyDownTrans: res.keyDownTrans,
+                    wrap: `${res.mode}_${res.mainLang}_${res.secondLang}_${res.showProun}_${res.isTreadWord}_${res.transEngine}_${res.keyDownTrans}`
                 }
             })
         }

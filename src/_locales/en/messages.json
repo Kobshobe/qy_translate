@@ -275,5 +275,33 @@
     },
     "__openRemotePDF__": {
         "message": "Open The Remote PDF File"
+    },
+
+    "__transReqErr__": {
+        "message": "Translation failed, did you change the default translation engine?"
+    },
+    "__change__": {
+        "message": "Change"
+    },
+    "__changeSuccess__": {
+        "message": "Converted"
+    },
+    "__giveFiveStar__": {
+        "message": "<div>If this application is helpful to you, click here to the app store to give <span> 5 stars </span> ratings, let more people know this application.</div>"
+    },
+    "__giveMeCharge__": {
+        "message": "Sponsor Developer"
+    },
+    "__or__": {
+        "message": "OR"
+    },
+    "__IWantBoth__": {
+        "message": "And, I want both!"
+    },
+    "__supportDeveloper__": {
+        "message": "Support Developer"
+    },
+    "__fiveStar__": {
+        "message": "5-Star-Ratings"
     }
 }

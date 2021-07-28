@@ -84,15 +84,15 @@ export class GoogleTrans extends BaseTrans {
     const realUrl = this.HOST + '?' + dtPramas + paramsData.toString() + this.tkTool.getTk(info.text)
     const start = new Date().getTime()
 
-    let resp = await this.oneTrans(info, realUrl)
+    let resp = await this.oneTrans(info, realUrl, 30000)
     
     if(resp.status !== 200) {
       const errResp:IResponse = {
         status: resp.status,
         errMsg: `gg_trans_err_${resp.status}`,
-        toastMsg: {
+        dialogMsg: {
           type: 'i18n',
-          message: '__reqErr__'
+          message: '__transReqErr__'
         }
       }
       this.tkTool.next()
@@ -138,12 +138,13 @@ export class GoogleTrans extends BaseTrans {
     return c
   }
 
-  async oneTrans(info:IWrapTransInfo, url:string) :Promise<IResponse> {
+  async oneTrans(info:IWrapTransInfo, url:string, timeout:number) :Promise<IResponse> {
     const start = new Date().getTime()
 
     const resp = await baseFetch({
       url: url,
       method: 'GET',
+      timeout,
     });
 
     info.cost !== undefined || (info.cost = 0);
@@ -159,19 +160,18 @@ export class GoogleTrans extends BaseTrans {
       sl: 'auto',
       tl: 'zh-CN',
       dj: '1',
-      q: c.req.text,
+      q: c.req.text.slice(0, 150),
       dt: 't',
     })
 
-    const url = 'https://translate.googleapis.com/translate_a/single' + '?' + paramsData.toString() + this.tkTool.getTk(info.text)
+    const url = this.HOST + '?' + paramsData.toString() + this.tkTool.getTk(info.text)
 
-    const resp = await this.oneTrans(info, url)
-
-    if (resp.errMsg) {
-      return '__reqErr__'
+    c.resp = await this.oneTrans(info, url, 20000)
+    if (!c.resp.errMsg) {
+      c.resp.data.langdetected = c.resp.data.src
     }
 
-    return resp.data.src
+    return c
   }
 
 }

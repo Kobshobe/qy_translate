@@ -26,7 +26,7 @@ test('google trans test set lang', async () => {
         text: 'app',
         from: 'en',
         to: 'zh-CN',
-        type: 'edit_icon',
+        type: 'popup_icon',
         engine: 'ggTrans__common',
         mode: 'popup'
     }
@@ -41,7 +41,7 @@ test('google trans test set lang', async () => {
         text: 'app',
         from: 'zh-CN',
         to: '',
-        type: 'edit_icon',
+        type: 'popup_icon',
         engine: 'ggTrans__common',
         mode: 'popup'
     }
@@ -54,7 +54,7 @@ test('google trans test set lang', async () => {
         text: 'app',
         from: '',
         to: '',
-        type: 'edit_icon',
+        type: 'popup_icon',
         engine: 'ggTrans__common',
         mode: 'popup'
     }
@@ -67,7 +67,7 @@ test('google trans test set lang', async () => {
         text: 'app',
         from: undefined,
         to: undefined,
-        type: 'edit_icon',
+        type: 'popup_icon',
         engine: 'ggTrans__common',
         mode: 'popup'
     }
