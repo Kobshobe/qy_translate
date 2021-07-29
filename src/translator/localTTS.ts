@@ -21,7 +21,7 @@
     speak(text:string, language:string, speed:string) {
         // Check if the language is supported.
         if (!this.synthesis.getVoices().find((voice:any) => voice.lang.startsWith(language))) {
-            console.log(`No voice for language: "${language}"`);
+            // console.log(`No voice for language: "${language}"`);
             // return false;
         }
 

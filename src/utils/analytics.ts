@@ -5,6 +5,7 @@ import { getClientId } from '@/utils/chromeApi'
 
 export async function eventToGoogle(event: IAnalyticEvent) {
     // if(Mode !== 'public') {
+    //     console.log(event)
     //     return
     // }
     const id = await getClientId()

@@ -19,6 +19,24 @@ export const engines = [
   {
     code: '__domainTrans__',
     engines: {
+      alDM__social: {
+        code: 'alDM__social'
+      },
+      alDM__finance: {
+        code: 'alDM__finance'
+      },
+      alDM__medical: {
+        code: 'alDM__medical'
+      },
+      alDM__title: {
+        code: 'alDM__title'
+      },
+      alDM__communication: {
+        code: 'alDM__communication'
+      },
+      alDM__description: {
+        code: 'alDM__description'
+      },
       bdFinance: {
         code: 'bdDM__finance'
       },
@@ -33,16 +51,16 @@ export const engines = [
       },
       bdNovel: {
         code: 'bdDM__novel'
-      },
+      }
     }
   }
 ]
 
 export function checkDomainLang(from:string, to:string, engine:string, support:any) :string {
-  if(support[engine].from[from] && support[engine].to[to]) {
+  if (support[engine].support[from] && support[engine].support[from].has(to)) {
     return ''
   }
-  return support[engine].support
+  return support[engine].noSupportMsg
 }
 
 
@@ -249,57 +267,39 @@ export const SToGoogle: Iterable<readonly [string, string]> = [
 
 export const bdLangSupport = {
   bdTrans__common: {
-    support: '__noSupport__'
+    noSupportMsg: '__noSupport__'
   },
   bdDM__finance: {
-    from: {
-      zh: 'zh-CN',
-      en: 'en',
+    support: {
+      en: new Set(['zh']),
+      zh: new Set(['en'])
     },
-    to: {
-      zh: 'zh-CN',
-      en: 'en',
-    },
-    support: '__onlyEnAndZh__'
+    noSupportMsg: '__onlyEnAndZh__'
   },
   bdDM__medicine: {
-    from: {
-      // auto: 'auto',
-      zh: 'zh-CN',
-      en: 'en',
+    support: {
+      en: new Set(['zh']),
+      zh: new Set(['en'])
     },
-    to: {
-      zh: 'zh-CN',
-      en: 'en',
-    },
-    support: '__onlyEnAndZh__'
+    noSupportMsg: '__onlyEnAndZh__'
   },
   bdDM__electronics: {
-    from: {
-      zh: 'zh-CN',
+    support: {
+      zh: new Set(['en'])
     },
-    to: {
-      en: 'en',
-    },
-    support: '__onlyZhToZh__'
+    noSupportMsg: '__onlyZhToZh__'
   },
   bdDM__mechanics: {
-    from: {
-      zh: 'zh-CN',
+    support: {
+      zh: new Set(['en'])
     },
-    to: {
-      en: 'en',
-    },
-    support: '__onlyZhToZh__'
+    noSupportMsg: '__onlyZhToZh__'
   },
   bdDM__novel: {
-    from: {
-      zh: 'zh-CN',
+    support: {
+      zh: new Set(['en'])
     },
-    to: {
-      en: 'en',
-    },
-    support: '__onlyZhToZh__'
+    noSupportMsg: '__onlyZhToZh__'
   }
 }
 
@@ -323,7 +323,7 @@ export const alLangSupport = {
     support: {
       en: new Set(['zh']),
       ja: new Set(['zh']),
-      ok: new Set(['zh']),
+      ko: new Set(['zh']),
       zh: new Set(['en', 'ja', 'ko'])
     },
     noSupportMsg: '__noSupport__'
@@ -331,7 +331,18 @@ export const alLangSupport = {
   alDM__title: {
     support: {
       ja: new Set(['zh']),
-      ok: new Set(['zh']),
+      ko: new Set(['zh']),
+      ms: new Set(['en']),
+      'zh-tw': new Set(['zh']),
+      en: new Set(['zh', 'ja', 'ko', 'es', 'fr', 'it', 'ru', 'ar', 'tr', 'th', 'id', 'vi', 'ms', 'he', 'hi', 'nl', 'de', 'zh-tw']),
+      zh: new Set(['en', 'ja', 'ko', 'id', 'th', 'vi', 'ms', 'zh-tw', 'es', 'fr', 'ru'])
+    },
+    noSupportMsg: '__noSupport__'
+  },
+  alDM__description: {
+    support: {
+      ja: new Set(['zh']),
+      ko: new Set(['zh']),
       ms: new Set(['en']),
       'zh-tw': new Set(['zh']),
       en: new Set(['zh', 'ja', 'ko', 'es', 'fr', 'it', 'ru', 'ar', 'tr', 'th', 'id', 'vi', 'ms', 'he', 'hi', 'nl', 'de', 'zh-tw']),
@@ -354,5 +365,5 @@ export const alLangSupport = {
       ms: new Set(['en', 'zh']),
     },
     noSupportMsg: '__noSupport__'
-  },
+  }
 }

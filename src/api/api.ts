@@ -94,7 +94,7 @@ export async function baseFetch({ url, method, success, fail, data, headers = {}
     }
     fetch(url, fetchData)
       .then(async (res) => {
-        let s = await res.text()
+        const s = await res.text()
         let data;
         try {
           data = JSON.parse(s)
@@ -227,7 +227,7 @@ function makeQuery(queryObject:any) {
 
 function getResult(res: IBaseReqResult):IResponse {
     let toastMsg:IToastMsg|undefined = res.data && res.data.toastMsg;
-    let dialogMsg: IDialogMsg|undefined = res.data && res.data.dialogMsg;
+    const dialogMsg: IDialogMsg|undefined = res.data && res.data.dialogMsg;
 
     if(res.status === 401) {
       res.errMsg = '__needLogin__'
@@ -291,9 +291,9 @@ export async function updateMark(c:IContext) {
   return c
 }
 
-export async function baiduDomainTransApi(query:any) {
+export async function domainTransApi(query:any) {
   const resp =  await serveBaseReq({
-    url: '/trans/baidu/transDM',
+    url: '/trans/DMTrans',
     method: 'GET',
     query,
     auth: true,
@@ -333,7 +333,7 @@ export async function baiduDomainTransApi(query:any) {
 export async function applyBDDM(c:IContext) :Promise<IContext> {
 
   c.resp = await serveBaseReq({
-    url: '/trans/baidu/applyDM/10000',
+    url: '/trans/applyDM/10000',
     method: 'POST',
     auth: true,
   })
@@ -389,16 +389,6 @@ export async function getPhraseList(c:IContext) :Promise<IContext> {
     auth: true,
   })
   return c
-  // if(!collId) {
-  //   collId = 0
-  // }
-  // AuthRequest({
-  //   url: "/phrase",
-  //   method: "GET",
-  //   data: {collId, page, size: 100},
-  //   success: res => success(res.data),
-  //   fail: err => fail(err)
-  // }).then()
 }
 
 export async function addCollection(c:IContext) :Promise<IContext> {
@@ -409,15 +399,6 @@ export async function addCollection(c:IContext) :Promise<IContext> {
     auth: true,
   })
   return c
-  // AuthRequest({
-  //   url: '/phrase/collection',
-  //   data: {
-  //     name
-  //   },
-  //   success: res => success(res),
-  //   fail: err => fail(err),
-  //   method: 'POST'
-  // }).then()
 }
 
 export async function renameCollection(c:IContext) :Promise<IContext> {
@@ -430,15 +411,6 @@ export async function renameCollection(c:IContext) :Promise<IContext> {
     auth: true,
   })
   return c
-  // AuthRequest({
-  //   url: `/phrase/collection?tid=${tid}`,
-  //   data: {
-  //     name
-  //   },
-  //   success: res => success(res),
-  //   fail: err => fail(err),
-  //   method: 'PUT'
-  // }).then()
 }
 
 export async function deleteCollection(c:IContext) :Promise<IContext> {
@@ -448,13 +420,6 @@ export async function deleteCollection(c:IContext) :Promise<IContext> {
     auth: true,
   })
   return c
-  // AuthRequest({
-  //   url: '/phrase/collection?tid=' + tid,
-  //   data: {},
-  //   success: res => success(res),
-  //   fail: err => fail(err),
-  //   method: 'DELETE'
-  // }).then()
 }
 
 export async function moveToOtherColl(c:IContext) :Promise<IContext> {
@@ -475,11 +440,4 @@ export async function mulDelete(c:IContext) :Promise<IContext> {
     auth: true,
   })
   return c
-  // AuthRequest({
-  //   url: '/phrase/mul',
-  //   data,
-  //   success: success,
-  //   fail: fail,
-  //   method: 'DELETE'
-  // })
 }

@@ -2,19 +2,6 @@ import {languages, SToBaidu} from '@/translator/language'
 import {BaiduTrans} from '@/translator/baiduTrans'
 import {IWrapTransInfo} from '@/interface/trans'
 
-// function cp() {
-//     const l = []
-//     for(let key in GToBaidu) {
-//         //@ts-ignore
-//         const v = GToBaidu[key]
-//         if (v) {
-//             l.push([key, v])
-//         }
-        
-//     }
-//     console.log(l)
-
-// }
 
 test('baidu domain and lang support check', async () => {
     expect('').toBe('')
@@ -23,18 +10,18 @@ test('baidu domain and lang support check', async () => {
     expect(trans.getSLang('zh')).toBe('zh-CN')
 
 
-    expect(trans.checkELang('en','zh','bdDM__finance')).toBe('')
-    expect(trans.checkELang('zh','en','bdDM__finance')).toBe('')
-    expect(trans.checkELang('auto','zh','bdDM__finance')).toBe('__onlyEnAndZh__')
-    expect(trans.checkELang('ara','en','bdDM__finance')).toBe('__onlyEnAndZh__')
-    expect(trans.checkELang('en','ara','bdDM__finance')).toBe('__onlyEnAndZh__')
+    expect(trans.checkDMLang('en','zh','bdDM__finance')).toBe('')
+    expect(trans.checkDMLang('zh','en','bdDM__finance')).toBe('')
+    expect(trans.checkDMLang('auto','zh','bdDM__finance')).toBe('__onlyEnAndZh__')
+    expect(trans.checkDMLang('ara','en','bdDM__finance')).toBe('__onlyEnAndZh__')
+    expect(trans.checkDMLang('en','ara','bdDM__finance')).toBe('__onlyEnAndZh__')
 
     //@ts-ignore
-    expect(trans.checkELang('zh',undefined,'bdDM__electronics')).toBe('__onlyZhToZh__')
-    expect(trans.checkELang('zh','en','bdDM__electronics')).toBe('')
-    expect(trans.checkELang('en','zh','bdDM__electronics')).toBe('__onlyZhToZh__')
-    expect(trans.checkELang('zh','en','bdDM__novel')).toBe('')
-    expect(trans.checkELang('en','zh','bdDM__novel')).toBe('__onlyZhToZh__')
+    expect(trans.checkDMLang('zh',undefined,'bdDM__electronics')).toBe('__onlyZhToZh__')
+    expect(trans.checkDMLang('zh','en','bdDM__electronics')).toBe('')
+    expect(trans.checkDMLang('en','zh','bdDM__electronics')).toBe('__onlyZhToZh__')
+    expect(trans.checkDMLang('zh','en','bdDM__novel')).toBe('')
+    expect(trans.checkDMLang('en','zh','bdDM__novel')).toBe('__onlyZhToZh__')
 
     chrome.storage.sync.set({
         mainLang: 'zh-CN',

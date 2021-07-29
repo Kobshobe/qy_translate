@@ -218,6 +218,24 @@
     "bdDM__novel": {
         "message": "百度网络文学"
     },
+    "alDM__social": {
+        "message": "阿里社交"
+    },
+    "alDM__finance": {
+        "message": "阿里金融"
+    },
+    "alDM__medical": {
+        "message": "阿里医疗"
+    },
+    "alDM__title": {
+        "message": "阿里商品标题"
+    },
+    "alDM__communication": {
+        "message": "阿里买卖家沟通"
+    },
+    "alDM__description": {
+        "message": "阿里商品详情"
+    },
     "__enterTrans__": {
         "message": "Enter键入翻译"
     },

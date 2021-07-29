@@ -1,6 +1,6 @@
 import {BaseTrans} from '@/translator/share'
 import {IContext,IWrapTransInfo, ITransResult, IBDDMTransResult, IResponse, IToastMsg, IDialogMsg} from '@/interface/trans'
-import {baiduDomainTransApi, baseFetch} from '@/api/api'
+import {domainTransApi, baseFetch} from '@/api/api'
 import {languages, SToBaidu, checkDomainLang as checkDomainLang, bdLangSupport, engines} from '@/translator/language'
 
 export class BaiduTrans extends BaseTrans {
@@ -43,14 +43,15 @@ export class BaiduTrans extends BaseTrans {
         }
 
         //@ts-ignore true to common domain and give tips
-        const supportErr = this.checkELang(info.fromCode, info.toCode, info.engine)
+        const supportErr = this.checkDMLang(info.fromCode, info.toCode, info.engine)
         if(supportErr !== '') {
             this.setExtraMsg(c, 'tipsMessages', [supportErr, '__changeEngineForLang__']);
+            this.setExtraMsg(c, '__changeEngine__', info.engine)
             return await this.CTrans(c)
         }
 
         this.startTiming()
-        const resp = await baiduDomainTransApi({q:info.text,from:info.fromCode,to:info.toCode,domain:engineInfo[1]})
+        const resp = await domainTransApi({q:info.text,from:info.fromCode,to:info.toCode,domain:engineInfo[1], engine:'baidu'})
         
         if (resp.errMsg) {
             if(resp.errMsg !== '__noRice__') {
@@ -63,15 +64,15 @@ export class BaiduTrans extends BaseTrans {
                 confirmText: '__applyServiceFree__',
                 type: 'i18n'
             })
-            this.setExtraMsg(c, '__changeEngine__', true)
+            this.setExtraMsg(c, '__changeEngine__', info.engine)
             return await this.CTrans(c)
         }
 
         this.getCost(c)
         const data:ITransResult = {
             text: resp.data.result.reduce((total:string, item:string) => {total+=item}),
-            resultFrom: this.getSLang(info.fromCode) as string,
-            resultTo: this.getSLang(info.toCode) as string,
+            resultFrom: info.sFrom as string,
+            resultTo: info.sTo as string,
             engine: info.engine
         }
 
@@ -87,6 +88,7 @@ export class BaiduTrans extends BaseTrans {
 
     async CTrans(c:IContext) :Promise<IContext> {
         const info:IWrapTransInfo = c.req
+        info.engine = 'bdTrans__common'
         let tipsMessages = []
         let dialogMsg = undefined
 
@@ -129,7 +131,7 @@ export class BaiduTrans extends BaseTrans {
             if (!resp.data.errno) {
                 return {
                     // @ts-ignore
-                    data: this.parse(this.parseResult(resp.data),info.fromCode, info.toCode),
+                    data: this.parse(this.parseResult(resp.data), c),
                 }
             }
             await this.getTokenGtk();
@@ -245,7 +247,6 @@ export class BaiduTrans extends BaseTrans {
         if (!c.resp.errMsg) {
             c.resp.data.langdetected = c.resp.data.lan
         }
-        console.log('bd detect: ', c.resp)
         return c
     }
 
@@ -266,16 +267,16 @@ export class BaiduTrans extends BaseTrans {
         // await oneRequest();
     }
 
-    parse(result:any, fromCode:string, toCode:string) :ITransResult {
+    parse(result:any, c:IContext) :ITransResult {
         return {
             text: result.mainMeaning,
-            resultFrom: this.getSLang(fromCode) as string,
-            resultTo: this.getSLang(toCode) as string,
+            resultFrom: c.req.sFrom,
+            resultTo: c.req.sTo,
             sPronunciation: result.sPronunciation,
             tPronunciation: result.tPronunciation,
             dict: result.dict,
             examples: result.examples,
-            engine: 'bdTrans__common',
+            engine: c.req.engine,
             data: result
         }
     }

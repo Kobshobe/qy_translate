@@ -388,6 +388,7 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
             } else {
                 hook.base.tips.messages = []
             }
+
             if (context.resp.errMsg === '__needLogin__' || context.resp.errMsg === '__needRelogin__') {
                 hook.base.dialog.showDialog({
                     type: 'i18n',
@@ -406,6 +407,7 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                 switch (context.resp.dialogMsg.message) {
                     case '__wantToApplyTrans__':
                         context.resp.dialogMsg.confirmAction = hook.applyBDDM
+                        break
                     case '__transReqErr__':
                         if (hook.options.engine) {
                             hook.base.toast.showToast({
@@ -432,6 +434,7 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                                 })
                             })
                         }
+                        break
                 }
                 hook.base.dialog.showDialog(context.resp.dialogMsg)
             }

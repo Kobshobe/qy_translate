@@ -134,6 +134,9 @@ export default defineComponent({
       padding: 0;
       margin: 0;
     }
+    ::v-deep(.el-input__suffix) {
+      display: none;
+    }
   }
   // border-bottom: 1px solid #ddd;
 }

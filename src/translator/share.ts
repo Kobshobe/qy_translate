@@ -51,10 +51,14 @@ export class BaseTrans {
     if(!info.from || !info.to) {
       this.setLangNotSupportResp(c)
       return '__noSupportLang__'
+    } else {
+      info.sFrom = this.getSLang(info.fromCode)
+      info.sTo = this.getSLang(info.toCode)
     }
     return ''
   }
 
+  // need rewrite
   async detect(c:IContext) :Promise<IContext> {
     return {
       req: {},
@@ -95,6 +99,21 @@ export class BaseTrans {
     this.ELangToSLang = new Map(SToElang.map(([a, b]) => [b, a]))
   }
 
+    /**
+   * get trans engine's fromCode and toCode from standard lang sFrom and sTo.
+   *
+   * @param {IContext} c the request context
+   *
+   * @returns {boolean} is set engine lang err?
+   */
+  setELangsFromSlangs(c:IContext) :boolean {
+    const info:IWrapTransInfo = c.req
+    info.fromCode = this.getELang(info.sFrom)
+    info.toCode = this.getELang(info.sTo)
+    if(info.fromCode && info.toCode) return false
+    return true
+  }
+
   isChinese(text: string) {
     const re = /[\u4E00-\u9FA5]+/;
     if (re.test(text)) return true;
@@ -111,11 +130,11 @@ export class BaseTrans {
     return this.SLangToELang && this.SLangToELang.get(lang)
   }
 
-  checkELang(from:string, to:string, engine:string) :'__noSupportLang__'|'__onlyEnAndZh__'|'__onlyZhToZh__'|'' {
-    if(this.LangSupport[engine].from[from] && this.LangSupport[engine].to[to]) {
+  checkDMLang(from:string, to:string, engine:string) :'__noSupportLang__'|'__onlyEnAndZh__'|'__onlyZhToZh__'|'' {
+    if(this.LangSupport[engine].support[from] && this.LangSupport[engine].support[from].has(to)) {
       return ''
     }
-    return this.LangSupport[engine].support
+    return this.LangSupport[engine].noSupportMsg
   }
 
   setExtraMsg(c:IContext, key:string, value:any) {
@@ -149,7 +168,6 @@ export class BaseTrans {
   }
 
   setDetectLangErrResp(c:IContext, detected:IContext) {
-    console.log('errMsg', detected.resp)
     if(!detected.resp) {
       c.resp = {
         errMsg: 'unknown',
@@ -220,6 +238,7 @@ export class BaseTrans {
       cost: info.cost,
       transMode: info.mode,
       engine: info.engine,
+      changeEngine: info.extraMsg && info.extraMsg.get('__changeEngine__')
     }
     other && (Object.assign(params, other))
     eventToGoogle({

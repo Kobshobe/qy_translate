@@ -187,7 +187,6 @@ export function bgInit() {
         if (!res.mode) res.mode = 'noset'
         if (res.bgInit) {
             if (now - res.bgInit < 600000) return
-            console.log('bg old', res.bgInit)
             chrome.storage.sync.set({
                 bgInit: new Date().valueOf()
             })
@@ -205,7 +204,6 @@ export function bgInit() {
                 }
             })
         } else {
-            console.log('bg new')
             chrome.storage.sync.set({
                 bgInit: {
                     lastToAnalytic: new Date().valueOf()

@@ -218,6 +218,24 @@
     "bdDM__novel": {
         "message": "Baidu Novel"
     },
+    "alDM__social": {
+        "message": "Alibaba Social"
+    },
+    "alDM__finance": {
+        "message": "Alibaba Finance"
+    },
+    "alDM__medical": {
+        "message": "Alibaba Medical"
+    },
+    "alDM__title": {
+        "message": "Alibaba Title"
+    },
+    "alDM__communication": {
+        "message": "Alibaba Communication"
+    },
+    "alDM__description": {
+        "message": "Alibaba Description"
+    },
     "__enterTrans__": {
         "message": "Enter Keydown to Translate"
     },

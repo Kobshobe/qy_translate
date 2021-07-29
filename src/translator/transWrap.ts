@@ -1,17 +1,20 @@
 import {IContext, IWrapTransInfo, ITransResult, IResponse} from '@/interface/trans'
 import {GoogleTrans} from '@/translator/google'
 import {BaiduTrans} from '@/translator/baiduTrans'
+import {AlibabaTrans} from '@/translator/alibabaTrans'
 import {getFromeStorage} from '@/utils/chromeApi'
 import {Mode} from '@/config'
 
 class WrapTranslator {
     google: GoogleTrans
     baidu: BaiduTrans
+    alibaba: AlibabaTrans
     lastTrans = 0
 
     constructor() {
         this.google = new GoogleTrans()
         this.baidu = new BaiduTrans()
+        this.alibaba = new AlibabaTrans()
     }
 
     async trans(c:IContext) :Promise<IContext> {
@@ -48,6 +51,8 @@ class WrapTranslator {
           return await this.baidu.CTrans(c)
         case 'bdDM':
           return await this.baidu.transDomain(c)
+        case 'alDM':
+          return await this.alibaba.transDomain(c)
         default:
           return await this.google.trans(c)
       }

@@ -237,6 +237,8 @@ export interface IWrapTransInfo {
     toCode?: string
     fromCp?: string
     toCp?: string
+    sFrom?: string
+    sTo?: string
     cost?: number
     extraMsg?: Map<string, any>
 }
