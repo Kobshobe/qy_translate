@@ -1,10 +1,10 @@
 {
     "extName": {
-        "message": "轻氧翻译 - QY Translate",
+        "message": "轻氧翻译",
         "description": "ext_name"
     },
     "extDesc": {
-        "message": "划词翻译，电子科技、金融等专业领域翻译，提供多端收藏管理"
+        "message": "划词翻译，电子科技、金融、电商等专业领域翻译，提供多端收藏管理及语言学习"
     },
     "title": {
         "message": "轻氧翻译"
@@ -314,7 +314,7 @@
         "message": "或"
     },
     "__IWantBoth__": {
-        "message": "如果可以，我两者都要!"
+        "message": "我两者都要!"
     },
     "__supportDeveloper__": {
         "message": "支持开发者"

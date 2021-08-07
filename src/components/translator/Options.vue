@@ -1,11 +1,14 @@
 <template>
-  <div class="inner-options-main-wsrfhedsoufheqiwrhew" @click="baseHook.T.options.close">
+  <div
+    class="inner-options-main-wsrfhedsoufheqiwrhew"
+    @click="baseHook.T.options.close"
+  >
     <div class="option-content-wsrfhedsoufheqiwrhew" @click.stop="">
       <el-select
         :placeholder="choiceMsg"
         filterable
         v-model="baseHook.T.options.from"
-        :popperAppendToBody="true"
+        :popperAppendToBody="baseHook.mode === 'popup' ? true : false"
         popperClass="fromLangPopup-wsrfhedsoufheqiwrhew"
         @change="baseHook.T.options.close"
       >
@@ -18,12 +21,16 @@
         >
         </el-option>
       </el-select>
-      <IconBtn type="icon-fanyi" :rotate="90" @click="baseHook.T.options.exchange" />
+      <IconBtn
+        type="icon-fanyi"
+        :rotate="90"
+        @click="baseHook.T.options.exchange"
+      />
       <el-select
         :placeholder="choiceMsg"
         filterable
         v-model="baseHook.T.options.to"
-        :popperAppendToBody="true"
+        :popperAppendToBody="baseHook.mode === 'popup' ? true : false"
         popperClass="toLangPopup-wsrfhedsoufheqiwrhew"
         @change="baseHook.T.options.close"
       >
@@ -38,12 +45,15 @@
       </el-select>
 
       <!-- 翻译源 -->
-      <div style="height: 1px; width: 100%; background-color: #e4e7ed" @click.stop=""></div>
+      <div
+        style="height: 1px; width: 100%; background-color: #e4e7ed"
+        @click.stop=""
+      ></div>
       <el-select
         :placeholder="choiceMsg"
         filterable
         v-model="baseHook.T.options.engine"
-        :popperAppendToBody="true"
+        :popperAppendToBody="baseHook.mode === 'popup' ? true : false"
         popperClass="enginePopup-wsrfhedsoufheqiwrhew"
         @change="baseHook.T.options.changeEngine"
       >
@@ -62,7 +72,12 @@
         </el-option-group>
       </el-select>
       <div style="height: 1px; width: 100%; background-color: #e4e7ed"></div>
-      <div class="more-option-wsrfhedsoufheqiwrhew" @click="baseHook.T.options.openOptionsPage">{{moreMsg}}</div>
+      <div
+        class="more-option-wsrfhedsoufheqiwrhew"
+        @click="baseHook.T.options.openOptionsPage"
+      >
+        {{ moreMsg }}
+      </div>
     </div>
   </div>
 </template>
@@ -71,41 +86,40 @@
 import { defineComponent, ref, inject, watchEffect, Ref } from "vue";
 import IconBtn from "../base/IconBtn.vue";
 import { languages, engines } from "@/translator/language";
-import {IBaseHook} from '@/interface/trans';
-import {getLocaleLang, geti18nMsg} from '@/utils/share'
+import { IBaseHook } from "@/interface/trans";
+import { getLocaleLang, geti18nMsg } from "@/utils/share";
 
 export default defineComponent({
   setup() {
     const baseHook = <IBaseHook>inject("baseHook");
-    const choiceMsg = chrome.i18n.getMessage('__choice__')
-    const localeLang = getLocaleLang()
-
+    const choiceMsg = chrome.i18n.getMessage("__choice__");
+    const localeLang = getLocaleLang();
 
     // function popupVisibleChange(event: boolean, className: string) {
-      // if (baseHook.mode!== "popup") return;
-      // if (!event) return;
-      // // @ts-ignore
-      // const popupList: HTMLElement[] = document.getElementsByClassName(
-      //   "el-select__popper " + className
-      // );
-      // popupList.forEach((element) => {
-      //   setTimeout(() => {
-      //     element.setAttribute(
-      //       "style",
-      //       "position:absolute;right:150px;bottom:10px;z-index:22222222;"
-      //     );
-      //     //@ts-ignore
-      //     const arrows: HTMLElement[] = element.getElementsByClassName(
-      //       "el-popper__arrow"
-      //     );
-      //     arrows.forEach((elm) => {
-      //       elm.setAttribute("style", "display:none;");
-      //     })
-      //   })
-      // })
+    // if (baseHook.mode!== "popup") return;
+    // if (!event) return;
+    // // @ts-ignore
+    // const popupList: HTMLElement[] = document.getElementsByClassName(
+    //   "el-select__popper " + className
+    // );
+    // popupList.forEach((element) => {
+    //   setTimeout(() => {
+    //     element.setAttribute(
+    //       "style",
+    //       "position:absolute;right:150px;bottom:10px;z-index:22222222;"
+    //     );
+    //     //@ts-ignore
+    //     const arrows: HTMLElement[] = element.getElementsByClassName(
+    //       "el-popper__arrow"
+    //     );
+    //     arrows.forEach((elm) => {
+    //       elm.setAttribute("style", "display:none;");
+    //     })
+    //   })
+    // })
     // }
 
-    const moreMsg = chrome.i18n.getMessage("moreOption")
+    const moreMsg = chrome.i18n.getMessage("moreOption");
 
     return {
       languages,
@@ -114,7 +128,7 @@ export default defineComponent({
       moreMsg,
       choiceMsg,
       localeLang,
-      geti18nMsg
+      geti18nMsg,
     };
   },
   components: {
@@ -148,7 +162,7 @@ export default defineComponent({
     justify-content: center;
     align-items: center;
     width: 148px;
-    padding: 9px;
+    padding: 5px 9px 9px 9px;
     background-color: white;
     border-radius: 8px;
     border: $normalBorder;
@@ -167,18 +181,27 @@ export default defineComponent({
       list-style: none;
     }
     ::v-deep(.el-input__inner) {
-      border: none;
-      padding: 0 8px;
-      text-align: center;
-      color: $mainColor;
-      font-weight: bold;
-      box-shadow: none;
-      background-color: white;
+      height: 50px;
     }
-    ::v-deep(input:focus) {
-      border: none;
-      text-align: center;
-      box-shadow: none;
+    ::v-deep(.el-input) {
+      padding: 8px 0 !important;
+      input {
+        border: none !important;
+        text-align: center !important;
+        height: 100% !important;
+        background-color: white !important;
+        color: $mainColor !important;
+        font-weight: bold !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+      }
+      input:focus {
+        border: none !important;
+        text-align: center !important;
+        box-shadow: none !important;
+        outline: none !important;
+      }
     }
     ::v-deep(.el-popper__arrow) {
       display: none;
@@ -187,9 +210,8 @@ export default defineComponent({
       display: none;
     }
     ::v-deep(.el-select) {
-      width: 100%
+      width: 100%;
     }
-    
   }
 }
 </style>

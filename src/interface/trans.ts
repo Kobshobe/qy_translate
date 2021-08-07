@@ -38,7 +38,7 @@ export interface IBaseHook {
     changeLang(isExchange:boolean):void
     eventToAnalytic(eventData:any) :void
     usePort({ name, context, onMsgHandle}:IPortHandler): void
-    setNoneStatus():void
+    setNoneStatus(changeID?:boolean):void
     setHold() :void
     openOptionsPage(type:string):void
     dialog: {

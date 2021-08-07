@@ -14,15 +14,15 @@
       <a class="other-item-text" href="mailto: phraseanywhere@outlook.com">{{
         geti18nMsg("contactUs")
       }}</a>
-      <div style="width: 15px"></div>
-      <div class="other-item-text" @click="showSupport">{{geti18nMsg('__fiveStar__')}}</div>
+      <!-- <div style="width: 15px"></div>
+      <div class="other-item-text" @click="showSupport">{{geti18nMsg('__fiveStar__')}}</div> -->
     </div>
     <div class="mini-program-qr">
       <img class="qr-img" :src="qrSrc" alt="" />
       <div>{{ geti18nMsg("__qyMiniProgram__") }}</div>
     </div>
   </div>
-  <el-dialog width="400px" v-model="isShowSupport" :title="geti18nMsg('__supportDeveloper__')">
+  <!-- <el-dialog width="400px" v-model="isShowSupport" :title="geti18nMsg('__supportDeveloper__')">
     <div class="support-content">
       <div class="to-store-link" @click="toStore" v-html="geti18nMsg('__giveFiveStar__')">
         
@@ -34,7 +34,7 @@
         <div style="paddingLeft:5px;">{{geti18nMsg('__IWantBoth__')}}</div>
       </div>
     </div>
-  </el-dialog>
+  </el-dialog> -->
 </template>
 
 <script lang="ts">

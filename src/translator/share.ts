@@ -17,9 +17,8 @@ export class BaseTrans {
     const langs = await getFromeStorage(['mainLang', 'secondLang'])
     langs.mainLang || (langs.mainLang = 'en');
     langs.secondLang || (langs.secondLang = 'en');
-
+    
     if (!info.from || info.from === 'auto') {
-
       const detected = await this.detect({req:{text:c.req.text}})
       if(!detected.resp) return '__transReqErr__'
 
@@ -114,10 +113,17 @@ export class BaseTrans {
     return true
   }
 
-  isChinese(text: string) {
-    const re = /[\u4E00-\u9FA5]+/;
-    if (re.test(text)) return true;
-    return false;
+  zhDetect(info:IWrapTransInfo, mainLang:string, secondLang:string) {
+    if(mainLang !== 'zh-CN' && mainLang !== 'zh-TW') {
+      return
+    }
+    const sameRangeLang = ['zh-CN', 'zh-TW', 'ja']
+    if (sameRangeLang.includes(secondLang)) {
+      return
+    }
+    const re = /^[\u4E00-\u9FA5]+$/;
+    if (re.test(info.text)) return;
+    
   }
 
   getSLang(lang?:string) :string|undefined {

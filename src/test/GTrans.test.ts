@@ -94,10 +94,11 @@ test('translate text test', async (done) => {
     expect(c.resp?.data.resultFrom).toEqual('en')
     expect(c.resp?.data.text).toEqual('苹果')
 
-    // for (let i = 0; i < 8; i++) {
-    //     await delay(0.5)
-    //     const msg = await transHook.findUseApi('apple', '', 'zh-CN')
-    //     expect(msg.errMsg).toBe('')
-    // }
+    for (let i = 0; i < 9; i++) {
+        await delay(0.4)
+        console.log("trans", i)
+        const c = await trans.trans({req:{text:'apple', from:'', to:'zh-CN', type: '', mode: '', engine: 'ggTrans__common'}})
+        expect(c.resp && c.resp.errMsg).toBe('')
+    }
     done()
 })

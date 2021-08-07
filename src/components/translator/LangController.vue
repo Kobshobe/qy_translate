@@ -1,11 +1,10 @@
 <template>
   <div class="controller-main" @click.stop="">
-
     <div v-if="baseHook.status === 'editing'" class="lang-wrap">
       <el-select
         :placeholder="choiceMsg"
         v-model="baseHook.C.fromLang"
-        :popperAppendToBody="true"
+        :popperAppendToBody="baseHook.mode === 'popup' ? true : false"
         filterable
         @change="baseHook.changeLang($event)"
         popperClass="popup-wsrfhedsoufheqiwrhew"
@@ -24,7 +23,7 @@
         :placeholder="choiceMsg"
         filterable
         v-model="baseHook.C.toLang"
-        :popperAppendToBody="true"
+        :popperAppendToBody="baseHook.mode === 'popup' ? true : false"
         @change="baseHook.changeLang"
         popperClass="popup-wsrfhedsoufheqiwrhew"
       >
@@ -44,7 +43,7 @@
         :placeholder="choiceMsg"
         v-model="baseHook.T.options.from"
         filterable
-        :popperAppendToBody="true"
+        :popperAppendToBody="baseHook.mode === 'popup' ? true : false"
         @change="baseHook.T.options.close"
         popperClass="popup-wsrfhedsoufheqiwrhew"
       >
@@ -62,7 +61,7 @@
         :placeholder="choiceMsg"
         filterable
         v-model="baseHook.T.options.to"
-        :popperAppendToBody="true"
+        :popperAppendToBody="baseHook.mode === 'popup' ? true : false"
         @change="baseHook.T.options.close"
         popperClass="popup-wsrfhedsoufheqiwrhew"
       >
@@ -76,7 +75,6 @@
         </el-option>
       </el-select>
     </div>
-
   </div>
 </template>
 
@@ -84,21 +82,21 @@
 import IconBtn from "@/components/base/IconBtn.vue";
 import { defineComponent, inject, watchEffect } from "vue";
 import { languages } from "@/translator/language";
-import {baseTransHook} from '@/hook/translatorHook'
-import {IBaseHook} from '@/interface/trans'
-import {getLocaleLang} from '@/utils/share'
+import { baseTransHook } from "@/hook/translatorHook";
+import { IBaseHook } from "@/interface/trans";
+import { getLocaleLang } from "@/utils/share";
 
 export default defineComponent({
   setup() {
     const baseHook = <IBaseHook>inject("baseHook");
-    const choiceMsg = chrome.i18n.getMessage('__choice__')
-    const localeLang = getLocaleLang()
+    const choiceMsg = chrome.i18n.getMessage("__choice__");
+    const localeLang = getLocaleLang();
 
     return {
       baseHook,
       languages,
       choiceMsg,
-      localeLang
+      localeLang,
     };
   },
   components: {
@@ -124,18 +122,27 @@ export default defineComponent({
     background-color: #efefef;
     border-radius: 5px;
     height: 100%;
-    ::v-deep(.el-input__inner) {
-      border: none;
-      text-align: center;
-      height: 100%;
-      background-color: #efefef;
-      color: $mainColor;
-      font-weight: bold;
-      padding: 0;
-      margin: 0;
+    ::v-deep(.el-input) {
+      input {
+        border: none !important;
+        text-align: center !important;
+        height: 100% !important;
+        background-color: #efefef !important;
+        color: $mainColor !important;
+        font-weight: bold !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+      }
+      input:focus {
+        border: none;
+        text-align: center;
+        box-shadow: none;
+        outline: none;
+      }
     }
     ::v-deep(.el-input__suffix) {
-      display: none;
+      display: none !important;
     }
   }
   // border-bottom: 1px solid #ddd;

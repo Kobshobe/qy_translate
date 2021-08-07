@@ -1,6 +1,6 @@
 {
     "extName": {
-        "message": "輕氧翻譯 - QY Translate",
+        "message": "輕氧翻譯",
         "description": "ext_name"
     },
     "extDesc": {
@@ -314,7 +314,7 @@
         "message": "或"
     },
     "__IWantBoth__": {
-        "message": "如果可以，我兩者都要!"
+        "message": "我兩者都要!"
     },
     "__supportDeveloper__": {
         "message": "支持開發者"

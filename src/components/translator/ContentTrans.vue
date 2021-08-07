@@ -158,8 +158,8 @@ export default defineComponent({
       text.value = ''
     }
 
+    // auto change Geometric size
     watchEffect(() => {
-      // auto change Geometric size
       if (!baseHook.T.find.result) return;
       const maxLen = Math.max(
         baseHook.T.find.text.length,
@@ -187,7 +187,7 @@ export default defineComponent({
           if (!out) return;
 
           if (!resultDOM.value.contains(e.target)) {
-            baseHook.setNoneStatus()
+            baseHook.setNoneStatus(true)
           }
         } else if (transLoadingDOM.value) {
           if (!transLoadingDOM.value.contains(e.target)) {
@@ -314,7 +314,7 @@ export default defineComponent({
   background-color: white;
   box-shadow: 0 0 3px #444;
   border-radius: $transRadius;
-  overflow: hidden;
+  // overflow: hidden;
   min-height: 150px;
 }
 </style>

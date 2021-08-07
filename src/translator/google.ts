@@ -7,9 +7,10 @@ import {baseFetch} from '@/api/api'
 import _Result from 'element-plus/lib/el-result'
 
 class TkAndClient {
+  // edge ttk: 434217.1534559001
   ttkList = ["434217.1534559001", "444444.1050258596", "445678.1618007056", "445767.3058494238", "444000.1270171236", "445111.1710346305"]
 
-  client = "webapp"
+  client = "gtx"
   ttk: string = "434217.1534559001"
   getTk(text:string) {
 
@@ -73,7 +74,9 @@ export class GoogleTrans extends BaseTrans {
     
     //@ts-ignore
     const paramsData = new URLSearchParams({
-      client: 'webapp',
+      client: this.tkTool.client,
+      source: 'input',
+      hl: 'en-US',
       sl: info.fromCode,
       tl: info.toCode,
       dj: '1',
@@ -156,7 +159,9 @@ export class GoogleTrans extends BaseTrans {
   async detect(c:IContext) {
     const info:IWrapTransInfo = c.req
     const paramsData = new URLSearchParams({
-      client: 'webapp',
+      client: this.tkTool.client,
+      source: 'input',
+      hl: 'en-US',
       sl: 'auto',
       tl: 'zh-CN',
       dj: '1',

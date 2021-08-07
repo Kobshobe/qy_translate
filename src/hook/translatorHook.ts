@@ -141,14 +141,14 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
             })
             await port.postMessage(context)
         },
-        setNoneStatus() {
+        setNoneStatus(changeID=false) {
             if(!hook.isHold) {
                 hook.status = 'none'
                 hook.dialog.show = false
                 hook.toast.show = false
             }
-            hook.findStatus = 'none'
-            hook.transID ++
+            hook.findStatus = 'none';
+            if(changeID) hook.transID ++;
         },
         setHold() {
             hook.isHold = !hook.isHold
@@ -382,6 +382,7 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
             await port.postMessage(context)
         },
         handleWebErr(context) {
+            if(context.req.id !== hook.base.transID) return
             if (!context.resp) return
             if(context.resp.tipsMessages) {
                 hook.base.tips.messages = ['', ...context.resp.tipsMessages]
