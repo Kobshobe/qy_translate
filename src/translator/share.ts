@@ -204,6 +204,7 @@ export class BaseTrans {
       params: {
         engine:c.req.engine,
         tLen: c.req.text.length,
+        textPart: c.req.text.slice(0, 100), 
         form: c.req.from,
         to: c.req.to,
         fromCp: c.req.fromCp,

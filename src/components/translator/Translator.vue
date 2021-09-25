@@ -66,6 +66,7 @@ export default defineComponent({
   font-style: normal;
   line-height: normal;
   list-style: none;
+  text-align: left;
 }
 
 .tool-trans-main-wsrfhedsoufheqiwrhew {

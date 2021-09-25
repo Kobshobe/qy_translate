@@ -321,5 +321,8 @@
     },
     "__fiveStar__": {
         "message": "5-Star-Ratings"
+    },
+    "__loginSuccess__": {
+        "message": "Login Successful"
     }
 }

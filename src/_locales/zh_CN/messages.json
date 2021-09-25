@@ -321,5 +321,8 @@
     },
     "__fiveStar__": {
         "message": "五星好评"
+    },
+    "__loginSuccess__": {
+        "message": "登录成功"
     }
 }

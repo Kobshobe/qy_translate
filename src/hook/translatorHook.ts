@@ -382,7 +382,7 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
             await port.postMessage(context)
         },
         handleWebErr(context) {
-            if(context.req.id !== hook.base.transID) return
+            if(context.req.id && context.req.id !== hook.base.transID) return
             if (!context.resp) return
             if(context.resp.tipsMessages) {
                 hook.base.tips.messages = ['', ...context.resp.tipsMessages]
@@ -641,6 +641,7 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                 name: "applyBDDM",
                 context: {req: {}}
             })
+            hook.base.dialog.show = false
         },
         setResultPostion() {}
     })

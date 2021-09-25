@@ -43,7 +43,9 @@ import Loading from "../../components/base/Loading.vue";
 import { qrLogin } from "../../api/api";
 import { removeTokenInfo, getTokenFromStorage } from "../../utils/chromeApi";
 import { eventToGoogle } from "@/utils/analytics";
-import {IOptionBaseHook} from '@/interface/options'
+import {IOptionBaseHook} from '@/interface/options';
+import { ElMessage } from "element-plus";
+import {geti18nMsg} from '@/utils/share'
 
 export default defineComponent({
   setup() {
@@ -87,6 +89,7 @@ export default defineComponent({
       if(newVal === 'loginOk' && oldVal !== 'none') {
         hook.user.isLogin = true
         hook.user.isShowLogin = false
+        ElMessage.info({message: geti18nMsg('__loginSuccess__'), type: 'info'})
 
         hook.coll.initColl()
       }
