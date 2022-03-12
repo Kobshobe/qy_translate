@@ -1,13 +1,13 @@
 import { reactive, watch, computed, onMounted, markRaw, watchEffect } from 'vue'
-import { IBaseHook,IAllStorage, ITransResult,  } from '@/interface/trans'
+import { IBaseHook, IAllStorage, ITransResult, } from '@/interface/trans'
 import { newMarkManager, getMarkHtml } from '@/utils/mark'
-import {apiWrap} from '@/utils/apiWithPort'
-import { ITransEngine,ITransStatus,IEditHook, ITransMode, ITransType, IContext, IResponse, ITransMsg, ITranslatorHook, Find, IAnalyticEvent, IWrapTransInfo } from '@/interface/trans'
-import {getTransConf} from '@/utils/chromeApi'
+import { apiWrap } from '@/utils/apiWithPort'
+import { ITransEngine, ITransStatus, IEditHook, ITransMode, ITransType, IContext, IResponse, ITransMsg, ITranslatorHook, Find, IAnalyticEvent, IWrapTransInfo } from '@/interface/trans'
+import { getTransConf } from '@/utils/chromeApi'
 import { engines } from '@/translator/language'
 
-export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook {
-    const hook:IBaseHook = reactive({
+export function baseTransHook(mode: ITransMode, status: ITransStatus): IBaseHook {
+    const hook: IBaseHook = reactive({
         mode,
         isResultInit: false,
         status,
@@ -26,10 +26,10 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
             hook.C = await getTransConf()
         },
         changeTreadWord() {
-            if(!hook.C.isTreadWord) {
-                hook.toast.showToast({type: 'i18n', message: 'treadWordOff'})
+            if (!hook.C.isTreadWord) {
+                hook.toast.showToast({ type: 'i18n', message: 'treadWordOff' })
             }
-            chrome.storage.sync.set({isTreadWord:hook.C.isTreadWord})
+            chrome.storage.sync.set({ isTreadWord: hook.C.isTreadWord })
             hook.eventToAnalytic({
                 name: 'changeTreadWord',
                 params: {
@@ -39,7 +39,7 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
             })
         },
         exchangeLang() {
-            if(hook.C.toLang === '__auto__' || hook.C.fromLang === 'auto') {
+            if (hook.C.toLang === '__auto__' || hook.C.fromLang === 'auto') {
                 hook.toast.showToast({
                     message: '__cannotDoIt__',
                     type: 'i18n'
@@ -49,8 +49,8 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
             [hook.C.fromLang, hook.C.toLang] = [hook.C.toLang, hook.C.fromLang]
             hook.changeLang(true)
         },
-        changeLang(isExchange:boolean = false) {
-            if(hook.status === 'result') return
+        changeLang(isExchange: boolean = false) {
+            if (hook.status === 'result') return
             chrome.storage.sync.set({
                 fromLang: hook.C.fromLang,
                 toLang: hook.C.toLang
@@ -65,10 +65,10 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
                 }
             })
         },
-        openOptionsPage(type:string) {
+        openOptionsPage(type: string) {
             hook.usePort({
                 name: 'openOptionsPage',
-                context: {req: { tab: '', type}}
+                context: { req: { tab: '', type } }
             })
         },
         dialog: {
@@ -77,7 +77,7 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
             confirmText: '',
             cancelText: '',
             confirmAction: undefined,
-            showDialog: ({message, confirmText, cancelText, confirmAction, type}) => {
+            showDialog: ({ message, confirmText, cancelText, confirmAction, type }) => {
                 hook.dialog.cancelText = ''
                 hook.dialog.confirmText = ''
                 hook.dialog.confirmAction = undefined
@@ -94,19 +94,19 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
                     hook.dialog.cancelText = chrome.i18n.getMessage("__gotIt__")
                 }
                 hook.dialog.confirmAction = confirmAction
-                if(hook.dialog.message) hook.dialog.show = true
+                if (hook.dialog.message) hook.dialog.show = true
             }
         },
         toast: {
             show: false,
             msg: '',
             closeTimer: undefined,
-            showToast({type, message, duration=1000}) {
+            showToast({ type, message, duration = 1000 }) {
                 clearTimeout(hook.toast.closeTimer)
                 hook.toast.show = false
                 if (type === 'i18n') {
                     hook.toast.msg = chrome.i18n.getMessage(message)
-                    if(!hook.toast.msg) return
+                    if (!hook.toast.msg) return
                 } else {
                     hook.toast.msg = message
                 }
@@ -122,7 +122,7 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
                 if (hook.tips.messages.length < 1) {
                     return ''
                 }
-                return hook.tips.messages.reduce((total:string, message:string) => {
+                return hook.tips.messages.reduce((total: string, message: string) => {
                     return total += chrome.i18n.getMessage(message)
                 })
             })
@@ -131,7 +131,7 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
             eventData.params.locale = chrome.i18n.getMessage("@@ui_locale")
             hook.usePort({
                 name: 'analytic',
-                context: {req: eventData},
+                context: { req: eventData },
             })
         },
         async usePort({ name, context, onMsgHandle }) {
@@ -141,14 +141,14 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
             })
             await port.postMessage(context)
         },
-        setNoneStatus(changeID=false) {
-            if(!hook.isHold) {
+        setNoneStatus(changeID = false) {
+            if (!hook.isHold) {
                 hook.status = 'none'
                 hook.dialog.show = false
                 hook.toast.show = false
             }
             hook.findStatus = 'none';
-            if(changeID) hook.transID ++;
+            if (changeID) hook.transID++;
         },
         setHold() {
             hook.isHold = !hook.isHold
@@ -162,11 +162,11 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
         //@ts-ignore
         E: undefined,
         //@ts-ignore
-        T:undefined
+        T: undefined
     })
 
-    watch(()=>hook.status, () => {
-        if(hook.status === 'editing') {
+    watch(() => hook.status, () => {
+        if (hook.status === 'editing') {
             hook.getConf()
         }
     })
@@ -177,15 +177,15 @@ export function baseTransHook(mode:ITransMode, status: ITransStatus) :IBaseHook 
     return hook
 }
 
-export function editHook(baseHook:IBaseHook) :IEditHook {
-    const hook:IEditHook = reactive({
+export function editHook(baseHook: IBaseHook): IEditHook {
+    const hook: IEditHook = reactive({
         base: baseHook,
         editingText: '',
         lastFindText: '',
         clear() {
             hook.editingText = ''
             hook.base.findStatus = 'none'
-            hook.base.transID ++
+            hook.base.transID++
         },
         getLastFindText() {
             hook.editingText = hook.lastFindText
@@ -205,27 +205,27 @@ export function editHook(baseHook:IBaseHook) :IEditHook {
                 return
             }
             let from, to;
-            if(hook.base.C.mode !== 'simple') {
+            if (hook.base.C.mode !== 'simple') {
                 from = hook.base.C.fromLang
                 to = hook.base.C.toLang
-                if(from !== 'auto' && to === '__auto__') {
-                    if(from !== hook.base.C.mainLang) {
+                if (from !== 'auto' && to === '__auto__') {
+                    if (from !== hook.base.C.mainLang) {
                         to = hook.base.C.mainLang
                     } else {
                         to = hook.base.C.secondLang
                     }
                 }
             }
-            hook.base.bridge.editTrans = <ITransMsg>{text:hook.editingText, type, from, to, findStatus: 'editLoading'}
+            hook.base.bridge.editTrans = <ITransMsg>{ text: hook.editingText, type, from, to, findStatus: 'editLoading' }
             hook.base.isResultInit = true
             hook.base.findStatus = 'editLoading'
         },
-        enterTrans(e:any) {
+        enterTrans(e: any) {
             if (e.code === 'Enter' && !e.shiftKey) {
                 if (hook.base.C.keyDownTrans === 'Enter') {
                     hook.trans('popup_enter')
-                } 
-            } else if(e.code === 'Enter' && e.shiftKey) {
+                }
+            } else if (e.code === 'Enter' && e.shiftKey) {
                 if (hook.base.C.keyDownTrans === 'Shift+Enter') {
                     hook.trans('popup_shift_enter')
                 }
@@ -236,7 +236,7 @@ export function editHook(baseHook:IBaseHook) :IEditHook {
     return hook
 }
 
-export function transHook(baseHook:IBaseHook) :ITranslatorHook {
+export function transHook(baseHook: IBaseHook): ITranslatorHook {
     const hook: ITranslatorHook = reactive({
         base: baseHook,
         lastFindText: '',
@@ -263,9 +263,9 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                 await hook.usePort({
                     name: 'translate',
                     context: {
-                        req: { text: hook.subTranslator.selectText, from: hook.find.result.resultFrom, to: hook.find.result.resultTo, type: 'sub', engine: hook.find.result.engine}
+                        req: { text: hook.subTranslator.selectText, from: hook.find.result.resultFrom, to: hook.find.result.resultTo, type: 'sub', engine: hook.find.result.engine }
                     },
-                    onMsgHandle: (context:IContext) => {
+                    onMsgHandle: (context: IContext) => {
                         hook.subTranslator.resultData = context.resp?.data
                         hook.subTranslator.status = 'result'
                     }
@@ -328,7 +328,7 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
             to: '',
             engine: '',
             getData() {
-                if(hook.base.status === 'result') {
+                if (hook.base.status === 'result') {
                     //@ts-ignore
                     hook.options.engine = hook.find.result.engine
                     hook.options.from = hook.find.result?.resultFrom
@@ -337,7 +337,7 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                     hook.options.from = hook.base.C.fromLang
                     hook.options.to = hook.base.C.toLang
                 }
-                
+
             },
             async setLang() {
                 await hook.options.close()
@@ -356,10 +356,10 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                 hook.options.isShow = false
             },
             show() {
-                if(!hook.find.result) return
+                if (!hook.find.result) return
                 hook.options.getData()
                 hook.options.isShow = true
-                hook.eventToAnalytic({name: "result_option_show", params: {}})
+                hook.eventToAnalytic({ name: "result_option_show", params: {} })
             },
             async exchange() {
                 //@ts-ignore
@@ -370,7 +370,7 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                 // @ts-ignore
                 hook.options.isShow = false
                 await hook.trans({ text: hook.find.text, type: 'changeEngine', findStatus: 'reLoading' })
-                
+
             }
         },
         async usePort({ name, context, onMsgHandle }) {
@@ -382,9 +382,9 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
             await port.postMessage(context)
         },
         handleWebErr(context) {
-            if(context.req.id && context.req.id !== hook.base.transID) return
+            if (context.req.id && context.req.id !== hook.base.transID) return
             if (!context.resp) return
-            if(context.resp.tipsMessages) {
+            if (context.resp.tipsMessages) {
                 hook.base.tips.messages = ['', ...context.resp.tipsMessages]
             } else {
                 hook.base.tips.messages = []
@@ -398,11 +398,12 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                     cancelText: '',
                     confirmAction: () => {
                         hook.usePort({
-                        name: 'openOptionsPage',
-                        context: {req: { tab: 'login' }},
-                    })
-                }})
-            } 
+                            name: 'openOptionsPage',
+                            context: { req: { tab: 'login' } },
+                        })
+                    }
+                })
+            }
 
             else if (context.resp.dialogMsg) {
                 switch (context.resp.dialogMsg.message) {
@@ -415,18 +416,18 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                                 message: '__reqErr__',
                                 type: 'i18n'
                             })
-                            
+
                             return
                         }
                         context.resp.dialogMsg.confirmText = '__change__'
                         context.resp.dialogMsg.confirmAction = () => {
-                            let transEngine:ITransEngine = 'ggTrans__common'
-                            if(hook.base.C.transEngine === 'ggTrans__common' || !hook.base.C.transEngine) {
+                            let transEngine: ITransEngine = 'ggTrans__common'
+                            if (hook.base.C.transEngine === 'ggTrans__common' || !hook.base.C.transEngine) {
                                 transEngine = 'bdTrans__common'
                             } else {
                                 transEngine = 'ggTrans__common'
                             }
-                            chrome.storage.sync.set({transEngine}, () => {
+                            chrome.storage.sync.set({ transEngine }, () => {
                                 hook.base.dialog.show = false
                                 hook.base.C.transEngine = transEngine
                                 hook.base.toast.showToast({
@@ -439,7 +440,7 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                 }
                 hook.base.dialog.showDialog(context.resp.dialogMsg)
             }
-            
+
             else if (context.resp.toastMsg) {
                 hook.base.toast.showToast(context.resp.toastMsg)
             }
@@ -450,7 +451,7 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
         async updateMark({ success, fail, info }) {
             await hook.usePort({
                 name: 'updateMark',
-                context: {req:info},
+                context: { req: info },
                 onMsgHandle: (context: IContext) => {
                     if (context.resp?.status == 200) {
                         success()
@@ -463,7 +464,7 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
         async reduceCollect() {
             await hook.usePort({
                 name: 'reduceCollect',
-                context: {req: { tid: hook.find.tid }},
+                context: { req: { tid: hook.find.tid } },
                 onMsgHandle: (context) => {
                     if (!context.resp?.errMsg && context.resp?.status === 200) {
                         hook.find.isCollected = false
@@ -481,14 +482,16 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
             }
             await hook.usePort({
                 name: 'collect',
-                context: {req:{
-                    text: hook.find.text,
-                    translation: hook.find.result.text,
-                    marks: hook.subTranslator.marksStr,
-                    resultFrom: hook.find.result.resultFrom,
-                    resultTo: hook.find.result.resultTo,
-                    engine: hook.find.result.engine
-                }},
+                context: {
+                    req: {
+                        text: hook.find.text,
+                        translation: hook.find.result.text,
+                        marks: hook.subTranslator.marksStr,
+                        resultFrom: hook.find.result.resultFrom,
+                        resultTo: hook.find.result.resultTo,
+                        engine: hook.find.result.engine
+                    }
+                },
                 onMsgHandle: (c) => {
                     if (!c.resp?.errMsg) {
                         hook.find.isCollected = true
@@ -500,6 +503,7 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                 }
             })
         },
+        //翻译
         async trans(info) {
             const t = info.text
             if (t.replace(/\s+|[\r\n]+/g, "").length === 0) {
@@ -507,12 +511,12 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
             }
 
             // when change engine
-            if(hook.base.status === 'result' && info.findStatus !== 'popLoading') {
+            if (hook.base.status === 'result' && info.findStatus !== 'popLoading') {
                 info.from || (info.from = hook.options.from);
                 info.to || (info.to = hook.options.to);
             }
 
-            if(hook.base.C.mode === 'profession' && info.type === 'select') {
+            if (hook.base.C.mode === 'profession' && info.type === 'select') {
                 info.from = hook.base.C.fromLang
                 info.to = hook.base.C.toLang
             }
@@ -525,18 +529,22 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
 
             await hook.usePort({
                 name: 'translate',
-                context: {req:{ text: find.text, from:info.from, to: info.to, type:info.type,
-                    mode: hook.base.mode, engine:hook.options.engine, id: ++hook.base.transID }},
+                context: {
+                    req: {
+                        text: find.text, from: info.from, to: info.to, type: info.type,
+                        mode: hook.base.mode, engine: hook.options.engine, id: ++hook.base.transID
+                    }
+                },
                 onMsgHandle: (context: IContext) => {
-                    if(!context.resp) return
+                    if (!context.resp) return
                     if (context.req.id !== hook.base.transID) {
                         context.resp.errMsg = 'no equal id'
                     }
                     if (context.resp.errMsg) {
-                        if(hook.base.findStatus === 'reLoading') {
+                        if (hook.base.findStatus === 'reLoading') {
                             hook.base.findStatus = 'willOK'
                             setTimeout(() => {
-                                if(hook.base.findStatus === 'willOK') hook.base.findStatus = 'ok';
+                                if (hook.base.findStatus === 'willOK') hook.base.findStatus = 'ok';
                             }, 400)
                         } else {
                             hook.base.findStatus = 'none'
@@ -553,25 +561,28 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                     hook.marksList = [];
                     hook.options.isShow = false
                     hook.options.getData();
-                    if(hook.base.findStatus === 'reLoading') {
+                    if (hook.base.findStatus === 'reLoading') {
                         hook.base.findStatus = 'willOK'
                         setTimeout(() => {
-                            if(hook.base.findStatus === 'willOK') hook.base.findStatus = 'ok';
+                            if (hook.base.findStatus === 'willOK') hook.base.findStatus = 'ok';
                         }, 400)
                     } else {
                         hook.base.findStatus = 'ok'
                     }
-                    
+
                     hook.subTranslator.init()
                     // setTimeout(() => {
 
                     // }, 1)
-                    
+
                 }
             })
         },
         translateFromEdit() {
             hook.trans(hook.base.bridge.editTrans)
+        },
+        getTTSSrc(lang, string) {
+            return `https://translate.google.cn/translate_tts?ie=UTF-8&q=${'app'}&tl=${'en'}&total=1&idx=0&textlen=5&client=dict-chrome-ex&prev=input&ttsspeed=1`
         },
         getTTS(audioType, id) {
             let text, lang;
@@ -586,23 +597,33 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
                 text = hook.subTranslator.selectText
                 lang = hook.find.result.resultFrom
             }
-            hook.usePort({
-                name: 'tts',
-                context: {req:{ text: text, lang: lang, audioType: audioType}},
-                onMsgHandle: (context: IContext) => {
-                    if (!context.resp || context.resp.errMsg) {
-                        return
-                    }
-                    // @ts-ignore
-                    const iframe = hook[`${audioType}Iframe`]
-                    iframe.contentWindow.postMessage({
-                        source: "phrase",
-                        action: "playAudio",
-                        audioBase64: context.resp.data,
-                        id: id
-                    }, '*')
-                }
-            })
+
+            //@ts-ignore
+            const iframe = hook[`${audioType}Iframe`]
+            iframe.contentWindow.postMessage({
+                source: "phrase",
+                action: "playAudio",
+                src: `https://translate.googleapis.com/translate_tts?client=gtx&q=${text}&tl=${lang}&ttsspeed=1`,
+                id: id
+            }, '*')
+            // hook.usePort({
+            //     name: 'tts',
+            //     context: {req:{ text: text, lang: lang, audioType: audioType}},
+            //     onMsgHandle: (context: IContext) => {
+            //         if (!context.resp || context.resp.errMsg) {
+            //             console.log("getTTS err msg: ", context.resp?.errMsg)
+            //             return
+            //         }
+            //         // @ts-ignore
+            //         const iframe = hook[`${audioType}Iframe`]
+            //         iframe.contentWindow.postMessage({
+            //             source: "phrase",
+            //             action: "playAudio",
+            //             audioBase64: context.resp.data,
+            //             id: id
+            //         }, '*')
+            //     }
+            // })
         },
         toEdit() {
             hook.base.E.lastFindText = hook.base.E.editingText
@@ -633,17 +654,17 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
             eventData.params.locale = chrome.i18n.getMessage("@@ui_locale")
             hook.usePort({
                 name: 'analytic',
-                context: {req: eventData},
+                context: { req: eventData },
             })
         },
         async applyBDDM() {
             await hook.usePort({
                 name: "applyBDDM",
-                context: {req: {}}
+                context: { req: {} }
             })
             hook.base.dialog.show = false
         },
-        setResultPostion() {}
+        setResultPostion() { }
     })
 
     hook.options.getData()
@@ -653,7 +674,7 @@ export function transHook(baseHook:IBaseHook) :ITranslatorHook {
     // }
 
     watchEffect(() => {
-        if(hook.base.findStatus === 'editLoading') {
+        if (hook.base.findStatus === 'editLoading') {
             hook.translateFromEdit()
         }
     })

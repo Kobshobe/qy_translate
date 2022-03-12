@@ -15,7 +15,8 @@
     "test:bddl": "jest --watch -f baiduDomainAndLang.test.ts",
     "test:bdc": "jest --watch -f baiduCommonTrans.test.ts",
     "test:ggt": "jest --watch -f GTrans.test.ts",
-    "test:transHook": "jest --watch -f transHook.test.ts"
+    "test:transHook": "jest --watch -f transHook.test.ts",
+    "test:tts": "jest tts.test.ts"
   },
   "test": {
     "presets": [
@@ -59,12 +60,12 @@
     "node-sass": "^5.0.0",
     "sass-loader": "10.1.0",
     "ts-jest": "^26.5.6",
-    "ts-loader": "^8.1.0",
+    "ts-loader": "^9.2.8",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4",
     "vue-loader": "^16.2.0",
     "webpack": "4.46.0",
-    "webpack-cli": "^4.6.0",
+    "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^3.11.2"
   }
 }

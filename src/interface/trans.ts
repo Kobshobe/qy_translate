@@ -120,6 +120,7 @@ export interface ITranslatorHook {
     trans(info: ITransMsg): void
     translateFromEdit(): void
     getTTS(audioType: string, id: string): void
+    getTTSSrc(text:string, lang:string):void
     toEdit(): void
     copyResult(): void
     eventToAnalytic(eventData: any): void

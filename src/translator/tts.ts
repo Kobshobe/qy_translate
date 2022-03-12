@@ -79,7 +79,7 @@ const assertInputTypes = (text: string, lang: string, slow: boolean, host: strin
  * @param {number?}  option.timeout default is 10000 (ms)
  * @returns {Promise<string>} url
  */
-export const getAudioBase64 = async (c:IContext): Promise<IContext> => {
+export const getAudioBase64 = async (c:IContext): Promise<IContext> => { 
   // assertInputTypes(c.req.text, c.req.lang, slow, host);
 
   // text: string,
@@ -128,6 +128,7 @@ export const getAudioBase64 = async (c:IContext): Promise<IContext> => {
         cost: new Date().getTime() - start,
         len: c.req.text.length,
         audioType: c.req.audioType,
+        msg: res.errMsg,
       }
     })
 
@@ -215,6 +216,19 @@ export const getAudioBase64 = async (c:IContext): Promise<IContext> => {
   };
   return c
 };
+
+// export const getBDBase64 = async (c:IContext) :Promise<IContext> => {
+//   const HOST = 'https://fanyi.baidu.com/'
+//   let src = `${HOST}gettts?lan=${c.req.lang}&text=${encodeURIComponent(c.req.text)}&spd=${'fast'}&source=web`;
+//   console.log(src)
+//   let res = await baseFetch({
+//     url: src,
+//     method: "get",
+//     successStatusCode: [200]
+//   })
+//   console.log("res: --- ", res.data)
+//   return c
+// }
 
 interface LongTextOption extends Option {
   splitPunct?: string;

@@ -19,7 +19,10 @@ window.addEventListener('message', function (event) {
             id = event.data.id
         } else if (event.data.action === 'playAudio' && event.data.id === id) {
             player.pause
-            player.src = 'data:audio/mp3;base64,' + event.data.audioBase64
+            player.src = event.data.src
+            if (!player.src) {
+                player.src = 'data:audio/mp3;base64,' + event.data.audioBase64
+            }
             player.play()
         }
     }

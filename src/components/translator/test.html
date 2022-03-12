@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .ad {
+            background-color: aqua;
+            height: 50px;
+            width: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h2>audio</h2>
+    <audio id="ad" class="ad" src="https://translate.googleapis.com/translate_tts?client=gtx&q=app&tl=en&ttsspeed=0.2">123</audio>
+    <input type="button" value="play" onclick="play()">
+</body>
+<script>
+    function play() {
+        console.log('play in')
+        let myAudio = document.getElementById("ad")
+        myAudio.play()
+    }
+</script>
+</html>

@@ -22,7 +22,7 @@
     <router-view></router-view>
   </div>
   <el-dialog v-model="baseHook.user.isShowLogin" width="300px">
-    <QRLogin v-if="baseHook.user.isShowLogin"/>
+    <QRLogin2 v-if="baseHook.user.isShowLogin"/>
   </el-dialog>
 </template>
 
@@ -31,9 +31,9 @@ import { defineComponent, ref, provide } from "vue";
 import hook from "@/hook/optionPageHook";
 import { optionBaseHook } from "@/hook/optionPageHook";
 import User from "@/options/components/User.vue";
-import QRLogin from '@/options/components/QRLogin.vue'
-import {geti18nMsg} from '@/utils/share'
-import {IOptionBaseHook} from '@/interface/options'
+import QRLogin2 from '@/options/components/QRLogin2.vue';
+import {geti18nMsg} from '@/utils/share';
+import {IOptionBaseHook} from '@/interface/options';
 
 
 export default defineComponent({
@@ -48,7 +48,7 @@ export default defineComponent({
     };
   },
   components: {
-    User,QRLogin
+    User,QRLogin2
   },
 });
 </script>
