@@ -1,5 +1,8 @@
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
+const AutoImport = require('unplugin-auto-import/webpack')
+const Components = require('unplugin-vue-components/webpack')
+const { ElementPlusResolver } = require('unplugin-vue-components/resolvers')
 
 
 // 复制文件到指定目录
@@ -34,16 +37,21 @@ const copyFiles = [
   },
 ];
 
-// 复制插件
+// 插件
 const plugins = [
   new CopyWebpackPlugin({
     patterns: copyFiles
-  })
+  }),
+  AutoImport({
+    resolvers: [ElementPlusResolver()],
+  }),
+  Components({
+    resolvers: [ElementPlusResolver()],
+  }),
 ];
 
 // 页面文件
 const pages = {};
-// 配置 popup.html 页面
 const chromeName = ["popup", "options"];
 
 chromeName.forEach(name => {
@@ -61,9 +69,9 @@ pages["pdf_viewer"] = {
 };
 
 module.exports = {
+  lintOnSave: false,
   pages,
   productionSourceMap: false,
-  // 配置 content.js background.js
   configureWebpack: {
     devtool: 'inline-source-map',
     entry: {
@@ -74,7 +82,6 @@ module.exports = {
     },
     plugins
   },
-  // 配置 content.css
   css: {
     extract: {
       filename: "css/[name]-ewrskdfdswerhnyikyofd.css",
@@ -82,7 +89,7 @@ module.exports = {
     }
   },
   chainWebpack: config => {
-    config.output.filename('js/[name]-ewrskdfdswerhnyikyofd.js').end()
-    config.output.chunkFilename('js/[name]-ewrskdfdswerhnyikyofd.js').end()
+    config.output.filename('[name]-ewrskdfdswerhnyikyofd.js').end()
+    config.output.chunkFilename('[name]-ewrskdfdswerhnyikyofd.js').end()
   }
 }

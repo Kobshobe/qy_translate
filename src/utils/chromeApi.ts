@@ -3,7 +3,7 @@ import { IAnalyticEvent, ITokenInfo, ITokenInfoFromCloud, IOptionPageOpenParma, 
 import { v4 } from "uuid";
 import {eventToGoogle} from './analytics'
 import {languages} from '@/translator/language'
-import { setConfig } from 'element-plus/lib/utils/config';
+// import { setConfig } from 'element-plus/lib/utils/config';
 import {clientVersion} from '@/config'
 
 export async function getTransConf() :Promise<IAllStorage> {

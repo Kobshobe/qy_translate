@@ -1,10 +1,8 @@
-import { reactive, watch, computed, onMounted, markRaw, watchEffect } from 'vue'
-import { IBaseHook, IAllStorage, ITransResult, } from '@/interface/trans'
+import { reactive, watch, computed, markRaw, watchEffect } from 'vue'
+import { IBaseHook } from '@/interface/trans'
 import { newMarkManager, getMarkHtml } from '@/utils/mark'
-import { apiWrap } from '@/utils/apiWithPort'
-import { ITransEngine, ITransStatus, IEditHook, ITransMode, ITransType, IContext, IResponse, ITransMsg, ITranslatorHook, Find, IAnalyticEvent, IWrapTransInfo } from '@/interface/trans'
+import { ITransEngine, ITransStatus, IEditHook, ITransMode, IContext, ITransMsg, ITranslatorHook, Find } from '@/interface/trans'
 import { getTransConf } from '@/utils/chromeApi'
-import { engines } from '@/translator/language'
 
 export function baseTransHook(mode: ITransMode, status: ITransStatus): IBaseHook {
     const hook: IBaseHook = reactive({

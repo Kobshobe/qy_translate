@@ -78,7 +78,7 @@ test('google trans test set lang', async () => {
     expect(info.toCode).toBe('zh-CN')
     expect(info.isDetectedLang).toBe(true)
 })
-
+//@ts-ignore
 test('translate text test', async (done) => {
     chrome.storage.sync.set({
         mainLang: 'zh-CN',

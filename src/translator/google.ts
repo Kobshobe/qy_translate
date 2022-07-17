@@ -4,7 +4,7 @@ import {IContext,IResponse, ITransResult, IGTransResult,IWrapTransInfo} from '@/
 import {eventToGoogle, getTextLimit} from '@/utils/analytics'
 import {calcHash} from '@/translator/tk'
 import {baseFetch} from '@/api/api'
-import _Result from 'element-plus/lib/el-result'
+// import _Result from 'element-plus/lib/el-result'
 
 class TkAndClient {
   // edge ttk: 434217.1534559001

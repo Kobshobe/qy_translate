@@ -16,19 +16,14 @@
 import {
   defineComponent,
   inject,
-  onMounted,
-  onUnmounted,
-  provide,
-  ref,
 } from "vue";
-import { baseTransHook } from "@/hook/translatorHook";
 import Editor from "./Editor.vue";
 import TransResult from "./TransResult.vue";
 import TransTopBar from "./TransTopBar.vue";
 import TransDialog from "./TransDialog.vue";
 import TransToast from "./TransToast.vue";
 import LangController from "./LangController.vue";
-import { ITranslatorHook, IBaseHook } from "@/interface/trans";
+import { IBaseHook } from "@/interface/trans";
 
 export default defineComponent({
   setup() {

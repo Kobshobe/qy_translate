@@ -58,9 +58,9 @@
         "css/chunk-vendors-ewrskdfdswerhnyikyofd.css"
       ],
       "js": [
-        "js/chunk-common-ewrskdfdswerhnyikyofd.js",
+        "chunk-common-ewrskdfdswerhnyikyofd.js",
         "content-ewrskdfdswerhnyikyofd.js",
-        "js/chunk-vendors-ewrskdfdswerhnyikyofd.js"
+        "chunk-vendors-ewrskdfdswerhnyikyofd.js"
       ],
       "all_frames": true
     }
