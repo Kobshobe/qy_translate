@@ -1,5 +1,3 @@
-global.fetch = require('node-fetch');
-
 import { GoogleTrans } from '@/translator/google'
 import {IWrapTransInfo} from '@/interface/trans'
 
@@ -12,6 +10,7 @@ function delay(second:number) {
 jest.setTimeout(40000);
 
 test('google trans test set lang', async () => {
+    console.log('google trans test set lang')
     expect('').toBe('')
     const trans = new GoogleTrans()
     chrome.storage.sync.set({

@@ -11,12 +11,13 @@
     "bg:watch": "export NODE_ENV=development && webpack --watch",
     "test": "jest --verbose",
     "test:watch": "jest --watchAll",
-    "test:marks": "jest --watch -f src/test/mark.test.ts",
+    "test:marks": "export NODE_ENV=test && jest --watch -f src/test/mark.test.ts",
     "test:bddl": "jest --watch -f baiduDomainAndLang.test.ts",
     "test:bdc": "jest --watch -f baiduCommonTrans.test.ts",
     "test:ggt": "jest --watch -f GTrans.test.ts",
     "test:transHook": "jest --watch -f transHook.test.ts",
-    "test:tts": "jest tts.test.ts"
+    "test:tts": "jest tts.test.ts",
+    "test:bdt": "jest bd_trans.test.ts"
   },
   "test": {
     "presets": [
@@ -57,7 +58,6 @@
     "eslint-plugin-vue": "^9.2.0",
     "html-webpack-plugin": "^5.5.0",
     "jest": "^28.1.3",
-    "node-fetch": "^3.2.8",
     "node-sass": "^7.0.1",
     "sass-loader": "^13.0.2",
     "ts-jest": "^28.0.5",

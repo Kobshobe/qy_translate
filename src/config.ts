@@ -1,5 +1,5 @@
 import {IClientInfo} from '@/interface/trans'
-export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
+export const Mode:'test'|'jest'|'public'|'public_test' = 'jest'
 export const clientVersion = "1.6.3"
 export const platform:'chrome'|'edge'|'crx'|'crx_v2'|'_test' = "chrome"
 export const client:IClientInfo = getClient()
@@ -17,6 +17,15 @@ export const googleAnalytic = {
 }
 
 export function getClient() :IClientInfo {
+    if (Mode === 'jest') {
+        return {
+            c: 'platform_U',
+            os: "UNKNOW",
+            l: 'en-US',
+            cv: 'v1.0.0',
+            st: 'userAgent'
+        }
+    }
     const userAgent = navigator.userAgent
     const info = {
         c: platform + '_U',
@@ -43,6 +52,9 @@ export function getClient() :IClientInfo {
 }
 
 export function getOS() :'mac'|'windows'|'linux'|'unknow' {
+    if (Mode === 'jest') {
+        return 'unknow'
+    }
     const userAgent = navigator.userAgent
     if(userAgent.indexOf("Mac") > -1) {
         return "mac"

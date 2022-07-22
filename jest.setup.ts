@@ -1,5 +1,4 @@
 const fs = require('fs');
-global.fetch = require('node-fetch');
 import {apiWrap} from './src/utils/apiWithPort'
 
 const rawdata = fs.readFileSync('src/_locales/zh_CN/messages.json');
