@@ -49,7 +49,7 @@ import {geti18nMsg} from '@/utils/share'
 
 export default defineComponent({
   setup() {
-    const hook = <IOptionBaseHook>inject('baseHook')
+    const hook = inject('baseHook') as IOptionBaseHook
     const qrUrl = ref("");
     const loginStatus =
       ref<

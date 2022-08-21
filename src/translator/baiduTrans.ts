@@ -258,7 +258,7 @@ export class BaiduTrans extends BaseTrans {
             });
 
             this.CTOKEN = resp.data.match(/token: '(.*?)',/)[1];
-            this.CGTK = resp.data.match(/window.gtk = '(.*?)'/)[1];
+            this.CGTK = resp.data.match(/window.gtk = "(.*?)"/)[1];
         };
 
         // request two times to ensure the token is the latest value

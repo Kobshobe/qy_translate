@@ -88,7 +88,7 @@ import { getLocaleLang } from "@/utils/share";
 
 export default defineComponent({
   setup() {
-    const baseHook = <IBaseHook>inject("baseHook");
+    const baseHook = inject("baseHook") as IBaseHook;
     const choiceMsg = chrome.i18n.getMessage("__choice__");
     const localeLang = getLocaleLang();
 
@@ -122,6 +122,9 @@ export default defineComponent({
     background-color: #efefef;
     border-radius: 5px;
     height: 100%;
+    ::v-deep(.el-input__wrapper) {
+      padding: 0;
+    }
     ::v-deep(.el-input) {
       input {
         border: none !important;

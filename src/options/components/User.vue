@@ -1,6 +1,6 @@
 <template>
   <el-dropdown>
-    <i class="el-icon-user" style="font-size: 25px; color: #888"></i>
+    <SvgIcon  type="icon-account" size=25 />
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item
@@ -22,10 +22,11 @@ import { removeTokenInfo } from "@/utils/chromeApi";
 import { geti18nMsg } from "@/utils/share";
 import { eventToGoogle } from "@/utils/analytics";
 import {IOptionBaseHook} from '@/interface/options'
+import SvgIcon from '../base/SvgIcon.vue';
 
 export default defineComponent({
   setup() {
-    const hook = <IOptionBaseHook>inject("baseHook");
+    const hook = inject("baseHook") as IOptionBaseHook;
 
     return {
       geti18nMsg,

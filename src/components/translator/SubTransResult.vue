@@ -55,7 +55,7 @@ import { IBaseHook } from "@/interface/trans";
 
 export default defineComponent({
   setup() {
-    const baseHook = <IBaseHook>inject("baseHook");
+    const baseHook = inject("baseHook") as IBaseHook;
 
     const opacityStyle = reactive({
       opacity: 0.2,

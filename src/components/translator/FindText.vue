@@ -59,7 +59,7 @@ export default defineComponent({
     mode: String, // foundText, resultText
   },
   setup(props) {
-    const baseHook = <IBaseHook>inject("baseHook");
+    const baseHook = inject("baseHook") as IBaseHook;
     const markHtml = ref("");
     const foundScrollDOM = ref<any | null>(null);
 

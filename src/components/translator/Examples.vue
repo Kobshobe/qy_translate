@@ -21,7 +21,7 @@ import { IBaseHook } from "@/interface/trans";
 
 export default defineComponent({
   setup() {
-    const baseHook = <IBaseHook>inject("baseHook");
+    const baseHook = inject("baseHook") as IBaseHook;
     const transExampleMsg = chrome.i18n.getMessage("transExampple");
 
     return {

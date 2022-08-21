@@ -15,10 +15,10 @@ export default defineComponent({
   setup(props) {
     const id = v4();
 
-    const baseHook = <IBaseHook>inject("baseHook");
+    const baseHook = inject("baseHook") as IBaseHook;
 
     const iframeHtmlURL = chrome.runtime.getURL("iframe.html");
-    const theIframe = <HTMLIFrameElement>document.createElement("iframe");
+    const theIframe = document.createElement("iframe") as HTMLIFrameElement;
     theIframe.setAttribute("width", "100%");
     theIframe.setAttribute("height", "100%");
     theIframe.setAttribute("src", iframeHtmlURL);

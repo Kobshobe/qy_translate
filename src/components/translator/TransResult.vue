@@ -101,7 +101,7 @@ import {languages} from '@/translator/language'
 
 export default defineComponent({
   setup() {
-    const baseHook = <IBaseHook>inject("baseHook");
+    const baseHook = inject("baseHook") as IBaseHook;
     if (!baseHook.T) {
       baseHook.T = transHook(baseHook);
     }

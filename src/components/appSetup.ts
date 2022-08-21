@@ -1,20 +1,8 @@
-import { createApp } from 'vue'
-import app from './components/app.vue'
-// import { ElButton, ElSelect, ElOptionGroup, ElOption, ElSwitch, ElTooltip } from 'element-plus';
-// import { setConfig } from 'element-plus/lib/utils/config.js'
 import {eventToGoogle} from '@/utils/analytics'
-
-// const components = [ElButton, ElSelect, ElOptionGroup, ElOption, ElSwitch, ElTooltip];
+import ElementPlus from 'element-plus'
 
 export function setUI(app:any) {
-    // const options = { zIndex: 2147483640, size: 'small' }
-    // app.config.globalProperties.$ELEMENT = options
-    // // setConfig(options)
-    // components.push(...other)
-    
-    // components.forEach((component) => {
-    //     app.component(component.name, component)
-    // })
+    app.use(ElementPlus, { zIndex: 2247483600 })
 }
 
 export function handleErrAndWarn(app:any) {

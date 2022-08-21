@@ -1,12 +1,11 @@
 import { getTokenFromStorage, saveTokenInfo } from '@/utils/chromeApi'
-import { Ref } from 'vue'
 import { Mode, client, reqTimeout } from '@/config'
 import { IContext,IBaseReqParams,IBaseReqResult,IServerReqParams, IResponse, IQrLoginParams, ITokenInfo,IToastMsg, IDialogMsg, IConfig } from '@/interface/trans'
 import { eventToGoogle } from '@/utils/analytics'
 
 let protocol = 'https://'
 let webSocketProtocol = 'wss://'
-let BaseUrl = 'www.fishfit.fun:8080/p'
+let BaseUrl = 'www.fishfit.fun/p'
 
 if (Mode === 'test' || Mode === 'jest') {
   protocol = 'http://'

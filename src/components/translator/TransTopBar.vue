@@ -26,7 +26,7 @@ import IconBtn from "../base/IconBtn.vue";
 
 export default defineComponent({
   setup() {
-    const baseHook = <IBaseHook>inject('baseHook');
+    const baseHook = inject('baseHook') as IBaseHook;
 
     const resultStyle =
       baseHook.mode !== "popup" ? inject<any>("resultStyle") : null;

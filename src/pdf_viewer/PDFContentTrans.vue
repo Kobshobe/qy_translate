@@ -31,7 +31,7 @@ export default defineComponent({
     const dialogVisible = ref(false);
     const input = ref("");
 
-    const b = <HTMLLIElement>document.getElementById("open-link");
+    const b = document.getElementById("open-link") as HTMLLIElement;
     b.addEventListener("click", () => {
       dialogVisible.value = true;
     });

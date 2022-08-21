@@ -18,7 +18,7 @@ export default defineComponent({
       width: "50%",
     });
 
-    const baseHook = <IBaseHook>inject("baseHook");
+    const baseHook = inject("baseHook") as IBaseHook;
 
     watchEffect(() => {
       if (baseHook.findStatus === "reLoading") {

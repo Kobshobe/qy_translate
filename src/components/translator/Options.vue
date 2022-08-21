@@ -83,7 +83,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, inject, watchEffect, Ref } from "vue";
+import { defineComponent, inject} from "vue";
 import IconBtn from "../base/IconBtn.vue";
 import { languages, engines } from "@/translator/language";
 import { IBaseHook } from "@/interface/trans";
@@ -91,33 +91,11 @@ import { getLocaleLang, geti18nMsg } from "@/utils/share";
 
 export default defineComponent({
   setup() {
-    const baseHook = <IBaseHook>inject("baseHook");
+    const baseHook = inject("baseHook") as IBaseHook;
     const choiceMsg = chrome.i18n.getMessage("__choice__");
     const localeLang = getLocaleLang();
 
-    // function popupVisibleChange(event: boolean, className: string) {
-    // if (baseHook.mode!== "popup") return;
-    // if (!event) return;
-    // // @ts-ignore
-    // const popupList: HTMLElement[] = document.getElementsByClassName(
-    //   "el-select__popper " + className
-    // );
-    // popupList.forEach((element) => {
-    //   setTimeout(() => {
-    //     element.setAttribute(
-    //       "style",
-    //       "position:absolute;right:150px;bottom:10px;z-index:22222222;"
-    //     );
-    //     //@ts-ignore
-    //     const arrows: HTMLElement[] = element.getElementsByClassName(
-    //       "el-popper__arrow"
-    //     );
-    //     arrows.forEach((elm) => {
-    //       elm.setAttribute("style", "display:none;");
-    //     })
-    //   })
-    // })
-    // }
+
 
     const moreMsg = chrome.i18n.getMessage("moreOption");
 
@@ -177,11 +155,14 @@ export default defineComponent({
       color: #555;
       height: 20px;
     }
-    ::v-deep(.el-select-dropdown__ite) {
-      list-style: none;
+    ::v-deep(.el-input__wrapper) {
+      padding: 0;
     }
     ::v-deep(.el-input__inner) {
       height: 50px;
+    }
+    ::v-deep(.el-select-dropdown__item) {
+      list-style: none;
     }
     ::v-deep(.el-input) {
       padding: 8px 0 !important;

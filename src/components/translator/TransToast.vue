@@ -14,7 +14,7 @@ import {IBaseHook} from '@/interface/trans';
 
 export default defineComponent({
   setup() {
-    const baseHook = <IBaseHook>inject("baseHook");
+    const baseHook = inject("baseHook") as IBaseHook;
 
     return {
       baseHook,
