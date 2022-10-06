@@ -24,11 +24,11 @@ yarn build
 
 ### Develop
 ```
-# run background.js 启动后台程序
-yarn bg:watch
-
 # run front project
 yarn watch
+
+# run background.js
+yarn bg:watch
 ```
 
 ### Contact Us
