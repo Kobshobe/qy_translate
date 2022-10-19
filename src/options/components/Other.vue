@@ -144,7 +144,7 @@ export default defineComponent({
 
 
 <style lang="scss">
-@import '@/app.scss';
+// @import '@/app.scss';
 .other-container {
   display: flex;
   flex-direction: column;

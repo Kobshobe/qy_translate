@@ -34,7 +34,7 @@ export default defineComponent({
 
 
 <style lang="scss" scoped>
-@import "@/app.scss";
+// @import "@/app.scss";
 
 .examples-title-wsrfhedsoufheqiwrhew {
   font-size: 14px;

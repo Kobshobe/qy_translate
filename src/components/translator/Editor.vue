@@ -118,7 +118,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "@/app.scss";
+// @import "@/app.scss";
 
 .editing-main-wsrfhedsoufheqiwrhew {
   box-sizing: border-box;

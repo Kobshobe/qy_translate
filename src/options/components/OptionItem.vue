@@ -21,7 +21,7 @@ export default defineComponent({
 
 
 <style scoped lang='scss'>
-@import '@/app.scss';
+// @import '@/app.scss';
 
 .option-item-main {
   padding-bottom: 60px;

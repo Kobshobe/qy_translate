@@ -86,7 +86,12 @@ module.exports = {
     extract: {
       filename: "css/[name]-ewrskdfdswerhnyikyofd.css",
       chunkFilename: "css/[name]-ewrskdfdswerhnyikyofd.css"
-    }
+    },
+    loaderOptions: {
+      scss: {
+        additionalData: `@use "@/styles/app.scss" as *;`
+      },
+    },
   },
   chainWebpack: config => {
     config.output.filename('[name]-ewrskdfdswerhnyikyofd.js').end()

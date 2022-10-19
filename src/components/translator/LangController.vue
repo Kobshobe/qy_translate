@@ -107,7 +107,7 @@ export default defineComponent({
 
 
 <style lang="scss" scoped>
-@import "@/app.scss";
+// @import "@/app.scss";
 .controller-main {
   box-sizing: border-box;
   position: relative;

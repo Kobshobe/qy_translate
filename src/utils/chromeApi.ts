@@ -17,7 +17,7 @@ export async function getTransConf() :Promise<IAllStorage> {
     conf.fromLang || (conf.fromLang = 'auto');
     conf.toLang || (conf.toLang = '__auto__');
     conf.mode || (conf.mode = 'simple');
-    conf.transEngine || (conf.transEngine = 'ggTrans__common');
+    conf.transEngine || (conf.transEngine = 'bdTrans__common');
     conf.keyDownTrans || (conf.keyDownTrans = 'Enter');
     if(!conf.mainLang) {
         [conf.mainLang, conf.secondLang] = setLang();

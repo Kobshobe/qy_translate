@@ -6,13 +6,10 @@ import { ElMessageBox } from "element-plus";
 import { ElMessage } from "element-plus";
 import { IContext } from "@/interface/trans";
 import {geti18nMsg} from '@/utils/share'
-import { getTokenFromStorage, removeTokenInfo } from "@/utils/chromeApi";
-import { eventToGoogle } from "@/utils/analytics";
-
+import { getTokenFromStorage } from "@/utils/chromeApi";
 
 
 export function collHook(base:IOptionBaseHook) :ICollHook {
-// const store = useStore();
 
   const hook = reactive<ICollHook>({
     base,

@@ -2,7 +2,7 @@ import {eventToGoogle} from '@/utils/analytics'
 import ElementPlus from 'element-plus'
 
 export function setUI(app:any) {
-    app.use(ElementPlus, { zIndex: 2247483600 })
+    // app.use(ElementPlus, { zIndex: 2247483600 })
 }
 
 export function handleErrAndWarn(app:any) {

@@ -90,7 +90,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import "@/app.scss";
+// @import "@/app.scss";
 
 .sub-result-main-wsrfhedsoufheqiwrhew {
   display: flex;

@@ -280,7 +280,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import "../../app.scss";
+// @import "../../app.scss";
 
 .tap-to-translate-wsrfhedsoufheqiwrhew {
   position: fixed;

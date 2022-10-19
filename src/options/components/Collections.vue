@@ -44,7 +44,7 @@ export default defineComponent({
 
 
 <style lang="scss" scoped>
-@import "@/app.scss";
+// @import "@/app.scss";
 
 .main {
   box-sizing: border-box;

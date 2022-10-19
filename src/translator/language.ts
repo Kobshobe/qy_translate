@@ -8,12 +8,12 @@ export const engines = [
   {
     code: '__commonTrans__',
     engines: {
+      baidu:{
+        code: 'bdTrans__common'
+      },
       google: {
         code: 'ggTrans__common'
       },
-      baidu:{
-        code: 'bdTrans__common'
-      }
     }
   },
   {

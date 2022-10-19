@@ -50,7 +50,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang='scss'>
-@import "../../app.scss";
+// @import "../../app.scss";
 
 ::v-deep(*) {
   padding: 0;

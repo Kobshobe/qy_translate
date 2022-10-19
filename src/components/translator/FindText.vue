@@ -94,7 +94,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import "@/app.scss";
+// @import "@/app.scss";
 
 $foundPaddingTop: 0;
 

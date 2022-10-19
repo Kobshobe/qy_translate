@@ -55,7 +55,7 @@ export default defineComponent({
 
 
 <style scoped lang="scss">
-@import "@/app.scss";
+// @import "@/app.scss";
 
 a {
   text-decoration: none;

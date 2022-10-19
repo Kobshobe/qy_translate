@@ -1,10 +1,8 @@
 import {BaseTrans} from '@/translator/share'
 import {SToGoogle} from '@/translator/language'
-import {IContext,IResponse, ITransResult, IGTransResult,IWrapTransInfo} from '@/interface/trans'
-import {eventToGoogle, getTextLimit} from '@/utils/analytics'
+import {IContext,IResponse, ITransResult,IWrapTransInfo} from '@/interface/trans'
 import {calcHash} from '@/translator/tk'
 import {baseFetch} from '@/api/api'
-// import _Result from 'element-plus/lib/el-result'
 
 class TkAndClient {
   // edge ttk: 434217.1534559001
