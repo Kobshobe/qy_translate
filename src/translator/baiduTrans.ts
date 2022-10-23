@@ -19,6 +19,7 @@ export class BaiduTrans extends BaseTrans {
         "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
     };
 
+    //百度专业翻译
     async transDomain(c:IContext) :Promise<IContext> {
         const info:IWrapTransInfo = c.req
         const toLongErr = this.checkTextLen(c)
@@ -86,6 +87,7 @@ export class BaiduTrans extends BaseTrans {
         return c
     }
 
+    //百度通用翻译
     async CTrans(c:IContext) :Promise<IContext> {
         const info:IWrapTransInfo = c.req
         info.engine = 'bdTrans__common'
@@ -229,6 +231,7 @@ export class BaiduTrans extends BaseTrans {
         return r;
     }
 
+    //获取文本的语言
     async detect(c:IContext) :Promise<IContext> {
         const oneDetect = async () => {
             return await baseFetch({
@@ -395,5 +398,11 @@ export class BaiduTrans extends BaseTrans {
             }
         }
         return parsed;
+    }
+
+    //生成百度语音播放链接
+    getTTSSrc(lang:string, text:string) :string {
+        const eLang = this.getELang(lang)
+        return `https://fanyi.baidu.com/gettts?lan=${eLang}&text=${text}&spd=4&source=web`
     }
 }

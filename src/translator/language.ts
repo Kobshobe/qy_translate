@@ -11,9 +11,9 @@ export const engines = [
       baidu:{
         code: 'bdTrans__common'
       },
-      google: {
-        code: 'ggTrans__common'
-      },
+      // google: {
+      //   code: 'ggTrans__common'
+      // },
     }
   },
   {

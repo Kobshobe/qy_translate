@@ -3,6 +3,7 @@ import { IBaseHook } from '@/interface/trans'
 import { newMarkManager, getMarkHtml } from '@/utils/mark'
 import { ITransEngine, ITransStatus, IEditHook, ITransMode, IContext, ITransMsg, ITranslatorHook, Find } from '@/interface/trans'
 import { getTransConf } from '@/utils/chromeApi'
+import {BaiduTrans} from '@/translator/baiduTrans'
 
 export function baseTransHook(mode: ITransMode, status: ITransStatus): IBaseHook {
     const hook: IBaseHook = reactive({
@@ -579,11 +580,9 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
         translateFromEdit() {
             hook.trans(hook.base.bridge.editTrans)
         },
-        getTTSSrc(lang, string) {
-            return `https://translate.google.cn/translate_tts?ie=UTF-8&q=${'app'}&tl=${'en'}&total=1&idx=0&textlen=5&client=dict-chrome-ex&prev=input&ttsspeed=1`
-        },
         getTTS(audioType, id) {
-            let text, lang;
+            let text:string = '';
+            let lang:string = '';
             if (!hook.find.result) return
             if (audioType === 'from') {
                 text = hook.find.text
@@ -598,10 +597,12 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
 
             //@ts-ignore
             const iframe = hook[`${audioType}Iframe`]
+            const engine = new BaiduTrans()
             iframe.contentWindow.postMessage({
                 source: "phrase",
                 action: "playAudio",
-                src: `https://translate.googleapis.com/translate_tts?client=gtx&q=${text}&tl=${lang}&ttsspeed=1`,
+                // src: `https://translate.googleapis.com/translate_tts?client=gtx&q=${text}&tl=${lang}&ttsspeed=1`,
+                src: engine.getTTSSrc(lang, text),
                 id: id
             }, '*')
             // hook.usePort({

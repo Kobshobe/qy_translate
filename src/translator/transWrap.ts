@@ -1,18 +1,18 @@
 import {IContext, IWrapTransInfo, ITransResult, IResponse} from '@/interface/trans'
-import {GoogleTrans} from '@/translator/google'
+// import {GoogleTrans} from '@/translator/google'
 import {BaiduTrans} from '@/translator/baiduTrans'
 import {AlibabaTrans} from '@/translator/alibabaTrans'
 import {getFromeStorage} from '@/utils/chromeApi'
 import {Mode} from '@/config'
 
 class WrapTranslator {
-    google: GoogleTrans
+    // google: GoogleTrans
     baidu: BaiduTrans
     alibaba: AlibabaTrans
     lastTrans = 0
 
     constructor() {
-        this.google = new GoogleTrans()
+        // this.google = new GoogleTrans()
         this.baidu = new BaiduTrans()
         this.alibaba = new AlibabaTrans()
     }
@@ -41,12 +41,12 @@ class WrapTranslator {
       
       const engineInfo = info.engine ? info.engine.split("__") : undefined
       if(!engineInfo) {
-        return await this.google.trans(c)
+        return await this.baidu.CTrans(c)
       }
 
       switch (engineInfo[0]) {
-        case 'ggTrans':
-          return await this.google.trans(c)
+        // case 'ggTrans':
+        //   return await this.google.trans(c)
         case 'bdTrans':
           return await this.baidu.CTrans(c)
         case 'bdDM':
@@ -54,7 +54,7 @@ class WrapTranslator {
         case 'alDM':
           return await this.alibaba.transDomain(c)
         default:
-          return await this.google.trans(c)
+          return await this.baidu.CTrans(c)
       }
     }
 

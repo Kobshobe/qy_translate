@@ -4,180 +4,180 @@ import {IContext,IResponse, ITransResult,IWrapTransInfo} from '@/interface/trans
 import {calcHash} from '@/translator/tk'
 import {baseFetch} from '@/api/api'
 
-class TkAndClient {
-  // edge ttk: 434217.1534559001
-  ttkList = ["434217.1534559001", "444444.1050258596", "445678.1618007056", "445767.3058494238", "444000.1270171236", "445111.1710346305"]
+// class TkAndClient {
+//   // edge ttk: 434217.1534559001
+//   ttkList = ["434217.1534559001", "444444.1050258596", "445678.1618007056", "445767.3058494238", "444000.1270171236", "445111.1710346305"]
 
-  client = "gtx"
-  ttk: string = "434217.1534559001"
-  getTk(text:string) {
+//   client = "gtx"
+//   ttk: string = "434217.1534559001"
+//   getTk(text:string) {
 
-    return '&client=' + this.client + '&tk=' + calcHash(text, this.ttk)
-  }
-  next() {
-    this.client = (this.client === 'webapp' && 'gtx') || 'webapp'
-    const index = this.ttkList.indexOf(this.ttk)
-    if(index >= this.ttkList.length -1) {
-      this.ttk = this.ttkList[0]
-    } else {
-      this.ttk = this.ttkList[index+1]
-    }
-  }
-}
+//     return '&client=' + this.client + '&tk=' + calcHash(text, this.ttk)
+//   }
+//   next() {
+//     this.client = (this.client === 'webapp' && 'gtx') || 'webapp'
+//     const index = this.ttkList.indexOf(this.ttk)
+//     if(index >= this.ttkList.length -1) {
+//       this.ttk = this.ttkList[0]
+//     } else {
+//       this.ttk = this.ttkList[index+1]
+//     }
+//   }
+// }
 
-export class GoogleTrans extends BaseTrans {
-  tkTool = new TkAndClient()
-  HOST = 'https://translate.googleapis.com/translate_a/single'
+// export class GoogleTrans extends BaseTrans {
+//   tkTool = new TkAndClient()
+//   HOST = 'https://translate.googleapis.com/translate_a/single'
 
-  constructor() {
-    super()
-    this.maxLenght = 5000
-    this.setSELang(SToGoogle)
-  }
+//   constructor() {
+//     super()
+//     this.maxLenght = 5000
+//     this.setSELang(SToGoogle)
+//   }
 
-  getParamsUrlPart(data:Object) :string {
-    return Object.keys(data).map(function (key) {
-      //@ts-ignore
-      return encodeURIComponent(key) + "=" + encodeURIComponent(data[key])
-    }).join("&")
-  }
+//   getParamsUrlPart(data:Object) :string {
+//     return Object.keys(data).map(function (key) {
+//       //@ts-ignore
+//       return encodeURIComponent(key) + "=" + encodeURIComponent(data[key])
+//     }).join("&")
+//   }
 
-  async trans(c:IContext) :Promise<IContext> {
-    const info:IWrapTransInfo = c.req
+//   async trans(c:IContext) :Promise<IContext> {
+//     const info:IWrapTransInfo = c.req
 
-    const tooLongErr = this.checkTextLen(c)
-    if(c.resp && c.resp.errMsg) {
-      return c
-    }
+//     const tooLongErr = this.checkTextLen(c)
+//     if(c.resp && c.resp.errMsg) {
+//       return c
+//     }
 
-    let err = await this.setLangCode(c)
-    if (err) return c
+//     let err = await this.setLangCode(c)
+//     if (err) return c
 
-    /*
-    [dt代表]
-    t: 带翻译译文sentences
-    rm: 会有音标加在sentences列表最后
-    at: 使用频率alternative_translations
-    bd: 词性与多词义dict
-    md: definitions of source text, if it's one word
-    ss:同义词synsets
-    ex:例句examples.example
-    rw: 
-    dj: 
-    qc: 
-    ld: 
-    */
+//     /*
+//     [dt代表]
+//     t: 带翻译译文sentences
+//     rm: 会有音标加在sentences列表最后
+//     at: 使用频率alternative_translations
+//     bd: 词性与多词义dict
+//     md: definitions of source text, if it's one word
+//     ss:同义词synsets
+//     ex:例句examples.example
+//     rw: 
+//     dj: 
+//     qc: 
+//     ld: 
+//     */
 
-    const dtPramas = info.type === 'sub' ? 'dt=rm&dt=ex&dt=bd&' : 'dt=rm&'
+//     const dtPramas = info.type === 'sub' ? 'dt=rm&dt=ex&dt=bd&' : 'dt=rm&'
     
-    //@ts-ignore
-    const paramsData = new URLSearchParams({
-      client: this.tkTool.client,
-      source: 'input',
-      hl: 'en-US',
-      sl: info.fromCode,
-      tl: info.toCode,
-      dj: '1',
-      q: info.text,
-      dt: 't',
-    })
+//     //@ts-ignore
+//     const paramsData = new URLSearchParams({
+//       client: this.tkTool.client,
+//       source: 'input',
+//       hl: 'en-US',
+//       sl: info.fromCode,
+//       tl: info.toCode,
+//       dj: '1',
+//       q: info.text,
+//       dt: 't',
+//     })
 
-    const realUrl = this.HOST + '?' + dtPramas + paramsData.toString() + this.tkTool.getTk(info.text)
-    const start = new Date().getTime()
+//     const realUrl = this.HOST + '?' + dtPramas + paramsData.toString() + this.tkTool.getTk(info.text)
+//     const start = new Date().getTime()
 
-    let resp = await this.oneTrans(info, realUrl, 30000)
+//     let resp = await this.oneTrans(info, realUrl, 30000)
     
-    if(resp.status !== 200) {
-      const errResp:IResponse = {
-        status: resp.status,
-        errMsg: `gg_trans_err_${resp.status}`,
-        dialogMsg: {
-          type: 'i18n',
-          message: '__transReqErr__'
-        }
-      }
-      this.tkTool.next()
-      this.transErrToAnalytic(c, resp)
-      c.resp = errResp
-      return c
-    }
+//     if(resp.status !== 200) {
+//       const errResp:IResponse = {
+//         status: resp.status,
+//         errMsg: `gg_trans_err_${resp.status}`,
+//         dialogMsg: {
+//           type: 'i18n',
+//           message: '__transReqErr__'
+//         }
+//       }
+//       this.tkTool.next()
+//       this.transErrToAnalytic(c, resp)
+//       c.resp = errResp
+//       return c
+//     }
     
-    const result:ITransResult = {
-      text: '',
-      resultFrom: resp.data.src,
-      //@ts-ignore
-      resultTo: info.toCode,
-      sPronunciation: '',
-      tPronunciation: '',
-      data: resp.data,
-      engine: 'ggTrans__common'
-    }
+//     const result:ITransResult = {
+//       text: '',
+//       resultFrom: resp.data.src,
+//       //@ts-ignore
+//       resultTo: info.toCode,
+//       sPronunciation: '',
+//       tPronunciation: '',
+//       data: resp.data,
+//       engine: 'ggTrans__common'
+//     }
 
-    resp.data.sentences.slice(0, -1).forEach((s:any) => {
-      result.text += s.trans
-    })
-    result.sPronunciation = resp.data.sentences.slice(-1)[0].src_translit
-    result.tPronunciation = resp.data.sentences.slice(-1)[0].translit
-    result.examples = resp.data.examples && resp.data.examples.example;
-    if (result.data.dict) {
-      result.dict = []
-      result.data.dict.forEach((item:any) => {
-        //@ts-ignore
-        result.dict.push({
-          pos: item.pos,
-          trans: item.terms.toString()
-        })
-      })
-    }
+//     resp.data.sentences.slice(0, -1).forEach((s:any) => {
+//       result.text += s.trans
+//     })
+//     result.sPronunciation = resp.data.sentences.slice(-1)[0].src_translit
+//     result.tPronunciation = resp.data.sentences.slice(-1)[0].translit
+//     result.examples = resp.data.examples && resp.data.examples.example;
+//     if (result.data.dict) {
+//       result.dict = []
+//       result.data.dict.forEach((item:any) => {
+//         //@ts-ignore
+//         result.dict.push({
+//           pos: item.pos,
+//           trans: item.terms.toString()
+//         })
+//       })
+//     }
 
-    this.transOKToAnalytic(c, resp)
-    c.resp = {
-      status: resp.status,
-      errMsg: '',
-      data: result,
-    }
-    return c
-  }
+//     this.transOKToAnalytic(c, resp)
+//     c.resp = {
+//       status: resp.status,
+//       errMsg: '',
+//       data: result,
+//     }
+//     return c
+//   }
 
-  async oneTrans(info:IWrapTransInfo, url:string, timeout:number) :Promise<IResponse> {
-    const start = new Date().getTime()
+//   async oneTrans(info:IWrapTransInfo, url:string, timeout:number) :Promise<IResponse> {
+//     const start = new Date().getTime()
 
-    const resp = await baseFetch({
-      url: url,
-      method: 'GET',
-      timeout,
-    });
+//     const resp = await baseFetch({
+//       url: url,
+//       method: 'GET',
+//       timeout,
+//     });
 
-    info.cost !== undefined || (info.cost = 0);
-    info.cost = info.cost + new Date().valueOf() - start
+//     info.cost !== undefined || (info.cost = 0);
+//     info.cost = info.cost + new Date().valueOf() - start
 
-    return resp
-  }
+//     return resp
+//   }
 
-  async detect(c:IContext) {
-    const info:IWrapTransInfo = c.req
-    const paramsData = new URLSearchParams({
-      client: this.tkTool.client,
-      source: 'input',
-      hl: 'en-US',
-      sl: 'auto',
-      tl: 'zh-CN',
-      dj: '1',
-      q: c.req.text.slice(0, 150),
-      dt: 't',
-    })
+//   async detect(c:IContext) {
+//     const info:IWrapTransInfo = c.req
+//     const paramsData = new URLSearchParams({
+//       client: this.tkTool.client,
+//       source: 'input',
+//       hl: 'en-US',
+//       sl: 'auto',
+//       tl: 'zh-CN',
+//       dj: '1',
+//       q: c.req.text.slice(0, 150),
+//       dt: 't',
+//     })
 
-    const url = this.HOST + '?' + paramsData.toString() + this.tkTool.getTk(info.text)
+//     const url = this.HOST + '?' + paramsData.toString() + this.tkTool.getTk(info.text)
 
-    c.resp = await this.oneTrans(info, url, 20000)
-    if (!c.resp.errMsg) {
-      c.resp.data.langdetected = c.resp.data.src
-    }
+//     c.resp = await this.oneTrans(info, url, 20000)
+//     if (!c.resp.errMsg) {
+//       c.resp.data.langdetected = c.resp.data.src
+//     }
 
-    return c
-  }
+//     return c
+//   }
 
-}
+// }
 
 const langCharRange = {
   "zh-Cn": /[\u4E00-\u9FA5]+/,

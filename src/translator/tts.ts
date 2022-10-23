@@ -1,9 +1,9 @@
 // import assertInputTypes from './assertInputTypes';
 // import axios from 'axios';
 import { baseFetch } from '../api/api'
-import splitLongText from './splitLongText';
 import { eventToGoogle } from '@/utils/analytics'
-import {IResponse,IContext, IConfig} from '@/interface/trans'
+import {IContext} from '@/interface/trans'
+import {BaiduTrans} from '@/translator/baiduTrans'
 
 interface Option {
   lang?: string;
@@ -14,6 +14,7 @@ interface Option {
 
 export class TTS {
   player = new Audio()
+  engine = new BaiduTrans()
 
   play(text:string, lang:string, delay:number) {
     eventToGoogle({
@@ -42,7 +43,8 @@ export class TTS {
   }
 
   getAudioSrc(text:string, lang:string) {
-    return `https://translate.google.cn/translate_tts?ie=UTF-8&q=${text}&tl=${lang}&total=1&idx=0&textlen=5&client=dict-chrome-ex&prev=input&ttsspeed=1`
+    // return `https://translate.google.cn/translate_tts?ie=UTF-8&q=${text}&tl=${lang}&total=1&idx=0&textlen=5&client=dict-chrome-ex&prev=input&ttsspeed=1`
+    return this.engine.getTTSSrc(lang, text)
   }
 }
 

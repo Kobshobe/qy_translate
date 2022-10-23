@@ -1,6 +1,6 @@
 import {IClientInfo} from '@/interface/trans'
 export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
-export const clientVersion = "1.7.0"
+export const clientVersion = "1.7.1"
 export const platform:'chrome'|'edge'|'crx'|'crx_v2'|'_test' = "chrome"
 export const client:IClientInfo = getClient()
 export const os:'mac'|'windows'|'linux'|'unknow' = getOS()
