@@ -17,7 +17,8 @@
     "test:ggt": "jest --watch -f GTrans.test.ts",
     "test:transHook": "jest --watch -f transHook.test.ts",
     "test:tts": "jest tts.test.ts",
-    "test:bdt": "jest bd_trans.test.ts"
+    "test:bdt": "jest bd_trans.test.ts",
+    "test:bing": "jest bing.test.ts"
   },
   "test": {
     "presets": [

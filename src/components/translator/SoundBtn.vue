@@ -1,6 +1,6 @@
 <template>
   <div class="btn-box-wsrfhedsoufheqiwrhew">
-    <SvgIcon type="icon-shengyin-copy" size="15" />
+    <SvgIcon type="icon-shengyin-copy" :size="15" />
     <div class="iframeBtn-wsrfhedsoufheqiwrhew" :id="id"></div>
   </div>
 </template>

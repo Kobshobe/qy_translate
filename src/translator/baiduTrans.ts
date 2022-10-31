@@ -1,7 +1,7 @@
 import {BaseTrans} from '@/translator/share'
-import {IContext,IWrapTransInfo, ITransResult, IBDDMTransResult, IResponse, IToastMsg, IDialogMsg} from '@/interface/trans'
+import {IContext,IWrapTransInfo, ITransResult, IResponse} from '@/interface/trans'
 import {domainTransApi, baseFetch} from '@/api/api'
-import {languages, SToBaidu, checkDomainLang as checkDomainLang, bdLangSupport, engines} from '@/translator/language'
+import {SToBaidu, bdLangSupport} from '@/translator/language'
 
 export class BaiduTrans extends BaseTrans {
     SLangToELang = new Map(SToBaidu)

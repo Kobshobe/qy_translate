@@ -1,5 +1,5 @@
 import { Mode } from '@/config'
-import { IAnalyticEvent, ITokenInfo, ITokenInfoFromCloud, IOptionPageOpenParma, IAllStorage } from '@/interface/trans'
+import { ITokenInfo, ITokenInfoFromCloud, IAllStorage } from '@/interface/trans'
 import { v4 } from "uuid";
 import {eventToGoogle} from './analytics'
 import {languages} from '@/translator/language'
