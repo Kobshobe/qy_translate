@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, provide, ref, reactive } from "vue";
+import { defineComponent, provide } from "vue";
 import { baseTransHook } from '@/hook/translatorHook'
 import Translator from "@/components/translator/Translator.vue";
 

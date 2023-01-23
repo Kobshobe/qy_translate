@@ -172,11 +172,12 @@ export default defineComponent({
       }
     });
 
+    //show or close translator
     onMounted(() => {
       document.addEventListener("mouseup", (e: any) => {
         if (resultDOM.value) {
           let out = true;
-          e.path.some((elm: any) => {
+          e.composedPath().some((elm: any) => {
             if (typeof elm.className === "string") {
               if (elm.className.indexOf("wsrfhedsoufheqiwrhew") !== -1) {
                 out = false;
