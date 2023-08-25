@@ -5,12 +5,12 @@ import { eventToGoogle } from '@/utils/analytics'
 
 let protocol = 'https://'
 let webSocketProtocol = 'wss://'
-let BaseUrl = 'www.fishfit.fun/p'
+let BaseUrl = 'www.fishfit.fun/bqy/papi'
 
 if (Mode === 'test' || Mode === 'jest') {
   protocol = 'http://'
   webSocketProtocol = 'ws://'
-  BaseUrl = 'localhost:8080/p'
+  BaseUrl = 'localhost:7600/bqy/papi'
 }
 
 export async function qrLogin({ qrUrl, loginStatus }: IQrLoginParams) {
@@ -23,7 +23,7 @@ export async function qrLogin({ qrUrl, loginStatus }: IQrLoginParams) {
 
   loginStatus.value = 'loadingQr'
   const start = new Date().getTime()
-  const ws = new WebSocket(webSocketProtocol + BaseUrl + '/user/login_qr');
+  const ws = new WebSocket(webSocketProtocol + BaseUrl + '/v1/user/login_qr');
   ws.binaryType = 'arraybuffer';
 
   ws.onopen = (event) => {
@@ -87,6 +87,11 @@ export async function qrLogin({ qrUrl, loginStatus }: IQrLoginParams) {
 
 export async function baseFetch({ url, method, success, fail, data, headers = {}, successStatusCode = [200, 201], timeout=reqTimeout }:IBaseReqParams) :Promise<IBaseReqResult> {
   return new Promise<IBaseReqResult>((resolve, reject) => {
+
+    headers["device"] = "device"
+    headers["device_id"] = "deviceId"
+    headers["Accept-Language"] = "zh-CN"
+
     const fetchData:RequestInit = {headers,method}
     if(method !== 'GET') {
       fetchData.body = data
@@ -143,10 +148,15 @@ export async function serveBaseReq(
   { url, method, success, fail, query, data = {}, headers = {}, auth = false, successStatusCode = [200, 201] }:
   IServerReqParams): Promise<IResponse> {
 
+
+  if (method !== 'GET' && method !== 'get') {
+    headers["Content-Type"] = "application/json"
+  }
+
   const start = new Date().getTime()
   return new Promise<IResponse>(async (resolve, reject) => {
     if (auth === true) {
-      headers.Authorization = await getTokenFromStorage()
+      headers.Authorization = "Bearer " + await getTokenFromStorage()
       if (headers.Authorization === '__needLogin__' || headers.Authorization === '__needRelogin__') {
         resolve({ errMsg: headers.Authorization, status: 401 })
         eventToGoogle({
@@ -162,6 +172,9 @@ export async function serveBaseReq(
 
     headers.c = client.c
     headers.cv = client.cv
+    if (method.toLowerCase() === 'get' ) {
+      headers["Content-Type"] = 'application/json'
+    }
 
     if (query) {
       url = url + makeQuery(query)
@@ -188,7 +201,6 @@ export async function serveBaseReq(
       resolve(deal)
       success && success(deal);
     }
-
     else {
       if(deal.status === 401) {
         eventToGoogle({
@@ -227,7 +239,7 @@ function makeQuery(queryObject:any) {
 function getResult(res: IBaseReqResult):IResponse {
     let toastMsg:IToastMsg|undefined = res.data && res.data.toastMsg;
     const dialogMsg: IDialogMsg|undefined = res.data && res.data.dialogMsg;
-
+    
     if(res.status === 401) {
       res.errMsg = '__needLogin__'
     }
@@ -235,6 +247,15 @@ function getResult(res: IBaseReqResult):IResponse {
       toastMsg = {
         type: 'i18n',
         message: '__fetchErr__'
+      }
+    }
+    else if (res.data.msg) {
+      console.log('get res.data.msg')
+      !res.data?.detail && (res.data.detail = res.data.msg)
+      res.errMsg = res.data.msg
+      toastMsg = {
+        type: 'normal',
+        message: res.data.detail
       }
     }
     else {
@@ -246,31 +267,39 @@ function getResult(res: IBaseReqResult):IResponse {
       }
     }
 
-
-    return {
+    const c:IResponse = {
       status: res.status,
       errMsg: res.errMsg,
       data: res.data,
       toastMsg,
       dialogMsg
     }
-  
+
+    if (res?.data) {
+      c.resData = res.data.data
+      c.resCode = res.data.code
+      c.resMsg = res.data.msg
+      c.resDetail = res.data.detail
+    }
+
+
+    return c
 }
 
 export async function collectResult(c:IContext) {
   c.resp =  await serveBaseReq({
-    url: '/phrase',
+    url: '/v1/phrase',
     method: 'POST',
     data: c.req,
     auth: true,
-    successStatusCode: [201]
+    successStatusCode: [201, 200]
   })
   return c
 }
 
 export async function reduceCollect(c:IContext): Promise<any> {
   c.resp = await serveBaseReq({
-    url: '/phrase',
+    url: '/v1/phrase',
     method: 'DELETE',
     data:c.req,
     auth: true,
@@ -281,7 +310,7 @@ export async function reduceCollect(c:IContext): Promise<any> {
 
 export async function updateMark(c:IContext) {
   c.resp = await serveBaseReq({
-    url: '/phrase',
+    url: '/v1/phrase',
     method: 'PUT',
     data:c.req,
     auth: true,
@@ -292,7 +321,7 @@ export async function updateMark(c:IContext) {
 
 export async function domainTransApi(query:any) {
   const resp =  await serveBaseReq({
-    url: '/trans/DMTrans',
+    url: '/v1/trans/DMTrans',
     method: 'GET',
     query,
     auth: true,
@@ -320,7 +349,7 @@ export async function domainTransApi(query:any) {
       message: '__totalFreeOver__',
       type: 'i18n'
     }
-  } else {
+  } else if (!resp.toastMsg) {
     resp.toastMsg = {
       message: '__reqErr__',
       type: 'i18n'
@@ -332,16 +361,17 @@ export async function domainTransApi(query:any) {
 export async function applyBDDM(c:IContext) :Promise<IContext> {
 
   c.resp = await serveBaseReq({
-    url: '/trans/applyDM/10000',
+    url: '/v1/trans/applyDM',
     method: 'POST',
     auth: true,
   })
 
-  if (c.resp.errMsg === '__needLogin__' || c.resp.errMsg === '__needRelogin__') {
+  if (c.resp?.resMsg === 'JwtTokenErr') {
+    c.resp.errMsg = '__needLogin__'
     return c
   }
 
-  if (c.resp.status === 201) {
+  if (c.resp.status === 200) {
     c.resp.dialogMsg = {
       message: '__applyOK__',
       type: 'i18n'
@@ -349,13 +379,13 @@ export async function applyBDDM(c:IContext) :Promise<IContext> {
     return c
   }
   
-  if(c.resp.data && c.resp.data.msg === '__noRice__') {
+  if(c.resp.resMsg && c.resp.resMsg === '__noRice__') {
     c.resp.dialogMsg = {
       message: '__noRice__',
       type: 'i18n'
     }
 
-  } else if(c.resp.data && c.resp.data.msg === '__noMouthAccess__') {
+  } else if(c.resp.resMsg && c.resp.resMsg === '__noMouthAccess__') {
     c.resp.dialogMsg = {
       message: '__noMouthAccess__',
       type: 'i18n'
@@ -373,7 +403,7 @@ export async function applyBDDM(c:IContext) :Promise<IContext> {
 
 export async function getCollList(c:IContext) :Promise<IContext> {
   c.resp = await serveBaseReq({
-    url: '/phrase/collection',
+    url: '/v1/phrase/collection',
     method: 'GET',
     auth: true,
   })
@@ -382,7 +412,7 @@ export async function getCollList(c:IContext) :Promise<IContext> {
 
 export async function getPhraseList(c:IContext) :Promise<IContext> {
   c.resp = await serveBaseReq({
-    url: '/phrase',
+    url: '/v1/phrase',
     query: c.req,
     method: 'GET',
     auth: true,
@@ -392,7 +422,7 @@ export async function getPhraseList(c:IContext) :Promise<IContext> {
 
 export async function addCollection(c:IContext) :Promise<IContext> {
   c.resp = await serveBaseReq({
-    url: '/phrase/collection',
+    url: '/v1/phrase/collection',
     data: c.req,
     method: 'POST',
     auth: true,
@@ -402,7 +432,7 @@ export async function addCollection(c:IContext) :Promise<IContext> {
 
 export async function renameCollection(c:IContext) :Promise<IContext> {
   c.resp = await serveBaseReq({
-    url: `/phrase/collection?tid=${c.req.tid}`,
+    url: `/v1/phrase/collection?tid=${c.req.tid}`,
     data: {
       name: c.req.name
     },
@@ -414,7 +444,7 @@ export async function renameCollection(c:IContext) :Promise<IContext> {
 
 export async function deleteCollection(c:IContext) :Promise<IContext> {
   c.resp = await serveBaseReq({
-    url: `/phrase/collection?tid=${c.req.tid}`,
+    url: `/v1/phrase/collection?tid=${c.req.tid}`,
     method: 'DELETE',
     auth: true,
   })
@@ -423,7 +453,7 @@ export async function deleteCollection(c:IContext) :Promise<IContext> {
 
 export async function moveToOtherColl(c:IContext) :Promise<IContext> {
   c.resp = await serveBaseReq({
-    url: '/phrase/move',
+    url: '/v1/phrase/move',
     data: c.req,
     method: 'PUT',
     auth: true,
@@ -433,7 +463,7 @@ export async function moveToOtherColl(c:IContext) :Promise<IContext> {
 
 export async function mulDelete(c:IContext) :Promise<IContext> {
   c.resp = await serveBaseReq({
-    url: `/phrase/mul`,
+    url: `/v1/phrase/mul`,
     data: c.req,
     method: 'DELETE',
     auth: true,

@@ -175,7 +175,7 @@ export interface IBaseReqParams {
 }
 
 export interface IBaseReqResult {
-    errMsg?: string,
+    errMsg?: string
     status: number|undefined
     data: any
     response: Response
@@ -245,6 +245,10 @@ export interface IWrapTransInfo {
 
 
 export interface IResponse {
+    resCode?:number
+    resData?:any
+    resMsg?:string
+    resDetail?:string
     errMsg?: string
     data?: any
     status?: number

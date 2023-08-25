@@ -171,8 +171,6 @@ export default function confHook(base:IOptionBaseHook):IConfHook {
 }
 
 export function collHook(base:IOptionBaseHook) :ICollHook {
-    // const store = useStore();
-    
       const hook = reactive<ICollHook>({
         base,
         tid: undefined,
@@ -184,7 +182,7 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
         showParaphrase: false,
         phraseList: [],
         collList: [],
-        pageSize: 100,
+        pageSize: 10,
         tts: markRaw(new TTS()),
         playTTSInfo: {
           nowPlayIndex: -1,
@@ -225,11 +223,10 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
           }
           hook.playTTSInfo.playMode = modeList[index + 1]
           if (hook.playTTSInfo.playMode === 'order') {
-            // Taro.showToast({ title: '顺序播放', icon: 'none' })
           } else if (hook.playTTSInfo.playMode === 'cycle') {
-            // Taro.showToast({ title: '循环播放', icon: 'none' })
+            // 循环播放
           } else if (hook.playTTSInfo.playMode === 'single') {
-            // Taro.showToast({ title: '单个循环播放', icon: 'none' })
+            // '单个循环播放'
           }
         },
         setAtSelected(tid: number) {
@@ -272,7 +269,6 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
           }
         },
         async deleteSelected() {
-          // _mark i18n
           if (hook.selected.size <= 0) return;
           ElMessageBox.alert(geti18nMsg('__confirmToDelete__'), {
             confirmButtonText: geti18nMsg('__confirm__'),
@@ -308,7 +304,7 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
           }
     
           hook.playTTSInfo.nowPlayIndex = 0
-          let maxIndex = hook.phraseList.length - 1;
+          const maxIndex = hook.phraseList.length - 1;
           hook.playTTSInfo.isPlayList = true
           let delay = 1000;
           while (hook.playTTSInfo.nowPlayIndex <= maxIndex) {
@@ -342,7 +338,6 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
         nextPage() {
           // const page = hook.page + 1
           // hook.getList(page)
-    
         },
         stopPlayTTS() {
           hook.playTTSInfo.init()
@@ -381,8 +376,8 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
         },
         async getCollList() {
           const c = await getCollList({req: null})
-          if (c.resp && !c.resp.errMsg) {
-            const data = c.resp.data as ICollection[];
+          if (c.resp && c.resp.resData) {
+            const data = c.resp.resData.collList as ICollection[];
             hook.collList = [{name: geti18nMsg('__default__'), tid:0, UpdatedAt: 50000000000000}, ...data]
             hook.collList.sort((a, b) => {
               return b.UpdatedAt - a.UpdatedAt
@@ -407,22 +402,22 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
             hook.phraseList = []
           }
           const c = await getPhraseList({
-            req: {collId, page, size: hook.pageSize}
+            req: {collId, limit: hook.pageSize, offset: (page-1)*hook.pageSize}
           });
-          if (c.resp && !c.resp.errMsg) {
-    
+          console.log(c)
+          if (c.resp && c.resp.resData) {
             setTimeout(() => {
               if (page === 1) {
                 //@ts-ignore
-                hook.phraseList = c.resp.data
+                hook.phraseList = c.resp.resData.list
               } else {
                 //@ts-ignore
-                hook.phraseList.push(...c.resp.data)
+                hook.phraseList.push(...c.resp.resData.list)
               }
               if(hook.phraseList.length < 1) {
                 hook.loadStatus = 'empty'
                 //@ts-ignore
-              } else if (c.resp.data.length < hook.pageSize) {
+              } else if (c.resp.resData.length < hook.pageSize) {
                 hook.loadStatus = 'noMore'
               } else {
                 hook.loadStatus = 'loaded'

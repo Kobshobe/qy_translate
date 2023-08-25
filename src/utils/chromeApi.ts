@@ -65,7 +65,6 @@ export async function getClientId(): Promise<string> {
     })
 }
 
-// 从本地存储中获取token
 export function getTokenFromStorage(getCheckToken=true): Promise<string> {
 
     return new Promise<string>((resolve, reject) => {
@@ -93,7 +92,6 @@ function checkToken(tokenInfo: ITokenInfo | null): string {
     }
 }
 
-// 保存token信息
 export function saveTokenInfo(info: ITokenInfoFromCloud, callBack: Function) {
     const now = new Date()
     const tokenInfo: ITokenInfo = {
@@ -107,7 +105,6 @@ export function saveTokenInfo(info: ITokenInfoFromCloud, callBack: Function) {
     });
 }
 
-// 删除本地存储的tokenInfo
 export function removeTokenInfo(callback: Function) {
     chrome.storage.sync.remove('tokenInfo', function () {
         callback()
@@ -138,7 +135,6 @@ export function setSecondLang(lang: string) {
     })
 }
 
-// 打开设置页面
 export function openOptionsPage(msg:any) {
     chrome.storage.sync.set({
         optionPageOpenParmas: msg
@@ -163,7 +159,7 @@ export function getOptionOpenParmas(): Promise<IAllStorage> {
 export function onInstall(details:any) {
     let reason = 'unknown'
     if(details.reason === 'install') {
-        chrome.tabs.create({url:"https://www.fishfit.fun:8080/p/web/install"})
+        chrome.tabs.create({url:"https://www.fishfit.fun/p/web/install"})
         chrome.storage.sync.set({installTime: new Date().valueOf()})
         reason = 'install'
     } else {

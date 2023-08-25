@@ -1,7 +1,7 @@
 import {IClientInfo} from '@/interface/trans'
 export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
-export const clientVersion = "1.7.2"
-export const platform:'chrome'|'edge'|'crx'|'crx_v2'|'_test' = "chrome"
+export const clientVersion = "1.8.0" // manifest.json
+export const platform:'chrome'|'edge' = "edge"
 export const client:IClientInfo = getClient()
 export const os:'mac'|'windows'|'linux'|'unknow' = getOS()
 export const storeUrl = 'https://www.fishfit.fun:8080/p/web/download/option'

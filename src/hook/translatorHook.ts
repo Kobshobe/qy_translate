@@ -494,7 +494,8 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                 onMsgHandle: (c) => {
                     if (!c.resp?.errMsg) {
                         hook.find.isCollected = true
-                        hook.find.tid = c.resp?.data.tid
+                        console.log("onMsgHandle: ", c.resp)
+                        hook.find.tid = c.resp?.resData.tid
                         success && success(c.resp)
                     } else {
                         if (fail) fail({ msg: "needLogin" })

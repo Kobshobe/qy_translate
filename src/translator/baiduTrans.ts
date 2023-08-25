@@ -71,7 +71,7 @@ export class BaiduTrans extends BaseTrans {
 
         this.getCost(c)
         const data:ITransResult = {
-            text: resp.data.result.reduce((total:string, item:string) => {total+=item}),
+            text: resp.resData.result.reduce((total:string, item:string) => {total+=item}),
             resultFrom: info.sFrom as string,
             resultTo: info.sTo as string,
             engine: info.engine

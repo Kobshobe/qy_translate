@@ -61,7 +61,7 @@ export class AlibabaTrans extends BaseTrans {
 
         this.getCost(c)
         const data:ITransResult = {
-            text: resp.data.result.reduce((total:string, item:string) => {total+=item}),
+            text: resp.resData.result.reduce((total:string, item:string) => {total+=item}),
             resultFrom: this.getSLang(info.fromCode) as string,
             resultTo: this.getSLang(info.toCode) as string,
             engine: info.engine

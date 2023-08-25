@@ -227,7 +227,7 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
         hook.phraseList = []
       }
       const c = await getPhraseList({
-        req: {collId, page, size: hook.pageSize}
+        req: {collId, limit: hook.pageSize, offset: (page-1)*hook.pageSize}
       });
       if (c.resp && !c.resp.errMsg) {
 
