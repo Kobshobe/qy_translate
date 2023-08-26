@@ -1,7 +1,9 @@
 import {BaseTrans} from '@/translator/share'
-import {IContext,IWrapTransInfo, ITransResult, IResponse} from '@/interface/trans'
-import {domainTransApi, baseFetch} from '@/api/api'
+import {IWrapTransInfo, ITransResult} from '@/interface/trans'
+import {domainTransApi} from '@/api/api'
 import {SToBaidu, bdLangSupport} from '@/translator/language'
+import { Context } from '@/api/context'
+import { baseRequest, IBaseResp } from '@/api/request'
 
 export class BaiduTrans extends BaseTrans {
     SLangToELang = new Map(SToBaidu)
@@ -20,7 +22,7 @@ export class BaiduTrans extends BaseTrans {
     };
 
     //百度专业翻译
-    async transDomain(c:IContext) :Promise<IContext> {
+    async transDomain(c:Context) :Promise<Context> {
         const info:IWrapTransInfo = c.req
         const toLongErr = this.checkTextLen(c)
         if(toLongErr) {
@@ -29,7 +31,7 @@ export class BaiduTrans extends BaseTrans {
         }
 
         // detect lang and set engine lang //marks
-        let err = await this.setLangCode(c)
+        const err = await this.setLangCode(c)
 
         if (err) {
             return c
@@ -52,12 +54,14 @@ export class BaiduTrans extends BaseTrans {
         }
 
         this.startTiming()
-        const resp = await domainTransApi({q:info.text,from:info.fromCode,to:info.toCode,domain:engineInfo[1], engine:'baidu'})
+        const ctx = await domainTransApi(new Context({q:info.text,from:info.fromCode,to:info.toCode,domain:engineInfo[1], engine:'baidu'}))
         
-        if (resp.errMsg) {
-            if(resp.errMsg !== '__noRice__') {
-                this.transErrToAnalytic(c, resp)
-                c.resp = resp
+        if (ctx.err) {
+            if(ctx.err !== '__noRice__') {
+                c.err = ctx.err
+                c.dialogMsg = ctx.dialogMsg
+                c.toastMsg = ctx.toastMsg
+                this.transErrToAnalytic(c, ctx)
                 return c
             }
             this.setExtraMsg(c, '__noRice__', {
@@ -71,24 +75,21 @@ export class BaiduTrans extends BaseTrans {
 
         this.getCost(c)
         const data:ITransResult = {
-            text: resp.resData.result.reduce((total:string, item:string) => {total+=item}),
+            text: ctx.res.result.reduce((total:string, item:string) => {total+=item}),
             resultFrom: info.sFrom as string,
             resultTo: info.sTo as string,
             engine: info.engine
         }
 
-        this.transOKToAnalytic(c, resp)
+        this.transOKToAnalytic(c, ctx)
         
 
-        c.resp = {
-            errMsg:'',
-            data
-        }
+        c.res = data
         return c
     }
 
     //百度通用翻译
-    async CTrans(c:IContext) :Promise<IContext> {
+    async CTrans(c:Context) :Promise<Context> {
         const info:IWrapTransInfo = c.req
         info.engine = 'bdTrans__common'
         let tipsMessages = []
@@ -110,14 +111,13 @@ export class BaiduTrans extends BaseTrans {
             }
         }
 
-        const trans:any = async () :Promise<IResponse> => {
+        const trans:any = async () :Promise<IBaseResp> => {
             this.startTiming()
-            const resp = await baseFetch({
-                url: `${this.CHOST}/v2transapi?from=${info.fromCode}&to=${info.toCode}`,
+            const resp = await baseRequest({
+                url: `${this.CHOST}/v2transapi`,
                 method: "POST",
                 headers: this.CHEADERS,
-                //@ts-ignore
-                data: new URLSearchParams({
+                query: {
                     from: info.fromCode,
                     to: info.toCode,
                     query: info.text,
@@ -126,40 +126,37 @@ export class BaiduTrans extends BaseTrans {
                     sign: this.generateSign(info.text, this.CGTK),
                     token: this.CTOKEN,
                     domain: "common",
-                })
+                }
             });
 
-
             if (!resp.data.errno) {
-                return {
-                    // @ts-ignore
-                    data: this.parse(this.parseResult(resp.data), c),
-                }
+                resp.res = {data: this.parse(this.parseResult(resp.data), c)}
+                return resp
             }
             await this.getTokenGtk();
-            return {
-                errMsg: resp.data.errno,
-                dialogMsg: {
-                    message: '__transReqErr__',
-                    type: 'i18n'
-                }
+            resp.err = '__transReqErr__'
+            c.err = resp.err
+            c.dialogMsg = {
+                message: '__transReqErr__',
+                type: 'i18n'
             }
+            return resp
         };
 
         if (!(this.CTOKEN && this.CGTK)) {
             await this.getTokenGtk();
         }
 
-        let resp:IResponse = await trans();
+        let resp:any = await trans();
 
-        if(resp.errMsg) {
+        if(resp.err) {
             await this.getTokenGtk();
             resp = await trans()
         }
 
         this.getCost(c)
-        resp.tipsMessages = tipsMessages
-        resp.dialogMsg = dialogMsg
+        c.tipsMessages = tipsMessages
+        c.dialogMsg = dialogMsg
 
         if (!resp.errMsg) {
             this.transOKToAnalytic(c, resp)
@@ -167,7 +164,7 @@ export class BaiduTrans extends BaseTrans {
             this.transErrToAnalytic(c, resp)
         }
 
-        c.resp = resp
+        c.res = resp.res.data
         
         return c
     }
@@ -231,31 +228,34 @@ export class BaiduTrans extends BaseTrans {
         return r;
     }
 
-    //获取文本的语言
-    async detect(c:IContext) :Promise<IContext> {
+    async detectTextLang(c:Context) :Promise<IBaseResp> {
         const oneDetect = async () => {
-            return await baseFetch({
+            return await baseRequest({
                 method: "post",
                 url: this.CHOST+"langdetect",
                 headers: this.CHEADERS,
-                data: new URLSearchParams({
+                query: {
                     query: c.req.text.slice(0,150),
-                }),
+                },
                 timeout: 20000
             });
         }
 
-        c.resp = await oneDetect()
-
-        if (!c.resp.errMsg) {
-            c.resp.data.langdetected = c.resp.data.lan
+        const resp = await oneDetect()
+        if (!resp.err) {
+            if (resp.data?.errno || resp.data.msg != 'success') {
+                resp.err = resp.data?.errmsg ? resp.data?.errmsg:'__unknown__'
+            } else {
+                resp.res = {lang: resp.data.lan}
+            }
         }
-        return c
+
+        return resp
     }
 
     async getTokenGtk() {
         const oneRequest = async () => {
-            const resp = await baseFetch({
+            const resp = await baseRequest({
                 method: "get",
                 url: this.CHOST,
             });
@@ -270,7 +270,7 @@ export class BaiduTrans extends BaseTrans {
         // await oneRequest();
     }
 
-    parse(result:any, c:IContext) :ITransResult {
+    parse(result:any, c:Context) :ITransResult {
         return {
             text: result.mainMeaning,
             resultFrom: c.req.sFrom,
@@ -285,10 +285,10 @@ export class BaiduTrans extends BaseTrans {
     }
 
     parseResult(result:any) {
-        let parsed = {} as any;
-        let originalTexts = [],
+        const parsed = {} as any;
+        const originalTexts = [],
             mainMeanings = [];
-        for (let item of result.trans_result.data) {
+        for (const item of result.trans_result.data) {
             originalTexts.push(item.src);
             mainMeanings.push(item.dst);
         }
@@ -316,8 +316,8 @@ export class BaiduTrans extends BaseTrans {
                 parsed.dict = [];
 
                 // Parse one detailed meaning.
-                let appendDetailedMeaning = (part:any) => {
-                    let meaning = {};
+                const appendDetailedMeaning = (part:any) => {
+                    const meaning = {};
                     //@ts-ignore
                     meaning.pos = part.part; // part of speech
                     //@ts-ignore
@@ -329,13 +329,13 @@ export class BaiduTrans extends BaseTrans {
                     parsed.dict.push(meaning);
                 };
 
-                for (let part of result.dict_result.simple_means.symbols[0].parts) {
+                for (const part of result.dict_result.simple_means.symbols[0].parts) {
                     if (part.part) {
                         appendDetailedMeaning(part);
                         continue;
                     }
 
-                    for (let mean of part.means) {
+                    for (const mean of part.means) {
                         if (!mean.means) continue;
                         appendDetailedMeaning(mean);
                     }
@@ -346,10 +346,10 @@ export class BaiduTrans extends BaseTrans {
                 //@ts-ignore
                 parsed.definitions = [];
                 // iterate pos
-                for (let item of result.dict_result.edict.item) {
+                for (const item of result.dict_result.edict.item) {
                     // iterate meaning of each pos
-                    for (let tr of item.tr_group) {
-                        let dict = {} as any;
+                    for (const tr of item.tr_group) {
+                        const dict = {} as any;
                         dict.pos = item.pos;
                         dict.trans = tr.tr[0];
                         dict.example = tr.example[0];
@@ -362,8 +362,8 @@ export class BaiduTrans extends BaseTrans {
             if (result.dict_result.content) {
                 parsed.sPronunciation = result.dict_result.voice[0].en_phonic;
                 if (!parsed.detailedMeanings) parsed.detailedMeanings = [];
-                for (let item of result.dict_result.content[0].mean) {
-                    let meaning = {} as any;
+                for (const item of result.dict_result.content[0].mean) {
+                    const meaning = {} as any;
                     meaning.pos = item.pre;
                     meaning.trans = Object.keys(item.cont)[0];
                     parsed.detailedMeanings.push(meaning);
@@ -375,8 +375,8 @@ export class BaiduTrans extends BaseTrans {
             parsed.examples = [];
             let examples = result.liju_result.double;
             examples = JSON.parse(examples);
-            for (let sentence of examples) {
-                let example = {} as any;
+            for (const sentence of examples) {
+                const example = {} as any;
 
                 // source language examples
                 example.text = sentence[0]

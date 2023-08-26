@@ -1,13 +1,12 @@
 import { Mode } from '@/config'
 import { ITokenInfo, ITokenInfoFromCloud, IAllStorage } from '@/interface/trans'
 import { v4 } from "uuid";
-import {eventToGoogle} from './analytics'
-import {languages} from '@/translator/language'
-// import { setConfig } from 'element-plus/lib/utils/config';
-import {clientVersion} from '@/config'
+import { eventToGoogle } from './analytics'
+import { languages } from '@/translator/language'
+import { clientVersion } from '@/config'
 
-export async function getTransConf() :Promise<IAllStorage> {
-    const conf:IAllStorage = await getFromeStorage([
+export async function getTransConf(): Promise<IAllStorage> {
+    const conf: IAllStorage = await getFromeStorage([
         'isTreadWord', 'fromLang', 'toLang', 'mode', 'transEngine', 'showProun', 'keyDownTrans',
         'mainLang', 'secondLang',
     ])
@@ -19,26 +18,26 @@ export async function getTransConf() :Promise<IAllStorage> {
     conf.mode || (conf.mode = 'simple');
     conf.transEngine || (conf.transEngine = 'bdTrans__common');
     conf.keyDownTrans || (conf.keyDownTrans = 'Enter');
-    if(!conf.mainLang) {
+    if (!conf.mainLang) {
         [conf.mainLang, conf.secondLang] = setLang();
         eventToGoogle({
             name: 'errConfSetLang',
             params: {}
         })
     }
-    
+
     return conf
 }
 
-function dealTreadWord(isTreadWord:any) :boolean {
-    if(isTreadWord === false) {
+function dealTreadWord(isTreadWord: any): boolean {
+    if (isTreadWord === false) {
         return false
     } else {
         return true
     }
 }
 
-export async function getFromeStorage(field:string[]) :Promise<IAllStorage> {
+export async function getFromeStorage(field: string[]): Promise<IAllStorage> {
     return new Promise<IAllStorage>((resolve) => {
         chrome.storage.sync.get(field, (result) => {
             resolve(result)
@@ -50,22 +49,22 @@ export async function getClientId(): Promise<string> {
     return new Promise<string>((resolve) => {
         chrome.storage.sync.get(['tokenInfo', 'uuid'], (result: any) => {
             const tokenInfo: ITokenInfo | null = result.tokenInfo
-            if(tokenInfo && tokenInfo.openid) {
+            if (tokenInfo && tokenInfo.openid) {
                 resolve("op:" + tokenInfo.openid)
             } else {
-                if(result.uuid) {
-                    resolve("uuid:"+result.uuid)
+                if (result.uuid) {
+                    resolve("uuid:" + result.uuid)
                 } else {
                     const uuid = v4()
-                    chrome.storage.sync.set({uuid})
-                    resolve("nuuid:"+uuid)
+                    chrome.storage.sync.set({ uuid })
+                    resolve("nuuid:" + uuid)
                 }
             }
         })
     })
 }
 
-export function getTokenFromStorage(getCheckToken=true): Promise<string> {
+export function getTokenFromStorage(getCheckToken = true): Promise<string> {
 
     return new Promise<string>((resolve, reject) => {
         chrome.storage.sync.get(['tokenInfo'], (result: any) => {
@@ -113,7 +112,7 @@ export function removeTokenInfo(callback: Function) {
 
 export function setMainLang(lang: string, scene: string) {
     chrome.storage.sync.set({ mainLang: lang })
-    if(scene != "init") {
+    if (scene != "init") {
         eventToGoogle({
             name: 'setMainLang',
             params: {
@@ -122,7 +121,7 @@ export function setMainLang(lang: string, scene: string) {
             }
         })
     }
-    
+
 }
 
 export function setSecondLang(lang: string) {
@@ -135,7 +134,7 @@ export function setSecondLang(lang: string) {
     })
 }
 
-export function openOptionsPage(msg:any) {
+export function openOptionsPage(msg: any) {
     chrome.storage.sync.set({
         optionPageOpenParmas: msg
     }, () => {
@@ -156,11 +155,11 @@ export function getOptionOpenParmas(): Promise<IAllStorage> {
     })
 }
 
-export function onInstall(details:any) {
+export function onInstall(details: any) {
     let reason = 'unknown'
-    if(details.reason === 'install') {
-        chrome.tabs.create({url:"https://www.fishfit.fun/p/web/install"})
-        chrome.storage.sync.set({installTime: new Date().valueOf()})
+    if (details.reason === 'install') {
+        chrome.tabs.create({ url: "https://www.fishfit.fun/bqy/web/install" })
+        chrome.storage.sync.set({ installTime: new Date().valueOf() })
         reason = 'install'
     } else {
         reason = details.reason + '_' + clientVersion
@@ -178,7 +177,7 @@ export function onInstall(details:any) {
 
 export function bgInit() {
     // _mark add conf data
-    chrome.storage.sync.get(['bgInit', 'mode', 'mainLang', 'secondLang', 'showProun', 'isTreadWord', 'transEngine', 'keyDownTrans'], (res:any) => {
+    chrome.storage.sync.get(['bgInit', 'mode', 'mainLang', 'secondLang', 'showProun', 'isTreadWord', 'transEngine', 'keyDownTrans'], (res: any) => {
         const now = new Date().valueOf()
         if (!res.mode) res.mode = 'noset'
         if (res.bgInit) {
@@ -222,18 +221,18 @@ export function bgInit() {
     })
 }
 
-export async function openPDFReader(scene:"option"|"actionMenu"|"openLink", link:string='') {
+export async function openPDFReader(scene: "option" | "actionMenu" | "openLink", link: string = '') {
     let url = chrome.runtime.getURL("pdf_viewer/web/index.html")
     let openType = "none"
-    if(scene === 'actionMenu') {
+    if (scene === 'actionMenu') {
         link = await getCurrentTabUrl()
     }
     const len = link.length
 
-    if(len > 4) {
-        if(scene === 'openLink') {
+    if (len > 4) {
+        if (scene === 'openLink') {
             url = url + "?url=" + link
-        } else if(link.substr(len-4) === ".pdf") {
+        } else if (link.substr(len - 4) === ".pdf") {
             url = url + "?url=" + link
         }
         const s = link.split('://')
@@ -242,18 +241,18 @@ export async function openPDFReader(scene:"option"|"actionMenu"|"openLink", link
         }
     }
 
-    if(scene === 'openLink') {
+    if (scene === 'openLink') {
         window.location.href = url
     } else {
-        chrome.tabs.create({url})
+        chrome.tabs.create({ url })
     }
-    
-    eventToGoogle({name: "open_pdf_reader", params: {scene, openType}})
+
+    eventToGoogle({ name: "open_pdf_reader", params: { scene, openType } })
 }
 
-function getCurrentTabUrl() :Promise<string> {
+function getCurrentTabUrl(): Promise<string> {
     return new Promise<string>((resolve) => {
-        chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+        chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
             const url = tabs[0].url;
             if (url) {
                 resolve(url)
@@ -266,7 +265,7 @@ function getCurrentTabUrl() :Promise<string> {
 
 export function checkLang() {
     chrome.storage.sync.get(['mainLang'], (res) => {
-        if(!res.mainLang) {
+        if (!res.mainLang) {
             const [mainLang, secondLang] = setLang()
             eventToGoogle({
                 name: 'firstSetLang',
@@ -276,32 +275,31 @@ export function checkLang() {
                 }
             })
         }
-        
+
     })
 }
 
-function setLang() :string[] {
-  let secondLang:string;
-  let mainLang:string
-  const lang = navigator.language
-  if (lang === 'zh-CN' || lang === 'zh') {
-    mainLang = 'zh-CN';
-  } else if (lang === 'zh-TW' || lang === 'zh-HK') {
-    mainLang = 'zh-TW';
-  } else {
-    //@ts-ignore
-    if(languages[lang]) {
-      mainLang = lang
+function setLang(): string[] {
+    let secondLang: string;
+    let mainLang: string
+    const lang = navigator.language
+    if (lang === 'zh-CN' || lang === 'zh') {
+        mainLang = 'zh-CN';
+    } else if (lang === 'zh-TW' || lang === 'zh-HK') {
+        mainLang = 'zh-TW';
     } else {
-      mainLang = 'en'
+        //@ts-ignore
+        if (languages[lang]) {
+            mainLang = lang
+        } else {
+            mainLang = 'en'
+        }
     }
-  }
-  if(mainLang !== 'en') {
-    secondLang = 'en'
-  } else {
-    secondLang = 'zh-CN'
-  }
-    chrome.storage.sync.set({mainLang, secondLang})
+    if (mainLang !== 'en') {
+        secondLang = 'en'
+    } else {
+        secondLang = 'zh-CN'
+    }
+    chrome.storage.sync.set({ mainLang, secondLang })
     return [mainLang, secondLang]
-
 }

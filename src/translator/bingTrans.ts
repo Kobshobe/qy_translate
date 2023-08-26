@@ -1,6 +1,8 @@
 import {BaseTrans} from '@/translator/share';
-import {IContext,IWrapTransInfo, ITransResult, IBDDMTransResult, IResponse, IToastMsg, IDialogMsg} from '@/interface/trans';
-import {domainTransApi, baseFetch} from '@/api/api';
+import {IWrapTransInfo, ITransResult, IBDDMTransResult} from '@/interface/trans';
+import {domainTransApi} from '@/api/api';
+import { Context } from '@/api/context';
+import { baseRequest } from '@/api/request';
 
 export class BingTrans extends BaseTrans {
     HOME_PAGE = 'https://cn.bing.com/translator'
@@ -20,8 +22,8 @@ export class BingTrans extends BaseTrans {
         return true
     }
 
-    async CTrans(c:IContext) :Promise<IContext> {
-        const resp = await baseFetch({
+    async CTrans(c:Context) :Promise<Context> {
+        const resp = await baseRequest({
             url: this.HOME_PAGE,
             method: 'get',
         })
@@ -32,7 +34,6 @@ export class BingTrans extends BaseTrans {
         );
 
         [,this.IID] = resp.data.match(/<div id="rich_tta" data-iid="(.+?)"/)
-        console.log(this.IID)
 
         this.trans("", "", "")
         // const dom = new JSDOM(resp.data);
@@ -57,13 +58,11 @@ export class BingTrans extends BaseTrans {
 
         const translateData = `&fromLang=${'en'}&to=${'zh-Hans'}&text=${encodeURIComponent('app')}&token=${encodeURIComponent(this.token)}&key=${encodeURIComponent(this.key)}`;
 
-        const resp = await baseFetch({
+        const resp = await baseRequest({
             url: this.HOST + translateURL + translateData,
             method: "post",
             headers: this.HEADERS,
         })
-
-        console.log(resp.data, resp.data[0], resp.data[0].translations)
 
         return {
             method: "POST",
@@ -75,7 +74,7 @@ export class BingTrans extends BaseTrans {
     }
 
     async getToken() {
-        const resp = await baseFetch({
+        const resp = await baseRequest({
             url: this.HOME_PAGE,
             method: 'get',
         })
@@ -86,10 +85,9 @@ export class BingTrans extends BaseTrans {
         );
 
         [,this.IID] = resp.data.match(/<div id="rich_tta" data-iid="(.+?)"/)
-        console.log(this.IID)
     }
 
-    parse(result:any, c:IContext) :ITransResult {
+    parse(result:any, c:Context) :ITransResult {
         return {
             text: result.mainMeaning,
             resultFrom: c.req.sFrom,

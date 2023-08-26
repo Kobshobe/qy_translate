@@ -1,8 +1,9 @@
-import {IContext, IWrapTransInfo} from '@/interface/trans'
+import {IWrapTransInfo} from '@/interface/trans'
 import {BaiduTrans} from '@/translator/baiduTrans'
 import {BingTrans} from '@/translator/bingTrans'
 import {AlibabaTrans} from '@/translator/alibabaTrans'
 import {getFromeStorage} from '@/utils/chromeApi'
+import {Context} from '@/api/context'
 
 class WrapTranslator {
     // google: GoogleTrans
@@ -18,7 +19,7 @@ class WrapTranslator {
         this.bing = new BingTrans()
     }
 
-    async trans(c:IContext) :Promise<IContext> {
+    async trans(c:Context) :Promise<Context> {
       const info: IWrapTransInfo = c.req
       const now = new Date().valueOf();
       

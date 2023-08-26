@@ -1,11 +1,25 @@
 import {IClientInfo} from '@/interface/trans'
-export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
+
+export const Mode:'test'|'jest'|'public'|'public_test' = 'jest'
 export const clientVersion = "1.8.0" // manifest.json
 export const platform:'chrome'|'edge' = "edge"
 export const client:IClientInfo = getClient()
 export const os:'mac'|'windows'|'linux'|'unknow' = getOS()
-export const storeUrl = 'https://www.fishfit.fun:8080/p/web/download/option'
+export const storeUrl = 'https://www.fishfit.fun/bqy/web/download/option'
 export const reqTimeout = 10000
+export let baseURL:string
+export let baseWs:string
+
+//@ts-ignore
+if (Mode === 'test' || Mode === 'jest') {
+    baseURL = 'http://localhost:7600/bqy/papi'
+    baseWs = 'ws://localhost:7600/bqy/papi'
+} else {
+    baseURL = 'https://www.fishfit.fun/bqy/papi'
+    baseWs = 'wss://www.fishfit.fun/bqy/papi'
+}
+
+
 //@ts-ignore
 export const store = platform === 'chrome' ?
 'https://chrome.google.com/webstore/detail/fjldhjdclpmehigldnbgbllchcjdgccc' :

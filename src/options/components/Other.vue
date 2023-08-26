@@ -72,7 +72,7 @@ export default defineComponent({
     }
 
     function toSupport() {
-      window.open('https://www.fishfit.fun:8000/phrase/support.html')
+      window.open('https://www.fishfit.fun/phrase/support.html')
       eventToGoogle({
         name: "toSupport",
         params: {
@@ -97,17 +97,6 @@ export default defineComponent({
         },
       });
     }
-
-    // function toIndex() {
-    //   window.open(
-    //     `https://www.fishfit.fun:8080/p/web/home/option?c=${client.c}&cv=${client.cv}`
-    //   );
-
-    //   eventToGoogle({
-    //     name: "optionToIndex",
-    //     params: { locale: chrome.i18n.getMessage("@@ui_locale") },
-    //   });
-    // }
 
     function toPDFReader() {
       openPDFReader("option");

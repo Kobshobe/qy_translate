@@ -22,7 +22,6 @@ import TransResult from "./TransResult.vue";
 import TransTopBar from "./TransTopBar.vue";
 import TransDialog from "./TransDialog.vue";
 import TransToast from "./TransToast.vue";
-import LangController from "./LangController.vue";
 import { IBaseHook } from "@/interface/trans";
 
 export default defineComponent({
@@ -44,7 +43,6 @@ export default defineComponent({
     TransResult,
     TransDialog,
     TransToast,
-    LangController,
   },
 });
 </script>

@@ -4,10 +4,9 @@ import { TTS } from '@/translator/tts';
 import { ICollHook, ICollection, IOptionBaseHook } from "@/interface/options"
 import { ElMessageBox } from "element-plus";
 import { ElMessage } from "element-plus";
-import { IContext } from "@/interface/trans";
 import {geti18nMsg} from '@/utils/share'
 import { getTokenFromStorage } from "@/utils/chromeApi";
-
+import { Context } from "@/api/context";
 
 export function collHook(base:IOptionBaseHook) :ICollHook {
 
@@ -36,22 +35,21 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
       }
     },
     selected: new Set(),
-    handleRespMsg(c:IContext) {
-      if (!c.resp) return
-      if (c.resp.errMsg === '__needLogin__' || c.resp.errMsg === '__needRelogin__') {
+    handleRespMsg(c:Context) {
+      if (c.err === '__needLogin__' || c.err === '__needRelogin__' || c.err == 'JwtTokenErr') {
         hook.loadStatus = 'needLogin'
       } 
     
-      else if (c.resp.dialogMsg) {
-        if(c.resp.dialogMsg.type === 'i18n') {
+      else if (c.dialogMsg) {
+        if(c.dialogMsg.type === 'i18n') {
           //@ts-ignore
           ElMessage(chrome.i18n.getMessage(c.resp.toastMsg.message))
         }
       }
     
-      else if (c.resp.toastMsg) {
-        if(c.resp.toastMsg.type === 'i18n') {
-          ElMessage(geti18nMsg(c.resp.toastMsg.message))
+      else if (c.toastMsg) {
+        if(c.toastMsg.type === 'i18n') {
+          ElMessage(geti18nMsg(c.toastMsg.message))
         }
       }
     },
@@ -63,11 +61,8 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
       }
       hook.playTTSInfo.playMode = modeList[index + 1]
       if (hook.playTTSInfo.playMode === 'order') {
-        // Taro.showToast({ title: '顺序播放', icon: 'none' })
       } else if (hook.playTTSInfo.playMode === 'cycle') {
-        // Taro.showToast({ title: '循环播放', icon: 'none' })
       } else if (hook.playTTSInfo.playMode === 'single') {
-        // Taro.showToast({ title: '单个循环播放', icon: 'none' })
       }
     },
     setAtSelected(tid: number) {
@@ -82,32 +77,29 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
     },
     async moveToColl(tid:number) {
       if (hook.selected.size < 0) return;
-    //   const collId = store.state.phrase.collList[e.detail.value].tid;
-    //   Taro.showLoading();
-      const c = await moveToOtherColl({
-        req: {
-          phraseTidList: Array.from(hook.selected),
-          collId: tid,
-        }
-      });
+
+      const c = new Context({
+        phraseTidList: Array.from(hook.selected),
+        collId: tid,
+      })
+      await moveToOtherColl(c);
       //_mark
-      if (c.resp && !c.resp.errMsg) {
+      if (!c.err) {
         hook.moveOutList()
       } else {
         hook.handleRespMsg(c)
       }
     },
     async deleteSelected() {
-      // _mark i18n
       if (hook.selected.size <= 0) return;
       ElMessageBox.alert(geti18nMsg('__confirmToDelete__'), {
         confirmButtonText: geti18nMsg('__confirm__'),
         callback: async (e:string) => {
-          if(e !== 'confirm') return
-          const c = await mulDelete({
-            req: {phraseTidList: Array.from(hook.selected)}
-          })
-          if(c.resp && !c.resp.errMsg) {
+          if(e !== 'confirm') return;
+
+          const c = new Context({phraseTidList: Array.from(hook.selected)})
+          await mulDelete(c)
+          if(!c.err) {
             hook.moveOutList()
           } else {
             hook.handleRespMsg(c)
@@ -128,7 +120,7 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
       }
 
       hook.playTTSInfo.nowPlayIndex = 0
-      let maxIndex = hook.phraseList.length - 1;
+      const maxIndex = hook.phraseList.length - 1;
       hook.playTTSInfo.isPlayList = true
       let delay = 1000;
       while (hook.playTTSInfo.nowPlayIndex <= maxIndex) {
@@ -200,8 +192,9 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
 
     },
     async getCollList() {
-      const c = await getCollList({req: null})
-      if (c.resp && !c.resp.errMsg) {
+      const c = new Context({})
+      await getCollList(c)
+      if (!c.err) {
         const data = c.resp.data as ICollection[];
         hook.collList = [{name: geti18nMsg('__default__'), tid:0, UpdatedAt: 50000000000000}, ...data]
         hook.collList.sort((a, b) => {
@@ -226,10 +219,9 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
       if(page === 1) {
         hook.phraseList = []
       }
-      const c = await getPhraseList({
-        req: {collId, limit: hook.pageSize, offset: (page-1)*hook.pageSize}
-      });
-      if (c.resp && !c.resp.errMsg) {
+      const c = new Context({collId, limit: hook.pageSize, offset: (page-1)*hook.pageSize})
+      await getPhraseList(c);
+      if (!c.err) {
 
         setTimeout(() => {
           if (page === 1) {
@@ -293,10 +285,9 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
         }
       },
       async create() {
-        const c = await addCollection({
-          req: {name: hook.collItem.collName}
-        })
-        if(c.resp && !c.resp.errMsg) {
+        const c = new Context({name: hook.collItem.collName})
+        await addCollection(c)
+        if(!c.err) {
           hook.collList.push({name: hook.collItem.collName, tid:c.resp.data.tid, UpdatedAt: 500000000})
           hook.collItem.isShowDialog = false
         } else {
@@ -309,14 +300,13 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
           hook.collItem.isShowDialog = false
           return
         }
-        const c = await renameCollection({
-          req: {
-            tid: hook.collItem.collTid,
-            name: hook.collItem.collName
-          }
+        const c = new Context({
+          tid: hook.collItem.collTid,
+          name: hook.collItem.collName
         })
+        await renameCollection(c)
 
-        if(c.resp && !c.resp.errMsg) {
+        if(!c.err) {
           hook.collList.some((coll) => {
             if(coll.tid === hook.collItem.collTid) {
               coll.name = hook.collItem.collName
@@ -332,12 +322,12 @@ export function collHook(base:IOptionBaseHook) :ICollHook {
         ElMessageBox.alert(geti18nMsg('__confirmToDelete__'), {
           confirmButtonText: geti18nMsg('__confirm__'),
           callback: async (e:string) => {
-            if (e !== 'confirm') return
-            const c = await deleteCollection({
-              req: {tid}
-            })
+            if (e !== 'confirm') return;
+
+            const c = new Context({tid})
+            await deleteCollection(c)
     
-            if(c.resp && !c.resp.errMsg) {
+            if(!c.err) {
               if(tid === hook.tid) {
                 hook.phraseList = []
               }

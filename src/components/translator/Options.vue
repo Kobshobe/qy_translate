@@ -141,7 +141,7 @@ export default defineComponent({
     align-items: center;
     width: 148px;
     padding: 5px 9px 9px 9px;
-    background-color: white;
+    background-color: white; //dark
     border-radius: 8px;
     border: $normalBorder;
     box-shadow: $normalBoxShadow;

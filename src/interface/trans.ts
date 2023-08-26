@@ -1,5 +1,5 @@
 import {Ref} from 'vue'
-import {baseTransHook} from '@/hook/translatorHook'
+import { Context,IDialogMsg,IToastMsg } from '@/api/context'
 
 export declare type ITransMode = 'popup'|'contentInject'|'pdf'
 
@@ -15,11 +15,6 @@ export declare type IPortName = 'translate'|'collect'|'reduceCollect'|'updateMar
 'openOptionsPage'|'analytic'|'applyBDDM'
 
 export declare type ITransFindStatus = 'none'|'ok'|'popLoading'|'reLoading'|'willOK'|'editLoading'
-
-export interface IContext {
-    req: any
-    resp?: IResponse
-}
 
 export interface IBaseHook {
     mode: ITransMode
@@ -112,7 +107,7 @@ export interface ITranslatorHook {
         setLang():void
     }
     usePort({ name, context, onMsgHandle}:IPortHandler): void
-    handleWebErr(msg: IContext): void
+    handleWebErr(msg: Context): void
     getMarkHtml(): string
     updateMark({ success, fail, info }: { success: Function, fail: Function, info: {marks: string, tid: number } }): void
     reduceCollect(): void
@@ -141,56 +136,6 @@ export interface IAllStorage {
     transEngine?: ITransEngine
     showProun?: boolean
     keyDownTrans?: 'Enter'|'Shift+Enter'
-}
-
-export interface IConfig {
-    C: IAllStorage
-    getConf() :void
-    changeTreadWord() :void
-}
-
-export interface IToastMsg {
-    type: 'normal'|'i18n'|'lang'
-    message: string
-    duration?: number
-}
-
-export interface IDialogMsg {
-    type: 'normal'|'i18n'|'lang'
-    message: string
-    confirmText?: string
-    cancelText?: string
-    confirmAction?: any
-}
-
-export interface IBaseReqParams {
-    url: string
-    method: string
-    success?: Function
-    fail?: Function
-    data?: any
-    headers?: any
-    successStatusCode?: number[]
-    timeout?: number
-}
-
-export interface IBaseReqResult {
-    errMsg?: string
-    status: number|undefined
-    data: any
-    response: Response
-}
-
-export interface IServerReqParams {
-    url: string
-    method: string
-    query?: any
-    success?: Function
-    fail?: Function
-    data?: any
-    headers?: any
-    auth: boolean
-    successStatusCode?: number[]
 }
 
 export class Find {
@@ -241,20 +186,6 @@ export interface IWrapTransInfo {
     sTo?: string
     cost?: number
     extraMsg?: Map<string, any>
-}
-
-
-export interface IResponse {
-    resCode?:number
-    resData?:any
-    resMsg?:string
-    resDetail?:string
-    errMsg?: string
-    data?: any
-    status?: number
-    toastMsg?: IToastMsg
-    dialogMsg?: IDialogMsg
-    tipsMessages?: string[]
 }
 
 export interface ITransResult {
@@ -339,8 +270,8 @@ export interface ITransMsg {
 
 export interface IPortHandler {
     name: IPortName
-    context: IContext
-    onMsgHandle?(context:IContext) :void
+    context: Context
+    onMsgHandle?(context:Context) :void
 }
 
 export interface IQrLoginParams {

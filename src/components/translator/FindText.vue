@@ -119,7 +119,7 @@ $foundPaddingTop: 0;
   }
   .text-style-wsrfhedsoufheqiwrhew {
     font-size: $transTextFontSize;
-    color: black;
+    color: black; //dark
     font-family: Arial, Helvetica, sans-serif;
     text-align: left;
   }
@@ -132,7 +132,7 @@ $foundPaddingTop: 0;
     box-sizing: border-box;
     padding: 0 $transEdgePadding 0 $transEdgePadding;
     line-height: 25px;
-    color: black;
+    color: black; //dark
   }
   .no-color-box-wsrfhedsoufheqiwrhew {
     color: rgba(222, 222, 222, 0);

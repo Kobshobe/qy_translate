@@ -45,7 +45,8 @@ export default defineComponent({
   position: relative;
   width: 100%;
   height: 4px;
-  background-color: #f2f2f2;
+  background-color: #f2f2f2; //light
+  // background-color: #333; //dark
   .proccess-wsrfhedsoufheqiwrhew {
     position: absolute;
     left: 0;

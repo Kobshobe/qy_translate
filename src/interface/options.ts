@@ -1,6 +1,7 @@
 // import {TTS} from './translator'
 
-import { IContext, IAllStorage } from "./trans";
+import { IAllStorage } from "./trans";
+import { Context } from "@/api/context";
 
 export interface IOptionBaseHook {
   OP: IConfHook
@@ -60,7 +61,7 @@ export interface ICollHook {
   setShowParaphrase(): void
   nextPage(): void
   back() :void
-  handleRespMsg(c:IContext) :void
+  handleRespMsg(c:Context) :void
   init() :void
   initColl() :void
   collItem: {

@@ -1,8 +1,10 @@
 import {BaseTrans} from '@/translator/share'
 import {SToAlibaba, alLangSupport} from '@/translator/language'
-import {IContext,IWrapTransInfo, ITransResult, IBDDMTransResult, IResponse, IToastMsg, IDialogMsg} from '@/interface/trans'
-import {domainTransApi, baseFetch} from '@/api/api'
+import {IWrapTransInfo, ITransResult, IBaseHook} from '@/interface/trans'
+import {domainTransApi} from '@/api/api'
 import {wrapTranslator} from '@/translator/transWrap'
+import { Context } from '@/api/context'
+import { IBaseResp } from '@/api/request'
 
 export class AlibabaTrans extends BaseTrans {
     SLangToELang = new Map(SToAlibaba)
@@ -11,7 +13,7 @@ export class AlibabaTrans extends BaseTrans {
     LangSupport = alLangSupport
     maxLenght = 1800
 
-    async transDomain(c:IContext) :Promise<IContext> {
+    async transDomain(c:Context) :Promise<Context> {
         const info:IWrapTransInfo = c.req
         const toLongErr = this.checkTextLen(c)
         if(toLongErr) {
@@ -20,7 +22,7 @@ export class AlibabaTrans extends BaseTrans {
         }
 
         // detect lang and set engine lang //marks
-        let err = await this.setLangCode(c)
+        const err = await this.setLangCode(c)
 
         if (err) {
             return c
@@ -43,12 +45,14 @@ export class AlibabaTrans extends BaseTrans {
         }
 
         this.startTiming()
-        const resp = await domainTransApi({q:info.text,from:info.fromCode,to:info.toCode,domain:engineInfo[1], engine:'alibaba'})
+        const ctx = await domainTransApi(new Context({q:info.text,from:info.fromCode,to:info.toCode,domain:engineInfo[1], engine:'alibaba'}))
         
-        if (resp.errMsg) {
-            if(resp.errMsg !== '__noRice__') {
-                this.transErrToAnalytic(c, resp)
-                c.resp = resp
+        if (ctx.err) {
+            if(ctx.err !== '__noRice__') {
+                c.dialogMsg = ctx.dialogMsg
+                c.toastMsg = ctx.toastMsg
+                c.err = ctx.err
+                this.transErrToAnalytic(c, ctx)
                 return c
             }
             this.setExtraMsg(c, '__noRice__', {
@@ -61,45 +65,33 @@ export class AlibabaTrans extends BaseTrans {
 
         this.getCost(c)
         const data:ITransResult = {
-            text: resp.resData.result.reduce((total:string, item:string) => {total+=item}),
+            text: ctx.res.result.reduce((total:string, item:string) => {total+=item}),
             resultFrom: this.getSLang(info.fromCode) as string,
             resultTo: this.getSLang(info.toCode) as string,
             engine: info.engine
         }
 
-        this.transOKToAnalytic(c, resp)
+        this.transOKToAnalytic(c, ctx)
         
 
-        c.resp = {
-            errMsg:'',
-            data
-        }
+        c.res = data
         return c
     }
 
-    async detect(c:IContext) :Promise<IContext> {
-        const mookC:IContext = {
-            req: {
-                text: c.req.text
-            },
-        }
-        await wrapTranslator.baidu.detect(mookC)
-        if(!mookC.resp) {
-            return c
-        }
-        if(mookC.resp.errMsg) {
-            c.resp = mookC.resp
-            return c
+    async detectTextLang(c:Context) :Promise<IBaseResp> {
+        const mookC = new Context({text: c.req.text})
+        const resp = await wrapTranslator.baidu.detectTextLang(mookC)
+        if(resp.err) {
+            return resp
         }
         const lang = mookC.resp.data.langdetected
         const sLang = wrapTranslator.baidu.getSLang(lang)
         const eLang = this.getELang(sLang)
-        mookC.resp.data.langdetected = eLang
-        c.resp = mookC.resp
-        return c
+        resp.res = {lang: eLang}
+        return resp
     }
 
-    async changeEngine(c:IContext) {
+    async changeEngine(c:Context) {
         const err = wrapTranslator.baidu.setELangsFromSlangs(c)
         if (err) {
             this.setLangNotSupportResp(c)

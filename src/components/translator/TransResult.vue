@@ -81,10 +81,8 @@ import {
   defineComponent,
   inject,
   onMounted,
-  provide,
   watch,
   onUnmounted,
-  watchEffect,
   computed
 } from "vue";
 import { transHook } from "@/hook/translatorHook";
@@ -96,7 +94,7 @@ import Options from "./Options.vue";
 import SubTranslator from "./SubTranslator.vue";
 import FindText from "./FindText.vue";
 import Divider from "./Divider.vue";
-import { ITranslatorHook, IBaseHook } from "@/interface/trans";
+import { IBaseHook } from "@/interface/trans";
 import {languages} from '@/translator/language'
 
 export default defineComponent({
@@ -172,6 +170,7 @@ export default defineComponent({
 
 .result-main-wsrfhedsoufheqiwrhew {
   position: relative;
+  color: white;
   .text-container-wsrfhedsoufheqiwrhew {
     box-sizing: border-box;
     width: 100%;

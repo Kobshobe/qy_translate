@@ -40,7 +40,7 @@
 <script lang="ts">
 import { defineComponent, ref, watch, inject } from "vue";
 import Loading from "../../components/base/Loading.vue";
-import { qrLogin } from "../../api/api";
+import { qrLogin } from "../../api/ws";
 import { removeTokenInfo, getTokenFromStorage } from "../../utils/chromeApi";
 import { eventToGoogle } from "@/utils/analytics";
 import {IOptionBaseHook} from '@/interface/options';

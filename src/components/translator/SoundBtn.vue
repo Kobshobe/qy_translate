@@ -1,14 +1,13 @@
 <template>
   <div class="btn-box-wsrfhedsoufheqiwrhew">
-    <SvgIcon type="icon-shengyin-copy" :size="15" />
     <div class="iframeBtn-wsrfhedsoufheqiwrhew" :id="id"></div>
+    <!-- <SvgIcon type="icon-shengyin-copy" :size="15" /> -->
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, inject, watchEffect } from "vue";
+import { defineComponent, onMounted, inject } from "vue";
 import {IBaseHook} from '@/interface/trans'
-import SvgIcon from "../base/SvgIcon.vue";
 import { v4 } from "uuid";
 
 export default defineComponent({
@@ -24,6 +23,8 @@ export default defineComponent({
     theIframe.setAttribute("src", iframeHtmlURL);
     theIframe.setAttribute("frameborder", "0");
     theIframe.setAttribute("scrolling", "no");
+    theIframe.setAttribute("allowtransparency", "true")
+    theIframe.setAttribute("style", "color-scheme:light;background-color:transparent;")
     //@ts-ignore
     baseHook.T[`${props.audioType}Iframe`] = theIframe;
 
@@ -58,7 +59,7 @@ export default defineComponent({
     };
   },
   components: {
-    SvgIcon,
+    // SvgIcon,
   },
   props: {
     audioType: {
@@ -71,6 +72,10 @@ export default defineComponent({
 
 
 <style scoped lang="scss">
+iframe {
+  background-color: transparent;
+  color-scheme: light;
+}
 .btn-box-wsrfhedsoufheqiwrhew {
   position: relative;
   display: flex;

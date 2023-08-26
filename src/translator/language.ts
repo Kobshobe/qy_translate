@@ -226,7 +226,7 @@ export const SToBaidu:Iterable<readonly [string, string]> = [
   [ 'ta', 'tam' ],    [ 'te', 'tel' ],   [ 'tg', 'tgk' ],    [ 'th', 'th' ],
   [ 'tl', 'fil' ],    [ 'tr', 'tr' ],    [ 'uk', 'ukr' ],    [ 'ur', 'urd' ],
   [ 'vi', 'vie' ],    [ 'xh', 'xho' ],   [ 'yi', 'yid' ],    [ 'yo', 'yor' ],
-  [ 'zu', 'zul' ]
+  [ 'zu', 'zul' ],
 ]
 
 export const SToGoogle: Iterable<readonly [string, string]> = [

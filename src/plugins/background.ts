@@ -2,7 +2,6 @@ import {apiWrap} from '../utils/apiWithPort'
 import {openPDFReader,onInstall, bgInit} from '../utils/chromeApi'
 
 chrome.runtime.onConnect.addListener(function (port:chrome.runtime.Port) {
-
   port.onMessage.addListener(async function (msg: any) {
     // @ts-ignore
     apiWrap[port.name](msg, port)
@@ -53,7 +52,7 @@ chrome.runtime.onInstalled.addListener((details) => {
   
 })
 
-chrome.runtime.setUninstallURL("https://www.fishfit.fun:8080/p/web/uninstall", () => {})
+chrome.runtime.setUninstallURL("https://www.fishfit.fun/bqy/web/uninstall", () => {})
 
 chrome.contextMenus.onClicked.addListener(function (clickData) {
   if(clickData.menuItemId === "actionPdfReader") {

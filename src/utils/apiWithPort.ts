@@ -1,33 +1,33 @@
 import { applyBDDM, collectResult, reduceCollect, updateMark } from '@/api/api'
 import { wrapTranslator } from '@/translator/transWrap'
 import { getAudioBase64 } from '@/translator/tts'
-import { openOptionsPage, getTransConf } from '@/utils/chromeApi'
-import { IContext, IResponse, IWrapTransInfo } from '@/interface/trans'
+import { openOptionsPage } from '@/utils/chromeApi'
 import { eventToGoogle } from './analytics'
+import { Context } from '@/api/context'
 
 export const apiWrap = {
-  translate: async (msg: IContext, port: any) => {
+  translate: async (msg: Context, port: any) => {
     port.postMessage(await wrapTranslator.trans(msg))
   },
-  collect: async (c: IContext, port:any) => {
+  collect: async (c: Context, port:any) => {
     port.postMessage(await collectResult(c))
   },
-  reduceCollect: async (c: IContext, port: any) => {
+  reduceCollect: async (c: Context, port: any) => {
     port.postMessage(await reduceCollect(c))
   },
-  updateMark: async (c: IContext, port: any) => {
+  updateMark: async (c: Context, port: any) => {
     port.postMessage(await updateMark(c))
   },
-  tts: async (c: IContext, port: any) => {
+  tts: async (c: Context, port: any) => {
     port.postMessage(await getAudioBase64(c))
   },
-  openOptionsPage: (c: IContext, port: any) => {
+  openOptionsPage: (c: Context, port: any) => {
     openOptionsPage(c.req)
   },
-  analytic: async (c: IContext, port: any) => {
+  analytic: async (c: Context, port: any) => {
     eventToGoogle(c.req)
   },
-  applyBDDM: async (c: IContext, port: any) => {
+  applyBDDM: async (c: Context, port: any) => {
     port.postMessage(await applyBDDM(c))
   }
 }

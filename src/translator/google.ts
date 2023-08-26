@@ -1,8 +1,8 @@
-import {BaseTrans} from '@/translator/share'
-import {SToGoogle} from '@/translator/language'
-import {IContext,IResponse, ITransResult,IWrapTransInfo} from '@/interface/trans'
-import {calcHash} from '@/translator/tk'
-import {baseFetch} from '@/api/api'
+// import {BaseTrans} from '@/translator/share'
+// import {SToGoogle} from '@/translator/language'
+// import {IContext,IResponse, ITransResult,IWrapTransInfo} from '@/interface/trans'
+// import {calcHash} from '@/translator/tk'
+// import {baseFetch} from '@/api/api'
 
 // class TkAndClient {
 //   // edge ttk: 434217.1534559001

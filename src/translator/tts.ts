@@ -1,9 +1,9 @@
 // import assertInputTypes from './assertInputTypes';
 // import axios from 'axios';
-import { baseFetch } from '../api/api'
 import { eventToGoogle } from '@/utils/analytics'
-import {IContext} from '@/interface/trans'
 import {BaiduTrans} from '@/translator/baiduTrans'
+import {Context} from '@/api/context'
+import {baseRequest} from '@/api/request'
 
 interface Option {
   lang?: string;
@@ -81,7 +81,7 @@ const assertInputTypes = (text: string, lang: string, slow: boolean, host: strin
  * @param {number?}  option.timeout default is 10000 (ms)
  * @returns {Promise<string>} url
  */
-export const getAudioBase64 = async (c:IContext): Promise<IContext> => { 
+export const getAudioBase64 = async (c:Context): Promise<Context> => { 
   // assertInputTypes(c.req.text, c.req.lang, slow, host);
 
   // text: string,
@@ -94,18 +94,16 @@ export const getAudioBase64 = async (c:IContext): Promise<IContext> => {
       name: "tts_too_long_err",
       params: {textLenght: c.req.text.length}
     })
-    c.resp = {
-      errMsg: 'too long',
-      toastMsg: {
-        type: 'i18n',
-        message: '__textTooLong__',
-      }
+    c.err = 'too long'
+    c.toastMsg = {
+      type: 'i18n',
+      message: '__textTooLong__',
     }
     return c
   }
 
   const start = new Date().getTime()
-  const res = await baseFetch({
+  const resp = await baseRequest({
     method: 'POST',
     url: 'https://translate.google.cn/_/TranslateWebserverUi/data/batchexecute',
     headers: {
@@ -118,39 +116,38 @@ export const getAudioBase64 = async (c:IContext): Promise<IContext> => {
           [['jQ1olc', JSON.stringify([c.req.text, c.req.lang, false, 'null']), null, 'generic']],
         ])
       ),
-    successStatusCode: [200]
+    // successStatusCode: [200] todo
   });
 
   let result;
-  if(res.errMsg) {
+  if(resp.err) {
     eventToGoogle({
       name: 'google_tts_Err',
       params: {
-        status: res.status,
+        status: resp.statusCode,
         cost: new Date().getTime() - start,
         len: c.req.text.length,
         audioType: c.req.audioType,
-        msg: res.errMsg,
+        msg: resp.err,
       }
     })
 
-    c.resp = {
-      errMsg: "google trans err",
-      toastMsg: {
-        message: '__reqErr__',
-        type: 'i18n'
-      }
+    c.err = 'google trans err'
+    c.toastMsg = {
+      message: '__reqErr__',
+      type: 'i18n'
     }
+
     return c
   } else {
-    result = res.data
+    result = resp.data //todo
   }
 
 
   // 1. parse audio base64 string
-  try {
-    result = JSON.parse(res.data.slice(5));
-  } catch (e) {
+  if (resp.dataType === 'obj' ){
+    result = JSON.parse(resp.data.slice(5));
+  } else {
     eventToGoogle({
       name: 'parse_tts_data_err',
       params: {
@@ -158,12 +155,10 @@ export const getAudioBase64 = async (c:IContext): Promise<IContext> => {
         audioType: c.req.audioType,
       }
     })
-    c.resp = {
-      errMsg: 'parse tts data err',
-      toastMsg: {
-        type: 'i18n',
-        message: '__textTooLong__',
-      }
+    c.err = 'parse tts data err'
+    c.toastMsg = {
+      type: 'i18n',
+      message: '__textTooLong__',
     }
     return c
   }
@@ -178,9 +173,7 @@ export const getAudioBase64 = async (c:IContext): Promise<IContext> => {
         audioType: c.req.audioType,
       }
     })
-    c.resp = {
-      errMsg: 'may_not_support_lang',
-    }
+    c.err = 'may_not_support_lang'
     return c
   }
 
@@ -192,12 +185,10 @@ export const getAudioBase64 = async (c:IContext): Promise<IContext> => {
       name: 'parse_tts_base64_err',
       params: {audioType: c.req.audioType}
     })
-    c.resp = {
-      errMsg: 'parse_tts_base64_err',
-      toastMsg: {
-        type: 'i18n',
-        message: '__hasErr__'
-      }
+    c.err = 'parse_tts_base64_err'
+    c.toastMsg = {
+      type: 'i18n',
+      message: '__hasErr__'
     }
     return c
   }
@@ -205,17 +196,14 @@ export const getAudioBase64 = async (c:IContext): Promise<IContext> => {
   eventToGoogle({
     name: 'google_tts',
     params: {
-      status: res.status,
+      status: resp.statusCode,
       cost: new Date().getTime() - start,
       len: c.req.text.length,
       audioType: c.req.audioType
     }
   })
 
-  c.resp =  {
-    errMsg:'',
-    data: result[0]
-  };
+  c.res = result[0]
   return c
 };
 

@@ -1,5 +1,6 @@
 import {BingTrans} from '@/translator/bingTrans';
-import {IContext,IWrapTransInfo, ITransResult, IResponse} from '@/interface/trans'
+import {IWrapTransInfo, ITransResult} from '@/interface/trans'
+import {Context} from '@/api/context'
 
 test('bing test', async () => {
     // [, res] = `><div id="rich_tta" data-iid="(.+)" class=" ttastable><table>"`.match(/<div id="rich_tta" data-iid="(.+)"/)
@@ -12,7 +13,7 @@ test('bing test', async () => {
     const trans = new BingTrans()
     expect(trans.test()).toBe(true)
 
-    const ctx = <IContext>{}
+    const ctx = <Context>{}
     await trans.getToken()
     console.log(trans.IG, trans.key, trans.token, trans.IID)
     expect(trans.IG).not.toBe("");

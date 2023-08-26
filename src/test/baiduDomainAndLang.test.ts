@@ -1,6 +1,7 @@
 import {languages, SToBaidu} from '@/translator/language'
 import {BaiduTrans} from '@/translator/baiduTrans'
 import {IWrapTransInfo} from '@/interface/trans'
+import { Context } from '@/api/context'
 
 
 test('baidu domain and lang support check', async () => {
@@ -40,7 +41,7 @@ test('baidu domain and lang support check', async () => {
         mode: 'popup'
     }
 
-    await trans.setLangCode({req:info})
+    await trans.setLangCode(new Context({req:info}))
     expect(info.from).toBe('en')
     expect(info.fromCode).toBe('en')
     expect(info.toCode).toBe('zh')
@@ -54,7 +55,7 @@ test('baidu domain and lang support check', async () => {
         engine: 'bdTrans__common',
         mode: 'popup'
     }
-    await trans.setLangCode({req:info})
+    await trans.setLangCode(new Context({req:info}))
     expect(info.from).toBe('zh-CN')
     expect(info.fromCode).toBe('zh')
     expect(info.toCode).toBe('en')
@@ -67,7 +68,7 @@ test('baidu domain and lang support check', async () => {
         engine: 'bdTrans__common',
         mode: 'popup'
     }
-    await trans.setLangCode({req:info})
+    await trans.setLangCode(new Context({req:info}))
     expect(info.from).toBe('en')
     expect(info.fromCode).toBe('en')
     expect(info.toCode).toBe('zh')
@@ -80,7 +81,7 @@ test('baidu domain and lang support check', async () => {
         engine: 'bdTrans__common',
         mode: 'popup'
     }
-    await trans.setLangCode({req:info})
+    await trans.setLangCode(new Context({req:info}))
     expect(info.from).toBe('zh-CN')
     expect(info.to).toBe('en')
     expect(info.fromCode).toBe('zh')

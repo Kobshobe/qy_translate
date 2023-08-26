@@ -13,12 +13,13 @@
     "test:watch": "jest --watchAll",
     "test:marks": "export NODE_ENV=test && jest --watch -f src/test/mark.test.ts",
     "test:bddl": "jest --watch -f baiduDomainAndLang.test.ts",
-    "test:bdc": "jest --watch -f baiduCommonTrans.test.ts",
+    "test:bdc": "jest baidu_ommon_trans.test.ts",
     "test:ggt": "jest --watch -f GTrans.test.ts",
     "test:transHook": "jest --watch -f transHook.test.ts",
     "test:tts": "jest tts.test.ts",
     "test:bdt": "jest bd_trans.test.ts",
-    "test:bing": "jest bing.test.ts"
+    "test:bing": "jest bing.test.ts",
+    "test:ping": "jest ping.test.ts"
   },
   "test": {
     "presets": [

@@ -1,9 +1,10 @@
 import { reactive, watch, computed, markRaw, watchEffect } from 'vue'
 import { IBaseHook } from '@/interface/trans'
 import { newMarkManager, getMarkHtml } from '@/utils/mark'
-import { ITransEngine, ITransStatus, IEditHook, ITransMode, IContext, ITransMsg, ITranslatorHook, Find } from '@/interface/trans'
+import { ITransEngine, ITransStatus, IEditHook, ITransMode, ITransMsg, ITranslatorHook, Find } from '@/interface/trans'
 import { getTransConf } from '@/utils/chromeApi'
 import {BaiduTrans} from '@/translator/baiduTrans'
+import { Context } from '@/api/context'
 
 export function baseTransHook(mode: ITransMode, status: ITransStatus): IBaseHook {
     const hook: IBaseHook = reactive({
@@ -67,7 +68,7 @@ export function baseTransHook(mode: ITransMode, status: ITransStatus): IBaseHook
         openOptionsPage(type: string) {
             hook.usePort({
                 name: 'openOptionsPage',
-                context: { req: { tab: '', type } }
+                context: new Context({tab: '',type})
             })
         },
         dialog: {
@@ -130,12 +131,12 @@ export function baseTransHook(mode: ITransMode, status: ITransStatus): IBaseHook
             eventData.params.locale = chrome.i18n.getMessage("@@ui_locale")
             hook.usePort({
                 name: 'analytic',
-                context: { req: eventData },
+                context: new Context(eventData),
             })
         },
         async usePort({ name, context, onMsgHandle }) {
             const port = chrome.runtime.connect({ name: name })
-            port.onMessage.addListener((context: IContext) => {
+            port.onMessage.addListener((context: Context) => {
                 onMsgHandle && onMsgHandle(context)
             })
             await port.postMessage(context)
@@ -261,10 +262,8 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                 if (!hook.find.result) return
                 await hook.usePort({
                     name: 'translate',
-                    context: {
-                        req: { text: hook.subTranslator.selectText, from: hook.find.result.resultFrom, to: hook.find.result.resultTo, type: 'sub', engine: hook.find.result.engine }
-                    },
-                    onMsgHandle: (context: IContext) => {
+                    context: new Context({ text: hook.subTranslator.selectText, from: hook.find.result.resultFrom, to: hook.find.result.resultTo, type: 'sub', engine: hook.find.result.engine }),
+                    onMsgHandle: (context: Context) => {
                         hook.subTranslator.resultData = context.resp?.data
                         hook.subTranslator.status = 'result'
                     }
@@ -374,40 +373,39 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
         },
         async usePort({ name, context, onMsgHandle }) {
             const port = chrome.runtime.connect({ name: name })
-            port.onMessage.addListener((context: IContext) => {
+            port.onMessage.addListener((context: Context) => {
                 hook.handleWebErr(context)
                 onMsgHandle && onMsgHandle(context)
             })
             await port.postMessage(context)
         },
         handleWebErr(context) {
-            if (context.req.id && context.req.id !== hook.base.transID) return
-            if (!context.resp) return
-            if (context.resp.tipsMessages) {
-                hook.base.tips.messages = ['', ...context.resp.tipsMessages]
+            if (context?.req?.id && context.req.id !== hook.base.transID) return
+
+            if (context.tipsMessages) {
+                hook.base.tips.messages = ['', ...context.tipsMessages]
             } else {
                 hook.base.tips.messages = []
             }
 
-            if (context.resp.errMsg === '__needLogin__' || context.resp.errMsg === '__needRelogin__') {
+            if (context.err === '__needLogin__' || context.err === '__needRelogin__' || context.err === 'JwtTokenErr') {
                 hook.base.dialog.showDialog({
                     type: 'i18n',
-                    message: context.resp.errMsg,
+                    message: context.err,
                     confirmText: 'scanQR',
                     cancelText: '',
                     confirmAction: () => {
                         hook.usePort({
                             name: 'openOptionsPage',
-                            context: { req: { tab: 'login' } },
+                            context: new Context({tab:'login'}),
                         })
                     }
                 })
             }
-
-            else if (context.resp.dialogMsg) {
-                switch (context.resp.dialogMsg.message) {
+            else if (context.dialogMsg) {
+                switch (context.dialogMsg.message) {
                     case '__wantToApplyTrans__':
-                        context.resp.dialogMsg.confirmAction = hook.applyBDDM
+                        context.dialogMsg.confirmAction = hook.applyBDDM
                         break
                     case '__transReqErr__':
                         if (hook.options.engine) {
@@ -418,8 +416,8 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
 
                             return
                         }
-                        context.resp.dialogMsg.confirmText = '__change__'
-                        context.resp.dialogMsg.confirmAction = () => {
+                        context.dialogMsg.confirmText = '__change__'
+                        context.dialogMsg.confirmAction = () => {
                             let transEngine: ITransEngine = 'ggTrans__common'
                             if (hook.base.C.transEngine === 'ggTrans__common' || !hook.base.C.transEngine) {
                                 transEngine = 'bdTrans__common'
@@ -437,11 +435,12 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                         }
                         break
                 }
-                hook.base.dialog.showDialog(context.resp.dialogMsg)
+                hook.base.dialog.showDialog(context.dialogMsg)
             }
-
-            else if (context.resp.toastMsg) {
-                hook.base.toast.showToast(context.resp.toastMsg)
+            else if (context.toastMsg) {
+                hook.base.toast.showToast(context.toastMsg)
+            } else if (context.err) {
+                //todo
             }
         },
         getMarkHtml() {
@@ -450,9 +449,9 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
         async updateMark({ success, fail, info }) {
             await hook.usePort({
                 name: 'updateMark',
-                context: { req: info },
-                onMsgHandle: (context: IContext) => {
-                    if (context.resp?.status == 200) {
+                context: new Context(info),
+                onMsgHandle: (context: Context) => {
+                    if (!context.err) {
                         success()
                     } else {
                         fail()
@@ -463,9 +462,9 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
         async reduceCollect() {
             await hook.usePort({
                 name: 'reduceCollect',
-                context: { req: { tid: hook.find.tid } },
+                context: new Context({tid: hook.find.tid}),
                 onMsgHandle: (context) => {
-                    if (!context.resp?.errMsg && context.resp?.status === 200) {
+                    if (!context.err) {
                         hook.find.isCollected = false
                         hook.find.tid = null
                     }
@@ -481,29 +480,23 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
             }
             await hook.usePort({
                 name: 'collect',
-                context: {
-                    req: {
-                        text: hook.find.text,
-                        translation: hook.find.result.text,
-                        marks: hook.subTranslator.marksStr,
-                        resultFrom: hook.find.result.resultFrom,
-                        resultTo: hook.find.result.resultTo,
-                        engine: hook.find.result.engine
-                    }
-                },
+                context: new Context({
+                    text: hook.find.text,
+                    translation: hook.find.result.text,
+                    marks: hook.subTranslator.marksStr,
+                    resultFrom: hook.find.result.resultFrom,
+                    resultTo: hook.find.result.resultTo,
+                    engine: hook.find.result.engine
+                }),
                 onMsgHandle: (c) => {
-                    if (!c.resp?.errMsg) {
+                    if (!c.err) {
                         hook.find.isCollected = true
-                        console.log("onMsgHandle: ", c.resp)
-                        hook.find.tid = c.resp?.resData.tid
+                        hook.find.tid = c.res.tid
                         success && success(c.resp)
-                    } else {
-                        if (fail) fail({ msg: "needLogin" })
                     }
                 }
             })
         },
-        //翻译
         async trans(info) {
             const t = info.text
             if (t.replace(/\s+|[\r\n]+/g, "").length === 0) {
@@ -529,18 +522,15 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
 
             await hook.usePort({
                 name: 'translate',
-                context: {
-                    req: {
-                        text: find.text, from: info.from, to: info.to, type: info.type,
-                        mode: hook.base.mode, engine: hook.options.engine, id: ++hook.base.transID
-                    }
-                },
-                onMsgHandle: (context: IContext) => {
-                    if (!context.resp) return
+                context: new Context({
+                    text: find.text, from: info.from, to: info.to, type: info.type,
+                    mode: hook.base.mode, engine: hook.options.engine, id: ++hook.base.transID
+                }),
+                onMsgHandle: (context: Context) => {
                     if (context.req.id !== hook.base.transID) {
-                        context.resp.errMsg = 'no equal id'
+                        context.err = 'no equal id'
                     }
-                    if (context.resp.errMsg) {
+                    if (context.err) {
                         if (hook.base.findStatus === 'reLoading') {
                             hook.base.findStatus = 'willOK'
                             setTimeout(() => {
@@ -551,13 +541,13 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                         }
                         return
                     }
-                    if (!context.resp.data) {
+                    if (!context.res) {
                         hook.base.findStatus = 'ok'
                         return
                     }
                     hook.base.status = "result"
                     hook.find = find
-                    hook.find.result = context.resp.data;
+                    hook.find.result = context.res;
                     hook.marksList = [];
                     hook.options.isShow = false
                     hook.options.getData();
@@ -611,7 +601,6 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
             //     context: {req:{ text: text, lang: lang, audioType: audioType}},
             //     onMsgHandle: (context: IContext) => {
             //         if (!context.resp || context.resp.errMsg) {
-            //             console.log("getTTS err msg: ", context.resp?.errMsg)
             //             return
             //         }
             //         // @ts-ignore
@@ -654,13 +643,13 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
             eventData.params.locale = chrome.i18n.getMessage("@@ui_locale")
             hook.usePort({
                 name: 'analytic',
-                context: { req: eventData },
+                context: new Context(eventData),
             })
         },
         async applyBDDM() {
             await hook.usePort({
                 name: "applyBDDM",
-                context: { req: {} }
+                context: new Context({})
             })
             hook.base.dialog.show = false
         },
