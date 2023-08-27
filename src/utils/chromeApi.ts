@@ -1,4 +1,3 @@
-import { Mode } from '@/config'
 import { ITokenInfo, ITokenInfoFromCloud, IAllStorage } from '@/interface/trans'
 import { v4 } from "uuid";
 import { eventToGoogle } from './analytics'
