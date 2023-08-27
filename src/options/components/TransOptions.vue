@@ -6,7 +6,7 @@
         :placeholder="geti18nMsg('__choice__')"
         @change="hook.OP.conf.changeTransEngine"
         :filterable="false"
-        size="medium"
+        size="default"
       >
         <el-option-group
           v-for="group in engines"
@@ -14,7 +14,7 @@
           :label="geti18nMsg(group.code)"
         >
           <el-option
-            v-for="(engine, key, index) in group.engines"
+            v-for="(engine, _, index) in group.engines"
             :key="index"
             :label="geti18nMsg(engine.code)"
             :value="engine.code"
@@ -46,7 +46,7 @@
             :placeholder="geti18nMsg('__choice__')"
             @change="hook.OP.conf.changeMainLang"
             filterable
-            size="medium"
+            size="default"
           >
             <el-option
               v-for="(lang, key, index) in languages"
@@ -65,7 +65,7 @@
             :placeholder="geti18nMsg('__choice__')"
             @change="hook.OP.conf.changeSecondLang"
             filterable
-            size="medium"
+            size="default"
           >
             <el-option
               v-for="(lang, key, index) in languages"
@@ -116,10 +116,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, inject } from "vue";
+import { defineComponent, inject } from "vue";
 import OptionItem from "./OptionItem.vue";
 import { languages, engines } from "@/translator/trans_base";
-import { platform } from "@/config";
 import { IOptionBaseHook } from "@/interface/options";
 import { getLocaleLang, geti18nMsg } from "@/utils/share";
 
