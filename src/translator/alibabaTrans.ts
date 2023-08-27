@@ -1,6 +1,6 @@
 import {BaseTrans} from '@/translator/share'
-import {SToAlibaba, alLangSupport} from '@/translator/language'
-import {IWrapTransInfo, ITransResult, IBaseHook} from '@/interface/trans'
+import {SToAlibaba, alLangSupport} from '@/translator/trans_base'
+import {IWrapTransInfo, ITransResult} from '@/interface/trans'
 import {domainTransApi} from '@/api/api'
 import {wrapTranslator} from '@/translator/transWrap'
 import { Context } from '@/api/context'
@@ -84,7 +84,7 @@ export class AlibabaTrans extends BaseTrans {
         if(resp.err) {
             return resp
         }
-        const lang = mookC.resp.data.langdetected
+        const lang = resp.res.lang
         const sLang = wrapTranslator.baidu.getSLang(lang)
         const eLang = this.getELang(sLang)
         resp.res = {lang: eLang}

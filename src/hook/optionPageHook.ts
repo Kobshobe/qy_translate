@@ -9,9 +9,6 @@ import { TTS } from '@/translator/tts';
 import { geti18nMsg } from '@/utils/share'
 import { Context } from '@/api/context';
 
-
-const optionTransMsg = chrome.i18n.getMessage("optionTrans")
-const optionLoginMsg = chrome.i18n.getMessage("optionLogin")
 const treadWordOff = chrome.i18n.getMessage("treadWordOff")
 
 export function optionBaseHook(): IOptionBaseHook {
@@ -372,9 +369,8 @@ export function collHook(base: IOptionBaseHook): ICollHook {
 
     },
     async getCollList() {
-      const c = new Context({})
-      await getCollList(c)
-      if (c.resp.data) {
+      const c = await getCollList(new Context({}))
+      if (c.res) {
         const data = c.res.collList as ICollection[];
         hook.collList = [{ name: geti18nMsg('__default__'), tid: 0, UpdatedAt: 50000000000000 }, ...data]
         hook.collList.sort((a, b) => {

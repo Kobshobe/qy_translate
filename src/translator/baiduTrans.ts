@@ -1,7 +1,7 @@
 import {BaseTrans} from '@/translator/share'
 import {IWrapTransInfo, ITransResult} from '@/interface/trans'
 import {domainTransApi} from '@/api/api'
-import {SToBaidu, bdLangSupport} from '@/translator/language'
+import {SToBaidu, bdLangSupport} from '@/translator/trans_base'
 import { Context } from '@/api/context'
 import { baseRequest, IBaseResp } from '@/api/request'
 

@@ -2,7 +2,7 @@ import { Mode } from '@/config'
 import { ITokenInfo, ITokenInfoFromCloud, IAllStorage } from '@/interface/trans'
 import { v4 } from "uuid";
 import { eventToGoogle } from './analytics'
-import { languages } from '@/translator/language'
+import { languages } from '@/translator/trans_base'
 import { clientVersion } from '@/config'
 
 export async function getTransConf(): Promise<IAllStorage> {

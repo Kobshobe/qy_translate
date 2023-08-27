@@ -85,7 +85,7 @@
 <script lang="ts">
 import { defineComponent, inject} from "vue";
 import IconBtn from "../base/IconBtn.vue";
-import { languages, engines } from "@/translator/language";
+import { languages, engines } from "@/translator/trans_base";
 import { IBaseHook } from "@/interface/trans";
 import { getLocaleLang, geti18nMsg } from "@/utils/share";
 
@@ -195,4 +195,4 @@ export default defineComponent({
     }
   }
 }
-</style>
+</style>@/translator/trans_base

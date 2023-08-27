@@ -1,4 +1,3 @@
-import {languages, SToBaidu} from '@/translator/language'
 import {BaiduTrans} from '@/translator/baiduTrans'
 import {IWrapTransInfo} from '@/interface/trans'
 import { Context } from '@/api/context'

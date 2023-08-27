@@ -1,6 +1,5 @@
 import {BaseTrans} from '@/translator/share';
-import {IWrapTransInfo, ITransResult, IBDDMTransResult} from '@/interface/trans';
-import {domainTransApi} from '@/api/api';
+import {ITransResult} from '@/interface/trans';
 import { Context } from '@/api/context';
 import { baseRequest } from '@/api/request';
 
@@ -27,6 +26,7 @@ export class BingTrans extends BaseTrans {
             url: this.HOME_PAGE,
             method: 'get',
         })
+        console.log("bing1: ", resp)
         this.IG = resp.data.match(/IG:"([A-Za-z0-9]+)"/)[1];
 
         [, this.key, this.token] = resp.data.match(
@@ -63,6 +63,7 @@ export class BingTrans extends BaseTrans {
             method: "post",
             headers: this.HEADERS,
         })
+        console.log("bing:trams: ", resp)
 
         return {
             method: "POST",

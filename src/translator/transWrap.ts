@@ -6,14 +6,12 @@ import {getFromeStorage} from '@/utils/chromeApi'
 import {Context} from '@/api/context'
 
 class WrapTranslator {
-    // google: GoogleTrans
     baidu: BaiduTrans
     alibaba: AlibabaTrans
     bing: BingTrans
     lastTrans = 0
 
     constructor() {
-        // this.google = new GoogleTrans()
         this.baidu = new BaiduTrans()
         this.alibaba = new AlibabaTrans()
         this.bing = new BingTrans()
@@ -43,12 +41,11 @@ class WrapTranslator {
       
       const engineInfo = info.engine ? info.engine.split("__") : undefined
       if(!engineInfo) {
+        debugger
         return await this.baidu.CTrans(c)
       }
 
       switch (engineInfo[0]) {
-        // case 'ggTrans':
-        //   return await this.google.trans(c)
         case 'bdTrans':
           return await this.baidu.CTrans(c)
         case 'bing':

@@ -118,7 +118,7 @@
 <script lang="ts">
 import { defineComponent, ref, inject } from "vue";
 import OptionItem from "./OptionItem.vue";
-import { languages, engines } from "@/translator/language";
+import { languages, engines } from "@/translator/trans_base";
 import { platform } from "@/config";
 import { IOptionBaseHook } from "@/interface/options";
 import { getLocaleLang, geti18nMsg } from "@/utils/share";
@@ -171,4 +171,4 @@ export default defineComponent({
     }
   }
 }
-</style>
+</style>@/translator/trans_base

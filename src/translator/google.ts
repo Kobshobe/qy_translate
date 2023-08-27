@@ -1,8 +1,11 @@
 // import {BaseTrans} from '@/translator/share'
 // import {SToGoogle} from '@/translator/language'
-// import {IContext,IResponse, ITransResult,IWrapTransInfo} from '@/interface/trans'
+// import {ITransResult,IWrapTransInfo} from '@/interface/trans'
 // import {calcHash} from '@/translator/tk'
-// import {baseFetch} from '@/api/api'
+// import {baseRequest} from '@/api/request'
+// import {Context} from '@/api/context'
+// import {wrapTranslator} from '@/translator/transWrap'
+// import { IBaseResp } from '@/api/request'
 
 // class TkAndClient {
 //   // edge ttk: 434217.1534559001
@@ -42,15 +45,15 @@
 //     }).join("&")
 //   }
 
-//   async trans(c:IContext) :Promise<IContext> {
+//   async trans(c:Context) :Promise<Context> {
 //     const info:IWrapTransInfo = c.req
 
 //     const tooLongErr = this.checkTextLen(c)
-//     if(c.resp && c.resp.errMsg) {
+//     if(c.err) {
 //       return c
 //     }
 
-//     let err = await this.setLangCode(c)
+//     const err = await this.setLangCode(c)
 //     if (err) return c
 
 //     /*
@@ -85,20 +88,16 @@
 //     const realUrl = this.HOST + '?' + dtPramas + paramsData.toString() + this.tkTool.getTk(info.text)
 //     const start = new Date().getTime()
 
-//     let resp = await this.oneTrans(info, realUrl, 30000)
+//     const resp = await this.oneTrans(info, realUrl, 30000)
     
-//     if(resp.status !== 200) {
-//       const errResp:IResponse = {
-//         status: resp.status,
-//         errMsg: `gg_trans_err_${resp.status}`,
-//         dialogMsg: {
-//           type: 'i18n',
-//           message: '__transReqErr__'
-//         }
+//     if(resp.statusCode !== 200) {
+//       c.err = "__reqErr__"
+//       c.dialogMsg = {
+//         type: 'i18n',
+//         message: '__transReqErr__'
 //       }
 //       this.tkTool.next()
-//       this.transErrToAnalytic(c, resp)
-//       c.resp = errResp
+//       // this.transErrToAnalytic(c, resp) todo
 //       return c
 //     }
     
@@ -130,19 +129,15 @@
 //       })
 //     }
 
-//     this.transOKToAnalytic(c, resp)
-//     c.resp = {
-//       status: resp.status,
-//       errMsg: '',
-//       data: result,
-//     }
+//     // this.transOKToAnalytic(c, resp) todo
+//     c.res = result
 //     return c
 //   }
 
-//   async oneTrans(info:IWrapTransInfo, url:string, timeout:number) :Promise<IResponse> {
+//   async oneTrans(info:IWrapTransInfo, url:string, timeout:number) :Promise<IBaseResp> {
 //     const start = new Date().getTime()
 
-//     const resp = await baseFetch({
+//     const resp = await baseRequest({
 //       url: url,
 //       method: 'GET',
 //       timeout,
@@ -154,28 +149,19 @@
 //     return resp
 //   }
 
-//   async detect(c:IContext) {
-//     const info:IWrapTransInfo = c.req
-//     const paramsData = new URLSearchParams({
-//       client: this.tkTool.client,
-//       source: 'input',
-//       hl: 'en-US',
-//       sl: 'auto',
-//       tl: 'zh-CN',
-//       dj: '1',
-//       q: c.req.text.slice(0, 150),
-//       dt: 't',
-//     })
-
-//     const url = this.HOST + '?' + paramsData.toString() + this.tkTool.getTk(info.text)
-
-//     c.resp = await this.oneTrans(info, url, 20000)
-//     if (!c.resp.errMsg) {
-//       c.resp.data.langdetected = c.resp.data.src
+//   async detectTextLang(c:Context) :Promise<IBaseResp> {
+//     const mookC = new Context({text: c.req.text})
+//     const resp = await wrapTranslator.baidu.detectTextLang(mookC)
+//     if(resp.err) {
+//         c.err = resp.err
+//         return resp
 //     }
-
-//     return c
-//   }
+//     const lang = resp.res.lang
+//     const sLang = wrapTranslator.baidu.getSLang(lang)
+//     const eLang = this.getELang(sLang)
+//     resp.res = {lang: eLang}
+//     return resp
+// }
 
 // }
 

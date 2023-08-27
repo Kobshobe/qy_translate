@@ -95,7 +95,7 @@ import SubTranslator from "./SubTranslator.vue";
 import FindText from "./FindText.vue";
 import Divider from "./Divider.vue";
 import { IBaseHook } from "@/interface/trans";
-import {languages} from '@/translator/language'
+import {languages} from '@/translator/trans_base'
 
 export default defineComponent({
   setup() {
@@ -221,4 +221,4 @@ export default defineComponent({
   background: rgba(0, 0, 0, 0.1);
   -webkit-box-shadow: inset006pxrgba(0, 0, 0, 0.5);
 }
-</style>
+</style>@/translator/trans_base

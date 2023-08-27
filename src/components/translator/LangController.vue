@@ -80,9 +80,8 @@
 
 <script lang="ts">
 import IconBtn from "@/components/base/IconBtn.vue";
-import { defineComponent, inject, watchEffect } from "vue";
-import { languages } from "@/translator/language";
-import { baseTransHook } from "@/hook/translatorHook";
+import { defineComponent, inject } from "vue";
+import { languages } from "@/translator/trans_base";
 import { IBaseHook } from "@/interface/trans";
 import { getLocaleLang } from "@/utils/share";
 
@@ -150,4 +149,4 @@ export default defineComponent({
   }
   // border-bottom: 1px solid #ddd;
 }
-</style>
+</style>@/translator/trans_base

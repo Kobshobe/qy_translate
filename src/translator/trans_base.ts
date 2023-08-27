@@ -10,10 +10,10 @@ export const engines = [
     engines: {
       baidu:{
         code: 'bdTrans__common'
-      },
+      }
       // bing: {
       //   code: 'bing__common'
-      // }
+      // },
       // google: {
       //   code: 'ggTrans__common'
       // },
