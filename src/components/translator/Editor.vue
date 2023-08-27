@@ -77,11 +77,9 @@ import {
   onMounted,
   ref
 } from "vue";
-import { ITranslatorHook } from "@/interface/trans";
 import IconBtn from "../base/IconBtn.vue";
 import Loading from "../base/Loading.vue";
 import LangController from "./LangController.vue";
-import { editHook } from "@/hook/translatorHook";
 import {IBaseHook} from '@/interface/trans';
 
 export default defineComponent({

@@ -23,7 +23,6 @@
 
 <script lang="ts">
 import { defineComponent, inject } from 'vue'
-// import PhraseToolBtn from '@/options/components/PhraseToolBtn.vue'
 import {IOptionBaseHook} from '@/interface/options'
 import IconBtn from "@/components/base/IconBtn.vue";
 

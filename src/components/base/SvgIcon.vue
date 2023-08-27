@@ -196,10 +196,6 @@
 import { defineComponent } from "vue";
 
 export default defineComponent({
-  //   setup(props) {
-  //     let p = chrome.runtime.getURL(`assets/images/${props.type}.svg`);
-
-  //   },
   props: {
     type: {
       type: String,

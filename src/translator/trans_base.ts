@@ -1,9 +1,3 @@
-interface ILangInfoWrap {
-  en: string
-  'zh-CN': string
-  baidu: string
-}
-
 export const engines = [
   {
     code: '__commonTrans__',

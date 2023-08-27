@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, provide } from "vue";
+import { defineComponent, provide } from "vue";
 import { optionBaseHook } from "@/hook/optionPageHook";
 import User from "@/options/components/User.vue";
 import QRLogin2 from '@/options/components/QRLogin2.vue';

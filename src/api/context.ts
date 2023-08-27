@@ -32,25 +32,4 @@ export class Context {
     constructor(req:any) {
         this.req = req
     }
-
-    // respMsg() :string {
-    //     return this.resp?.msg ? this.resp?.msg : ''
-    // }
-
-    // respMsgOrErr() :string {
-    //     if (this.resp?.msg) {
-    //         return this.resp.msg
-    //     } else if (this.err) {
-    //         return this.err
-    //     } else {
-    //         return ''
-    //     }
-    // }
-
-    // isOk() :boolean {
-    //     if (this.err || this.resp.msg) {
-    //         return false
-    //     }
-    //     return true
-    // }
 }

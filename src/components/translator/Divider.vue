@@ -39,7 +39,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-// @import "@/app.scss";
 
 .divider-wsrfhedsoufheqiwrhew {
   position: relative;

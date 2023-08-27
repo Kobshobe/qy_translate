@@ -13,7 +13,6 @@
 <script lang="ts">
 import { defineComponent, inject } from "vue";
 import CollItem from "@/options/components/CollItem.vue";
-import IconBtn from '@/components/base/IconBtn.vue'
 
 export default defineComponent({
   setup() {
@@ -22,7 +21,7 @@ export default defineComponent({
     return { hook };
   },
   components: {
-    CollItem,IconBtn
+    CollItem
   },
 });
 </script>

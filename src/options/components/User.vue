@@ -18,9 +18,7 @@
 
 <script lang="ts">
 import { defineComponent, inject } from "vue";
-import { removeTokenInfo } from "@/utils/chromeApi";
 import { geti18nMsg } from "@/utils/share";
-import { eventToGoogle } from "@/utils/analytics";
 import {IOptionBaseHook} from '@/interface/options'
 import SvgIcon from '../base/SvgIcon.vue';
 

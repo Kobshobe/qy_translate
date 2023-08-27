@@ -41,9 +41,8 @@
 import { defineComponent, ref } from "vue";
 import { geti18nMsg } from "@/utils/share";
 import { eventToGoogle } from "@/utils/analytics";
-import {} from "@/config";
 import { openPDFReader } from "@/utils/chromeApi";
-import { platform, store, client } from "@/config";
+import { platform, store } from "@/config";
 import SvgIcon from '@/components/base/SvgIcon.vue'
 
 

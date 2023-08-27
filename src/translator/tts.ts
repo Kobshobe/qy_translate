@@ -1,5 +1,3 @@
-// import assertInputTypes from './assertInputTypes';
-// import axios from 'axios';
 import { eventToGoogle } from '@/utils/analytics'
 import {BaiduTrans} from '@/translator/baiduTrans'
 import {Context} from '@/api/context'
