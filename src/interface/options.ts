@@ -56,7 +56,7 @@ export interface ICollHook {
   playTTS(index: number, isPlayList?: boolean) :void
   moveOutList(): void
   getCollList(): void
-  getPhraseList(collId: number, page: number):void
+  getPhraseList(collId: number|undefined, page: number):void
   setShowMarks(): void
   setShowParaphrase(): void
   nextPage(): void

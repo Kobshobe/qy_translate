@@ -1,13 +1,17 @@
 <template>
-  <div class="popup_main">
+  <ThemeElement>
+    <div class="popup_main">
     <Translator />
   </div>
+  </ThemeElement>
+  
 </template>
 
 <script lang="ts">
 import { defineComponent, provide } from "vue";
 import { baseTransHook } from '@/hook/translatorHook'
 import Translator from "@/components/translator/Translator.vue";
+import ThemeElement from "@/components/base/ThemeElement.vue";
 
 export default defineComponent({
   setup() {
@@ -21,12 +25,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
 .popup_main {
   width: 400px;
 }

@@ -6,5 +6,4 @@ const theApp = createApp(app)
 setUI(theApp)
 handleErrAndWarn(theApp)
 
-
 theApp.mount('#app')

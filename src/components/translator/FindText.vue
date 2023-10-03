@@ -1,19 +1,19 @@
 <template>
-  <div class="text-scroll-box-wsrfhedsoufheqiwrhew" ref="foundScrollDOM">
-    <div v-if="mode === 'foundText'" class="found-box-wsrfhedsoufheqiwrhew">
+  <div class="text-scroll-box" ref="foundScrollDOM">
+    <div v-if="mode === 'foundText'" class="found-box">
       <div
         v-if="mode === 'foundText'"
         class="
-          text-style-wsrfhedsoufheqiwrhew
-          mark-text-box-wsrfhedsoufheqiwrhew
-          no-color-box-wsrfhedsoufheqiwrhew
+          text-style
+          mark-text-box
+          no-color-box
         "
         v-html="markHtml"
       ></div>
       <div
         class="
-          text-style-wsrfhedsoufheqiwrhew
-          found-text-box-wsrfhedsoufheqiwrhew
+          text-style
+          found-text-box
         "
         v-on:mouseup.stop="findTextMouseup"
       >
@@ -23,8 +23,8 @@
     <div
       v-else
       class="
-        text-style-wsrfhedsoufheqiwrhew
-        result-text-box-wsrfhedsoufheqiwrhew
+        text-style
+        result-text-box
       "
     >
       {{ baseHook.T.find.result?.text }}
@@ -32,8 +32,8 @@
     <div
       v-if="baseHook.C.showProun && mode === 'foundText' && baseHook.T.find.result?.sPronunciation && baseHook.T.find.text.length < 27"
       class="
-        result-text-box-wsrfhedsoufheqiwrhew
-        pronunciation-wsrfhedsoufheqiwrhew
+        result-text-box
+        pronunciation
       "
     >
       [{{ baseHook.T.find.result.sPronunciation }}]
@@ -41,8 +41,8 @@
     <div
       v-else-if="baseHook.C.showProun && mode === 'resultText' && baseHook.T.find.result?.tPronunciation && baseHook.T.find.text.length < 27"
       class="
-        result-text-box-wsrfhedsoufheqiwrhew
-        pronunciation-wsrfhedsoufheqiwrhew
+        result-text-box
+        pronunciation
       "
     >
       [{{ baseHook.T.find.result.tPronunciation }}]
@@ -50,55 +50,87 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { defineComponent, inject, watch, ref } from "vue";
 import { IBaseHook } from "@/interface/trans";
 
-export default defineComponent({
-  props: {
-    mode: String, // foundText, resultText
-  },
-  setup(props) {
-    const baseHook = inject("baseHook") as IBaseHook;
-    const markHtml = ref("");
-    const foundScrollDOM = ref<any | null>(null);
+const props = defineProps({
+  mode: String, // foundText, resultText
+})
 
+const baseHook = inject("baseHook") as IBaseHook;
+const markHtml = ref("");
+const foundScrollDOM = ref<any | null>(null);
+
+markHtml.value = baseHook.T.getMarkHtml();
+
+const findTextMouseup = (e: any) => {
+  const sel: any = window.getSelection();
+  if (sel.toString().replace(/[\s|\n]/g, "") !== "") {
+    baseHook.T.subTranslator.top =
+      e.offsetY - foundScrollDOM.value.scrollTop + 15;
+    baseHook.T.subTranslator.left = e.offsetX;
+    baseHook.T.subTranslator.selectText = sel.toString();
+    baseHook.T.subTranslator.selectRange = [
+      sel.getRangeAt(0).startOffset,
+      sel.getRangeAt(0).endOffset,
+    ];
+    baseHook.T.subTranslator.bookMark();
+    baseHook.T.subTranslator.status = "showGate";
+  }
+};
+
+watch(
+  () => baseHook.T.marksList,
+  () => {
     markHtml.value = baseHook.T.getMarkHtml();
+  }
+);
 
-    const findTextMouseup = (e: any) => {
-      const sel: any = window.getSelection();
-      if (sel.toString().replace(/[\s|\n]/g, "") !== "") {
-        baseHook.T.subTranslator.top =
-          e.offsetY - foundScrollDOM.value.scrollTop + 15;
-        baseHook.T.subTranslator.left = e.offsetX;
-        baseHook.T.subTranslator.selectText = sel.toString();
-        baseHook.T.subTranslator.selectRange = [
-          sel.getRangeAt(0).startOffset,
-          sel.getRangeAt(0).endOffset,
-        ];
-        baseHook.T.subTranslator.bookMark();
-        baseHook.T.subTranslator.status = "showGate";
-      }
-    };
+// export default defineComponent({
+//   props: {
+//     mode: String, // foundText, resultText
+//   },
+//   setup(props) {
+//     const baseHook = inject("baseHook") as IBaseHook;
+//     const markHtml = ref("");
+//     const foundScrollDOM = ref<any | null>(null);
 
-    watch(
-      () => baseHook.T.marksList,
-      () => {
-        markHtml.value = baseHook.T.getMarkHtml();
-      }
-    );
+//     markHtml.value = baseHook.T.getMarkHtml();
 
-    return { baseHook, markHtml, findTextMouseup, foundScrollDOM };
-  },
-});
+//     const findTextMouseup = (e: any) => {
+//       const sel: any = window.getSelection();
+//       if (sel.toString().replace(/[\s|\n]/g, "") !== "") {
+//         baseHook.T.subTranslator.top =
+//           e.offsetY - foundScrollDOM.value.scrollTop + 15;
+//         baseHook.T.subTranslator.left = e.offsetX;
+//         baseHook.T.subTranslator.selectText = sel.toString();
+//         baseHook.T.subTranslator.selectRange = [
+//           sel.getRangeAt(0).startOffset,
+//           sel.getRangeAt(0).endOffset,
+//         ];
+//         baseHook.T.subTranslator.bookMark();
+//         baseHook.T.subTranslator.status = "showGate";
+//       }
+//     };
+
+//     watch(
+//       () => baseHook.T.marksList,
+//       () => {
+//         markHtml.value = baseHook.T.getMarkHtml();
+//       }
+//     );
+
+//     return { baseHook, markHtml, findTextMouseup, foundScrollDOM };
+//   },
+// });
 </script>
 
 <style scoped lang="scss">
-// @import "@/app.scss";
 
 $foundPaddingTop: 0;
 
-.text-scroll-box-wsrfhedsoufheqiwrhew {
+.text-scroll-box {
   box-sizing: border-box;
   width: 100%;
   min-height: 100px;
@@ -110,34 +142,34 @@ $foundPaddingTop: 0;
     background: #b4d7ff;
     color: black;
   }
-  ::v-deep(.mark-text-wsrfhedsoufheqiwrhew) {
+  ::v-deep(.mark-text) {
     background: linear-gradient(transparent 65%, #81d3f8 50%);
     background-size: 200% 100%;
     background-repeat: no-repeat;
     background-position: 200% 0;
     background-position: 100% 0;
   }
-  .text-style-wsrfhedsoufheqiwrhew {
+  .text-style {
     font-size: $transTextFontSize;
-    color: black; //dark
+    color: var(--xx-common-text-color);
     font-family: Arial, Helvetica, sans-serif;
     text-align: left;
   }
 
-  .found-box-wsrfhedsoufheqiwrhew {
+  .found-box {
     box-sizing: border-box;
     position: relative;
   }
-  .found-text-box-wsrfhedsoufheqiwrhew {
+  .found-text-box {
     box-sizing: border-box;
     padding: 0 $transEdgePadding 0 $transEdgePadding;
     line-height: 25px;
-    color: black; //dark
+    color: var(--xx-common-text-color);
   }
-  .no-color-box-wsrfhedsoufheqiwrhew {
+  .no-color-box {
     color: rgba(222, 222, 222, 0);
   }
-  .mark-text-box-wsrfhedsoufheqiwrhew {
+  .mark-text-box {
     box-sizing: border-box;
     position: absolute;
     top: 0;
@@ -148,12 +180,12 @@ $foundPaddingTop: 0;
     padding: 0 $transEdgePadding 0 $transEdgePadding;
     line-height: 25px;
   }
-  .result-text-box-wsrfhedsoufheqiwrhew {
+  .result-text-box {
     box-sizing: border-box;
     padding: 0 $transEdgePadding 0 $transEdgePadding;
     line-height: 25px;
   }
-  .pronunciation-wsrfhedsoufheqiwrhew {
+  .pronunciation {
     color: #aaa;
     font-size: 12px;
   }

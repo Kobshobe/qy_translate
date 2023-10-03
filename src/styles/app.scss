@@ -1,11 +1,9 @@
 
-@media (prefers-color-scheme: dark) {
+@use '@/xxui/styles/base.scss';
 
-}
-// -wsrfhedsoufheqiwrhew
 $mainColor: #4C8BF5;
 
-$normalBorder: solid 1px #E4E7ED;
+$normalBorder: solid 1px var(--xx-border-color);
 
 $normalBoxShadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 

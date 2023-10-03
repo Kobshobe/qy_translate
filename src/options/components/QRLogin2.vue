@@ -2,7 +2,7 @@
   <div class="qr-login-box">
     <div v-if="loginStatus === 'loadingQr'">
       <div class="qr-img-box">
-        <Loading size="50" />
+        <Loading :size="50" />
       </div>
       <div class="qr-tip">{{ loadingQRMsg }}</div>
     </div>
@@ -32,99 +32,76 @@
     </div>
 
     <div v-else-if="loginStatus === 'loginOk'">
-      <i class="el-icon-circle-check" style="font-size: 25px; color: #888"></i>
+      <i class="icon-circle-check" style="font-size: 25px; color: #888"></i>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, watch, inject } from "vue";
+<script setup lang="ts">
+import { ref, watch, inject } from "vue";
 import Loading from "../../components/base/Loading.vue";
 import { qrLogin } from "../../api/ws";
 import { removeTokenInfo, getTokenFromStorage } from "../../utils/chromeApi";
 import { eventToGoogle } from "@/utils/analytics";
 import {IOptionBaseHook} from '@/interface/options';
-import { ElMessage } from "element-plus";
+import { XMessage } from "@/xxui";
 import {geti18nMsg} from '@/utils/share'
 
-export default defineComponent({
-  setup() {
-    const hook = inject('baseHook') as IOptionBaseHook
-    const qrUrl = ref("");
-    const loginStatus =
-      ref<
-        "loginOk" | "none" | "scanQr" | "loadingQr" | "invalidQr" | "loadQrFail"
-      >("none");
+const hook = inject('baseHook') as IOptionBaseHook
+const qrUrl = ref("");
+const loginStatus =
+  ref<
+    "loginOk" | "none" | "scanQr" | "loadingQr" | "invalidQr" | "loadQrFail"
+  >("none");
 
-    isLogin();
+isLogin();
 
-    async function isLogin() {
-      const token = await getTokenFromStorage();
-      if (token !== "__needLogin__" && token !== "__needRelogin__") {
-        loginStatus.value = "loginOk";
-      } else {
-        qrLogin({ qrUrl, loginStatus });
-      }
-    }
+async function isLogin() {
+  const token = await getTokenFromStorage();
+  if (token !== "__needLogin__" && token !== "__needRelogin__") {
+    loginStatus.value = "loginOk";
+  } else {
+    qrLogin({ qrUrl, loginStatus });
+  }
+}
 
-    const reLoadQr = () => {
-      qrLogin({ qrUrl, loginStatus });
-      eventToGoogle({
-        name: 'reLoadQr',
-        params: {}
-      })
-    };
+const reLoadQr = () => {
+  qrLogin({ qrUrl, loginStatus });
+  eventToGoogle({
+    name: 'reLoadQr',
+    params: {}
+  })
+};
 
-    function logout() {
-      removeTokenInfo(() => {
-        qrLogin({ qrUrl, loginStatus });
-      });
-      eventToGoogle({
-        name: 'logout',
-        params: {}
-      })
-    }
+function logout() {
+  removeTokenInfo(() => {
+    qrLogin({ qrUrl, loginStatus });
+  });
+  eventToGoogle({
+    name: 'logout',
+    params: {}
+  })
+}
 
-    watch(()=>loginStatus.value ,(newVal, oldVal)=> {
-      if(newVal === 'loginOk' && oldVal !== 'none') {
-        hook.user.isLogin = true
-        hook.user.isShowLogin = false
-        ElMessage.info({message: geti18nMsg('__loginSuccess__'), type: 'info'})
+watch(()=>loginStatus.value ,(newVal, oldVal)=> {
+  if(newVal === 'loginOk' && oldVal !== 'none') {
+    hook.user.isLogin = true
+    hook.user.isShowLogin = false
+    XMessage.message({message: geti18nMsg('__loginSuccess__')})
 
-        hook.coll.initColl()
-      }
-    })
+    hook.coll.initColl()
+  }
+})
 
-    const loggedMsg = chrome.i18n.getMessage("logged");
-    const logoutMsg = chrome.i18n.getMessage("logout");
-    const loadingQRMsg = chrome.i18n.getMessage("loadingQR");
-    const weChatScanQRToLoginMsg = chrome.i18n.getMessage(
-      "weChatScanQRToLogin"
-    );
-    const invalidQRMsg = chrome.i18n.getMessage("invalidQR");
-    const clickToRefreshMsg = chrome.i18n.getMessage("clickToRefresh");
-    const loadQRFailMsg = chrome.i18n.getMessage("loadQRFail");
-    const clickReTryMsg = chrome.i18n.getMessage("clickReTry");
+const loadingQRMsg = chrome.i18n.getMessage("loadingQR");
+const weChatScanQRToLoginMsg = chrome.i18n.getMessage(
+  "weChatScanQRToLogin"
+);
 
-    return {
-      qrUrl,
-      loginStatus,
-      reLoadQr,
-      logout,
-      loggedMsg,
-      logoutMsg,
-      loadingQRMsg,
-      weChatScanQRToLoginMsg,
-      invalidQRMsg,
-      clickToRefreshMsg,
-      loadQRFailMsg,
-      clickReTryMsg,
-    };
-  },
-  components: {
-    Loading,
-  },
-});
+const invalidQRMsg = chrome.i18n.getMessage("invalidQR");
+const clickToRefreshMsg = chrome.i18n.getMessage("clickToRefresh");
+const loadQRFailMsg = chrome.i18n.getMessage("loadQRFail");
+const clickReTryMsg = chrome.i18n.getMessage("clickReTry");
 </script>
 
 <style scoped lang='scss'>
@@ -134,6 +111,7 @@ export default defineComponent({
   flex-wrap: nowrap;
   align-items: center;
   height: 250px;
+  padding-top: 40px;
   .qr-loaded-box {
     display: flex;
     flex-direction: column;
@@ -189,9 +167,6 @@ export default defineComponent({
       justify-content: center;
       align-items: center;
       height: 100%;
-    }
-    ::v-deep(.el-button) {
-      width: 80px
     }
   }
 }

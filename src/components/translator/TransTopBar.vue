@@ -1,12 +1,12 @@
 <template>
-  <div class="main-top-tool-bar-wsrfhedsoufheqiwrhew" :style="baseHook.C.mode==='simple' ? '':'height:10px'">
-    <div v-if="baseHook.mode !== 'popup'" class="main-top-tool-bar-content-wsrfhedsoufheqiwrhew">
-      <div class="main-top-around-box-wsrfhedsoufheqiwrhew" @mouseup.stop=""></div>
-      <div class="main-top-move-bar-wsrfhedsoufheqiwrhew" @mousedown.stop="down">
-        <div class="move-bar-ui-wsrfhedsoufheqiwrhew"></div>
+  <div class="main-top-tool-bar" :style="baseHook.C.mode==='simple' ? '':'height:10px'">
+    <div v-if="baseHook.mode !== 'popup'" class="main-top-tool-bar-content">
+      <div class="main-top-around-box" @mouseup.stop=""></div>
+      <div class="main-top-move-bar" @mousedown.stop="down">
+        <div class="move-bar-ui"></div>
       </div>
-      <div class="main-top-around-box-wsrfhedsoufheqiwrhew" style="justify-content: flex-end">
-        <div v-if="baseHook.C.mode === 'simple'" :class="baseHook.isHold ? '' : 'hold-btn-box-wsrfhedsoufheqiwrhew'">
+      <div class="main-top-around-box" style="justify-content: flex-end">
+        <div v-if="baseHook.C.mode === 'simple'" :class="baseHook.isHold ? '' : 'hold-btn-box'">
           <IconBtn
             type="icon-269"
             :color="baseHook.isHold ? '#4C8BF5' : '#ccc'"
@@ -19,64 +19,49 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { defineComponent, inject } from "vue";
 import {IBaseHook} from '@/interface/trans';
 import IconBtn from "../base/IconBtn.vue";
 
-export default defineComponent({
-  setup() {
-    const baseHook = inject('baseHook') as IBaseHook;
+const baseHook = inject('baseHook') as IBaseHook;
 
-    const resultStyle =
-      baseHook.mode !== "popup" ? inject<any>("resultStyle") : null;
+const resultStyle =
+  baseHook.mode !== "popup" ? inject<any>("resultStyle") : null;
 
-    const down = (e: any) => {
-      const xDist = e.clientX - parseInt(resultStyle.left);
-      const yDist = e.clientY - parseInt(resultStyle.top);
+const down = (e: any) => {
+  const xDist = e.clientX - parseInt(resultStyle.left);
+  const yDist = e.clientY - parseInt(resultStyle.top);
 
-      document.onmouseup = () => {
-        document.onmousemove = null;
-      };
-      document.onmousemove = (e) => {
-        resultStyle.left = `${e.clientX - xDist}px`;
-        resultStyle.top = `${e.clientY - yDist}px`;
-      };
-      resultStyle.moveBarTap()
-    };
-
-    return {
-      baseHook,
-      down,
-    };
-  },
-  components: {
-    IconBtn,
-  },
-});
+  document.onmouseup = () => {
+    document.onmousemove = null;
+  };
+  document.onmousemove = (e) => {
+    resultStyle.left = `${e.clientX - xDist}px`;
+    resultStyle.top = `${e.clientY - yDist}px`;
+  };
+  resultStyle.moveBarTap()
+};
 </script>
 
 
 <style scoped lang="scss">
-.main-top-tool-bar-wsrfhedsoufheqiwrhew {
-  // position: absolute;
-  // top: 0;
-  // left: 0;
+.main-top-tool-bar {
   box-sizing: border-box;
   width: 100%;
   height: 20px;
-  .main-top-tool-bar-content-wsrfhedsoufheqiwrhew {
+  .main-top-tool-bar-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
     height: 100%;
     width: 100%;
-    .main-top-around-box-wsrfhedsoufheqiwrhew {
+    .main-top-around-box {
         display: flex;
         width: 100%;
         
     }
-    .main-top-move-bar-wsrfhedsoufheqiwrhew {
+    .main-top-move-bar {
       box-sizing: border-box;
       display: flex;
       width: 70%;
@@ -87,22 +72,23 @@ export default defineComponent({
       cursor: pointer;
       opacity: 0;
       transition: opacity 0.5s;
-      .move-bar-ui-wsrfhedsoufheqiwrhew {
-        background-color: #ddd;
+      .move-bar-ui {
+        // background-color: #ddd;
+        background-color: var(--xx-border-color);
         height: 6px;
         width: 70px;
         border-radius: 3px;
       }
     }
-    .hold-btn-box-wsrfhedsoufheqiwrhew {
+    .hold-btn-box {
         opacity: 0;
         transition: opacity 0.5s;
     }
   }
-  .main-top-tool-bar-content-wsrfhedsoufheqiwrhew:hover .main-top-move-bar-wsrfhedsoufheqiwrhew {
+  .main-top-tool-bar-content:hover .main-top-move-bar {
     opacity: 1;
   }
-  .main-top-tool-bar-content-wsrfhedsoufheqiwrhew:hover .hold-btn-box-wsrfhedsoufheqiwrhew {
+  .main-top-tool-bar-content:hover .hold-btn-box {
     opacity: 1;
   }
 }

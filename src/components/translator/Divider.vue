@@ -1,8 +1,8 @@
 <template>
-  <div class="divider-wsrfhedsoufheqiwrhew">
+  <div class="divider">
     <div
       v-if="baseHook.findStatus === 'reLoading' || baseHook.findStatus === 'willOK' "
-      class="proccess-wsrfhedsoufheqiwrhew"
+      class="proccess"
       :style="proccessStyle"
     ></div>
   </div>
@@ -40,13 +40,12 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 
-.divider-wsrfhedsoufheqiwrhew {
+.divider {
   position: relative;
   width: 100%;
   height: 4px;
-  background-color: #f2f2f2; //light
-  // background-color: #333; //dark
-  .proccess-wsrfhedsoufheqiwrhew {
+  background-color: var(--xx-fill-color-deep);
+  .proccess {
     position: absolute;
     left: 0;
     top: 0;

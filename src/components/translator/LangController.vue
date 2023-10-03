@@ -1,112 +1,89 @@
 <template>
   <div class="controller-main" @click.stop="">
     <div v-if="baseHook.status === 'editing'" class="lang-wrap">
-      <el-select
+      <x-select
         :placeholder="choiceMsg"
         v-model="baseHook.C.fromLang"
-        :popperAppendToBody="baseHook.mode === 'popup' ? true : false"
-        filterable
         @change="baseHook.changeLang($event)"
-        popperClass="popup-wsrfhedsoufheqiwrhew"
+        popperPosition="fixed"
       >
-        <el-option
+        <x-select-option
           v-for="(lang, key, index) in languages"
           :key="index"
           :label="lang[localeLang]"
           :value="key"
           v-show="key !== '__auto__'"
         >
-        </el-option>
-      </el-select>
-      <IconBtn type="icon-fanyi" @click="baseHook.exchangeLang" />
-      <el-select
+        </x-select-option>
+      </x-select>
+      <IconBtn class="icon-btn" type="icon-fanyi" @click="baseHook.exchangeLang" />
+      <x-select
         :placeholder="choiceMsg"
-        filterable
         v-model="baseHook.C.toLang"
-        :popperAppendToBody="baseHook.mode === 'popup' ? true : false"
         @change="baseHook.changeLang"
-        popperClass="popup-wsrfhedsoufheqiwrhew"
+        popperPosition="fixed"
       >
-        <el-option
+        <x-select-option
           v-for="(lang, key, index) in languages"
           :key="index"
           :label="lang[localeLang]"
           :value="key"
           v-show="key !== 'auto'"
         >
-        </el-option>
-      </el-select>
+        </x-select-option>
+      </x-select>
     </div>
 
     <div v-else class="lang-wrap">
-      <el-select
+      <x-select
         :placeholder="choiceMsg"
         v-model="baseHook.T.options.from"
-        filterable
-        :popperAppendToBody="baseHook.mode === 'popup' ? true : false"
         @change="baseHook.T.options.close"
-        popperClass="popup-wsrfhedsoufheqiwrhew"
+        popperPosition="fixed"
       >
-        <el-option
+        <x-select-option
           v-for="(lang, key, index) in languages"
           :key="index"
           :label="lang[localeLang]"
           :value="key"
           v-show="key !== '__auto__' && key !== 'auto'"
         >
-        </el-option>
-      </el-select>
+        </x-select-option>
+      </x-select>
       <IconBtn type="icon-fanyi" @click="baseHook.T.options.exchange" />
-      <el-select
+      <x-select
         :placeholder="choiceMsg"
-        filterable
         v-model="baseHook.T.options.to"
-        :popperAppendToBody="baseHook.mode === 'popup' ? true : false"
         @change="baseHook.T.options.close"
-        popperClass="popup-wsrfhedsoufheqiwrhew"
+        popperPosition="fixed"
       >
-        <el-option
+        <x-select-option
           v-for="(lang, key, index) in languages"
           :key="index"
           :label="lang[localeLang]"
           :value="key"
           v-show="key !== '__auto__' && key !== 'auto'"
         >
-        </el-option>
-      </el-select>
+        </x-select-option>
+      </x-select>
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import IconBtn from "@/components/base/IconBtn.vue";
-import { defineComponent, inject } from "vue";
+import { inject } from "vue";
 import { languages } from "@/translator/trans_base";
 import { IBaseHook } from "@/interface/trans";
 import { getLocaleLang } from "@/utils/share";
 
-export default defineComponent({
-  setup() {
-    const baseHook = inject("baseHook") as IBaseHook;
-    const choiceMsg = chrome.i18n.getMessage("__choice__");
-    const localeLang = getLocaleLang();
-
-    return {
-      baseHook,
-      languages,
-      choiceMsg,
-      localeLang,
-    };
-  },
-  components: {
-    IconBtn,
-  },
-});
+const baseHook = inject("baseHook") as IBaseHook;
+const choiceMsg = chrome.i18n.getMessage("__choice__");
+const localeLang = getLocaleLang() as any;
 </script>
 
 
 <style lang="scss" scoped>
-// @import "@/app.scss";
 .controller-main {
   box-sizing: border-box;
   position: relative;
@@ -115,21 +92,25 @@ export default defineComponent({
   padding: 0 8px 0 8px;
   margin-bottom: 5px;
   .lang-wrap {
+    box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #efefef;
+    background-color: var(--xx-fill-color-deep);
     border-radius: 5px;
-    height: 100%;
-    ::v-deep(.el-input__wrapper) {
-      padding: 0;
+    height: 30px;
+    ::v-deep(.icon-btn-main) {
+      background-color: var(--xx-fill-color-deep)
     }
-    ::v-deep(.el-input) {
+    ::v-deep(.xx-select__wrapper) {
+      border: none !important;
+      background-color: var(--xx-fill-color-deep) !important;
+      height: 30px!important;
       input {
         border: none !important;
         text-align: center !important;
         height: 100% !important;
-        background-color: #efefef !important;
+        background-color: var(--xx-fill-color-deep) !important;
         color: $mainColor !important;
         font-weight: bold !important;
         padding: 0 !important;
@@ -143,10 +124,10 @@ export default defineComponent({
         outline: none;
       }
     }
-    ::v-deep(.el-input__suffix) {
+    ::v-deep(.xx-select-input__suffix) {
       display: none !important;
     }
   }
   // border-bottom: 1px solid #ddd;
 }
-</style>@/translator/trans_base
+</style>

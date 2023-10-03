@@ -89,7 +89,7 @@ test('mark test single and empty', () => {
 test('generate markHtml test', () => {
     let markHtml = ''
     let text = `apple pen is attractive`
-    const markTabStar = `<span class="mark-text-wsrfhedsoufheqiwrhew">`
+    const markTabStar = `<span class="mark-text">`
     const markTabEnd = `</span>`
 
     marksList = [[0, 5]]

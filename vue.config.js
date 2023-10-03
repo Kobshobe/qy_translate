@@ -8,7 +8,7 @@ const { ElementPlusResolver } = require('unplugin-vue-components/resolvers')
 // 复制文件到指定目录
 const copyFiles = [
   {
-    from: path.resolve("src/plugins/manifest.json"),
+    from: path.resolve("src/background/manifest.json"),
     to: `${path.resolve("dist")}/manifest.json`
   },
   {

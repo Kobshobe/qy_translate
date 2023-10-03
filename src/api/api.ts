@@ -10,7 +10,7 @@ export async function ping(c:Context) :Promise<Context> {
       auth: false,
       timeout: 2000,
   })
-  console.log("ping res: ", c.resp)
+  console.log("ping res: ", c)
   return c
 }
 
@@ -84,7 +84,7 @@ export async function domainTransApi(c:Context) :Promise<Context> {
   return c
 }
 
-export async function applyBDDM(c:Context) :Promise<Context> {
+export async function applyDomainTrans(c:Context) :Promise<Context> {
   await srvApiRequest({
     c,
     path: '/v1/trans/applyDM',
@@ -125,16 +125,6 @@ export async function applyBDDM(c:Context) :Promise<Context> {
 }
 
 export async function getCollList(c:Context) :Promise<Context> {
-  await srvApiRequest({
-    c,
-    path: '/v1/phrase/collection',
-    method: 'GET',
-    auth: true,
-  })
-  return c
-}
-
-export async function getCollList2(c:Context) :Promise<Context> {
   await srvApiRequest({
     c,
     path: '/v1/phrase/collection',

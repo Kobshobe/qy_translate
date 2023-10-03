@@ -1,4 +1,4 @@
-import { applyBDDM, collectResult, reduceCollect, updateMark } from '@/api/api'
+import { applyDomainTrans, collectResult, reduceCollect, updateMark } from '@/api/api'
 import { wrapTranslator } from '@/translator/transWrap'
 import { getAudioBase64 } from '@/translator/tts'
 import { openOptionsPage } from '@/utils/chromeApi'
@@ -27,7 +27,7 @@ export const apiWrap = {
   analytic: async (c: Context, port: any) => {
     eventToGoogle(c.req)
   },
-  applyBDDM: async (c: Context, port: any) => {
-    port.postMessage(await applyBDDM(c))
+  applyDomainTrans: async (c: Context, port: any) => {
+    port.postMessage(await applyDomainTrans(c))
   }
 }

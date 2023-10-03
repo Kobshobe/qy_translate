@@ -1,33 +1,28 @@
 <template>
-  <div id="my-loading-box-wsrfhedsoufheqiwrhew">
+  <div id="qy-loading-box">
     <SvgIcon type="icon-jiazaizhong" :size=size />
   </div>
 </template>
 
-<script>
-import { defineComponent } from "vue";
+<script setup>
 import SvgIcon from "./SvgIcon.vue";
 
-export default defineComponent({
-  components: {
-    SvgIcon,
-  },
-  props: {
-    size: {
-      default: 20
-    }
+const props = defineProps({
+  size: {
+    default: 20
   }
-});
+})
 </script>
 
 
 <style scoped>
-.loading-box-wsrfhedsoufheqiwrhew {
+.loading-box {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
+  background-color: var(--xx-background-color);
 }
 
 @keyframes changDeg {
@@ -40,7 +35,8 @@ export default defineComponent({
   }
 }
 
-#my-loading-box-wsrfhedsoufheqiwrhew {
+#qy-loading-box {
+  background: transparent;
   animation: changDeg 1.5s linear 0.2s infinite;
 }
 </style>

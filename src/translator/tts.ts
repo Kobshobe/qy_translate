@@ -114,7 +114,6 @@ export const getAudioBase64 = async (c:Context): Promise<Context> => {
           [['jQ1olc', JSON.stringify([c.req.text, c.req.lang, false, 'null']), null, 'generic']],
         ])
       ),
-    // successStatusCode: [200] todo
   });
 
   let result;
@@ -138,7 +137,12 @@ export const getAudioBase64 = async (c:Context): Promise<Context> => {
 
     return c
   } else {
-    result = resp.data //todo
+    result = resp.data
+    c.err = 'getAudioBase64 err code'
+    c.toastMsg = {
+      message: '__reqErr__',
+      type: 'i18n'
+    }
   }
 
 

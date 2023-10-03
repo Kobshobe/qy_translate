@@ -4,49 +4,39 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import { defineComponent, reactive, computed } from 'vue'
 import SvgIcon from './SvgIcon.vue'
 
-export default defineComponent({
-    setup(props) {
-        const btnStyle = reactive({
-            width: props.size + 'px',
-            height: props.size + 'px',
-            transform: computed(() => {return `rotate(${props.rotate}deg)`})
-        })
-
-        return {
-            btnStyle
-        }
+const props = defineProps({
+    size: {
+        type: Number,
+        default:25
     },
-    props: {
-        size: {
-            type: Number,
-            default:25
-        },
-        type: {
-            require: true,
-            type: String
-        },
-        iconSize: {
-            default:15
-        },
-        color: {
-            default: "#4C8BF5"
-        },
-        rotate: {
-            default: 0,
-            type: Number
-        }
+    type: {
+        require: true,
+        type: String
     },
-    components: {
-        SvgIcon
+    iconSize: {
+        default:15
+    },
+    color: {
+        default: "#4C8BF5"
+    },
+    rotate: {
+        default: 0,
+        type: Number
     }
+})
+
+const btnStyle = reactive({
+    width: props.size + 'px',
+    height: props.size + 'px',
+    transform: computed(() => {return `rotate(${props.rotate}deg)`})
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
     .icon-btn-main {
         box-sizing: border-box;
         display: flex;
@@ -54,5 +44,6 @@ export default defineComponent({
         align-items: center;
         cursor: pointer;
         transition: transform 0.7s;
+        background-color: transparent;
     }
 </style>

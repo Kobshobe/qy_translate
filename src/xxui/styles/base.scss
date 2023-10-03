@@ -1,0 +1,69 @@
+@mixin common {
+    --xx-c-white: white;
+    --xx-c-black: #151515;
+    --xx-c-primary: #4c8bf5;
+    --xx-color-info: #909399;
+
+    --xx-c-commont-text-light: #333;
+    --xx-c-commont-text-dark: #CFD3DC;
+    --xx-c-light-text-regular: #505256;
+    --xx-c-dark-text-regular: #CFD3DC;
+
+    --xx-c-light-border: #dcdfe6;
+    --xx-c-dark-border: #4C4D4F;
+
+    --xx-fill-color-light: #f5f7fa;
+    --xx-fill-color-dark: #262727;
+    --xx-fill-color-light2: #f0f2f0;
+    --xx-fill-color-light3: #E9F3FE;
+
+    --xx-box-shawdow-light: 0px 0px 12px rgba(0, 0, 0, 0.12);
+    
+    --xx-c-color-danger: #f56c6c;
+    --xx-border-radius-base: 4px;
+    --xx-radio-color-border: #ccc;
+    --xx-tooltip-color-light: #f5f7fa;
+    --xx-tooltip-color-dark: #303133;
+    --xx-tooltip-background-color-light: #303133;
+    --xx-tooltip-background-color-dark: #f5f7fa;
+    --xx-overlay-color-lighter: rgba(0, 0, 0, .5);
+}
+
+.xx-qy-style-light {
+    @include common();
+
+    --xx-common-text-color: var(--xx-c-commont-text-light);
+    --xx-background-color: var(--xx-c-white);
+    --xx-text-color-regular: var(--xx-c-light-text-regular);
+    --xx-fill-color: var(--xx-fill-color-light);
+    --xx-fill-color-deep: var(--xx-fill-color-light2);
+    --xx-fill-color-2: var(--xx-fill-color-light2);
+    --xx-border-color: var(--xx-c-light-border);
+    --xx-box-shawdow: var(--xx-box-shawdow-light);
+    --xx-border-only-dark: none;
+
+    --xx-radio-text-color: var(--xx-text-color-regular);
+    --xx-switch-on-color: var(--xx-c-primary);
+    --xx-switch-off-color: var(--xx-border-color);
+    --xx-tooltip-background-color: var(--xx-tooltip-background-color-light);
+    --xx-tooltip-color: var(--xx-tooltip-color-light);
+}
+
+.xx-qy-style-dark {
+    @include common();
+
+    --xx-common-text-color: var(--xx-c-commont-text-dark);
+    --xx-background-color: var(--xx-c-black);
+    --xx-text-color-regular: var(--xx-c-dark-text-regular);
+    --xx-fill-color: var(--xx-fill-color-dark);
+    --xx-fill-color-deep: var(--xx-fill-color-dark);
+    --xx-fill-color-2: var(--xx-fill-color-dark);
+    --xx-border-color: var(--xx-c-dark-border);
+    --xx-box-shawdow: var(--xx-box-shawdow-light);
+    --xx-radio-text-color: var(--xx-text-color-regular);
+    --xx-switch-on-color: var(--xx-c-primary);
+    --xx-switch-off-color: var(--xx-border-color);
+    --xx-tooltip-background-color: var(--xx-tooltip-background-color-dark);
+    --xx-tooltip-color: var(--xx-tooltip-color-dark);
+    --xx-border-only-dark: var(--xx-border-color);
+}

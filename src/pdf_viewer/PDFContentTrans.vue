@@ -1,22 +1,23 @@
 <template>
   <ContentTrans mode="pdf" />
-  <el-dialog
+  <x-dialog
     :title="geti18nMsg('__openRemotePDF__')"
     v-model="dialogVisible"
     width="500px"
   >
-    <el-input
+    <x-input
       v-model="input"
       :placeholder="enterLinkMsg"
       size="medium"
-    ></el-input>
+    ></x-input>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">{{geti18nMsg('__reduce__')}}</el-button>
-        <el-button type="primary" @click="openLinkPDF">{{geti18nMsg('__confirm__')}}</el-button>
+        <x-button @click="dialogVisible = false">{{geti18nMsg('__reduce__')}}</x-button>
+        <x-size-box width="15px" />
+        <x-button type="primary" @click="openLinkPDF">{{geti18nMsg('__confirm__')}}</x-button>
       </span>
     </template>
-  </el-dialog>
+  </x-dialog>
 </template>
 
 <script lang="ts">
@@ -57,3 +58,10 @@ export default defineComponent({
   },
 });
 </script>
+
+<style lang="scss" scoped>
+.dialog-footer {
+  display: flex;
+  justify-content: end;
+}
+</style>

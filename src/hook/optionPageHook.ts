@@ -1,13 +1,13 @@
 import { onMounted, reactive, markRaw } from 'vue';
 import { getOptionOpenParmas, getTransConf, removeTokenInfo, getTokenFromStorage } from '@/utils/chromeApi';
 import { eventToGoogle } from '@/utils/analytics';
-import { ElMessage, ElMessageBox } from "element-plus";
 import { IConfHook, IOptionBaseHook, ICollHook, ICollection } from '@/interface/options'
 import { IAllStorage } from '@/interface/trans'
 import { getPhraseList, moveToOtherColl, mulDelete, getCollList, addCollection, renameCollection, deleteCollection } from "@/api/api";
 import { TTS } from '@/translator/tts';
 import { geti18nMsg } from '@/utils/share'
 import { Context } from '@/api/context';
+import {XMessage, XMessageBox} from '@/xxui/index'
 
 const treadWordOff = chrome.i18n.getMessage("treadWordOff")
 
@@ -81,7 +81,7 @@ export default function confHook(base: IOptionBaseHook): IConfHook {
       changeTreadWord() {
         chrome.storage.sync.set({ isTreadWord: hook.conf.C.isTreadWord })
         if (!hook.conf.C.isTreadWord) {
-          ElMessage.info({
+          XMessage.message({
             message: treadWordOff,
             type: "info",
           });
@@ -160,9 +160,6 @@ export default function confHook(base: IOptionBaseHook): IConfHook {
 
   onMounted(() => {
     hook.init()
-    // document.addEventListener('visibilitychange', async () => {
-    //     hook.getOpenParams()
-    // }) 
   })
 
   return hook
@@ -203,13 +200,13 @@ export function collHook(base: IOptionBaseHook): ICollHook {
       else if (c.dialogMsg) {
         if (c.dialogMsg.type === 'i18n') {
           //@ts-ignore
-          ElMessage(chrome.i18n.getMessage(c.resp.toastMsg.message))
+          XMessage(chrome.i18n.getMessage(c.resp.toastMsg.message))
         }
       }
 
       else if (c.toastMsg) {
         if (c.toastMsg.type === 'i18n') {
-          ElMessage(geti18nMsg(c.toastMsg.message))
+          XMessage(geti18nMsg(c.toastMsg.message))
         }
       }
     },
@@ -264,7 +261,7 @@ export function collHook(base: IOptionBaseHook): ICollHook {
     },
     async deleteSelected() {
       if (hook.selected.size <= 0) return;
-      ElMessageBox.alert(geti18nMsg('__confirmToDelete__'), {
+      XMessageBox.alert(geti18nMsg('__confirmToDelete__'), {
         confirmButtonText: geti18nMsg('__confirm__'),
         callback: async (e: string) => {
           if (e !== 'confirm') return;
@@ -505,7 +502,7 @@ export function collHook(base: IOptionBaseHook): ICollHook {
         hook.collItem.isShowDialog = false
       },
       async delete(tid) {
-        ElMessageBox.alert(geti18nMsg('__confirmToDelete__'), {
+        XMessageBox.alert(geti18nMsg('__confirmToDelete__'), {
           confirmButtonText: geti18nMsg('__confirm__'),
           callback: async (e: string) => {
             if (e !== 'confirm') return;

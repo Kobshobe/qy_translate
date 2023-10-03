@@ -199,7 +199,7 @@ export class BaseTrans {
         fromCp: c.req.fromCp,
         toCp: c.req.toCp,
         //@ts-ignore
-        errMsg: `${c.resp.errMsg}_${c.resp.status}`
+        errMsg: `${c.resp?.errMsg}_${c.resp?.status}`
       }
     })
   }

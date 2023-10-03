@@ -1,10 +1,10 @@
 <template>
   <div
     v-if="baseHook.toast.show"
-    class="toast-main-wsrfhedsoufheqiwrhew"
+    class="toast-main"
     @click="baseHook.toast.show = false"
   >
-    <div class="toast-content-box-wsrfhedsoufheqiwrhew">{{ baseHook.toast.msg }}</div>
+    <div class="toast-content-box">{{ baseHook.toast.msg }}</div>
   </div>
 </template>
 
@@ -26,7 +26,7 @@ export default defineComponent({
 <style scoped lang="scss">
 // @import "@/app.scss";
 
-.toast-main-wsrfhedsoufheqiwrhew {
+.toast-main {
   position: absolute;
   top: 0;
   right: 0;
@@ -35,7 +35,7 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: center;
-  .toast-content-box-wsrfhedsoufheqiwrhew {
+  .toast-content-box {
     display: flex;
     justify-content: center;
     align-content: center;

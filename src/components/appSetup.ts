@@ -1,11 +1,15 @@
 import {eventToGoogle} from '@/utils/analytics'
-import ElementPlus from 'element-plus'
+import { Mode, initZIndex } from '@/config'
+import xui from '@/xxui'
 
 export function setUI(app:any) {
-    app.use(ElementPlus, { zIndex: 2247483600 })
+    app.use(xui, {zIndex: initZIndex})
 }
 
 export function handleErrAndWarn(app:any) {
+    if (Mode !== 'public') {
+        return
+    }
     app.config.errorHandler = (err:any, vm:any, info:any) => {
         // 处理错误
         // `info` 是 Vue 特定的错误信息，比如错误所在的生命周期钩子

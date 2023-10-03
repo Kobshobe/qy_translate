@@ -41,7 +41,7 @@ export function getMarkHtml(marksList:number[][], text:string) :string {
       marksList.forEach((range: Array<number>) => {
         if (range[0] >= point) {
           markText += text.slice(point, range[0]);
-          markText += `<span class="mark-text-wsrfhedsoufheqiwrhew">${text.slice(
+          markText += `<span class="mark-text">${text.slice(
             range[0],
             range[1]
           )}</span>`;

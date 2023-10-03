@@ -12,7 +12,7 @@ export declare type ITransType = 'sub'|'popup_icon'|'select'|'changeLang'|'popup
 'exchange'|'popup_paste'|'menu'|'changeEngine'
 
 export declare type IPortName = 'translate'|'collect'|'reduceCollect'|'updateMark'|'tts'|
-'openOptionsPage'|'analytic'|'applyBDDM'
+'openOptionsPage'|'analytic'|'applyDomainTrans'
 
 export declare type ITransFindStatus = 'none'|'ok'|'popLoading'|'reLoading'|'willOK'|'editLoading'
 
@@ -32,7 +32,6 @@ export interface IBaseHook {
     exchangeLang():void
     changeLang(isExchange:boolean):void
     eventToAnalytic(eventData:any) :void
-    usePort({ name, context, onMsgHandle}:IPortHandler): void
     setNoneStatus(changeID?:boolean):void
     setHold() :void
     openOptionsPage(type:string):void
@@ -106,7 +105,6 @@ export interface ITranslatorHook {
         changeEngine():void
         setLang():void
     }
-    usePort({ name, context, onMsgHandle}:IPortHandler): void
     handleWebErr(msg: Context): void
     getMarkHtml(): string
     updateMark({ success, fail, info }: { success: Function, fail: Function, info: {marks: string, tid: number } }): void
@@ -118,7 +116,7 @@ export interface ITranslatorHook {
     toEdit(): void
     copyResult(): void
     eventToAnalytic(eventData: any): void
-    applyBDDM() :void
+    applyDomainTrans() :void
     setResultPostion():void
 }
 

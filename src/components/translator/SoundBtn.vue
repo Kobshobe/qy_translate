@@ -1,6 +1,6 @@
 <template>
-  <div class="btn-box-wsrfhedsoufheqiwrhew">
-    <div class="iframeBtn-wsrfhedsoufheqiwrhew" :id="id"></div>
+  <div class="btn-box">
+    <div class="iframeBtn" :id="id"></div>
     <!-- <SvgIcon type="icon-shengyin-copy" :size="15" /> -->
   </div>
 </template>
@@ -76,7 +76,7 @@ iframe {
   background-color: transparent;
   color-scheme: light;
 }
-.btn-box-wsrfhedsoufheqiwrhew {
+.btn-box {
   position: relative;
   display: flex;
   justify-content: center;
@@ -86,7 +86,7 @@ iframe {
   cursor: pointer;
 }
 
-.iframeBtn-wsrfhedsoufheqiwrhew {
+.iframeBtn {
   position: absolute;
   height: 100%;
   width: 100%;

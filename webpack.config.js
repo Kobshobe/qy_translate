@@ -14,7 +14,7 @@ module.exports = {
     mode,
     devtool: 'inline-source-map',
     entry: {
-        background: "./src/plugins/background.ts",
+        background: "./src/background/background.ts",
     },
     output: {
         path: path.resolve(__dirname, 'dist'),

@@ -57,6 +57,7 @@ export class BaiduTrans extends BaseTrans {
         const ctx = await domainTransApi(new Context({q:info.text,from:info.fromCode,to:info.toCode,domain:engineInfo[1], engine:'baidu'}))
         
         if (ctx.err) {
+            c.errDetail = ctx.errDetail
             if(ctx.err !== '__noRice__') {
                 c.err = ctx.err
                 c.dialogMsg = ctx.dialogMsg

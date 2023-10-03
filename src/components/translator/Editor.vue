@@ -1,10 +1,10 @@
 <template>
-  <div class="editing-main-wsrfhedsoufheqiwrhew">
-    <div class="editing-top-wsrfhedsoufheqiwrhew">
-      <div class="textarea-box-wsrfhedsoufheqiwrhew">
+  <div class="editing-main">
+    <div class="editing-top">
+      <div class="textarea-box">
         <textarea
           name=""
-          id="phrase-editing-wsrfhedsoufheqiwrhew"
+          id="phrase-editing-dshflsjdfjwoejr"
           v-model="baseHook.E.editingText"
           @keydown="baseHook.E.enterTrans"
           :placeholder="enterTextMsg"
@@ -13,7 +13,7 @@
           :style="baseHook.C.mode !== 'simple' ? 'padding-top:10px;': ''"
         ></textarea>
       </div>
-      <div class="editing-clear-wsrfhedsoufheqiwrhew">
+      <div class="editing-clear">
         <IconBtn
           v-if="baseHook.E.editingText !== ''"
           type="icon-guanbi1"
@@ -37,23 +37,23 @@
         />
       </div>
     </div>
-    <div class="editing-tool-bar-wsrfhedsoufheqiwrhew">
-      <div class="editing-tool-bar-left-wsrfhedsoufheqiwrhew">
+    <div class="editing-tool-bar">
+      <div class="editing-tool-bar-left">
         <LangController v-if="baseHook.C.mode === 'profession'" />
-        <div v-else class="tread-switch-box-wsrfhedsoufheqiwrhew">
-          <div class="tread-switch-text-wsrfhedsoufheqiwrhew">
+        <div v-else class="tread-switch-box">
+          <div class="tread-switch-text">
             {{ treadWordMsg }}
           </div>
-          <el-switch
+          <x-switch
             v-model="baseHook.C.isTreadWord"
             active-color="#4C8BF5"
             @change="baseHook.changeTreadWord"
           >
-          </el-switch>
+          </x-switch>
         </div>
       </div>
-      <div class="editing-tool-bar-right-wsrfhedsoufheqiwrhew">
-        <div class="edge-width-wsrfhedsoufheqiwrhew"></div>
+      <div class="editing-tool-bar-right">
+        <div class="edge-width"></div>
         <div
           v-if="baseHook.findStatus !== 'editLoading'"
           style="transform: rotate(180deg)"
@@ -70,7 +70,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import {
   defineComponent,
   inject,
@@ -82,68 +82,53 @@ import Loading from "../base/Loading.vue";
 import LangController from "./LangController.vue";
 import {IBaseHook} from '@/interface/trans';
 
-export default defineComponent({
-  setup() {
-    const baseHook = inject("baseHook") as IBaseHook;
-    const editorDOM = ref<any | null>(null);
+const baseHook = inject("baseHook") as IBaseHook;
+const editorDOM = ref<any | null>(null);
 
-    function clear() {
-      baseHook.E.clear()
-      editorDOM.value.focus()
-    }
+function clear() {
+  baseHook.E.clear()
+  editorDOM.value.focus()
+}
 
-    onMounted(() => {
-      editorDOM.value.focus()
-    })
+onMounted(() => {
+  editorDOM.value.focus()
+})
 
-    const enterTextMsg = chrome.i18n.getMessage("enterText");
-    const treadWordMsg = chrome.i18n.getMessage("treadWord");
+const enterTextMsg = chrome.i18n.getMessage("enterText");
+const treadWordMsg = chrome.i18n.getMessage("treadWord");
 
-    return {
-      baseHook,
-      enterTextMsg,
-      treadWordMsg,
-      editorDOM,
-      clear
-    };
-  },
-  components: {
-    IconBtn,
-    Loading,
-    LangController,
-  },
-});
+defineComponent({name: "TransEditor"})
 </script>
 
 <style lang="scss" scoped>
-// @import "@/app.scss";
 
-.editing-main-wsrfhedsoufheqiwrhew {
+.editing-main {
   box-sizing: border-box;
   width: 100%;
   height: 100%;
   transition: 2s height;
-  .editing-top-wsrfhedsoufheqiwrhew {
+  .editing-top {
     position: relative;
     display: flex;
     flex-wrap: nowrap;
     width: 100%;
     height: 230px;
-    .textarea-box-wsrfhedsoufheqiwrhew {
+    .textarea-box {
       box-sizing: border-box;
       height: 100%;
       width: 100%;
       padding: 1px $transEdgePadding 0 $transEdgePadding;
-      #phrase-editing-wsrfhedsoufheqiwrhew {
+      #phrase-editing-dshflsjdfjwoejr {
         height: 100%;
         width: 100%;
         font-size: 18px;
         border: none;
         resize: none;
         outline: none;
+        background-color: var(--xx-background-color);
       }
     }
-    .editing-clear-wsrfhedsoufheqiwrhew {
+    .editing-clear {
       position: absolute;
       top: -17px;
       right: 0;
@@ -156,7 +141,7 @@ export default defineComponent({
       padding-top: 12px;
     }
   }
-  .editing-tool-bar-wsrfhedsoufheqiwrhew {
+  .editing-tool-bar {
     box-sizing: border-box;
     display: flex;
     justify-content: space-between;
@@ -164,30 +149,30 @@ export default defineComponent({
     width: 100%;
     height: 50px;
     padding: 0 $transEdgePadding 0 12px;
-    .editing-tool-bar-left-wsrfhedsoufheqiwrhew {
+    .editing-tool-bar-left {
       display: flex;
       flex-wrap: nowrap;
       align-items: center;
       width: 100%;
       height: 100%;
-      .tread-switch-box-wsrfhedsoufheqiwrhew {
+      .tread-switch-box {
         display: flex;
         align-items: center;
         opacity: 0;
         transition: opacity 0.5s;
         width: 100%;
-        .tread-switch-text-wsrfhedsoufheqiwrhew {
+        .tread-switch-text {
           font-size: 16px;
           padding-left: 5px;
           padding-right: 10px;
           color: #555;
         }
       }
-      .tread-switch-box-wsrfhedsoufheqiwrhew:hover {
+      .tread-switch-box:hover {
         opacity: 1;
       }
     }
-    .editing-tool-bar-right-wsrfhedsoufheqiwrhew {
+    .editing-tool-bar-right {
       display: flex;
       flex-wrap: nowrap;
       align-items: center;

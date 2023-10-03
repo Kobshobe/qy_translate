@@ -34,7 +34,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  border-right: 1px solid #efefef;
+  border-right: 1px solid var(--xx-border-color);
   height: 100%;
   width: 270px;
   overflow: hidden;

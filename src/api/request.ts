@@ -61,6 +61,8 @@ export async function baseRequest({
         options['body'] = JSON.stringify(data)
     }
 
+    const controller = new AbortController()
+    options.signal = controller.signal
     const request = fetch(url, options)
         .then(async (resp) => {
             const text = await resp.text()
@@ -81,6 +83,7 @@ export async function baseRequest({
     let timeoutId: any
     const timeoutPromise = new Promise((_, reject) => {
         timeoutId = setTimeout(() => {
+            controller.abort()
             reject(<IBaseResp>{statusCode: 800, err: '__timeout__'})
         }, timeout)
     })

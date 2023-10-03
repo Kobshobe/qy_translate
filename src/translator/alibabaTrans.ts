@@ -48,6 +48,7 @@ export class AlibabaTrans extends BaseTrans {
         const ctx = await domainTransApi(new Context({q:info.text,from:info.fromCode,to:info.toCode,domain:engineInfo[1], engine:'alibaba'}))
         
         if (ctx.err) {
+            c.errDetail = ctx.errDetail
             if(ctx.err !== '__noRice__') {
                 c.dialogMsg = ctx.dialogMsg
                 c.toastMsg = ctx.toastMsg

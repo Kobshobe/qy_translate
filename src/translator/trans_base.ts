@@ -1,4 +1,4 @@
-export const engines = [
+export const engines:any = [
   {
     code: '__commonTrans__',
     engines: {

@@ -1,5 +1,5 @@
 <template>
-    <div class="btn-box-wsrfhedsoufheqiwrhew" @click="collectHandler">
+    <div class="btn-box" @click="collectHandler">
         <SvgIcon v-if="!isCollected" type="icon-shoucanganniu-hei" size=15 />
         <SvgIcon v-else type="icon-shoucang1" size=16 />
     </div>
@@ -34,7 +34,7 @@ export default defineComponent({
 
 
 <style scoped lang="scss">
-    .btn-box-wsrfhedsoufheqiwrhew {
+    .btn-box {
         display: flex;
         justify-content: center;
         align-items: center;

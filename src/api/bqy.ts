@@ -52,6 +52,9 @@ export async function srvApiRequest({
     } else {
         if (resp.data?.msg) {
             c.err = resp.data.msg
+            if (resp.data?.detail) {
+                c.errDetail = resp.data.detail
+            }
         }
         if (resp.data?.data)  {
             c.res = resp.data.data

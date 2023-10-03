@@ -28,6 +28,7 @@ export class Context {
     dialogMsg?: IDialogMsg
     tipsMessages?: string[]
     res?:any
+    errDetail?:string
 
     constructor(req:any) {
         this.req = req

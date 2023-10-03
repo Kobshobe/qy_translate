@@ -1,14 +1,14 @@
 import {IClientInfo} from '@/interface/trans'
 
-export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
+export const Mode:'test'|'jest'|'public'|'public_test' = 'public_test'
 export const clientVersion = "2.0.0" // manifest.json
 export const platform:'chrome'|'edge' = "edge"
 export const client:IClientInfo = getClient()
 export const os:'mac'|'windows'|'linux'|'unknow' = getOS()
 export const storeUrl = 'https://www.fishfit.fun/bqy/web/download/option'
-export const reqTimeout = 10000
 export let baseURL:string
 export let baseWs:string
+export const initZIndex = 100000000;
 
 //@ts-ignore
 if (Mode === 'test' || Mode === 'jest') {

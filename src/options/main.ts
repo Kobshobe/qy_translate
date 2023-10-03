@@ -1,20 +1,19 @@
 import { createApp } from 'vue'
 import {createRouter, createWebHashHistory} from 'vue-router'
-import app from './components/app.vue'
+import App from './views/App.vue'
 import {setUI, handleErrAndWarn} from '@/components/appSetup'
 import {eventToGoogle} from '@/utils/analytics'
 
-import TransOptions from '@/options/components/TransOptions.vue'
-import Collections from '@/options/components/Collections.vue'
-import Other from '@/options/components/Other.vue'
-
-import 'element-plus/es/components/message/style/css'
-import 'element-plus/es/components/message-box/style/css'
+import TransOptions from '@/options/views/TransOptions.vue'
+import Collections from '@/options/views/Collections.vue'
+import Other from '@/options/views/Other.vue'
+import UIExample from '@/options/views/UIExample.vue'
 
 const routes = [
     {path: '/', component: TransOptions},
     {path: '/collections', component: Collections},
-    {path: '/other', component: Other}
+    {path: '/other', component: Other},
+    {path: '/ui_example', component: UIExample}
 ]
 
 const router = createRouter({
@@ -31,7 +30,7 @@ router.afterEach((to, from) => {
     })
 })
 
-const theApp = createApp(app)
+const theApp = createApp(App)
 setUI(theApp)
 theApp.use(router)
 handleErrAndWarn(theApp)

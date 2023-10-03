@@ -1,12 +1,12 @@
 <template>
   <div v-if="hook.coll.loadStatus === 'loading'" class="status-main">
-    <i class="el-icon-loading" style="font-size: 40px; color: #888"></i>
+    loading
   </div>
 
   <div v-else-if="!hook.user.isLogin" class="status-main">
-    <el-button type="primary" @click="hook.user.isShowLogin = true">{{
+    <x-button type="primary" @click="hook.user.isShowLogin = true">{{
       geti18nMsg("scanQr")
-    }}</el-button>
+    }}</x-button>
   </div>
 
   <div
@@ -37,26 +37,16 @@
       Failed to load
     </div>
     <div v-else-if="hook.coll.loadStatus === 'empty'" class="status-main">
-      <el-empty description="nothing"></el-empty>
+      <div>nothing</div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, inject } from "vue";
+<script setup lang="ts">
+import { inject } from "vue";
 import { geti18nMsg } from "@/utils/share";
 import { IOptionBaseHook } from "@/interface/options";
-
-export default defineComponent({
-  setup() {
-    const hook = <IOptionBaseHook>inject("baseHook");
-    return {
-      geti18nMsg,
-      hook,
-    };
-  },
-  components: {},
-});
+const hook = inject("baseHook") as IOptionBaseHook;
 </script>
 
 <style lang="scss">

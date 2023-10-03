@@ -1,18 +1,18 @@
 <template>
-  <div class="sub-result-main-wsrfhedsoufheqiwrhew" :style="opacityStyle">
-    <div class="sub-result-content-box-wsrfhedsoufheqiwrhew" @click.stop="">
-      <div class="sub-result-top-wsrfhedsoufheqiwrhew">
-        <div class="sub-find-text-wsrfhedsoufheqiwrhew">
+  <div class="sub-result-main" :style="opacityStyle">
+    <div class="sub-result-content-box" @click.stop="">
+      <div class="sub-result-top">
+        <div class="sub-find-text">
           <span
             :class="
               baseHook.T.canReduceMark
-                ? 'sub-find-text-mark-wsrfhedsoufheqiwrhew'
+                ? 'sub-find-text-mark'
                 : ''
             "
             >{{ baseHook.T.subTranslator.selectText }}</span
           >
         </div>
-        <div class="sub-top-right-wsrfhedsoufheqiwrhew">
+        <div class="sub-top-right">
           <IconBtn
             type="icon-biaoji"
             iconSize=17
@@ -26,11 +26,11 @@
           />
         </div>
       </div>
-      <div class="sub-sound-bar-wsrfhedsoufheqiwrhew">
-        <div class="sub-sound-btn-wsrfhedsoufheqiwrhew">
+      <div class="sub-sound-bar">
+        <div class="sub-sound-btn">
           <div
             v-if="showPronunciation"
-            class="sub-pronunciation-wsrfhedsoufheqiwrhew"
+            class="sub-pronunciation"
           >
             [{{ baseHook.T.subTranslator.resultData?.sPronunciation }}]
           </div>
@@ -90,9 +90,8 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-// @import "@/app.scss";
 
-.sub-result-main-wsrfhedsoufheqiwrhew {
+.sub-result-main {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -102,43 +101,44 @@ export default defineComponent({
   max-height: 100%;
   background-color: rgba(120, 120, 120, 0.1);
   border-radius: 5px;
-  overflow: hidden;
-  .sub-result-content-box-wsrfhedsoufheqiwrhew {
+  .sub-result-content-box {
     box-sizing: border-box;
     width: 100%;
     height: 100%;
-    background-color: white;
+    background-color: var(--xx-background-color);
+    border: 1px solid var(--xx-border-only-dark);
     padding: 25px $transEdgePadding 20px $transEdgePadding;
     font-size: $transTextFontSize;
     overflow: scroll;
     overflow-x: hidden;
     overflow-y: visible;
-    border-bottom-left-radius: $transRadius;
-    border-bottom-right-radius: $transRadius;
-    .sub-result-top-wsrfhedsoufheqiwrhew {
+    border-radius: 5px;
+    // border-bottom-left-radius: $transRadius;
+    // border-bottom-right-radius: $transRadius;
+    .sub-result-top {
       display: flex;
       justify-content: space-between;
-      .sub-find-text-wsrfhedsoufheqiwrhew {
+      .sub-find-text {
         font-size: 18px;
         font-weight: bold;
         padding-bottom: 16px;
       }
-      .sub-find-text-mark-wsrfhedsoufheqiwrhew {
+      .sub-find-text-mark {
         background: linear-gradient(transparent 65%, #81d3f8 50%);
         background-size: 200% 100%;
         background-repeat: no-repeat;
         background-position: 200% 0;
         background-position: 100% 0;
       }
-      .sub-top-right-wsrfhedsoufheqiwrhew {
+      .sub-top-right {
         display: flex;
         flex-wrap: nowrap;
         flex-shrink: 0;
       }
     }
-    .sub-sound-bar-wsrfhedsoufheqiwrhew {
+    .sub-sound-bar {
       display: flex;
-      .sub-sound-btn-wsrfhedsoufheqiwrhew {
+      .sub-sound-btn {
         display: flex;
         height: 26px;
         min-width: 27px;
@@ -147,7 +147,7 @@ export default defineComponent({
         // border-radius: 13px;
         // background-color: #eee;
         margin-bottom: 16px;
-        .sub-pronunciation-wsrfhedsoufheqiwrhew {
+        .sub-pronunciation {
           color: #ddd;
           font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
           // padding-left: 12px;

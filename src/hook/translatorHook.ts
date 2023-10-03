@@ -5,6 +5,7 @@ import { ITransEngine, ITransStatus, IEditHook, ITransMode, ITransMsg, ITranslat
 import { getTransConf } from '@/utils/chromeApi'
 import {BaiduTrans} from '@/translator/baiduTrans'
 import { Context } from '@/api/context'
+import { usePort } from '@/xxuse/usePort'
 
 export function baseTransHook(mode: ITransMode, status: ITransStatus): IBaseHook {
     const hook: IBaseHook = reactive({
@@ -66,9 +67,9 @@ export function baseTransHook(mode: ITransMode, status: ITransStatus): IBaseHook
             })
         },
         openOptionsPage(type: string) {
-            hook.usePort({
+            usePort({
                 name: 'openOptionsPage',
-                context: new Context({tab: '',type})
+                message: new Context({tab: '',type})
             })
         },
         dialog: {
@@ -129,17 +130,10 @@ export function baseTransHook(mode: ITransMode, status: ITransStatus): IBaseHook
         },
         eventToAnalytic(eventData) {
             eventData.params.locale = chrome.i18n.getMessage("@@ui_locale")
-            hook.usePort({
+            usePort({
                 name: 'analytic',
-                context: new Context(eventData),
+                message: new Context(eventData),
             })
-        },
-        async usePort({ name, context, onMsgHandle }) {
-            const port = chrome.runtime.connect({ name: name })
-            port.onMessage.addListener((context: Context) => {
-                onMsgHandle && onMsgHandle(context)
-            })
-            await port.postMessage(context)
         },
         setNoneStatus(changeID = false) {
             if (!hook.isHold) {
@@ -260,10 +254,11 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                 hook.subTranslator.status = 'loading'
                 hook.subTranslator.isLoading = true
                 if (!hook.find.result) return
-                await hook.usePort({
+                await usePort({
                     name: 'translate',
-                    context: new Context({ text: hook.subTranslator.selectText, from: hook.find.result.resultFrom, to: hook.find.result.resultTo, type: 'sub', engine: hook.find.result.engine }),
-                    onMsgHandle: (context: Context) => {
+                    message: new Context({ text: hook.subTranslator.selectText, from: hook.find.result.resultFrom, to: hook.find.result.resultTo, type: 'sub', engine: hook.find.result.engine }),
+                    beforeCallback: hook.handleWebErr,
+                    callback: (context: Context) => {
                         hook.subTranslator.resultData = context.resp?.data
                         hook.subTranslator.status = 'result'
                     }
@@ -371,14 +366,6 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
 
             }
         },
-        async usePort({ name, context, onMsgHandle }) {
-            const port = chrome.runtime.connect({ name: name })
-            port.onMessage.addListener((context: Context) => {
-                hook.handleWebErr(context)
-                onMsgHandle && onMsgHandle(context)
-            })
-            await port.postMessage(context)
-        },
         handleWebErr(context) {
             if (context?.req?.id && context.req.id !== hook.base.transID) return
 
@@ -395,9 +382,9 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                     confirmText: 'scanQR',
                     cancelText: '',
                     confirmAction: () => {
-                        hook.usePort({
+                        usePort({
                             name: 'openOptionsPage',
-                            context: new Context({tab:'login'}),
+                            message: new Context({tab:'login'}),
                         })
                     }
                 })
@@ -405,7 +392,7 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
             else if (context.dialogMsg) {
                 switch (context.dialogMsg.message) {
                     case '__wantToApplyTrans__':
-                        context.dialogMsg.confirmAction = hook.applyBDDM
+                        context.dialogMsg.confirmAction = hook.applyDomainTrans
                         break
                     case '__transReqErr__':
                         if (hook.options.engine) {
@@ -439,18 +426,22 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
             }
             else if (context.toastMsg) {
                 hook.base.toast.showToast(context.toastMsg)
-            } else if (context.err) {
-                //todo
+            } else if (context.err && context.errDetail) {
+                hook.base.toast.showToast({
+                    message: context.errDetail,
+                    type: 'normal'
+                })
             }
         },
         getMarkHtml() {
             return getMarkHtml(hook.marksList, hook.find.text)
         },
         async updateMark({ success, fail, info }) {
-            await hook.usePort({
+            await usePort({
                 name: 'updateMark',
-                context: new Context(info),
-                onMsgHandle: (context: Context) => {
+                message: new Context(info),
+                beforeCallback: hook.handleWebErr,
+                callback: (context: Context) => {
                     if (!context.err) {
                         success()
                     } else {
@@ -460,10 +451,11 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
             })
         },
         async reduceCollect() {
-            await hook.usePort({
+            await usePort({
                 name: 'reduceCollect',
-                context: new Context({tid: hook.find.tid}),
-                onMsgHandle: (context) => {
+                message: new Context({tid: hook.find.tid}),
+                beforeCallback: hook.handleWebErr,
+                callback: (context:Context) => {
                     if (!context.err) {
                         hook.find.isCollected = false
                         hook.find.tid = null
@@ -478,9 +470,9 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                 fail?.call(hook)
                 return
             }
-            await hook.usePort({
+            await usePort({
                 name: 'collect',
-                context: new Context({
+                message: new Context({
                     text: hook.find.text,
                     translation: hook.find.result.text,
                     marks: hook.subTranslator.marksStr,
@@ -488,7 +480,8 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                     resultTo: hook.find.result.resultTo,
                     engine: hook.find.result.engine
                 }),
-                onMsgHandle: (c) => {
+                beforeCallback: hook.handleWebErr,
+                callback: (c:Context) => {
                     if (!c.err) {
                         hook.find.isCollected = true
                         hook.find.tid = c.res.tid
@@ -520,13 +513,14 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                 hook.base.findStatus = info.findStatus
             }
 
-            await hook.usePort({
+            await usePort({
                 name: 'translate',
-                context: new Context({
+                message: new Context({
                     text: find.text, from: info.from, to: info.to, type: info.type,
                     mode: hook.base.mode, engine: hook.options.engine, id: ++hook.base.transID
                 }),
-                onMsgHandle: (context: Context) => {
+                beforeCallback: hook.handleWebErr,
+                callback: (context: Context) => {
                     if (context.req.id !== hook.base.transID) {
                         context.err = 'no equal id'
                     }
@@ -561,10 +555,6 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                     }
 
                     hook.subTranslator.init()
-                    // setTimeout(() => {
-
-                    // }, 1)
-
                 }
             })
         },
@@ -596,23 +586,6 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                 src: engine.getTTSSrc(lang, text),
                 id: id
             }, '*')
-            // hook.usePort({
-            //     name: 'tts',
-            //     context: {req:{ text: text, lang: lang, audioType: audioType}},
-            //     onMsgHandle: (context: IContext) => {
-            //         if (!context.resp || context.resp.errMsg) {
-            //             return
-            //         }
-            //         // @ts-ignore
-            //         const iframe = hook[`${audioType}Iframe`]
-            //         iframe.contentWindow.postMessage({
-            //             source: "phrase",
-            //             action: "playAudio",
-            //             audioBase64: context.resp.data,
-            //             id: id
-            //         }, '*')
-            //     }
-            // })
         },
         toEdit() {
             hook.base.E.lastFindText = hook.base.E.editingText
@@ -641,15 +614,16 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
         },
         eventToAnalytic(eventData) {
             eventData.params.locale = chrome.i18n.getMessage("@@ui_locale")
-            hook.usePort({
+            usePort({
                 name: 'analytic',
-                context: new Context(eventData),
+                message: new Context(eventData),
             })
         },
-        async applyBDDM() {
-            await hook.usePort({
-                name: "applyBDDM",
-                context: new Context({})
+        async applyDomainTrans() {
+            await usePort({
+                name: "applyDomainTrans",
+                message: new Context({}),
+                beforeCallback: hook.handleWebErr,
             })
             hook.base.dialog.show = false
         },

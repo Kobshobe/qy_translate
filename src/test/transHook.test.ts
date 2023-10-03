@@ -3,7 +3,6 @@
 // import {Mode} from '@/config'
 // import {removeTokenInfo} from '@/utils/chromeApi'
 // import {notest} from './utils'
-// import _Table from 'element-plus/lib/el-table';
 
 // jest.setTimeout(10000)
 
@@ -154,7 +153,7 @@
     
 
 
-//     // await trans.applyBDDM()
+//     // await trans.applyDomainTrans()
 //     // expect(trans.dialogMsg.message).toBe('恭喜你申请成功!')
 //     // trans.options.show()
 //     // trans.options.engine = 'bdDM__finance'

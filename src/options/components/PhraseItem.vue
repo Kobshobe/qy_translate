@@ -1,10 +1,6 @@
 <template>
   <div
-    class="phrase-item-box"
-    :style="{
-      backgroundColor:
-        hook.coll.playTTSInfo.nowPlayIndex === index ? '#eee' : 'white',
-    }"
+    :class="hook.coll.playTTSInfo.nowPlayIndex === index ? 'phrase-item-box phrase-item-box-play' : 'phrase-item-box'"
   >
     <div class="phrase-item-box-total">
       <div
@@ -17,7 +13,7 @@
           :size="14"
           @click="hook.coll.playTTS(index)"
         />
-        <el-checkbox v-else v-model="isChoice" @change="check"></el-checkbox>
+        <x-checkbox v-else v-model="isChoice" @change="check"></x-checkbox>
       </div>
 
       <div class="phrase-item-text-box">
@@ -112,7 +108,7 @@ export default defineComponent({
     width: 100%;
     min-height: 50px;
     padding: 30px 0 30px 0;
-    border-bottom: 2px solid #f2f2f2;
+    border-bottom: 2px solid var(--xx-border-color);
     .phrase-item-text-box {
       width: 100%;
       padding-right: 10px;
@@ -120,7 +116,7 @@ export default defineComponent({
         box-sizing: border-box;
         font-weight: bold;
         font-size: 15px;
-        .mark-text-wsrfhedsoufheqiwrhew {
+        .mark-text {
         background: linear-gradient(transparent 65%, #81d3f8 50%);
         background-size: 200% 100%;
         background-repeat: no-repeat;
@@ -130,10 +126,13 @@ export default defineComponent({
       }
       .pharaphrase-text {
         font-size: 14px;
-        color: #aaa;
+        // color: #aaa;
         padding-top: 15px;
       }
     }
   }
+}
+.phrase-item-box-play {
+  background-color: #eee;
 }
 </style>

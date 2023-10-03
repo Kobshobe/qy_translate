@@ -1,6 +1,6 @@
 <template>
   <div
-    class="popup-overlay-wsrfhedsoufheqiwrhew"
+    class="popup-overlay"
     v-if="
       baseHook.T.subTranslator.status !== 'hide'
     "
@@ -8,68 +8,55 @@
   >
     <div
       v-if="baseHook.T.subTranslator.status !== 'result'"
-      class="gate-box-wsrfhedsoufheqiwrhew"
+      class="gate-box"
       :style="{ top: baseHook.T.subTranslator.top + 'px' }"
     >
       <div :style="{ width: baseHook.T.subTranslator.left + 'px' }"></div>
-      <div class="gate-content-box-wsrfhedsoufheqiwrhew" @click.stop="">
+      <div class="gate-content-box" @click.stop="">
         <div
           v-if="baseHook.T.subTranslator.status === 'showGate'"
-          class="gate-trans-mark-wsrfhedsoufheqiwrhew"
+          class="gate-trans-mark"
         >
-          <div class="gate-btn-wsrfhedsoufheqiwrhew" @click="baseHook.T.subTranslator.translate">
+          <div class="gate-btn" @click="baseHook.T.subTranslator.translate">
             {{subTransMsg}}
           </div>
-          <div class="gate-divider-wsrfhedsoufheqiwrhew">|</div>
-          <div class="gate-btn-wsrfhedsoufheqiwrhew" @click="baseHook.T.subTranslator.mark">
+          <div class="gate-divider">|</div>
+          <div class="gate-btn" @click="baseHook.T.subTranslator.mark">
             {{ baseHook.T.canReduceMark ? reduceMarkMsg : markMsg }}
           </div>
         </div>
 
         <div
           v-else-if="baseHook.T.subTranslator.status === 'loading'"
-          class="loading-wsrfhedsoufheqiwrhew"
+          class="qy-sub-loading"
         >
           <Loading />
         </div>
       </div>
     </div>
-    <div v-else class="sub-trans-result-box-wsrfhedsoufheqiwrhew">
+    <div v-else class="sub-trans-result-box">
       <SubTransResult />
     </div>
   </div>
 </template>
 
-<script lang='ts'>
-import { defineComponent, inject } from "vue";
+<script setup lang='ts'>
+import { inject } from "vue";
 import Loading from "../base/Loading.vue";
 import SubTransResult from "./SubTransResult.vue";
 import {IBaseHook} from '@/interface/trans'
 
-export default defineComponent({
-  setup() {
-    const baseHook = inject("baseHook") as IBaseHook
+const baseHook = inject("baseHook") as IBaseHook
 
-    const markMsg = chrome.i18n.getMessage("mark")
-    const subTransMsg = chrome.i18n.getMessage("subTrans")
-    const reduceMarkMsg = chrome.i18n.getMessage("reduceMark")
-
-    return {
-      baseHook,markMsg,subTransMsg,reduceMarkMsg
-    };
-  },
-  components: {
-    Loading,
-    SubTransResult,
-  },
-});
+const markMsg = chrome.i18n.getMessage("mark")
+const subTransMsg = chrome.i18n.getMessage("subTrans")
+const reduceMarkMsg = chrome.i18n.getMessage("reduceMark")
 </script>
 
 
 <style scoped lang="scss">
-// @import "../../app.scss";
 
-.popup-overlay-wsrfhedsoufheqiwrhew {
+.popup-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -79,7 +66,8 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   font-family: Arial, Helvetica, sans-serif;
-  .gate-box-wsrfhedsoufheqiwrhew {
+  background-color: rgba(0, 0, 0, 0);
+  .gate-box {
     box-sizing: border-box;
     position: absolute;
     display: flex;
@@ -88,12 +76,12 @@ export default defineComponent({
     display: flex;
     padding-right: 15px;
     padding-left: 15px;
-    .gate-content-box-wsrfhedsoufheqiwrhew {
+    .gate-content-box {
       display: flex;
       justify-content: center;
       align-items: center;
       height: 20px;
-      background-color: $toastBGC;
+      background-color: var(--xx-fill-color-2);
       border: $toastBorder;
       color: $toastColor;
       border-radius: 5px;
@@ -101,27 +89,34 @@ export default defineComponent({
       flex-shrink: 0;
       height: auto;
       font-size: 13px;
-      .gate-trans-mark-wsrfhedsoufheqiwrhew {
+      .gate-trans-mark {
         display: flex;
         flex-wrap: nowrap;
         justify-content: center;
         align-items: center;
-        .gate-btn-wsrfhedsoufheqiwrhew {
+        background-color: var(--xx-fill-color-2);
+        color: var(--xx-text-color-regular);
+        .gate-btn {
           cursor: pointer;
-          // padding-top: 2px;
+          background-color: var(--xx-fill-color-2);
         }
-        .gate-divider-wsrfhedsoufheqiwrhew {
+        .gate-divider {
           padding: 0 3px 0 3px;
+          background-color: var(--xx-fill-color-2);
         }
+      }
+      .qy-sub-loading {
+        background-color: transparent;
       }
     }
   }
-  .sub-trans-result-box-wsrfhedsoufheqiwrhew {
+  .sub-trans-result-box {
     box-sizing: border-box;
     padding: 50px 10px 10px 10px;
     overflow: hidden;
     width: 100%;
     height: 100%;
+    background-color: rgba(0, 0, 0, 0);
   }
   ::-webkit-scrollbar {
     width: 6px;

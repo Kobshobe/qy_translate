@@ -1,35 +1,30 @@
 <template>
   <div
-    v-if="!hook.coll.collItem.deleted.includes(collInfo.tid)"
+    v-if="!hook.coll.collItem.deleted.includes(props.collInfo.tid)"
     class="coll-item-box"
-    @click="hook.coll.getPhraseList(collInfo.tid, 1)"
+    @click="hook.coll.getPhraseList(props.collInfo.tid, 1)"
   >
-    <div class="coll-name" :style="collInfo.tid === hook.coll.tid ? 'color:#4C8BF5' : ''">{{ collInfo.name }}</div>
-    <div v-if="hook.coll.status === 'edit' && collInfo.tid !== 0" class="coll-item-manager" @click.stop="">
-      <div @click="hook.coll.collItem.delete(collInfo.tid)" class="coll-btn"><i class="el-icon-delete"></i></div>
-      <div @click="hook.coll.collItem.showDialog(collInfo.name, collInfo.tid)" class="coll-btn"><i class="el-icon-edit"></i></div>
+    <div class="coll-name" :style="props.collInfo.tid === hook.coll.tid ? 'color:#4C8BF5' : ''">{{ props.collInfo.name }}</div>
+    
+    <div v-if="hook.coll.status === 'edit' && props.collInfo.tid !== 0" class="coll-item-manager" @click.stop="">
+      <div @click="hook.coll.collItem.delete(props.collInfo.tid)" class="coll-btn">delete</div>
+      <div @click="hook.coll.collItem.showDialog(props.collInfo.name, props.collInfo.tid)" class="coll-btn">edit</div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, inject } from "vue";
+<script setup lang="ts">
+import { inject } from "vue";
 import { IOptionBaseHook } from "@/interface/options";
 
-export default defineComponent({
-  props: {
-    collInfo: {
-      required: true,
-      type: Object,
-    },
+const props:any = defineProps({
+  collInfo: {
+    required: true,
+    type: Object,
   },
-  setup() {
-    const hook = <IOptionBaseHook>inject("baseHook");
-    return {
-      hook,
-    };
-  },
-});
+})
+
+const hook = inject("baseHook") as IOptionBaseHook;
 </script>
 
 
@@ -44,7 +39,7 @@ export default defineComponent({
   cursor: pointer;
   width: 100%;
   .coll-name {
-    color: #333;
+    // color: #333;
   }
   .coll-item-manager {
     position: absolute;
@@ -55,7 +50,7 @@ export default defineComponent({
     // padding-right: 10px;
     .coll-btn {
         padding-right: 15px;
-        color: #aaa;
+        // color: var();
     }
   }
 }

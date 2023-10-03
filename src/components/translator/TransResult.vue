@@ -2,68 +2,68 @@
   <div v-show="baseHook.status === 'result'">
     <LangController v-if="baseHook.C.mode === 'profession'" />
     <div
-      class="result-main-wsrfhedsoufheqiwrhew"
+      class="result-main"
     >
       <div
         class="
-          text-container-wsrfhedsoufheqiwrhew
-          text-container-top-wsrfhedsoufheqiwrhew
+          text-container
+          text-container-top
         "
       >
-        <div class="found-result-text-wsrfhedsoufheqiwrhew" ref="findTextDOM">
+        <div class="found-result-text" ref="findTextDOM">
           <FindText mode="foundText" />
         </div>
-        <div class="tool-bar-wsrfhedsoufheqiwrhew">
-          <div class="tool-bar-left-wsrfhedsoufheqiwrhew">
+        <div class="tool-bar">
+          <div class="tool-bar-left">
             <SoundBtn audioType="from" />
-            <div class="edge-width-wsrfhedsoufheqiwrhew"></div>
+            <div class="edge-width"></div>
             <CollectBtn
               :isCollected="baseHook.T.find.isCollected"
               @collect="baseHook.T.collect({})"
               @reduceCollect="baseHook.T.reduceCollect"
             />
           </div>
-          <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
+          <div class="tool-bar-right">
             <!-- <div class="lang-tips">English</div> -->
             <IconBtn
               v-if="baseHook.T.base.mode === 'popup' || baseHook.C.mode === 'profession'"
               type="icon-bianji1"
-              iconSize="16"
+              :iconSize="16"
               @click="baseHook.T.toEdit"
             />
           </div>
         </div>
       </div>
       <Divider />
-      <div class="text-container-wsrfhedsoufheqiwrhew">
-        <div class="found-result-text-wsrfhedsoufheqiwrhew">
+      <div class="text-container">
+        <div class="found-result-text">
           <div style="height: 18px"></div>
           <FindText mode="resultText" />
         </div>
-        <div class="tool-bar-wsrfhedsoufheqiwrhew">
-          <div class="tool-bar-left-wsrfhedsoufheqiwrhew">
+        <div class="tool-bar">
+          <div class="tool-bar-left">
             <SoundBtn audioType="to" />
             <div style="width: 10px"></div>
             <IconBtn
               type="icon-fuzhi3"
-              iconSize="15"
+              :iconSize="15"
               @click="baseHook.T.copyResult"
             />
           </div>
-          <div class="tool-bar-right-wsrfhedsoufheqiwrhew">
+          <div class="tool-bar-right">
             <div class="lang-tips">{{resultLang}}</div>
-            <el-tooltip
+            <x-tooltip
               v-if="baseHook.tips.message !== ''"
-              class="item"
-              effect="dark"
               :content="baseHook.tips.message"
               placement="top-end"
+              :visible="true"
+              trigger="click"
             >
-              <IconBtn type="icon-tishi" iconSize="15" color="#FFB715"  @click="baseHook.openOptionsPage('tipTool')" />
-            </el-tooltip>
+              <IconBtn type="icon-tishi" :iconSize="15" color="#FFB715"  @click="baseHook.openOptionsPage('tipTool')" />
+            </x-tooltip>
             <IconBtn
               type="icon-gengduo1"
-              iconSize="17"
+              :iconSize="17"
               @click="baseHook.T.options.show"
             />
           </div>
@@ -76,7 +76,7 @@
   <Options v-if="baseHook.T.options.isShow" :mode="baseHook.T.base.mode" />
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import {
   defineComponent,
   inject,
@@ -97,86 +97,66 @@ import Divider from "./Divider.vue";
 import { IBaseHook } from "@/interface/trans";
 import {languages} from '@/translator/trans_base'
 
-export default defineComponent({
-  setup() {
-    const baseHook = inject("baseHook") as IBaseHook;
-    if (!baseHook.T) {
-      baseHook.T = transHook(baseHook);
+const baseHook = inject("baseHook") as IBaseHook;
+if (!baseHook.T) {
+  baseHook.T = transHook(baseHook);
+}
+
+const resultLang = computed(() => {
+  if(!baseHook.T.find.result) return '';
+
+  if(baseHook.C.mode === 'simple') {
+    if((baseHook.T.find.result.resultFrom !== baseHook.C.mainLang && baseHook.T.find.result.resultFrom !== baseHook.C.secondLang) ||
+    (baseHook.T.find.result.resultTo !== baseHook.C.mainLang && baseHook.T.find.result.resultTo !== baseHook.C.secondLang)) {
+      //@ts-ignore
+      return `${languages[baseHook.T.find.result.resultFrom].en} > ${languages[baseHook.T.find.result.resultTo].en}`
     }
+  }
+  return ''
+})
 
-    const resultLang = computed(() => {
-      if(!baseHook.T.find.result) return ''
-      if(baseHook.C.mode === 'simple') {
-        if((baseHook.T.find.result.resultFrom !== baseHook.C.mainLang && baseHook.T.find.result.resultFrom !== baseHook.C.secondLang) ||
-        (baseHook.T.find.result.resultTo !== baseHook.C.mainLang && baseHook.T.find.result.resultTo !== baseHook.C.secondLang)) {
-          //@ts-ignore
-          return `${languages[baseHook.T.find.result.resultFrom].en} > ${languages[baseHook.T.find.result.resultTo].en}`
-        }
-        return ''
-      }
-    })
-
-    watch(
-      () => baseHook.T.subTranslator.selectText,
-      (newVal: string) => {
-        if (newVal !== "") {
-          baseHook.T.subTranslator.status = "showGate";
-        }
-      }
-    );
-
-    function messageHandler(event: any) {
-      if (
-        !event.data.sourceID &&
-        event.data.sourceID !== "dsfiuasguwheuirhudfkssdhfiwehri"
-      ) {
-        return;
-      }
-      if (event.data.action === "playAudio") {
-        baseHook.T.getTTS(event.data.audioType, event.data.id);
-      }
+watch(
+  () => baseHook.T.subTranslator.selectText,
+  (newVal: string) => {
+    if (newVal !== "") {
+      baseHook.T.subTranslator.status = "showGate";
     }
+  }
+);
 
-    onMounted(() => {
-      window.addEventListener("message", messageHandler);
-      baseHook.T.setResultPostion();
-    });
+function messageHandler(event: any) {
+  if (
+    !event.data.sourceID &&
+    event.data.sourceID !== "dsfiuasguwheuirhudfkssdhfiwehri"
+  ) {
+    return;
+  }
+  if (event.data.action === "playAudio") {
+    baseHook.T.getTTS(event.data.audioType, event.data.id);
+  }
+}
 
-    onUnmounted(() => {
-      window.removeEventListener("message", messageHandler);
-    });
+onMounted(() => {
+  window.addEventListener("message", messageHandler);
+  baseHook.T.setResultPostion();
+});
 
-    return {
-      baseHook,
-      resultLang
-    };
-  },
-  components: {
-    SoundBtn,
-    CollectBtn,
-    IconBtn,
-    Options,
-    SubTranslator,
-    FindText,
-    Divider,
-    LangController,
-  },
+onUnmounted(() => {
+  window.removeEventListener("message", messageHandler);
 });
 </script>
 
 
 <style lang="scss" scoped>
-// @import "../../app.scss";
-
-.result-main-wsrfhedsoufheqiwrhew {
+.result-main {
   position: relative;
-  color: white;
-  .text-container-wsrfhedsoufheqiwrhew {
+  color: var(--xx-common-text-color);
+  .text-container {
     box-sizing: border-box;
     width: 100%;
   }
 
-  .tool-bar-wsrfhedsoufheqiwrhew {
+  .tool-bar {
     box-sizing: border-box;
     display: flex;
     justify-content: space-between;
@@ -186,12 +166,12 @@ export default defineComponent({
     padding-top: 10px;
     padding-bottom: 10px;
     padding: 0 $transEdgePadding 0 $transEdgePadding;
-    .tool-bar-left-wsrfhedsoufheqiwrhew {
+    .tool-bar-left {
       display: flex;
       height: 100%;
       align-items: center;
     }
-    .tool-bar-right-wsrfhedsoufheqiwrhew {
+    .tool-bar-right {
       display: flex;
       height: 100%;
       align-items: center;
@@ -203,7 +183,7 @@ export default defineComponent({
   }
 }
 
-.edge-width-wsrfhedsoufheqiwrhew {
+.edge-width {
   min-width: 10px;
 }
 

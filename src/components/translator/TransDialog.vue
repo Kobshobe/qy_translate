@@ -1,23 +1,23 @@
 <template>
   <div
-    class="dialog-overlay-wsrfhedsoufheqiwrhew"
+    class="dialog-overlay"
     v-if="baseHook.dialog.show"
     @click="baseHook.dialog.show = false"
   >
-    <div class="dialog-content-box-wsrfhedsoufheqiwrhew" @click.stop="">
-      <div class="content-text-wsrfhedsoufheqiwrhew">
+    <div class="dialog-content-box" @click.stop="">
+      <div class="content-text">
         {{ baseHook.dialog.message }}
       </div>
-      <div class="dialog-control-bar-wsrfhedsoufheqiwrhew">
+      <div class="dialog-control-bar">
         <div
-          class="cancel-wsrfhedsoufheqiwrhew"
+          class="cancel"
           :style="baseHook.dialog.confirmText ? 'color: #777;' : ''"
           @click="baseHook.dialog.show = false"
         >
           {{ baseHook.dialog.cancelText }}
         </div>
         <div
-          class="comfirm-wsrfhedsoufheqiwrhew"
+          class="comfirm"
           @click="baseHook.dialog.confirmAction"
         >
           {{ baseHook.dialog.confirmText }}
@@ -46,7 +46,7 @@ export default defineComponent({
 <style scoped lang="scss">
 // @import "@/app.scss";
 
-.dialog-overlay-wsrfhedsoufheqiwrhew {
+.dialog-overlay {
   box-sizing: border-box;
   position: absolute;
   top: 0;
@@ -57,8 +57,8 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   padding: 0 20px 0 20px;
-  //   background-color: rgba(0,0,0,0.5);
-  .dialog-content-box-wsrfhedsoufheqiwrhew {
+  background-color: transparent;
+  .dialog-content-box {
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
@@ -67,27 +67,26 @@ export default defineComponent({
     border-radius: 5px;
     padding: 20px 16px 14px 16px;
     min-width: 210px;
-    background-color: white;
-    // box-shadow: 0 0 20px #555;
-    border: solid 1px #e4e7ed;
+    background-color: var(--xx-background-color);
+    border: 1px solid var(--xx-border-color);
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
     font-size: 14px;
-    .content-text-wsrfhedsoufheqiwrhew {
+    .content-text {
       padding-bottom: 15px;
-      color: #555;
+      color: var(--xx-text-color-regular);
     }
-    .dialog-control-bar-wsrfhedsoufheqiwrhew {
+    .dialog-control-bar {
       display: flex;
       flex-wrap: nowrap;
       align-items: center;
       justify-content: flex-end;
-      color: $mainColor;
-      .cancel-wsrfhedsoufheqiwrhew {
+      color: var(--xx-c-primary);
+      .cancel {
         font-weight: bold;
         padding-right: 10px;
         cursor: pointer;
       }
-      .comfirm-wsrfhedsoufheqiwrhew {
+      .comfirm {
         font-weight: bold;
         cursor: pointer;
       }
