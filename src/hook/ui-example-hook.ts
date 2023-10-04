@@ -2,6 +2,7 @@ import { reactive } from "vue"
 
 export default function exampleUIData() {
     const data = reactive({
+        showDialog: false,
         selectValue: 'js',
         selectOptions: [
             {

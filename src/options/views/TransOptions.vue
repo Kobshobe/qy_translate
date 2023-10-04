@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, inject } from "vue";
+import { inject } from "vue";
 import OptionItem from "@/options/components/OptionItem.vue";
 import { languages, engines } from "@/translator/trans_base";
 import { IOptionBaseHook } from "@/interface/options";

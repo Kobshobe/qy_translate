@@ -45,47 +45,31 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, inject, computed, reactive, onMounted } from "vue";
+<script setup lang="ts">
+import { inject, computed, reactive, onMounted } from "vue";
 import SoundBtn from "./SoundBtn.vue";
 import DictItems from "./DictItems.vue";
 import Examples from "./Examples.vue";
 import IconBtn from "../base/IconBtn.vue";
 import { IBaseHook } from "@/interface/trans";
 
-export default defineComponent({
-  setup() {
-    const baseHook = inject("baseHook") as IBaseHook;
+const baseHook = inject("baseHook") as IBaseHook;
 
-    const opacityStyle = reactive({
-      opacity: 0.2,
-    });
+const opacityStyle = reactive({
+  opacity: 0.2,
+});
 
-    const showPronunciation = computed(() => {
-      return (
-        baseHook.T.subTranslator.resultData?.sPronunciation &&
-        baseHook.T.subTranslator.resultData.sPronunciation.length < 30
-      );
-    });
+const showPronunciation = computed(() => {
+  return (
+    baseHook.T.subTranslator.resultData?.sPronunciation &&
+    baseHook.T.subTranslator.resultData.sPronunciation.length < 30
+  );
+});
 
-    onMounted(() => {
-      setTimeout(() => {
-        opacityStyle.opacity = 1;
-      });
-    });
-
-    return {
-      baseHook,
-      showPronunciation,
-      opacityStyle,
-    };
-  },
-  components: {
-    DictItems,
-    Examples,
-    IconBtn,
-    SoundBtn,
-  },
+onMounted(() => {
+  setTimeout(() => {
+    opacityStyle.opacity = 1;
+  });
 });
 </script>
 

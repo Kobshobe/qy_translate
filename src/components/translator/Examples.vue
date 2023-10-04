@@ -1,5 +1,5 @@
 <template>
-  <div v-if="baseHook.T.subTranslator.resultData?.examples">
+  <div v-if="baseHook.T.subTranslator.resultData?.examples && baseHook.T.subTranslator.resultData?.examples.length > 0">
     <div class="examples-title">{{ transExampleMsg }}</div>
     <div
       v-for="(item, index) in baseHook.T.subTranslator.resultData.examples"
@@ -15,26 +15,16 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, inject } from "vue";
+<script setup lang="ts">
+import { inject } from "vue";
 import { IBaseHook } from "@/interface/trans";
 
-export default defineComponent({
-  setup() {
-    const baseHook = inject("baseHook") as IBaseHook;
-    const transExampleMsg = chrome.i18n.getMessage("transExampple");
-
-    return {
-      baseHook,
-      transExampleMsg,
-    };
-  },
-});
+const baseHook = inject("baseHook") as IBaseHook;
+const transExampleMsg = chrome.i18n.getMessage("transExampple");
 </script>
 
 
 <style lang="scss" scoped>
-// @import "@/app.scss";
 
 .examples-title {
   font-size: 14px;

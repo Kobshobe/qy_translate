@@ -11,7 +11,7 @@
       class="gate-box"
       :style="{ top: baseHook.T.subTranslator.top + 'px' }"
     >
-      <div :style="{ width: baseHook.T.subTranslator.left + 'px' }"></div>
+      <div :style="{ width: baseHook.T.subTranslator.left + 'px', backgroundColor: 'transparent' }"></div>
       <div class="gate-content-box" @click.stop="">
         <div
           v-if="baseHook.T.subTranslator.status === 'showGate'"
@@ -76,6 +76,7 @@ const reduceMarkMsg = chrome.i18n.getMessage("reduceMark")
     display: flex;
     padding-right: 15px;
     padding-left: 15px;
+    background-color: transparent;
     .gate-content-box {
       display: flex;
       justify-content: center;

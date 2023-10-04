@@ -200,6 +200,9 @@
     "bdTrans__common": {
         "message": "Baidu"
     },
+    "bing__common": {
+        "message": "Bing"
+    },
     "ggTrans__common": {
         "message": "Google"
     },

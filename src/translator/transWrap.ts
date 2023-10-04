@@ -60,10 +60,10 @@ class WrapTranslator {
     }
 
     isChinese(text: string) {
-        const re = /[\u4E00-\u9FA5]+/;
-        if (re.test(text)) return true;
-        return false;
-      }
+      const re = /[\u4E00-\u9FA5]+/;
+      if (re.test(text)) return true;
+      return false;
+    }
     
 }
 

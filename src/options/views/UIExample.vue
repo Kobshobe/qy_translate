@@ -15,6 +15,7 @@ const codeLang2 = ref('GO')
 const showMessage = () => {
     XMessage({
         type: 'warning',
+        message: 'this is message content',
     })
 }
 
@@ -31,7 +32,9 @@ const showMessageBox = () => {
     })
 }
 
-const showDialog = ref(false)
+const showDialogFunc = () => {
+    exampleData.showDialog = true
+}
 
 const checkGo = ref(true)
 const checkJS = ref(false)
@@ -97,17 +100,17 @@ onMounted(() => {
         <x-button @click="showMessageBox">Show MessageBox</x-button>
 
         <h2 class="pdb30 pdt30">Dialog</h2>
-        <x-dialog v-model="showDialog" title="This title">
+        <x-dialog v-model="exampleData.showDialog" title="This title">
             <div>this dialog content</div>
             <template #footer>
                 <div style="display: flex; justify-content: flex-end;">
-                    <x-button @click="showDialog = false">Close</x-button>
+                    <x-button @click="exampleData.showDialog = false">Close</x-button>
                     <x-size-box width="10px" />
-                    <x-button type="primary" @click="showDialog = false">Confirm</x-button>
+                    <x-button type="primary" @click="exampleData.showDialog = false">Confirm</x-button>
                 </div>
             </template>
         </x-dialog>
-        <x-button @click="showDialog = true">Show Dialog</x-button>
+        <x-button @click="showDialogFunc">Show Dialog</x-button>
 
         <h2 class="pdb30 pdt30">Select</h2>
         <div class="selector-box">

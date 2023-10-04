@@ -38,13 +38,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, inject } from "vue";
+import { ref, watch, inject, onMounted } from "vue";
 import Loading from "../../components/base/Loading.vue";
 import { qrLogin } from "../../api/ws";
 import { removeTokenInfo, getTokenFromStorage } from "../../utils/chromeApi";
 import { eventToGoogle } from "@/utils/analytics";
 import {IOptionBaseHook} from '@/interface/options';
-import { XMessage } from "@/xxui";
+import {XMessage} from '@/xxui'
 import {geti18nMsg} from '@/utils/share'
 
 const hook = inject('baseHook') as IOptionBaseHook
@@ -87,7 +87,7 @@ watch(()=>loginStatus.value ,(newVal, oldVal)=> {
   if(newVal === 'loginOk' && oldVal !== 'none') {
     hook.user.isLogin = true
     hook.user.isShowLogin = false
-    XMessage.message({message: geti18nMsg('__loginSuccess__')})
+    XMessage({type: 'info', message: geti18nMsg('__loginSuccess__')})
 
     hook.coll.initColl()
   }

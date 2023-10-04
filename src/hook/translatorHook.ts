@@ -259,7 +259,7 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                     message: new Context({ text: hook.subTranslator.selectText, from: hook.find.result.resultFrom, to: hook.find.result.resultTo, type: 'sub', engine: hook.find.result.engine }),
                     beforeCallback: hook.handleWebErr,
                     callback: (context: Context) => {
-                        hook.subTranslator.resultData = context.resp?.data
+                        hook.subTranslator.resultData = context.res
                         hook.subTranslator.status = 'result'
                     }
                 })

@@ -200,6 +200,9 @@
     "bdTrans__common": {
         "message": "百度翻译"
     },
+    "bing__common": {
+        "message": "Bing必应"
+    },
     "ggTrans__common": {
         "message": "谷歌翻译"
     },
