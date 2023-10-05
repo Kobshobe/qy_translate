@@ -254,7 +254,7 @@ export function collHook(base: IOptionBaseHook): ICollHook {
             amount: hook.selected.size,
           }
         })
-        hook.moveOutList()
+        location.reload();
       } else {
         hook.handleRespMsg(c)
       }
@@ -275,7 +275,7 @@ export function collHook(base: IOptionBaseHook): ICollHook {
                 amount: hook.selected.size
               }
             })
-            hook.moveOutList()
+            location.reload();
           } else {
             hook.handleRespMsg(c)
           }
@@ -326,10 +326,6 @@ export function collHook(base: IOptionBaseHook): ICollHook {
       hook.playTTSInfo.isPlayList = false
 
     },
-    nextPage() {
-      // const page = hook.page + 1
-      // hook.getList(page)
-    },
     stopPlayTTS() {
       hook.playTTSInfo.init()
     },
@@ -346,24 +342,6 @@ export function collHook(base: IOptionBaseHook): ICollHook {
           hook.playTTSInfo.nowPlayIndex = -1
         }
       }
-    },
-    moveOutList() {
-      try {
-        const newList: any[] = []
-        hook.phraseList.forEach((item) => {
-          if (!hook.selected.has(item.tid)) {
-            newList.push(item)
-          }
-        })
-        hook.phraseList = []
-        setTimeout(() => {
-          hook.phraseList = newList
-        })
-      }
-      finally {
-        hook.selected.clear()
-      }
-
     },
     async getCollList() {
       const c = await getCollList(new Context({}))

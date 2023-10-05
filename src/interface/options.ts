@@ -54,12 +54,10 @@ export interface ICollHook {
   playList(): void
   stopPlayTTS(): void
   playTTS(index: number, isPlayList?: boolean) :void
-  moveOutList(): void
   getCollList(): void
   getPhraseList(collId: number|undefined, page: number):void
   setShowMarks(): void
   setShowParaphrase(): void
-  nextPage(): void
   back() :void
   handleRespMsg(c:Context) :void
   init() :void

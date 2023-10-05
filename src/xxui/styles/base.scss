@@ -47,6 +47,7 @@
     --xx-switch-off-color: var(--xx-border-color);
     --xx-tooltip-background-color: var(--xx-tooltip-background-color-light);
     --xx-tooltip-color: var(--xx-tooltip-color-light);
+    --xx-qy-mark-background: linear-gradient(transparent 65%, #81d3f8 50%);
 }
 
 .xx-qy-style-dark {
@@ -66,4 +67,5 @@
     --xx-tooltip-background-color: var(--xx-tooltip-background-color-dark);
     --xx-tooltip-color: var(--xx-tooltip-color-dark);
     --xx-border-only-dark: var(--xx-border-color);
+    --xx-qy-mark-background: linear-gradient(transparent 65%, #3A68AD 50%);
 }

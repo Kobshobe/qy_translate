@@ -2,10 +2,20 @@
   <div class="text-scroll-box" ref="foundScrollDOM">
     <div v-if="mode === 'foundText'" class="found-box">
       <div
+        class="
+          text-style
+          found-text-box
+          no-color-box
+        "
+      >
+        {{ baseHook.T.find.text }}
+      </div>
+      <div
         v-if="mode === 'foundText'"
         class="
           text-style
-          mark-text-box
+          found-text-box
+          absolute-text-box
           no-color-box
         "
         v-html="markHtml"
@@ -14,6 +24,7 @@
         class="
           text-style
           found-text-box
+          absolute-text-box 
         "
         v-on:mouseup.stop="findTextMouseup"
       >
@@ -86,44 +97,6 @@ watch(
     markHtml.value = baseHook.T.getMarkHtml();
   }
 );
-
-// export default defineComponent({
-//   props: {
-//     mode: String, // foundText, resultText
-//   },
-//   setup(props) {
-//     const baseHook = inject("baseHook") as IBaseHook;
-//     const markHtml = ref("");
-//     const foundScrollDOM = ref<any | null>(null);
-
-//     markHtml.value = baseHook.T.getMarkHtml();
-
-//     const findTextMouseup = (e: any) => {
-//       const sel: any = window.getSelection();
-//       if (sel.toString().replace(/[\s|\n]/g, "") !== "") {
-//         baseHook.T.subTranslator.top =
-//           e.offsetY - foundScrollDOM.value.scrollTop + 15;
-//         baseHook.T.subTranslator.left = e.offsetX;
-//         baseHook.T.subTranslator.selectText = sel.toString();
-//         baseHook.T.subTranslator.selectRange = [
-//           sel.getRangeAt(0).startOffset,
-//           sel.getRangeAt(0).endOffset,
-//         ];
-//         baseHook.T.subTranslator.bookMark();
-//         baseHook.T.subTranslator.status = "showGate";
-//       }
-//     };
-
-//     watch(
-//       () => baseHook.T.marksList,
-//       () => {
-//         markHtml.value = baseHook.T.getMarkHtml();
-//       }
-//     );
-
-//     return { baseHook, markHtml, findTextMouseup, foundScrollDOM };
-//   },
-// });
 </script>
 
 <style scoped lang="scss">
@@ -143,7 +116,7 @@ $foundPaddingTop: 0;
     color: black;
   }
   ::v-deep(.mark-text) {
-    background: linear-gradient(transparent 65%, #81d3f8 50%);
+    background: var(--xx-qy-mark-background);
     background-size: 200% 100%;
     background-repeat: no-repeat;
     background-position: 200% 0;
@@ -165,20 +138,18 @@ $foundPaddingTop: 0;
     padding: 0 $transEdgePadding 0 $transEdgePadding;
     line-height: 25px;
     color: var(--xx-common-text-color);
+    background-color: transparent;
   }
   .no-color-box {
     color: rgba(222, 222, 222, 0);
   }
-  .mark-text-box {
+  .absolute-text-box {
     box-sizing: border-box;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -100;
-    padding: 0 $transEdgePadding 0 $transEdgePadding;
-    line-height: 25px;
   }
   .result-text-box {
     box-sizing: border-box;
