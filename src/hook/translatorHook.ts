@@ -257,8 +257,8 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                 await usePort({
                     name: 'translate',
                     message: new Context({ text: hook.subTranslator.selectText, from: hook.find.result.resultFrom, to: hook.find.result.resultTo, type: 'sub', engine: hook.find.result.engine }),
-                    beforeCallback: hook.handleWebErr,
                     callback: (context: Context) => {
+                        hook.handleWebErr(context)
                         hook.subTranslator.resultData = context.res
                         hook.subTranslator.status = 'result'
                     }
@@ -440,8 +440,8 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
             await usePort({
                 name: 'updateMark',
                 message: new Context(info),
-                beforeCallback: hook.handleWebErr,
                 callback: (context: Context) => {
+                    hook.handleWebErr(context)
                     if (!context.err) {
                         success()
                     } else {
@@ -454,13 +454,13 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
             await usePort({
                 name: 'reduceCollect',
                 message: new Context({tid: hook.find.tid}),
-                beforeCallback: hook.handleWebErr,
                 callback: (context:Context) => {
+                    hook.handleWebErr(context)
                     if (!context.err) {
                         hook.find.isCollected = false
                         hook.find.tid = null
                     }
-                }
+                },
             })
         },
         async collect({ success, fail }) {
@@ -480,8 +480,8 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                     resultTo: hook.find.result.resultTo,
                     engine: hook.find.result.engine
                 }),
-                beforeCallback: hook.handleWebErr,
                 callback: (c:Context) => {
+                    hook.handleWebErr(c)
                     if (!c.err) {
                         hook.find.isCollected = true
                         hook.find.tid = c.res.tid
@@ -521,8 +521,9 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                     text: find.text, from: info.from, to: info.to, type: info.type,
                     mode: hook.base.mode, engine: hook.options.engine, id: ++hook.base.transID
                 }),
-                beforeCallback: hook.handleWebErr,
                 callback: (context: Context) => {
+                    hook.handleWebErr(context)
+
                     if (context.req.id !== hook.base.transID) {
                         context.err = 'no equal id'
                     }
@@ -625,7 +626,7 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
             await usePort({
                 name: "applyDomainTrans",
                 message: new Context({}),
-                beforeCallback: hook.handleWebErr,
+                callback: hook.handleWebErr,
             })
             hook.base.dialog.show = false
         },
@@ -633,10 +634,6 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
     })
 
     hook.options.getData()
-
-    // if(hook.base.findStatus === 'editLoading') {
-    //     hook.translateFromEdit()
-    // }
 
     watchEffect(() => {
         if (hook.base.findStatus === 'editLoading') {
