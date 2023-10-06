@@ -160,6 +160,14 @@ export default function confHook(base: IOptionBaseHook): IConfHook {
 
   onMounted(() => {
     hook.init()
+
+    chrome.storage.onChanged.addListener((e) => {
+      if (e?.optionPageOpenParmas?.newValue?.tab === 'login' || e?.optionPageOpenParmas?.newValue?.tab === 'login') {
+        if (!hook.base.user.isShowLogin) {
+          hook.getOpenParams()
+        }
+      }
+    })
   })
 
   return hook

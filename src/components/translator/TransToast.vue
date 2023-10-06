@@ -24,7 +24,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-// @import "@/app.scss";
 
 .toast-main {
   position: absolute;
@@ -35,6 +34,7 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: transparent;
   .toast-content-box {
     display: flex;
     justify-content: center;
