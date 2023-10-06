@@ -38,7 +38,7 @@ defineComponent({
 <style lang="scss" scoped>
 .xx-dropdown_wrapper {
     background-color: inherit;
-    .dropdown__position {
+    .xx-dropdown__position {
         background-color: inherit;
     }
 }
