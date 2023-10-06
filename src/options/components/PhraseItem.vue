@@ -117,7 +117,7 @@ export default defineComponent({
         font-weight: bold;
         font-size: 15px;
         .mark-text {
-        background: linear-gradient(transparent 65%, #81d3f8 50%);
+        background: var(--xx-qy-mark-background);
         background-size: 200% 100%;
         background-repeat: no-repeat;
         background-position: 200% 0;
@@ -126,7 +126,6 @@ export default defineComponent({
       }
       .pharaphrase-text {
         font-size: 14px;
-        // color: #aaa;
         padding-top: 15px;
       }
     }

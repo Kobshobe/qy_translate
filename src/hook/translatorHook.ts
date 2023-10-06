@@ -290,7 +290,6 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                             }
                         })
                     }
-
                 } else {
                     if (!hook.find.tid) return
                     await hook.updateMark({
@@ -378,10 +377,11 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
             if (context.err === '__needLogin__' || context.err === '__needRelogin__' || context.err === 'JwtTokenErr') {
                 hook.base.dialog.showDialog({
                     type: 'i18n',
-                    message: context.err,
+                    message: context.err === 'JwtTokenErr' ? '__needLogin__':context.err,
                     confirmText: 'scanQR',
                     cancelText: '',
                     confirmAction: () => {
+                        hook.base.dialog.show = false
                         usePort({
                             name: 'openOptionsPage',
                             message: new Context({tab:'login'}),
@@ -465,7 +465,7 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
         },
         async collect({ success, fail }) {
             if (!hook.find.result) return
-            if (hook.find.text.length > 500 || hook.find.result.text.length > 500) {
+            if (hook.find.text.length > 1000 || hook.find.result.text.length > 1000) {
                 hook.base.toast.showToast({ type: 'i18n', message: 'collTooLong' })
                 fail?.call(hook)
                 return
@@ -486,6 +486,8 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                         hook.find.isCollected = true
                         hook.find.tid = c.res.tid
                         success && success(c.resp)
+                    } else {
+                        fail && fail()
                     }
                 }
             })

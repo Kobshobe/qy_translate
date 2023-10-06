@@ -89,6 +89,7 @@ export default defineComponent({
       .comfirm {
         font-weight: bold;
         cursor: pointer;
+        color: var(--xx-c-primary);
       }
     }
   }
