@@ -8,7 +8,6 @@ export const themeClassLight = 'xx-qy-style-light'
 export const useQyDarkWithChangeToBody = () => {
     const {isDark, mode} = useDark({
         onChange: (isDark) => {
-            console.log('useQyDarkWithChangeToBody: ', isDark)
             if (isDark) {
                 document.body.className = themeClassDark
             } else {
