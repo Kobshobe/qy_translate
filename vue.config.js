@@ -4,8 +4,6 @@ const AutoImport = require('unplugin-auto-import/webpack')
 const Components = require('unplugin-vue-components/webpack')
 const { ElementPlusResolver } = require('unplugin-vue-components/resolvers')
 
-
-// 复制文件到指定目录
 const copyFiles = [
   {
     from: path.resolve("src/background/manifest.json"),
@@ -37,7 +35,6 @@ const copyFiles = [
   },
 ];
 
-// 插件
 const plugins = [
   new CopyWebpackPlugin({
     patterns: copyFiles
@@ -50,7 +47,6 @@ const plugins = [
   }),
 ];
 
-// 页面文件
 const pages = {};
 const chromeName = ["popup", "options"];
 

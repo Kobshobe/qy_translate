@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, onMounted } from "vue";
 import ContentTrans from "../components/translator/ContentTrans.vue";
 import { openPDFReader } from "@/utils/chromeApi";
 import {geti18nMsg} from '@/utils/share'

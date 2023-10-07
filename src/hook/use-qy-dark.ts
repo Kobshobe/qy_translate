@@ -5,9 +5,10 @@ import { eventToGoogle } from '@/utils/analytics'
 export const themeClassDark = 'xx-qy-style-dark'
 export const themeClassLight = 'xx-qy-style-light'
 
-export const useOptionQyDark = () => {
+export const useQyDarkWithChangeToBody = () => {
     const {isDark, mode} = useDark({
         onChange: (isDark) => {
+            console.log('useQyDarkWithChangeToBody: ', isDark)
             if (isDark) {
                 document.body.className = themeClassDark
             } else {

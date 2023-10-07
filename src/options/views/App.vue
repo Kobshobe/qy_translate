@@ -42,14 +42,14 @@ import QRLogin2 from '@/options/components/QRLogin2.vue';
 import {geti18nMsg} from '@/utils/share';
 import {IOptionBaseHook} from '@/interface/options';
 import {Mode} from '@/config'
-import {useOptionQyDark} from '@/hook/use-qy-dark'
+import {useQyDarkWithChangeToBody} from '@/hook/use-qy-dark'
 import SvgIcon from '@/components/base/SvgIcon.vue'
 
 document.title = geti18nMsg('title')
 const baseHook = optionBaseHook() as IOptionBaseHook;
 provide("baseHook", baseHook);
 
-const {isDark} = useOptionQyDark()
+const {isDark} = useQyDarkWithChangeToBody()
 
 const mode = new URLSearchParams(window.location.search).get('mode')
 </script>

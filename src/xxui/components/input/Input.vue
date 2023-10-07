@@ -52,6 +52,7 @@ defineComponent({
         outline: none;
         border: none;
         background: none;
+        color: var(--xx-text-color-regular);
     }
 }
 </style>

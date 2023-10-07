@@ -2,6 +2,7 @@
 import { defineComponent } from 'vue';
 import { UpdateModelValue } from '../../consts/constants';
 import { useDialog } from './use-dialog';
+import { useQyDarkWithClassNames } from '@/hook/use-qy-dark';
 
 const props = defineProps({
     modelValue: {
@@ -20,6 +21,7 @@ const props = defineProps({
 const emit = defineEmits([UpdateModelValue])
 
 const {zIndexStyle, contentStyle, handleSHow} = useDialog(props, emit)
+const {classNames} = useQyDarkWithClassNames('xx-dialog__overlay')
 
 defineComponent({name: 'x-dialog'})
 </script>
@@ -27,7 +29,7 @@ defineComponent({name: 'x-dialog'})
 <template>
     <teleport to="body" :disabled="true">
         <transition>
-            <div v-if="props.modelValue" class="xx-dialog__overlay" :style="zIndexStyle" @click="handleSHow">
+            <div v-if="props.modelValue" :class="classNames" :style="zIndexStyle" @click="handleSHow">
                 <div class="xx-dialog__content" :style="contentStyle" @click.stop="">
                     <header v-if="props.title" class="xx-dialog__header">
                         {{ props.title }}
@@ -52,14 +54,17 @@ defineComponent({name: 'x-dialog'})
     justify-content: center;
     align-items: center;
     background-color: var(--xx-overlay-color-lighter);
-    
-    .xx-dialog__header {
-        padding-bottom: 30px;
-    }
 
     .xx-dialog__content {
+        background-color: var(--xx-background-color);
         width: 30%;
         padding: 20px;
+        border: 1px solid var(--xx-border-only-dark);
+        border-radius: 5px;
+        .xx-dialog__header {
+            padding-bottom: 30px;
+            color: var(--xx-text-color-regular);
+        }
 
         .xx-dialog__footer {
             padding-top: 30px;
