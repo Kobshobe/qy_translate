@@ -58,9 +58,15 @@ export class BingTrans extends BaseTrans {
                     message: '__transReqErr__',
                     type: 'i18n'
                 }
-                return c
+            } else {
+                await this.trans(c, true)
             }
-            await this.trans(c, true)
+        }
+
+        if (!c.err) {
+            this.transOKToAnalytic(c, c)
+        } else {
+            this.transErrToAnalytic(c, c)
         }
 
         return c
@@ -125,7 +131,6 @@ export class BingTrans extends BaseTrans {
             method: "post",
             headers: this.HEADERS,
         })
-        console.log('getTexamplev3: ', resp)
         if (resp.err) {
             c.err = '__transReqErr__'
             c.dialogMsg = {
@@ -136,7 +141,6 @@ export class BingTrans extends BaseTrans {
         }
 
         const examples = resp.data[0].examples as IExample[];
-        console.log('examples: ', examples)
         const res = c.res as ITransResult;
         res.examples = []
         examples.forEach((item) => {

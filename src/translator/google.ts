@@ -1,283 +1,180 @@
-// import {BaseTrans} from '@/translator/share'
-// import {SToGoogle} from '@/translator/language'
-// import {ITransResult,IWrapTransInfo} from '@/interface/trans'
-// import {calcHash} from '@/translator/tk'
-// import {baseRequest} from '@/api/request'
-// import {Context} from '@/api/context'
-// import {wrapTranslator} from '@/translator/transWrap'
-// import { IBaseResp } from '@/api/request'
+import {BaseTrans} from '@/translator/share'
+import {SToGoogle} from '@/translator/trans_base'
+import {ITransResult,IWrapTransInfo} from '@/interface/trans'
+import {calcHash} from '@/translator/tk'
+import {baseRequest} from '@/api/request'
+import {Context} from '@/api/context'
+import {wrapTranslator} from '@/translator/transWrap'
+import { IBaseResp } from '@/api/request'
 
-// class TkAndClient {
-//   // edge ttk: 434217.1534559001
-//   ttkList = ["434217.1534559001", "444444.1050258596", "445678.1618007056", "445767.3058494238", "444000.1270171236", "445111.1710346305"]
+class TkAndClient {
+  // edge ttk: 434217.1534559001
+  ttkList = ["434217.1534559001", "444444.1050258596", "445678.1618007056", "445767.3058494238", "444000.1270171236", "445111.1710346305"]
 
-//   client = "gtx"
-//   ttk: string = "434217.1534559001"
-//   getTk(text:string) {
+  client = "gtx"
+  ttk: string = "434217.1534559001"
+  getTk(text:string) {
 
-//     return '&client=' + this.client + '&tk=' + calcHash(text, this.ttk)
-//   }
-//   next() {
-//     this.client = (this.client === 'webapp' && 'gtx') || 'webapp'
-//     const index = this.ttkList.indexOf(this.ttk)
-//     if(index >= this.ttkList.length -1) {
-//       this.ttk = this.ttkList[0]
-//     } else {
-//       this.ttk = this.ttkList[index+1]
-//     }
-//   }
-// }
+    return '&client=' + this.client + '&tk=' + calcHash(text, this.ttk)
+  }
+  next() {
+    this.client = (this.client === 'webapp' && 'gtx') || 'webapp'
+    const index = this.ttkList.indexOf(this.ttk)
+    if(index >= this.ttkList.length -1) {
+      this.ttk = this.ttkList[0]
+    } else {
+      this.ttk = this.ttkList[index+1]
+    }
+  }
+}
 
-// export class GoogleTrans extends BaseTrans {
-//   tkTool = new TkAndClient()
-//   HOST = 'https://translate.googleapis.com/translate_a/single'
+export class GoogleTrans extends BaseTrans {
+  tkTool = new TkAndClient()
+  HOST = 'https://translate.googleapis.com/translate_a/single'
 
-//   constructor() {
-//     super()
-//     this.maxLenght = 5000
-//     this.setSELang(SToGoogle)
-//   }
+  constructor() {
+    super()
+    this.maxLenght = 5000
+    this.setSELang(SToGoogle)
+  }
 
-//   getParamsUrlPart(data:Object) :string {
-//     return Object.keys(data).map(function (key) {
-//       //@ts-ignore
-//       return encodeURIComponent(key) + "=" + encodeURIComponent(data[key])
-//     }).join("&")
-//   }
+  getParamsUrlPart(data:Object) :string {
+    return Object.keys(data).map(function (key) {
+      //@ts-ignore
+      return encodeURIComponent(key) + "=" + encodeURIComponent(data[key])
+    }).join("&")
+  }
 
-//   async trans(c:Context) :Promise<Context> {
-//     const info:IWrapTransInfo = c.req
+  async trans(c:Context) :Promise<Context> {
+    const info:IWrapTransInfo = c.req
 
-//     const tooLongErr = this.checkTextLen(c)
-//     if(c.err) {
-//       return c
-//     }
+    const tooLongErr = this.checkTextLen(c)
+    if(c.err) {
+      return c
+    }
 
-//     const err = await this.setLangCode(c)
-//     if (err) return c
+    const err = await this.setLangCode(c)
+    if (err) return c
 
-//     /*
-//     [dt代表]
-//     t: 带翻译译文sentences
-//     rm: 会有音标加在sentences列表最后
-//     at: 使用频率alternative_translations
-//     bd: 词性与多词义dict
-//     md: definitions of source text, if it's one word
-//     ss:同义词synsets
-//     ex:例句examples.example
-//     rw: 
-//     dj: 
-//     qc: 
-//     ld: 
-//     */
+    /*
+    [dt代表]
+    t: 带翻译译文sentences
+    rm: 会有音标加在sentences列表最后
+    at: 使用频率alternative_translations
+    bd: 词性与多词义dict
+    md: definitions of source text, if it's one word
+    ss:同义词synsets
+    ex:例句examples.example
+    rw: 
+    dj: 
+    qc: 
+    ld: 
+    */
 
-//     const dtPramas = info.type === 'sub' ? 'dt=rm&dt=ex&dt=bd&' : 'dt=rm&'
+    const dtPramas = info.type === 'sub' ? 'dt=rm&dt=ex&dt=bd&' : 'dt=rm&'
     
-//     //@ts-ignore
-//     const paramsData = new URLSearchParams({
-//       client: this.tkTool.client,
-//       source: 'input',
-//       hl: 'en-US',
-//       sl: info.fromCode,
-//       tl: info.toCode,
-//       dj: '1',
-//       q: info.text,
-//       dt: 't',
-//     })
+    //@ts-ignore
+    const paramsData = new URLSearchParams({
+      client: this.tkTool.client,
+      source: 'input',
+      hl: 'en-US',
+      sl: info.fromCode,
+      tl: info.toCode,
+      dj: '1',
+      q: info.text,
+      dt: 't',
+    })
 
-//     const realUrl = this.HOST + '?' + dtPramas + paramsData.toString() + this.tkTool.getTk(info.text)
-//     const start = new Date().getTime()
+    const realUrl = this.HOST + '?' + dtPramas + paramsData.toString() + this.tkTool.getTk(info.text)
+    const start = new Date().getTime()
 
-//     const resp = await this.oneTrans(info, realUrl, 30000)
+    const resp = await this.oneTrans(info, realUrl, 30000)
     
-//     if(resp.statusCode !== 200) {
-//       c.err = "__reqErr__"
-//       c.dialogMsg = {
-//         type: 'i18n',
-//         message: '__transReqErr__'
-//       }
-//       this.tkTool.next()
-//       // this.transErrToAnalytic(c, resp) todo
-//       return c
-//     }
+    if(resp.statusCode !== 200) {
+      c.err = "__reqErr__"
+      c.dialogMsg = {
+        type: 'i18n',
+        message: '__transReqErr__'
+      }
+      this.tkTool.next()
+      // this.transErrToAnalytic(c, resp) todo
+      return c
+    }
+
+    if (!c.err) {
+        this.transOKToAnalytic(c, c)
+    } else {
+        this.transErrToAnalytic(c, c)
+    }
     
-//     const result:ITransResult = {
-//       text: '',
-//       resultFrom: resp.data.src,
-//       //@ts-ignore
-//       resultTo: info.toCode,
-//       sPronunciation: '',
-//       tPronunciation: '',
-//       data: resp.data,
-//       engine: 'ggTrans__common'
-//     }
+    const result:ITransResult = {
+      text: '',
+      resultFrom: resp.data.src,
+      //@ts-ignore
+      resultTo: info.toCode,
+      sPronunciation: '',
+      tPronunciation: '',
+      data: resp.data,
+      engine: 'ggTrans__common'
+    }
 
-//     resp.data.sentences.slice(0, -1).forEach((s:any) => {
-//       result.text += s.trans
-//     })
-//     result.sPronunciation = resp.data.sentences.slice(-1)[0].src_translit
-//     result.tPronunciation = resp.data.sentences.slice(-1)[0].translit
-//     result.examples = resp.data.examples && resp.data.examples.example;
-//     if (result.data.dict) {
-//       result.dict = []
-//       result.data.dict.forEach((item:any) => {
-//         //@ts-ignore
-//         result.dict.push({
-//           pos: item.pos,
-//           trans: item.terms.toString()
-//         })
-//       })
-//     }
+    resp.data.sentences.slice(0, -1).forEach((s:any) => {
+      result.text += s.trans
+    })
+    result.sPronunciation = resp.data.sentences.slice(-1)[0].src_translit
+    result.tPronunciation = resp.data.sentences.slice(-1)[0].translit
+    result.examples = resp.data.examples && resp.data.examples.example;
+    if (result.data.dict) {
+      result.dict = []
+      result.data.dict.forEach((item:any) => {
+        //@ts-ignore
+        result.dict.push({
+          pos: item.pos,
+          trans: item.terms.toString()
+        })
+      })
+    }
 
-//     // this.transOKToAnalytic(c, resp) todo
-//     c.res = result
-//     return c
-//   }
+    // this.transOKToAnalytic(c, resp) todo
+    c.res = result
+    return c
+  }
 
-//   async oneTrans(info:IWrapTransInfo, url:string, timeout:number) :Promise<IBaseResp> {
-//     const start = new Date().getTime()
+  async oneTrans(info:IWrapTransInfo, url:string, timeout:number) :Promise<IBaseResp> {
+    const start = new Date().getTime()
 
-//     const resp = await baseRequest({
-//       url: url,
-//       method: 'GET',
-//       timeout,
-//     });
+    const resp = await baseRequest({
+      url: url,
+      method: 'GET',
+      timeout,
+    });
 
-//     info.cost !== undefined || (info.cost = 0);
-//     info.cost = info.cost + new Date().valueOf() - start
+    info.cost !== undefined || (info.cost = 0);
+    info.cost = info.cost + new Date().valueOf() - start
 
-//     return resp
-//   }
+    return resp
+  }
 
-//   async detectTextLang(c:Context) :Promise<IBaseResp> {
-//     const mookC = new Context({text: c.req.text})
-//     const resp = await wrapTranslator.baidu.detectTextLang(mookC)
-//     if(resp.err) {
-//         c.err = resp.err
-//         return resp
-//     }
-//     const lang = resp.res.lang
-//     const sLang = wrapTranslator.baidu.getSLang(lang)
-//     const eLang = this.getELang(sLang)
-//     resp.res = {lang: eLang}
-//     return resp
-// }
+  async detectTextLang(c:Context) :Promise<IBaseResp> {
+    const mookC = new Context({text: c.req.text})
+    const resp = await wrapTranslator.baidu.detectTextLang(mookC)
+    if(resp.err) {
+        c.err = resp.err
+        return resp
+    }
+    const lang = resp.res.lang
+    const sLang = wrapTranslator.baidu.getSLang(lang)
+    const eLang = this.getELang(sLang)
+    resp.res = {lang: eLang}
+    return resp
+  }
 
-// }
+}
 
 const langCharRange = {
   "zh-Cn": /[\u4E00-\u9FA5]+/,
   en: /[\u0041-\u005A]/,
 
-}
-
-export enum languages {
-  auto = "自动检测",  // Automatic
-  "zh-CN" = "Chinese",
-  "zh-TW" = "Chinese(HK)",
-  af = "Afrikaans",
-  am = "Amharic",
-  ar = "Arabic",
-  az = "Azerbaijani",
-  be = "Belarusian",
-  bg = "Bulgarian",
-  bn = "Bengali",
-  bs = "Bosnian",
-  ca = "Catalan",
-  ceb = "Cebuano",
-  co = "Corsican",
-  cs = "Czech",
-  cy = "Welsh",
-  da = "Danish",
-  de = "German",
-  el = "Greek",
-  en = "English",
-  eo = "Esperanto",
-  es = "Spanish",
-  et = "Estonian",
-  eu = "Basque",
-  fa = "Persian",
-  fi = "Finnish",
-  fr = "French",
-  fy = "Frisian",
-  ga = "Irish",
-  gd = "Scots Gaelic",
-  gl = "Galician",
-  gu = "Gujarati",
-  ha = "Hausa",
-  haw = "Hawaiian",
-  he = "Hebrew",
-  hi = "Hindi",
-  hmn = "Hmong",
-  hr = "Croatian",
-  ht = "Haitian Creole",
-  hu = "Hungarian",
-  hy = "Armenian",
-  id = "Indonesian",
-  ig = "Igbo",
-  is = "Icelandic",
-  it = "Italian",
-  iw = "Hebrew",
-  ja = "Japanese",
-  jw = "Javanese",
-  ka = "Georgian",
-  kk = "Kazakh",
-  km = "Khmer",
-  kn = "Kannada",
-  ko = "Korean",
-  ku = "Kurdish (Kurmanji)",
-  ky = "Kyrgyz",
-  la = "Latin",
-  lb = "Luxembourgish",
-  lo = "Lao",
-  lt = "Lithuanian",
-  lv = "Latvian",
-  mg = "Malagasy",
-  mi = "Maori",
-  mk = "Macedonian",
-  ml = "Malayalam",
-  mn = "Mongolian",
-  mr = "Marathi",
-  ms = "Malay",
-  mt = "Maltese",
-  my = "Myanmar (Burmese)",
-  ne = "Nepali",
-  nl = "Dutch",
-  no = "Norwegian",
-  ny = "Chichewa",
-  pa = "Punjabi",
-  pl = "Polish",
-  ps = "Pashto",
-  pt = "Portuguese",
-  ro = "Romanian",
-  ru = "Russian",
-  sd = "Sindhi",
-  si = "Sinhala",
-  sk = "Slovak",
-  sl = "Slovenian",
-  sm = "Samoan",
-  sn = "Shona",
-  so = "Somali",
-  sq = "Albanian",
-  sr = "Serbian",
-  st = "Sesotho",
-  su = "Sundanese",
-  sv = "Swedish",
-  sw = "Swahili",
-  ta = "Tamil",
-  te = "Telugu",
-  tg = "Tajik",
-  th = "Thai",
-  tl = "Filipino",
-  tr = "Turkish",
-  uk = "Ukrainian",
-  ur = "Urdu",
-  uz = "Uzbek",
-  vi = "Vietnamese",
-  xh = "Xhosa",
-  yi = "Yiddish",
-  yo = "Yoruba",
-  zu = "Zulu",
 }
 
 /*

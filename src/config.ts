@@ -1,8 +1,8 @@
 import {IClientInfo} from '@/interface/trans'
 
 export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
-export const clientVersion = "2.0.2" // manifest.json
-export const platform:'chrome'|'edge' = 'chrome'
+export const clientVersion = "2.0.3" // manifest.json
+export const platform:'chrome'|'edge' = 'edge'
 export const client:IClientInfo = getClient()
 export const os:'mac'|'windows'|'linux'|'unknow' = getOS()
 export const storeUrl = 'https://www.fishfit.fun/bqy/web/download/option'

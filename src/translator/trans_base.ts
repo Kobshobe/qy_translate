@@ -8,9 +8,9 @@ export const engines:any = [
       bing: {
         code: 'bing__common'
       },
-      // google: {
-      //   code: 'ggTrans__common'
-      // },
+      google: {
+        code: 'ggTrans__common'
+      },
     }
   },
   {
