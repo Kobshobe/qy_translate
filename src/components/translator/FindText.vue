@@ -28,7 +28,10 @@
         "
         v-on:mouseup.stop="findTextMouseup"
       >
-        {{ baseHook.T.find.text }}
+        <!-- {{ baseHook.T.find.text }} -->
+        <p v-for="(item, index) in baseHook.T.find.result?.data.sentences" :key="index">
+        {{ item.orig }}
+      </p>
       </div>
     </div>
     <div
@@ -38,7 +41,10 @@
         result-text-box
       "
     >
-      {{ baseHook.T.find.result?.text }}
+      <!-- {{ baseHook.T.find.result?.text }} -->
+      <p v-for="(item, index) in baseHook.T.find.result?.data.sentences" :key="index">
+        {{ item.trans }}
+      </p>
     </div>
     <div
       v-if="baseHook.C.showProun && mode === 'foundText' && baseHook.T.find.result?.sPronunciation && baseHook.T.find.text.length < 27"
