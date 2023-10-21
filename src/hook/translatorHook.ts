@@ -584,19 +584,11 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
             const iframe = hook[`${audioType}Iframe`]
             const engine = new BaiduTrans()
 
-            for (let i = 0; i < hook.find.result?.data.sentences.length; i++) {
-                const element = hook.find.result?.data.sentences[i];
-                if(element.trans){
-                    element.audioSrc = engine.getTTSSrc(lang, element.trans)
-                }
-            }
-
             iframe.contentWindow.postMessage({
                 source: "phrase",
                 action: "playAudio",
                 // src: `https://translate.googleapis.com/translate_tts?client=gtx&q=${text}&tl=${lang}&ttsspeed=1`,
                 src: engine.getTTSSrc(lang, text),
-                langList:JSON.stringify(hook.find.result?.data.sentences),
                 id: id
             }, '*')
             

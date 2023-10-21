@@ -46,19 +46,19 @@ window.addEventListener('message', function (event) {
             origin = event.origin
             id = event.data.id
         } else if (event.data.action === 'playAudio' && event.data.id === id) {
-            // player.pause
-            // player.src = event.data.src
-            // if (!player.src) {
-            //     player.src = 'data:audio/mp3;base64,' + event.data.audioBase64
-            // }
-            // player.play()
-            let langList = JSON.parse(event.data.langList);
-            if (langList.length > 0) {
-                let audioList = langList.map(e => {
-                    return e.audioSrc
-                })
-                playAudioSequentially(audioList);
+            player.pause
+            player.src = event.data.src
+            if (!player.src) {
+                player.src = 'data:audio/mp3;base64,' + event.data.audioBase64
             }
+            player.play()
+            // let langList = JSON.parse(event.data.langList);
+            // if (langList.length > 0) {
+            //     let audioList = langList.map(e => {
+            //         return e.audioSrc
+            //     })
+            //     playAudioSequentially(audioList);
+            // }
         }
     }
 });

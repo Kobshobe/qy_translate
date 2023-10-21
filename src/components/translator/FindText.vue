@@ -1,6 +1,7 @@
 <template>
   <div class="text-scroll-box" ref="foundScrollDOM">
     <div v-if="mode === 'foundText'" class="found-box">
+      <!-- space container -->
       <div
         class="
           text-style
@@ -10,6 +11,7 @@
       >
         {{ baseHook.T.find.text }}
       </div>
+      <!-- mark container -->
       <div
         v-if="mode === 'foundText'"
         class="
@@ -20,18 +22,16 @@
         "
         v-html="markHtml"
       ></div>
+      <!-- show content container -->
       <div
-        class="
+        class="å
           text-style
           found-text-box
           absolute-text-box 
         "
         v-on:mouseup.stop="findTextMouseup"
       >
-        <!-- {{ baseHook.T.find.text }} -->
-        <p v-for="(item, index) in baseHook.T.find.result?.data.sentences" :key="index">
-        {{ item.orig }}
-      </p>
+        {{ baseHook.T.find.text }}
       </div>
     </div>
     <div
@@ -41,10 +41,7 @@
         result-text-box
       "
     >
-      <!-- {{ baseHook.T.find.result?.text }} -->
-      <p v-for="(item, index) in baseHook.T.find.result?.data.sentences" :key="index">
-        {{ item.trans }}
-      </p>
+      {{ baseHook.T.find.result?.text }}
     </div>
     <div
       v-if="baseHook.C.showProun && mode === 'foundText' && baseHook.T.find.result?.sPronunciation && baseHook.T.find.text.length < 27"
