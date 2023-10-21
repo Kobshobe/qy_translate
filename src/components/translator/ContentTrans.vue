@@ -148,7 +148,9 @@ onMounted(() => {
     setTimeout(async () => {
       //@ts-ignore
       text.value = window.getSelection().toString();
+
       if (!text.value.replace(/\s/g, "")) return;
+
       baseHook.getConf();
       setToTranslatePostion(e.clientX, e.clientY);
     });

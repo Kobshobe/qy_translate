@@ -522,6 +522,7 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                     mode: hook.base.mode, engine: hook.options.engine, id: ++hook.base.transID
                 }),
                 callback: (context: Context) => {
+                    
                     hook.handleWebErr(context)
 
                     if (context.req.id !== hook.base.transID) {
@@ -582,13 +583,23 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
             //@ts-ignore
             const iframe = hook[`${audioType}Iframe`]
             const engine = new BaiduTrans()
+
+            for (let i = 0; i < hook.find.result?.data.sentences.length; i++) {
+                const element = hook.find.result?.data.sentences[i];
+                if(element.trans){
+                    element.audioSrc = engine.getTTSSrc(lang, element.trans)
+                }
+            }
+
             iframe.contentWindow.postMessage({
                 source: "phrase",
                 action: "playAudio",
                 // src: `https://translate.googleapis.com/translate_tts?client=gtx&q=${text}&tl=${lang}&ttsspeed=1`,
                 src: engine.getTTSSrc(lang, text),
+                langList:JSON.stringify(hook.find.result?.data.sentences),
                 id: id
             }, '*')
+            
         },
         toEdit() {
             hook.base.E.lastFindText = hook.base.E.editingText
