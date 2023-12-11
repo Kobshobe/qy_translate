@@ -155,19 +155,15 @@ export function getOptionOpenParmas(): Promise<IAllStorage> {
 }
 
 export function onInstall(details: any) {
-    let reason = 'unknown'
     if (details.reason === 'install') {
         chrome.tabs.create({ url: "https://www.fishfit.fun/bqy/web/install" })
         chrome.storage.sync.set({ installTime: new Date().valueOf() })
-        reason = 'install'
-    } else {
-        reason = details.reason + '_' + clientVersion
-        reason = reason.replace(/\./g, '_')
     }
     eventToGoogle({
-        name: reason,
+        name: 'onInstall',
         params: {
-            previousVersion: details.previousVersion
+            previousVersion: details.previousVersion,
+            reason: details?.reason,
         }
     })
 
