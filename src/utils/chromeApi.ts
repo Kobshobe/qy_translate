@@ -171,7 +171,6 @@ export function onInstall(details: any) {
 }
 
 export function bgInit() {
-    // _mark add conf data
     chrome.storage.sync.get(['bgInit', 'mode', 'mainLang', 'secondLang', 'showProun', 'isTreadWord', 'transEngine', 'keyDownTrans'], (res: any) => {
         const now = new Date().valueOf()
         if (!res.mode) res.mode = 'noset'
@@ -179,19 +178,6 @@ export function bgInit() {
             if (now - res.bgInit < 600000) return
             chrome.storage.sync.set({
                 bgInit: new Date().valueOf()
-            })
-            eventToGoogle({
-                name: "bg_init",
-                params: {
-                    transMode: res.mode,
-                    mainLang: res.mainLang,
-                    secondLang: res.secondLang,
-                    showProun: res.showProun,
-                    isTreadWord: res.isTreadWord,
-                    transEngine: res.transEngine,
-                    keyDownTrans: res.keyDownTrans,
-                    wrap: `${res.mode}_${res.mainLang}_${res.secondLang}_${res.showProun}_${res.isTreadWord}_${res.transEngine}_${res.keyDownTrans}`
-                }
             })
         } else {
             chrome.storage.sync.set({
