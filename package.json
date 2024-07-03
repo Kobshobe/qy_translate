@@ -9,6 +9,7 @@
     "watch": "vue-cli-service build --watch",
     "bg": "export NODE_ENV=production && webpack",
     "bg:watch": "export NODE_ENV=development && webpack --watch",
+    "win:bg:watch": "set NODE_ENV=development && webpack --watch",
     "test": "jest --verbose",
     "test:watch": "jest --watchAll",
     "test:marks": "export NODE_ENV=test && jest --watch -f src/test/mark.test.ts",
