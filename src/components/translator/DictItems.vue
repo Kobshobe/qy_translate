@@ -50,7 +50,7 @@ export default defineComponent({
     font-size: 14px;
     font-weight: bold;
     word-break:break-all;
-    color: var(--xx-fill-color-deep);
+    color: var(--xx-text-color-regular);
   }
 }
 .no-dict-text {
