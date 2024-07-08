@@ -108,7 +108,7 @@ onMounted(() => {
         padding-bottom: 16px;
       }
       .sub-find-text-mark {
-        background: linear-gradient(transparent 65%, #81d3f8 50%);
+        background: var(--xx-qy-mark-background);
         background-size: 200% 100%;
         background-repeat: no-repeat;
         background-position: 200% 0;
