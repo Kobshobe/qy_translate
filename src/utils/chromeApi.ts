@@ -102,9 +102,11 @@ export function saveTokenInfo(info: ITokenInfoFromCloud, callBack: Function) {
     });
 }
 
-export function removeTokenInfo(callback: Function) {
+export function removeTokenInfo(callback?: Function) {
     chrome.storage.sync.remove('tokenInfo', function () {
-        callback()
+        if (callback) {
+            callback()
+        }
     });
 }
 

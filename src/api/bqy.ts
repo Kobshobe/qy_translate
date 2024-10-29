@@ -1,6 +1,6 @@
 import { baseRequest, IBaseResp } from "./request"
 import {Context} from './context'
-import { getTokenFromStorage } from '@/utils/chromeApi'
+import { getTokenFromStorage, removeTokenInfo } from '@/utils/chromeApi'
 import { baseURL } from "@/config"
 
 export async function srvApiRequest({
@@ -55,6 +55,9 @@ export async function srvApiRequest({
             if (resp.data?.detail) {
                 c.errDetail = resp.data.detail
             }
+        }
+        if (resp.statusCode == 401) {
+            removeTokenInfo()
         }
         if (resp.data?.data)  {
             c.res = resp.data.data
