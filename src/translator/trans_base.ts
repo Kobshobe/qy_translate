@@ -53,6 +53,43 @@ export const engines:any = [
   }
 ]
 
+export  function getTransEngineIcon(engine:string) :string {
+  switch (engine) {
+    case 'ggTrans__common':
+      return 'google_engine'
+    case 'bdTrans__common':
+      return 'baidu_engine'
+    case 'bing__common':
+      return 'bing_engine'
+    //alibaba domain
+    case 'alDM__social':
+      return 'alibaba_engine'
+    case 'alDM__finance':
+      return 'alibaba_engine'
+    case 'alDM__medical':
+      return 'alibaba_engine'
+    case 'alDM__title':
+      return 'alibaba_engine'
+    case 'alDM__communication':
+      return 'alibaba_engine'
+    case 'alDM__description':
+      return 'alibaba_engine'
+    //baidu domain
+    case 'bdDM__finance':
+      return 'baidu_engine'
+    case 'bdDM__electronics':
+      return 'baidu_engine'
+    case 'bdDM__mechanics':
+      return 'baidu_engine'
+    case 'bdDM__medicine':
+      return 'baidu_engine'
+    case 'bdDM__novel':
+      return 'baidu_engine'
+    default:
+      return 'icon-gengduo1'
+  }
+}
+
 export function checkDomainLang(from:string, to:string, engine:string, support:any) :string {
   if (support[engine].support[from] && support[engine].support[from].has(to)) {
     return ''

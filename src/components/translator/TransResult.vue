@@ -61,8 +61,9 @@
             >
               <IconBtn type="icon-tishi" :iconSize="15" color="#FFB715"  @click="baseHook.openOptionsPage('tipTool')" />
             </x-tooltip>
+            <!-- <div>{{ engineIcon }}</div> -->
             <IconBtn
-              type="icon-gengduo1"
+              :type="engineIcon"
               :iconSize="17"
               @click="baseHook.T.options.show"
             />
@@ -78,7 +79,6 @@
 
 <script setup lang="ts">
 import {
-  defineComponent,
   inject,
   onMounted,
   watch,
@@ -95,7 +95,7 @@ import SubTranslator from "./SubTranslator.vue";
 import FindText from "./FindText.vue";
 import Divider from "./Divider.vue";
 import { IBaseHook } from "@/interface/trans";
-import {languages} from '@/translator/trans_base'
+import {languages, getTransEngineIcon} from '@/translator/trans_base'
 
 const baseHook = inject("baseHook") as IBaseHook;
 if (!baseHook.T) {
@@ -113,6 +113,10 @@ const resultLang = computed(() => {
     }
   }
   return ''
+})
+
+const engineIcon = computed(() => {
+  return getTransEngineIcon(baseHook.T.options.engine)
 })
 
 watch(
