@@ -89,10 +89,10 @@ export class BaiduTrans extends BaseTrans {
         return c
     }
 
-    //百度通用翻译
+    //通用翻译
     async CTrans(c:Context) :Promise<Context> {
         const info:IWrapTransInfo = c.req
-        info.engine = 'bdTrans__common'
+        info.engine = 'bing__common'
         let tipsMessages = []
         let dialogMsg = undefined
 

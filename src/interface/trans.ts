@@ -5,7 +5,7 @@ export declare type ITransMode = 'popup'|'contentInject'|'pdf'
 
 export declare type ITransStatus = 'editing'|'result'|'none'
 
-export declare type ITransEngine = ''|'ggTrans__common'|'bdTrans__common'|'bdDM__finance'|
+export declare type ITransEngine = ''|'ggTrans__common'|'bing__common'|'bdDM__finance'|
 'bdDM__electronics'|'bdDM__mechanics'|'bdDM__medicine'|'bdDM__novel'
 
 export declare type ITransType = 'sub'|'popup_icon'|'select'|'changeLang'|'popup_enter'|'popup_shift_enter'|'test'|

@@ -18,6 +18,7 @@ const props = defineProps({
         type: String
     },
     iconSize: {
+        type: Number,
         default:15
     },
     color: {

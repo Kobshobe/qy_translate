@@ -116,7 +116,7 @@ const resultLang = computed(() => {
 })
 
 const engineIcon = computed(() => {
-  return getTransEngineIcon(baseHook.T.options.engine)
+  return getTransEngineIcon(baseHook.C.transEngine??'')
 })
 
 watch(

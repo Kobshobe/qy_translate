@@ -2,9 +2,9 @@ export const engines:any = [
   {
     code: '__commonTrans__',
     engines: {
-      baidu:{
-        code: 'bdTrans__common'
-      },
+      // baidu:{
+      //   code: 'bdTrans__common'
+      // },
       bing: {
         code: 'bing__common'
       },

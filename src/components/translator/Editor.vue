@@ -17,7 +17,7 @@
         <IconBtn
           v-if="baseHook.E.editingText !== ''"
           type="icon-guanbi1"
-          iconSize=17
+          :iconSize=17
           color="#AAAAAA"
           @click="clear"
         />
@@ -25,14 +25,14 @@
           v-else-if="baseHook.E.lastFindText !== ''"
           type="icon-lishijilu"
           color="#AAAAAA"
-          iconSize="16"
+          :iconSize=16
           @click="baseHook.E.getLastFindText"
         />
         <IconBtn
           v-else-if="baseHook.E.lastFindText === '' && baseHook.E.lastFindText === ''"
           type="icon-niantie1"
           color="#AAAAAA"
-          iconSize="16"
+          :iconSize=16
           @click="baseHook.E.pasteAndTrans"
         />
       </div>
@@ -60,7 +60,7 @@
         >
           <IconBtn
             type="icon-zuojiantou"
-            iconSize="20"
+            :iconSize=20
             @click="baseHook.E.trans('popup_icon')"
           />
         </div>

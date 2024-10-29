@@ -323,13 +323,13 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                 if (hook.base.status === 'result') {
                     //@ts-ignore
                     hook.options.engine = hook.find.result.engine
+                    hook.base.C.transEngine = hook.options.engine
                     hook.options.from = hook.find.result?.resultFrom
                     hook.options.to = hook.find.result?.resultTo
                 } else {
                     hook.options.from = hook.base.C.fromLang
                     hook.options.to = hook.base.C.toLang
                 }
-
             },
             async setLang() {
                 await hook.options.close()
@@ -362,7 +362,6 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                 // @ts-ignore
                 hook.options.isShow = false
                 await hook.trans({ text: hook.find.text, type: 'changeEngine', findStatus: 'reLoading' })
-
             }
         },
         handleWebErr(context) {
@@ -407,7 +406,7 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                         context.dialogMsg.confirmAction = () => {
                             let transEngine: ITransEngine = 'ggTrans__common'
                             if (hook.base.C.transEngine === 'ggTrans__common' || !hook.base.C.transEngine) {
-                                transEngine = 'bdTrans__common'
+                                transEngine = 'bing__common'
                             } else {
                                 transEngine = 'ggTrans__common'
                             }
@@ -493,6 +492,7 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
             })
         },
         async trans(info) {
+            hook.options.engine || (hook.options.engine = hook.base.C.transEngine!)
             const t = info.text
             if (t.replace(/\s+|[\r\n]+/g, "").length === 0) {
                 return

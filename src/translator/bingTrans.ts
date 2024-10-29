@@ -179,7 +179,6 @@ export class BingTrans extends BaseTrans {
         }
         const responseHost = /(https:\/\/.*\.bing\.com\/).*/g.exec(resp.httpResp.url);
         if (responseHost && responseHost[1] != this.HOST) {
-            console.log('bing responseHost: ', responseHost[1])
             this.HOST = responseHost[1];
             this.HOME_PAGE = `${this.HOST}translator`;
         }
