@@ -64,7 +64,7 @@
             <!-- <div>{{ engineIcon }}</div> -->
             <IconBtn
               :type="engineIcon"
-              :iconSize="17"
+              :iconSize="15"
               @click="baseHook.T.options.show"
             />
           </div>

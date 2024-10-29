@@ -23,7 +23,6 @@ export async function getTransConf(): Promise<IAllStorage> {
             params: {}
         })
     }
-    console.log('debug: engine:', conf.transEngine)
 
     return conf
 }
