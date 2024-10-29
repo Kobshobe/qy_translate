@@ -373,6 +373,10 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                 hook.base.tips.messages = []
             }
 
+            if (context.err) {
+                hook.options.engine = hook.base.C.transEngine!
+            }
+
             if (context.err === '__needLogin__' || context.err === '__needRelogin__' || context.err === 'JwtTokenErr') {
                 hook.base.dialog.showDialog({
                     type: 'i18n',
