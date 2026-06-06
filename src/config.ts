@@ -1,7 +1,7 @@
 import {IClientInfo} from '@/interface/trans'
 
 export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
-export const clientVersion = "2.0.6" // manifest.json
+export const clientVersion = "3.0.0" // manifest.json
 export const platform:'chrome'|'edge' = 'chrome'
 export const client:IClientInfo = getClient()
 export const os:'mac'|'windows'|'linux'|'unknow' = getOS()
