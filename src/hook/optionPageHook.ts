@@ -16,6 +16,9 @@ export function optionBaseHook(): IOptionBaseHook {
   const hook: IOptionBaseHook = reactive({
     coll: undefined,
     OP: undefined,
+    user: {
+      isLogin: true
+    }
   })
 
   hook.coll = collHook(hook)
@@ -323,7 +326,7 @@ export function collHook(base: IOptionBaseHook): ICollHook {
       const c = await getCollList(new Context({}))
       if (c.res) {
         const data = c.res.collList as ICollection[];
-        hook.collList = [{ name: geti18nMsg('__default__'), tid: 0, UpdatedAt: 50000000000000 }, ...data]
+        hook.collList = [{ name: geti18nMsg('__default__'), tid: 0, UpdatedAt: 50000000000000 }, ...data.filter((c: ICollection) => c.tid !== 0)]
         hook.collList.sort((a, b) => {
           return b.UpdatedAt - a.UpdatedAt
         })

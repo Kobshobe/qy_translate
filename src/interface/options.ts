@@ -6,6 +6,9 @@ import { Context } from "@/api/context";
 export interface IOptionBaseHook {
   OP: IConfHook
   coll: ICollHook
+  user: {
+    isLogin: boolean
+  }
 }
 
 export interface IConfHook {
