@@ -1,5 +1,5 @@
 import { onMounted, reactive, markRaw } from 'vue';
-import { getOptionOpenParmas, getTransConf, removeTokenInfo, getTokenFromStorage } from '@/utils/chromeApi';
+import { getOptionOpenParmas, getTransConf, removeTokenInfo } from '@/utils/chromeApi';
 import { eventToGoogle } from '@/utils/analytics';
 import { IConfHook, IOptionBaseHook, ICollHook, ICollection } from '@/interface/options'
 import { IAllStorage } from '@/interface/trans'
@@ -425,19 +425,12 @@ export function collHook(base: IOptionBaseHook): ICollHook {
       hook.stopPlayTTS()
     },
     initColl() {
-      if (hook.base.user.isLogin) {
-        hook.getCollList()
-        hook.getPhraseList(0, 1)
-      }
+      hook.getCollList()
+      hook.getPhraseList(0, 1)
     },
     async init() {
-      const token = await getTokenFromStorage();
-      if (token !== "__needLogin__" && token !== "__needRelogin__") {
-        hook.base.user.isLogin = true
-      } else {
-        hook.base.user.isLogin = false
-        hook.loadStatus = 'needLogin'
-      }
+      // Local favorites: always logged in, no token needed
+      hook.base.user.isLogin = true
     },
     collItem: {
       isShowDialog: false,
