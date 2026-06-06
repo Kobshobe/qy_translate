@@ -14,21 +14,21 @@
 
 ## Project setup
 ```
-yarn install
+pnpm install
 ```
 
 ### Compiles and minifies for production
 ```
-yarn build
+pnpm build
 ```
 
 ### Develop
 ```
 # run front project
-yarn watch
+pnpm watch
 
 # run background.js
-yarn bg:watch
+pnpm bg:watch
 ```
 
 ### Contact Us
