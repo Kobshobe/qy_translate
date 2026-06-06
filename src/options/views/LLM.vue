@@ -31,10 +31,10 @@
         <div v-for="item in llmList" :key="item.id" class="llm-card">
           <div class="llm-card__header">
             <div class="llm-card__info">
-              <div class="llm-card__avatar">{{ item.name.charAt(0).toUpperCase() }}</div>
+              <div class="llm-card__avatar" :style="{ background: avatarGradient(item.apiUrl) }">{{ item.name.charAt(0).toUpperCase() }}</div>
               <div class="llm-card__meta">
                 <span class="llm-card__name">{{ item.name }}</span>
-                <span class="llm-card__model-badge">{{ item.model }}</span>
+                <span class="llm-card__model-badge" :style="{ background: avatarGradient(item.apiUrl) }">{{ item.model }}</span>
               </div>
             </div>
             <div class="llm-card__actions">
@@ -354,6 +354,22 @@ function maskApiKey(key: string): string {
   return key.slice(0, 4) + '****' + key.slice(-4)
 }
 
+function avatarGradient(apiUrl: string): string {
+  const colors: Record<string, string> = {
+    'deepseek': 'linear-gradient(135deg, #4D6BFE, #7B8EFF)',
+    'openai': 'linear-gradient(135deg, #10A37F, #1EC99A)',
+    'anthropic': 'linear-gradient(135deg, #D97757, #E8957D)',
+    'minimax': 'linear-gradient(135deg, #D4367A, #ED6D48)',
+    'minimaxi': 'linear-gradient(135deg, #D4367A, #ED6D48)',
+    'bigmodel': 'linear-gradient(135deg, #5B6AF0, #7B8AF5)',
+    'dashscope': 'linear-gradient(135deg, #615CED, #817CF0)',
+  }
+  for (const [key, color] of Object.entries(colors)) {
+    if (apiUrl.includes(key)) return color
+  }
+  return 'linear-gradient(135deg, var(--xx-c-primary), #6c5ce7)'
+}
+
 onMounted(() => {
   loadList()
 })
@@ -488,7 +504,6 @@ onMounted(() => {
     font-size: 15px;
     font-weight: 700;
     color: #fff;
-    background: linear-gradient(135deg, var(--xx-c-primary), #6c5ce7);
     flex-shrink: 0;
   }
 
