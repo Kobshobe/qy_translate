@@ -162,10 +162,6 @@ onMounted(() => {
   display: flex;
   flex-wrap: nowrap;
 }
-.to-min-qr {
-  height: 100px;
-  width: 100px;
-}
 
 .two-lang-wrap {
   display: flex;

@@ -15,10 +15,6 @@
         geti18nMsg("contactUs")
       }}</a>
     </div>
-    <div class="mini-program-qr">
-      <img class="qr-img" :src="qrSrc" alt="" />
-      <div>{{ geti18nMsg("__qyMiniProgram__") }}</div>
-    </div>
   </div>
 </template>
 
@@ -27,14 +23,6 @@ import { defineComponent } from "vue";
 import { geti18nMsg } from "@/utils/share";
 import { eventToGoogle } from "@/utils/analytics";
 import { openPDFReader } from "@/utils/chromeApi";
-import { platform } from "@/config";
-
-let qrSrc = "";
-if (platform === "edge") {
-  qrSrc = "assets/images/qr_edge_option.png";
-} else {
-  qrSrc = "assets/images/qr_chrome_option.png";
-}
 
 function toGitHub() {
   window.open(`https://github.com/Kobshobe/qy_translate`);
@@ -85,58 +73,9 @@ defineComponent({name:'other-view'})
       font-weight: bold;
     }
   }
-
-  .mini-program-qr {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    padding-top: 50px;
-    font-size: 15px;
-    color: #333;
-    .qr-img {
-      height: 130px;
-      width: 130px;
-      padding-bottom: 30px;
-    }
-  }
 }
 
 a:link {
   color: #333;
-}
-.support-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: nowrap;
-  flex-direction: column;
-  .to-store-link {
-    text-align: center;
-    cursor: pointer;
-    color: #333;
-    span {
-      color: $mainColor;
-      font-weight: bold;
-    }
-  }
-  .to-store-link:hover {
-    text-decoration: underline;
-  }
-  .or {
-    padding: 10px 0 10px 0;
-  }
-  .charge {
-    cursor: pointer;
-    color: $mainColor;
-  }
-  .both-i-want {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-top: 40px;
-    font-size: 12px;
-    padding-bottom: 30px;
-  }
 }
 </style>
