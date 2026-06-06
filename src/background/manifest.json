@@ -19,6 +19,9 @@
     "tabs",
     "clipboardRead"
   ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "action": {
     "default_title": "__MSG_title__",
     "default_icon": "assets/images/logo.png",

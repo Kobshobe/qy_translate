@@ -74,7 +74,7 @@ export class LLMTrans extends BaseTrans {
       const data = await resp.json()
       const translatedText = data.choices?.[0]?.message?.content?.trim() || ''
 
-      c.resp = {
+      c.res = {
         text: translatedText,
         resultFrom: info.from || '',
         resultTo: info.to || '',
