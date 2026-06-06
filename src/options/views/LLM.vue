@@ -280,7 +280,7 @@ async function saveItem() {
     } else {
       const newId = uuidv4()
       console.log('[LLM] 新增模式, newId:', newId)
-      list.push({ ...form.value, id: newId })
+      list.unshift({ ...form.value, id: newId })
       llmList.value = list
     }
 
