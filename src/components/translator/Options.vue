@@ -49,14 +49,14 @@
         popperPosition="fixed"
       >
         <x-select-group
-          v-for="group in engines"
+          v-for="group in engineGroups"
           :key="group.code"
-          :label="geti18nMsg(group.code)"
+          :label="group.label"
         >
           <x-select-option
-            v-for="(engine, key, index) in group.engines"
+            v-for="(engine, index) in group.engines"
             :key="index"
-            :label="geti18nMsg(engine.code)"
+            :label="engine.label"
             :value="engine.code"
           >
           </x-select-option>
@@ -74,16 +74,79 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, inject} from "vue";
+import { defineComponent, inject, ref, watch } from "vue";
 import IconBtn from "../base/IconBtn.vue";
 import { languages, engines } from "@/translator/trans_base";
-import { IBaseHook } from "@/interface/trans";
+import { IBaseHook, ILLMConfig } from "@/interface/trans";
 import { getLocaleLang, geti18nMsg } from "@/utils/share";
 
 const baseHook = inject("baseHook") as IBaseHook;
 const choiceMsg = chrome.i18n.getMessage("__choice__");
 const localeLang = getLocaleLang();
 const moreMsg = chrome.i18n.getMessage("moreOption");
+
+interface EngineItem {
+  code: string
+  label: string
+}
+
+interface EngineGroup {
+  code: string
+  label: string
+  engines: EngineItem[]
+}
+
+const engineGroups = ref<EngineGroup[]>([])
+
+function buildEngineGroups(llmConfigs: ILLMConfig[]): EngineGroup[] {
+  return engines
+    .map((group: any) => {
+      if (group.code === '__llm__') {
+        const llmEngines: EngineItem[] = llmConfigs.map((cfg: ILLMConfig) => ({
+          code: 'llm__' + cfg.id,
+          label: cfg.name
+        }))
+        return {
+          code: group.code,
+          label: geti18nMsg(group.code),
+          engines: llmEngines
+        }
+      }
+      // For __commonTrans__ group
+      const groupEngines: EngineItem[] = Object.values(group.engines).map((e: any) => ({
+        code: e.code,
+        label: geti18nMsg(e.code)
+      }))
+      return {
+        code: group.code,
+        label: geti18nMsg(group.code),
+        engines: groupEngines
+      }
+    })
+    // Hide empty groups (e.g. __llm__ when no configs exist)
+    .filter((group: EngineGroup) => group.engines.length > 0)
+}
+
+async function refreshEngineGroups() {
+  try {
+    const result = await chrome.storage.sync.get('llmConfigs')
+    const configs: ILLMConfig[] = result.llmConfigs || []
+    engineGroups.value = buildEngineGroups(configs)
+  } catch (e) {
+    // Fallback: use empty LLM list
+    engineGroups.value = buildEngineGroups([])
+  }
+}
+
+// Refresh when the options panel becomes visible
+watch(() => baseHook.T.options.isShow, (isShow) => {
+  if (isShow) {
+    refreshEngineGroups()
+  }
+})
+
+// Initial load
+refreshEngineGroups()
 </script>
 
 
@@ -161,4 +224,4 @@ const moreMsg = chrome.i18n.getMessage("moreOption");
     }
   }
 }
-</style>@/translator/trans_base
+</style>

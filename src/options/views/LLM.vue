@@ -143,7 +143,7 @@ const isEditing = ref(false)
 const editingId = ref<string | null>(null)
 
 const defaultProviders: ILLMModels[] = [
-  { id: 'deepseek', baseUrl: 'https://api.deepseek.com/v1', models: ['deepseek-chat', 'deepseek-reasoner'] },
+  { id: 'deepseek', baseUrl: 'https://api.deepseek.com/v1', models: ['deepseek-v4-flash', 'deepseek-v4-pro', 'deepseek-chat', 'deepseek-reasoner'] },
   { id: 'minimax', baseUrl: 'https://api.minimax.chat/v1', models: ['abab6.5s', 'abab6.5g', 'abab5.5s', 'abab5.5'] },
   { id: 'glm', baseUrl: 'https://open.bigmodel.cn/api/paas/v4', models: ['glm-4-plus', 'glm-4-0520', 'glm-4-air', 'glm-4-flash'] },
   { id: 'qwen', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', models: ['qwen-plus', 'qwen-turbo', 'qwen-max'] },
