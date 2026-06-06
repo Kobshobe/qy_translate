@@ -359,6 +359,11 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                 hook.options.isShow = false
             },
             async changeEngine() {
+                if (hook.options.engine === '__add_more__') {
+                  hook.options.isShow = false
+                  hook.base.openOptionsPage('resultOption')
+                  return
+                }
                 // @ts-ignore
                 hook.options.isShow = false
                 await hook.trans({ text: hook.find.text, type: 'changeEngine', findStatus: 'reLoading' })

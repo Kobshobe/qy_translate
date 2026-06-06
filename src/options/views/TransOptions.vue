@@ -4,12 +4,12 @@
       <x-select
         v-model="hook.OP.conf.C.transEngine"
         :placeholder="geti18nMsg('__choice__')"
-        @change="hook.OP.conf.changeTransEngine"
+        @change="onEngineChange"
       >
         <x-select-group
           v-for="group in engines"
           :key="group.code"
-          :label="geti18nMsg(group.code)"
+          :label="group.code === '__llm__' ? geti18nMsg('__llm__') : geti18nMsg(group.code)"
         >
           <x-select-option
             v-if="group.code !== '__llm__'"
@@ -28,6 +28,11 @@
             :value="'llm__' + llm.id"
           >
           </x-select-option>
+          <div
+            v-if="group.code === '__llm__'"
+            class="add-more-entry"
+            @click.stop="goToLLM"
+          >+ {{ geti18nMsg('__addMore__') }}</div>
         </x-select-group>
       </x-select>
     </OptionItem>
@@ -128,6 +133,7 @@
 
 <script setup lang="ts">
 import { inject, ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import OptionItem from "@/options/components/OptionItem.vue";
 import { languages, engines } from "@/translator/trans_base";
 import { IOptionBaseHook } from "@/interface/options";
@@ -136,6 +142,19 @@ import { getLocaleLang, geti18nMsg } from "@/utils/share";
 
 const hook = inject("baseHook") as IOptionBaseHook;
 const localeLang = getLocaleLang();
+const router = useRouter();
+
+function goToLLM() {
+  router.push('/llm')
+}
+
+function onEngineChange() {
+  if (hook.OP.conf.C.transEngine === '__add_more__') {
+    router.push('/llm')
+    return
+  }
+  hook.OP.conf.changeTransEngine()
+}
 
 const llmList = ref<ILLMConfig[]>([])
 
@@ -172,6 +191,18 @@ onMounted(() => {
       color: #666;
       font-size: 14px;
     }
+  }
+}
+
+.add-more-entry {
+  padding: 0 20px;
+  height: 32px;
+  line-height: 32px;
+  font-size: 13px;
+  color: var(--xx-c-primary);
+  cursor: pointer;
+  &:hover {
+    background-color: var(--xx-fill-color);
   }
 }
 </style>

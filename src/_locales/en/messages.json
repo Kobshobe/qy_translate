@@ -163,7 +163,10 @@
         "message": "Common"
     },
     "__llm__": {
-        "message": "LLM"
+        "message": "AI Large Model"
+    },
+    "__addMore__": {
+        "message": "Add More"
     },
     "bing__common": {
         "message": "Bing"

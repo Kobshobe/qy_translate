@@ -102,10 +102,13 @@ function buildEngineGroups(llmConfigs: ILLMConfig[]): EngineGroup[] {
   return engines
     .map((group: any) => {
       if (group.code === '__llm__') {
-        const llmEngines: EngineItem[] = llmConfigs.map((cfg: ILLMConfig) => ({
-          code: 'llm__' + cfg.id,
-          label: cfg.name
-        }))
+        const llmEngines: EngineItem[] = [
+          ...llmConfigs.map((cfg: ILLMConfig) => ({
+            code: 'llm__' + cfg.id,
+            label: cfg.name
+          })),
+          { code: '__add_more__', label: '+ ' + geti18nMsg('__addMore__') }
+        ]
         return {
           code: group.code,
           label: geti18nMsg(group.code),

@@ -163,7 +163,10 @@
         "message": "通用翻譯"
     },
     "__llm__": {
-        "message": "大模型"
+        "message": "AI 大模型"
+    },
+    "__addMore__": {
+        "message": "添加更多"
     },
     "bing__common": {
         "message": "Bing必應"
