@@ -86,8 +86,12 @@ a {
       color: #6e6d7a;
       font-weight: bold;
       cursor: pointer;
+      transition: color 0.2s;
     }
     .tab-item:hover {
+      color: $mainColor;
+    }
+    .router-link-active .tab-item {
       color: $mainColor;
     }
   }
