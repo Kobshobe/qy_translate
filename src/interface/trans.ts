@@ -125,7 +125,6 @@ export interface IAllStorage {
     fromLang?: string
     toLang?:string
     isTreadWord?: boolean
-    tokenInfo?: ITokenInfo
     mode?: 'simple'| 'profession'
     proMode?: 'float'|'edge'
     optionPageOpenParmas?: IOptionPageOpenParma
@@ -148,18 +147,7 @@ export class Find {
     }
 }
 
-export interface ITokenInfo {
-    token: string
-    saveTime: number
-    liveTime: number
-    openid: string
-}
 
-export interface ITokenInfoFromCloud {
-    token: string
-    openid: string
-    liveTime: number
-}
 
 export interface ICollectResultMsg {
     statusMsg: string
@@ -269,11 +257,6 @@ export interface IPortHandler {
     name: IPortName
     context: Context
     onMsgHandle?(context:Context) :void
-}
-
-export interface IQrLoginParams {
-    qrUrl: Ref<string>
-    loginStatus: Ref<'loginOk' | 'none' | 'scanQr' | 'loadingQr' | 'invalidQr' | 'loadQrFail'>
 }
 
 export interface IClientInfo {

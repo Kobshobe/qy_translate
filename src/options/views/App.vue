@@ -22,23 +22,18 @@
         <SvgIcon v-if="isDark" type="dark-moon" :size="15" />
         <SvgIcon v-else type="light-sun" :size="14" />
       </x-switch>
-      <x-size-box width="20px"></x-size-box>
-      <User />
     </div>
   </div>
   <div class="content">
     <router-view></router-view>
   </div>
-  <x-dialog v-model="baseHook.user.isShowLogin" width="260px">
-    <QRLogin2 v-if="baseHook.user.isShowLogin"/>
-  </x-dialog>
+
 </template>
 
 <script setup lang="ts">
 import { provide } from "vue";
 import { optionBaseHook } from "@/hook/optionPageHook";
-import User from "@/options/components/User.vue";
-import QRLogin2 from '@/options/components/QRLogin2.vue';
+
 import {geti18nMsg} from '@/utils/share';
 import {IOptionBaseHook} from '@/interface/options';
 import {Mode} from '@/config'

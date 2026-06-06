@@ -6,11 +6,6 @@ import { Context } from "@/api/context";
 export interface IOptionBaseHook {
   OP: IConfHook
   coll: ICollHook
-  user: {
-    isLogin: boolean
-    isShowLogin: boolean
-    logout() :void
-  }
 }
 
 export interface IConfHook {
@@ -70,7 +65,7 @@ export interface ICollHook {
     deleted: number[]
     create() :void
     rename() :void
-    delete(tid:number) :void
+    remove(tid:number) :void
     showDialog(name?:string, tid?:number) :void
     createOrRename() :void
   }

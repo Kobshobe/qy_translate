@@ -377,22 +377,7 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                 hook.options.engine = hook.base.C.transEngine!
             }
 
-            if (context.err === '__needLogin__' || context.err === '__needRelogin__' || context.err === 'JwtTokenErr') {
-                hook.base.dialog.showDialog({
-                    type: 'i18n',
-                    message: context.err === 'JwtTokenErr' ? '__needLogin__':context.err,
-                    confirmText: 'scanQR',
-                    cancelText: '',
-                    confirmAction: () => {
-                        hook.base.dialog.show = false
-                        usePort({
-                            name: 'openOptionsPage',
-                            message: new Context({tab:'login'}),
-                        })
-                    }
-                })
-            }
-            else if (context.dialogMsg) {
+            if (context.dialogMsg) {
                 switch (context.dialogMsg.message) {
 
                     case '__transReqErr__':

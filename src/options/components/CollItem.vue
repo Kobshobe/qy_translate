@@ -7,7 +7,7 @@
     <div class="coll-name" :style="props.collInfo.tid === hook.coll.tid ? 'color:#4C8BF5' : ''">{{ props.collInfo.name }}</div>
     
     <div v-if="hook.coll.status === 'edit' && props.collInfo.tid !== 0" class="coll-item-manager" @click.stop="">
-      <div @click="hook.coll.collItem.delete(props.collInfo.tid)" class="coll-btn">delete</div>
+      <div @click="hook.coll.collItem.remove(props.collInfo.tid)" class="coll-btn">delete</div>
       <div @click="hook.coll.collItem.showDialog(props.collInfo.name, props.collInfo.tid)" class="coll-btn">edit</div>
     </div>
   </div>

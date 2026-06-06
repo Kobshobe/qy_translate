@@ -1,4 +1,3 @@
-import {srvApiRequest} from '@/api/bqy'
 import {Context} from './context'
 import {
   initDefaultCollection,
@@ -13,19 +12,6 @@ import {
   movePhrasesToColl,
   removePhrases,
 } from '@/utils/localColl'
-
-export async function ping(c:Context) :Promise<Context> {
-  console.log("------------ping------------")
-  await srvApiRequest({
-      c,
-      path: "/v1/ping",
-      method: "GET",
-      auth: false,
-      timeout: 2000,
-  })
-  console.log("ping res: ", c)
-  return c
-}
 
 export async function collectResult(c:Context) :Promise<Context> {
   await initDefaultCollection()

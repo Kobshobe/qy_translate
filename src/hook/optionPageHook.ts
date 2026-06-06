@@ -1,5 +1,5 @@
 import { onMounted, reactive, markRaw } from 'vue';
-import { getOptionOpenParmas, getTransConf, removeTokenInfo } from '@/utils/chromeApi';
+import { getOptionOpenParmas, getTransConf } from '@/utils/chromeApi';
 import { eventToGoogle } from '@/utils/analytics';
 import { IConfHook, IOptionBaseHook, ICollHook, ICollection } from '@/interface/options'
 import { IAllStorage } from '@/interface/trans'
@@ -12,27 +12,9 @@ import {XMessage, XMessageBox} from '@/xxui/index'
 const treadWordOff = chrome.i18n.getMessage("treadWordOff")
 
 export function optionBaseHook(): IOptionBaseHook {
+  //@ts-ignore
   const hook: IOptionBaseHook = reactive({
-    user: {
-      isLogin: true,
-      isShowLogin: false,
-      logout() {
-        removeTokenInfo(() => {
-          hook.coll.phraseList = []
-          hook.coll.collList = []
-          hook.user.isLogin = false
-        });
-        eventToGoogle({
-          name: "logout",
-          params: {
-            scene: 'user_icon'
-          },
-        });
-      }
-    },
-    //@ts-ignore
     coll: undefined,
-    //@ts-ignore
     OP: undefined,
   })
 
@@ -145,10 +127,6 @@ export default function confHook(base: IOptionBaseHook): IConfHook {
       }
     },
     async getOpenParams() {
-      const params = await getOptionOpenParmas();
-      if (params.optionPageOpenParmas?.tab === "login") {
-        hook.base.user.isShowLogin = true
-      }
       const conf = await getTransConf()
       hook.conf.C = conf
       chrome.storage.sync.remove('optionPageOpenParmas')
@@ -161,13 +139,7 @@ export default function confHook(base: IOptionBaseHook): IConfHook {
   onMounted(() => {
     hook.init()
 
-    chrome.storage.onChanged.addListener((e) => {
-      if (e?.optionPageOpenParmas?.newValue?.tab === 'login' || e?.optionPageOpenParmas?.newValue?.tab === 'login') {
-        if (!hook.base.user.isShowLogin) {
-          hook.getOpenParams()
-        }
-      }
-    })
+
   })
 
   return hook
@@ -201,11 +173,7 @@ export function collHook(base: IOptionBaseHook): ICollHook {
     selected: new Set(),
     handleRespMsg(c: Context) {
       if (!c.resp) return
-      if (c.err === '__needLogin__' || c.err === '__needRelogin__' || c.err === 'JwtTokenErr') {
-        hook.loadStatus = 'needLogin'
-      }
-
-      else if (c.dialogMsg) {
+      if (c.dialogMsg) {
         if (c.dialogMsg.type === 'i18n') {
           //@ts-ignore
           XMessage(chrome.i18n.getMessage(c.resp.toastMsg.message))
@@ -429,8 +397,6 @@ export function collHook(base: IOptionBaseHook): ICollHook {
       hook.getPhraseList(0, 1)
     },
     async init() {
-      // Local favorites: always logged in, no token needed
-      hook.base.user.isLogin = true
     },
     collItem: {
       isShowDialog: false,
@@ -480,7 +446,7 @@ export function collHook(base: IOptionBaseHook): ICollHook {
         }
         hook.collItem.isShowDialog = false
       },
-      async delete(tid) {
+      async remove(tid) {
         XMessageBox.alert(geti18nMsg('__confirmToDelete__'), {
           confirmButtonText: geti18nMsg('__confirm__'),
           callback: async (e: string) => {

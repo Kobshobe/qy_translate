@@ -1,4 +1,4 @@
-import { ITokenInfo, ITokenInfoFromCloud, IAllStorage } from '@/interface/trans'
+import { IAllStorage } from '@/interface/trans'
 import { v4 } from "uuid";
 import { eventToGoogle } from './analytics'
 import { languages } from '@/translator/trans_base'
@@ -45,70 +45,19 @@ export async function getFromeStorage(field: string[]): Promise<IAllStorage> {
 
 export async function getClientId(): Promise<string> {
     return new Promise<string>((resolve) => {
-        chrome.storage.sync.get(['tokenInfo', 'uuid'], (result: any) => {
-            const tokenInfo: ITokenInfo | null = result.tokenInfo
-            if (tokenInfo && tokenInfo.openid) {
-                resolve("op:" + tokenInfo.openid)
+        chrome.storage.sync.get(['uuid'], (result: any) => {
+            if (result.uuid) {
+                resolve("uuid:" + result.uuid)
             } else {
-                if (result.uuid) {
-                    resolve("uuid:" + result.uuid)
-                } else {
-                    const uuid = v4()
-                    chrome.storage.sync.set({ uuid })
-                    resolve("nuuid:" + uuid)
-                }
+                const uuid = v4()
+                chrome.storage.sync.set({ uuid })
+                resolve("uuid:" + uuid)
             }
         })
     })
 }
 
-export function getTokenFromStorage(getCheckToken = true): Promise<string> {
 
-    return new Promise<string>((resolve, reject) => {
-        chrome.storage.sync.get(['tokenInfo'], (result: any) => {
-            const tokenInfo: ITokenInfo | null = result.tokenInfo
-            const check = checkToken(tokenInfo)
-            if (check === '__needRelogin__' || check === '__needLogin__') {
-                reject(check)
-            } else {
-                resolve(check)
-            }
-        })
-    }).then(res => { return res }).catch(res => { return res })
-}
-
-function checkToken(tokenInfo: ITokenInfo | null): string {
-    if (tokenInfo) {
-        const now = new Date().getTime()
-        if (now - tokenInfo.saveTime + 1800 > tokenInfo.liveTime) {
-            return '__needRelogin__'
-        }
-        return tokenInfo.token
-    } else {
-        return '__needLogin__'
-    }
-}
-
-export function saveTokenInfo(info: ITokenInfoFromCloud, callBack: Function) {
-    const now = new Date()
-    const tokenInfo: ITokenInfo = {
-        saveTime: now.getTime(),
-        token: info.token,
-        liveTime: info.liveTime * 3600 * 1000,
-        openid: info.openid
-    }
-    chrome.storage.sync.set({ tokenInfo: tokenInfo }, function () {
-        callBack()
-    });
-}
-
-export function removeTokenInfo(callback?: Function) {
-    chrome.storage.sync.remove('tokenInfo', function () {
-        if (callback) {
-            callback()
-        }
-    });
-}
 
 export function setMainLang(lang: string, scene: string) {
     chrome.storage.sync.set({ mainLang: lang })

@@ -1,6 +1,5 @@
 import { baseRequest, IBaseResp } from "./request"
 import {Context} from './context'
-import { getTokenFromStorage, removeTokenInfo } from '@/utils/chromeApi'
 import { baseURL } from "@/config"
 
 export async function srvApiRequest({
@@ -9,14 +8,12 @@ export async function srvApiRequest({
     method = 'GET',
     headers = {},
     timeout = 30000,
-    auth,
 }: {
     c:Context,
     path: string
     method: string
     headers?: any
     timeout?: number
-    auth: boolean
 }) :Promise<IBaseResp> {
 
     headers["device"] = "device"
@@ -31,13 +28,6 @@ export async function srvApiRequest({
     } else {
         data = c.req
     }
-
-    if (auth === true) {
-        headers.Authorization = "Bearer " + await getTokenFromStorage()
-        if (headers.Authorization === '__needLogin__' || headers.Authorization === '__needRelogin__') {
-            c.err = headers.Authorization
-        }
-      }
 
     const resp = await baseRequest({
         url,
@@ -55,9 +45,6 @@ export async function srvApiRequest({
             if (resp.data?.detail) {
                 c.errDetail = resp.data.detail
             }
-        }
-        if (resp.statusCode == 401) {
-            removeTokenInfo()
         }
         if (resp.data?.data)  {
             c.res = resp.data.data

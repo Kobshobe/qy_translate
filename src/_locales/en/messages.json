@@ -27,9 +27,7 @@
     "treadWord": {
         "message": "Select text to translate"
     },
-    "scanQR": {
-        "message": "Login"
-    },
+
     "collTooLong": {
         "message": "More than 500 can't be collected"
     },
@@ -48,9 +46,7 @@
     "optionTrans": {
         "message": "Translate"
     },
-    "optionLogin": {
-        "message": "WeChat Login"
-    },
+
     "mainLang": {
         "message": "My primary language:"
     },
@@ -63,30 +59,7 @@
     "weChatCollMana": {
         "message": "Use WeChat scan the QR to manage"
     },
-    "logged": {
-        "message": "Logged"
-    },
-    "logout": {
-        "message": "Sign Out"
-    },
-    "loadingQR": {
-        "message": "loading..."
-    },
-    "weChatScanQRToLogin": {
-        "message": "Log in with WeChat scan code"
-    },
-    "invalidQR": {
-        "message": "QR code expires"
-    },
-    "clickToRefresh": {
-        "message": "Click to refresh"
-    },
-    "loadQRFail": {
-        "message": "QR code loading failed"
-    },
-    "clickReTry": {
-        "message": "Click to try again"
-    },
+
     "PDFViewer": {
         "message": "PDF Viewer"
     },
@@ -128,12 +101,7 @@
     "__netErr__": {
         "message": "Network error!"
     },
-    "__needLogin__": {
-        "message": "Need to log in, do you go to login?"
-    },
-    "__needRelogin__": {
-        "message": "Need to log in, do you go to login?"
-    },
+
     "__wantToApplyTrans__": {
         "message": "Apply for free professional translation services?"
     },
@@ -285,8 +253,5 @@
     },
     "__fiveStar__": {
         "message": "5-Star-Ratings"
-    },
-    "__loginSuccess__": {
-        "message": "Login Successful"
     }
 }
