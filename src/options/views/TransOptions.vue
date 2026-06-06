@@ -12,10 +12,20 @@
           :label="geti18nMsg(group.code)"
         >
           <x-select-option
+            v-if="group.code !== '__llm__'"
             v-for="(engine, _, index) in group.engines"
             :key="index"
             :label="geti18nMsg(engine.code)"
             :value="engine?.code"
+          >
+          </x-select-option>
+          <!-- LLM engines (dynamic from storage) -->
+          <x-select-option
+            v-if="group.code === '__llm__'"
+            v-for="llm in llmList"
+            :key="llm.id"
+            :label="llm.name"
+            :value="'llm__' + llm.id"
           >
           </x-select-option>
         </x-select-group>
@@ -117,14 +127,27 @@
 </template>
 
 <script setup lang="ts">
-import { inject } from "vue";
+import { inject, ref, onMounted } from "vue";
 import OptionItem from "@/options/components/OptionItem.vue";
 import { languages, engines } from "@/translator/trans_base";
 import { IOptionBaseHook } from "@/interface/options";
+import { ILLMConfig } from "@/interface/trans";
 import { getLocaleLang, geti18nMsg } from "@/utils/share";
 
 const hook = inject("baseHook") as IOptionBaseHook;
 const localeLang = getLocaleLang();
+
+const llmList = ref<ILLMConfig[]>([])
+
+async function loadLLMList() {
+  const result = await chrome.storage.sync.get('llmConfigs')
+  const data = result.llmConfigs || []
+  llmList.value = Array.isArray(data) ? data : []
+}
+
+onMounted(() => {
+  loadLLMList()
+})
 </script>
 
 

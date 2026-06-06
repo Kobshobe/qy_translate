@@ -5,7 +5,7 @@ export declare type ITransMode = 'popup'|'contentInject'|'pdf'
 
 export declare type ITransStatus = 'editing'|'result'|'none'
 
-export declare type ITransEngine = ''|'ggTrans__common'|'bing__common'
+export declare type ITransEngine = ''|'ggTrans__common'|'bing__common'|`llm__${string}`
 
 export declare type ITransType = 'sub'|'popup_icon'|'select'|'changeLang'|'popup_enter'|'popup_shift_enter'|'test'|
 'exchange'|'popup_paste'|'menu'|'changeEngine'

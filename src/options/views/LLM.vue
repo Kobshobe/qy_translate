@@ -66,7 +66,6 @@
       </div>
     </div>
 
-    <!-- Add/Edit Dialog -->
     <x-dialog v-model="dialogVisible" :title="isEditing ? '编辑大模型' : '添加大模型'" width="540px">
       <!-- Presets (only in add mode) -->
       <div v-if="!isEditing" class="dialog-preset">
@@ -138,7 +137,6 @@ import { ref, computed, onMounted } from 'vue'
 import { ILLMConfig, ILLMModels } from '@/interface/trans'
 import { v4 as uuidv4 } from 'uuid'
 import { XMessage } from '@/xxui/index'
-
 const llmList = ref<ILLMConfig[]>([])
 const dialogVisible = ref(false)
 const isEditing = ref(false)

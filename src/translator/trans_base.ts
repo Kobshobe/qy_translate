@@ -9,6 +9,10 @@ export const engines:any = [
         code: 'ggTrans__common'
       },
     }
+  },
+  {
+    code: '__llm__',
+    engines: {}
   }
 ]
 
@@ -19,6 +23,7 @@ export function getTransEngineIcon(engine:string) :string {
     case 'bing__common':
       return 'bing_engine'
     default:
+      if (engine?.startsWith('llm__')) return 'icon-gengduo1'
       return 'icon-gengduo1'
   }
 }

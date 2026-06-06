@@ -162,6 +162,9 @@
     "__commonTrans__": {
         "message": "通用翻译"
     },
+    "__llm__": {
+        "message": "大模型"
+    },
     "bing__common": {
         "message": "Bing必应"
     },

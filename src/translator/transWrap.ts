@@ -4,17 +4,20 @@ import {BingTrans} from '@/translator/bingTrans'
 import {getFromeStorage} from '@/utils/chromeApi'
 import {Context} from '@/api/context'
 import { GoogleTrans } from './google'
+import { LLMTrans } from './llmTrans'
 
 class WrapTranslator {
     baidu: BaiduTrans
     bing: BingTrans
     google: GoogleTrans
+    llm: LLMTrans
     lastTrans = 0
 
     constructor() {
         this.baidu = new BaiduTrans()
         this.bing = new BingTrans()
         this.google = new GoogleTrans()
+        this.llm = new LLMTrans()
     }
 
     async trans(c:Context) :Promise<Context> {
@@ -50,6 +53,8 @@ class WrapTranslator {
           return await this.bing.CTrans(c)
         case 'ggTrans':
           return this.google.trans(c)
+        case 'llm':
+          return await this.llm.CTrans(c)
         default:
           return await this.baidu.CTrans(c)
       }
