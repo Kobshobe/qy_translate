@@ -96,7 +96,18 @@ export class LLMTrans extends BaseTrans {
     }
   }
 
+  private isAnthropic(config: ILLMConfig): boolean {
+    return config.apiUrl.includes('anthropic')
+  }
+
   private async translate(c: Context, config: ILLMConfig, fromName: string, toName: string): Promise<void> {
+    if (this.isAnthropic(config)) {
+      return this.translateAnthropic(c, config, fromName, toName)
+    }
+    return this.translateOpenAI(c, config, fromName, toName)
+  }
+
+  private async translateOpenAI(c: Context, config: ILLMConfig, fromName: string, toName: string): Promise<void> {
     const info: IWrapTransInfo = c.req
     this.startTiming()
 
@@ -129,21 +140,80 @@ export class LLMTrans extends BaseTrans {
 
       const data = await resp.json()
       const rawContent = data.choices?.[0]?.message?.content?.trim() || ''
-      const translation = this.parseLLMResponse(rawContent)
 
-      c.res = {
-        text: translation,
-        resultFrom: info.from || 'auto',
-        resultTo: info.to || '',
-        engine: info.engine || '',
-      } as ITransResult
-
-      this.getCost(c)
-      this.transOKToAnalytic(c, c)
+      this.finishTranslation(c, rawContent)
     } catch (e) {
       console.error('[LLMTrans] fetch error:', e)
       c.err = '__fetchErr__'
       c.toastMsg = { message: '__fetchErr__', type: 'i18n' }
     }
+  }
+
+  private async translateAnthropic(c: Context, config: ILLMConfig, fromName: string, toName: string): Promise<void> {
+    const info: IWrapTransInfo = c.req
+    this.startTiming()
+
+    try {
+      // Anthropic API: ensure URL ends with /v{N}/messages
+      let url = config.apiUrl.replace(/\/+$/, '')
+      if (!/\/v\d+\/messages$/.test(url)) {
+        if (/\/v\d+$/.test(url)) {
+          url += '/messages'
+        } else {
+          url += '/v1/messages'
+        }
+      }
+      const systemPrompt = this.buildSystemPrompt(fromName, toName)
+
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': config.apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: config.model,
+          max_tokens: 4096,
+          system: systemPrompt,
+          messages: [
+            { role: 'user', content: info.text },
+          ],
+        }),
+      })
+
+      if (!resp.ok) {
+        const errText = await resp.text()
+        console.error('[LLMTrans] Anthropic API error:', resp.status, errText)
+        c.err = '__transReqErr__'
+        c.dialogMsg = { message: '__transReqErr__', type: 'i18n' }
+        return
+      }
+
+      const data = await resp.json()
+      // Anthropic response: content[] with type "text" for the actual response
+      const rawContent = data.content?.find((c: any) => c.type === 'text')?.text?.trim() || ''
+
+      this.finishTranslation(c, rawContent)
+    } catch (e) {
+      console.error('[LLMTrans] Anthropic fetch error:', e)
+      c.err = '__fetchErr__'
+      c.toastMsg = { message: '__fetchErr__', type: 'i18n' }
+    }
+  }
+
+  private finishTranslation(c: Context, rawContent: string): void {
+    const info: IWrapTransInfo = c.req
+    const translation = this.parseLLMResponse(rawContent)
+
+    c.res = {
+      text: translation,
+      resultFrom: info.from || 'auto',
+      resultTo: info.to || '',
+      engine: info.engine || '',
+    } as ITransResult
+
+    this.getCost(c)
+    this.transOKToAnalytic(c, c)
   }
 }
