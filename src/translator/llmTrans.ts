@@ -1,6 +1,7 @@
 import {BaseTrans} from '@/translator/share';
 import {ITransResult, IWrapTransInfo, ILLMConfig} from '@/interface/trans';
 import { Context } from '@/api/context';
+import { SToGoogle } from '@/translator/trans_base';
 
 export class LLMTrans extends BaseTrans {
   maxLenght = 8000
@@ -8,8 +9,8 @@ export class LLMTrans extends BaseTrans {
   constructor() {
     super()
     // LLM understands language names, use direct identity mapping
-    const langList = ['auto', 'zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'fr', 'de', 'es', 'ru',
-      'th', 'ar', 'hi', 'pt', 'vi', 'it', 'nl', 'pl', 'tr', 'sv', 'da', 'fi', 'cs', 'hu']
+    // Use the same language set as Google Translate
+    const langList = ['auto', ...[...SToGoogle].map(([k]) => k)]
     const identity = langList.map(l => [l, l] as [string, string])
     this.setSELang(identity)
   }
