@@ -37,11 +37,11 @@ tips: It is suggested to translate a long sentence with rich context, and the re
 The professional mode can manually set the source language and target language of translation, and there are more features waiting for you to explore
 
 
-### Common Translation Engine And Professional Translation Engine
+### AI Large Model Translation
 
-![engine](../images/engine.png)
+<img src="../images/llm_trans.png" alt="engine" width="360" />
 
-The common translation engine provided recently include Baidu translation and Google translation, as well as translation engine in professional fields such as finance and economics, biomedicine and online literature. They are suitable for scenes of relevant majors to obtain more accurate and professional translation results
+In addition to general translation engines like Baidu Translate and Google Translate, you can also connect AI large models (such as DeepSeek, OpenAI, Claude, MiniMax, GLM, Qwen, etc.) with custom API endpoints, models, and prompts. Configure them under the "AI Large Model" tab in the options page for smarter, more natural translations.
 
 ### PDF Reader For Translate
 
