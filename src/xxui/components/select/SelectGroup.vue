@@ -21,6 +21,10 @@ useSelectGroup(props)
         line-height: 30px;
         color: var(--xx-color-info);
         padding-left: 20px;
+        padding-right: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     &:not(:last-of-type) {
         padding-bottom: 24px;

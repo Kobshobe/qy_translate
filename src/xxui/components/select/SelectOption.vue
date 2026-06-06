@@ -29,11 +29,15 @@ const {
 .xx-select__option {
     display: block;
     padding-left: 20px;
+    padding-right: 12px;
     height: 32px;
     text-align: start;
     line-height: 32px;
     color: var(--xx-text-color-regular);
     cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     &:hover {
         background-color: var(--xx-fill-color);
     }
