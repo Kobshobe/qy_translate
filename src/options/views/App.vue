@@ -8,6 +8,7 @@
         >
         <router-link to="/"><div class="tab-item">{{geti18nMsg('__options__')}}</div></router-link>
         
+        <router-link to="/llm"><div class="tab-item">大模型</div></router-link>
         <router-link to="/other"
           ><div class="tab-item">{{geti18nMsg('__others__')}}</div></router-link
         >

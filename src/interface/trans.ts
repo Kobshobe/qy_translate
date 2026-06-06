@@ -119,6 +119,20 @@ export interface ITranslatorHook {
     setResultPostion():void
 }
 
+export interface ILLMModels {
+    id: string
+    baseUrl: string
+    models: string[]
+}
+
+export interface ILLMConfig {
+    id: string
+    name: string
+    apiUrl: string
+    apiKey: string
+    model: string
+}
+
 export interface IAllStorage {
     mainLang?: string
     secondLang?: string

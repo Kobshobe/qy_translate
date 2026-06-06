@@ -8,12 +8,14 @@ import TransOptions from '@/options/views/TransOptions.vue'
 import Collections from '@/options/views/Collections.vue'
 import Other from '@/options/views/Other.vue'
 import UIExample from '@/options/views/UIExample.vue'
+import LLM from '@/options/views/LLM.vue'
 
 const routes = [
     {path: '/', component: TransOptions},
     {path: '/collections', component: Collections},
     {path: '/other', component: Other},
-    {path: '/ui_example', component: UIExample}
+    {path: '/ui_example', component: UIExample},
+    {path: '/llm', component: LLM}
 ]
 
 const router = createRouter({
