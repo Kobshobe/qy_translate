@@ -252,6 +252,12 @@ async function deleteItem(item: ILLMConfig) {
   const list = Array.isArray(llmList.value) ? llmList.value : []
   llmList.value = list.filter(i => i.id !== item.id)
   await saveList()
+
+  // If the deleted engine is currently the default, fallback to Google Translate
+  const { transEngine } = await chrome.storage.sync.get('transEngine')
+  if (transEngine === 'llm__' + item.id) {
+    await chrome.storage.sync.set({ transEngine: 'ggTrans__common' })
+  }
 }
 
 async function saveItem() {
