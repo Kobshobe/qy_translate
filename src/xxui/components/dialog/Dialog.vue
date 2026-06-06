@@ -61,9 +61,13 @@ defineComponent({name: 'x-dialog'})
         padding: 20px;
         border: 1px solid var(--xx-border-only-dark);
         border-radius: 5px;
+        overflow: hidden;
         .xx-dialog__header {
             padding-bottom: 30px;
             color: var(--xx-text-color-regular);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .xx-dialog__footer {

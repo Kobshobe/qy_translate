@@ -131,6 +131,7 @@ export interface ILLMConfig {
     apiUrl: string
     apiKey: string
     model: string
+    customPrompt?: string
 }
 
 export interface IAllStorage {

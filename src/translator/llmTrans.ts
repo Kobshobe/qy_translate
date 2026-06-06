@@ -80,8 +80,9 @@ export class LLMTrans extends BaseTrans {
     return lang?.en || code
   }
 
-  private buildSystemPrompt(fromName: string, toName: string): string {
-    return `You are a professional translator. Translate the following text from ${fromName} to ${toName}. Reply with the translation only, no explanations, no notes, no JSON.`
+  private buildSystemPrompt(fromName: string, toName: string, customPrompt?: string): string {
+    const base = `You are a professional translator. Translate the following text from ${fromName} to ${toName}. Reply with the translation only, no explanations, no notes, no JSON.`
+    return customPrompt ? base + '\n' + customPrompt : base
   }
 
   private parseLLMResponse(raw: string): string {
@@ -113,7 +114,7 @@ export class LLMTrans extends BaseTrans {
 
     try {
       const url = config.apiUrl.replace(/\/+$/, '') + '/chat/completions'
-      const systemPrompt = this.buildSystemPrompt(fromName, toName)
+      const systemPrompt = this.buildSystemPrompt(fromName, toName, config.customPrompt)
       
       const resp = await fetch(url, {
         method: 'POST',
@@ -163,7 +164,7 @@ export class LLMTrans extends BaseTrans {
           url += '/v1/messages'
         }
       }
-      const systemPrompt = this.buildSystemPrompt(fromName, toName)
+      const systemPrompt = this.buildSystemPrompt(fromName, toName, config.customPrompt)
 
       const resp = await fetch(url, {
         method: 'POST',

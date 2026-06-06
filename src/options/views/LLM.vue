@@ -4,10 +4,10 @@
       <!-- Header -->
       <header class="llm-header">
         <div class="llm-header__left">
-          <h2 class="llm-header__title">大模型</h2>
-          <p class="llm-header__desc">管理你的 AI 大模型 API 配置</p>
+          <h2 class="llm-header__title">{{ geti18nMsg('__llm__') }}</h2>
+          <p class="llm-header__desc">{{ geti18nMsg('__manageAI__') }}</p>
         </div>
-        <x-button type="primary" @click="showAddDialog">+ 添加大模型</x-button>
+        <x-button type="primary" @click="showAddDialog">+ {{ geti18nMsg('__addFirstLLM__') }}</x-button>
       </header>
 
       <!-- Empty State -->
@@ -21,9 +21,9 @@
             <path d="M6 22h12"/>
           </svg>
         </div>
-        <h3 class="llm-empty__title">暂无大模型配置</h3>
-        <p class="llm-empty__desc">添加你的第一个 AI 大模型，开始在翻译中使用 AI 能力</p>
-        <x-button type="primary" @click="showAddDialog">添加大模型</x-button>
+        <h3 class="llm-empty__title">{{ geti18nMsg('__noLLMConfig__') }}</h3>
+        <p class="llm-empty__desc">{{ geti18nMsg('__noLLMDesc__') }}</p>
+        <x-button type="primary" @click="showAddDialog">{{ geti18nMsg('__addFirstLLM__') }}</x-button>
       </div>
 
       <!-- Card Grid -->
@@ -38,12 +38,12 @@
               </div>
             </div>
             <div class="llm-card__actions">
-              <button class="llm-card__action-btn" title="编辑" @click="editItem(item)">
+              <button class="llm-card__action-btn" :title="geti18nMsg('__edit__')" @click="editItem(item)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
                 </svg>
               </button>
-              <button class="llm-card__action-btn llm-card__action-btn--danger" title="删除" @click="deleteItem(item)">
+              <button class="llm-card__action-btn llm-card__action-btn--danger" :title="geti18nMsg('__delete__')" @click="deleteItem(item)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M3 6h18"/>
                   <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
@@ -54,7 +54,7 @@
           </div>
           <div class="llm-card__body">
             <div class="llm-card__detail">
-              <span class="llm-card__label">API 地址</span>
+              <span class="llm-card__label">{{ geti18nMsg('__apiUrl__') }}</span>
               <span class="llm-card__value">{{ item.apiUrl }}</span>
             </div>
             <div class="llm-card__detail">
@@ -66,10 +66,10 @@
       </div>
     </div>
 
-    <x-dialog v-model="dialogVisible" :title="isEditing ? '编辑大模型' : '添加大模型'" width="540px">
+    <x-dialog v-model="dialogVisible" :title="isEditing ? geti18nMsg('__editLLM__') : geti18nMsg('__addLLM__')" width="540px">
       <!-- Presets (only in add mode) -->
       <div v-if="!isEditing" class="dialog-preset">
-        <label class="dialog-label">快速选择</label>
+        <label class="dialog-label">{{ geti18nMsg('__quickSelect__') }}</label>
         <div class="dialog-preset__grid">
           <button
             v-for="p in defaultProviders"
@@ -83,25 +83,33 @@
             <span class="dialog-preset__name">{{ p.id }}</span>
           </button>
         </div>
+        <div class="dialog-divider"></div>
       </div>
 
       <!-- Form -->
       <div class="dialog-form">
         <div class="dialog-form__group">
-          <label class="dialog-label">名称</label>
-          <x-input v-model="form.name" placeholder="例如：DeepSeek、ChatGPT" />
+          <label class="dialog-label">{{ geti18nMsg('__name__') }}</label>
+          <x-input v-model="form.name" :placeholder="geti18nMsg('__namePlaceholder__')" />
         </div>
         <div class="dialog-form__group">
-          <label class="dialog-label">API 地址</label>
-          <x-input v-model="form.apiUrl" placeholder="例如：https://api.deepseek.com/v1" />
+          <label class="dialog-label">{{ geti18nMsg('__apiUrl__') }}</label>
+          <div class="dialog-form__row">
+            <x-input v-model="form.apiUrl" :placeholder="geti18nMsg('__apiUrlPlaceholder__')" class="dialog-form__flex" />
+            <x-button
+              :disabled="testing"
+              @click="testConnection"
+              size="small"
+            >{{ testing ? geti18nMsg('__testing__') : geti18nMsg('__testConn__') }}</x-button>
+          </div>
         </div>
         <div class="dialog-form__group">
           <label class="dialog-label">API Key</label>
-          <x-input v-model="form.apiKey" placeholder="请输入 API Key" />
+          <x-input v-model="form.apiKey" :placeholder="geti18nMsg('__apiKeyPlaceholder__')" />
         </div>
         <div class="dialog-form__group">
-          <label class="dialog-label">模型</label>
-          <x-input v-model="form.model" placeholder="例如：deepseek-chat、gpt-4o" />
+          <label class="dialog-label">{{ geti18nMsg('__modelName__') }}</label>
+          <x-input v-model="form.model" :placeholder="geti18nMsg('__modelPlaceholder__')" />
           <div v-if="selectedPreset && !isEditing" class="dialog-model-suggestions">
             <span
               v-for="m in currentModels"
@@ -112,20 +120,21 @@
             >{{ m }}</span>
           </div>
         </div>
+        <div class="dialog-form__group">
+          <label class="dialog-label">{{ geti18nMsg('__customPrompt__') }}</label>
+          <textarea
+            v-model="form.customPrompt"
+            class="dialog-textarea"
+            :placeholder="geti18nMsg('__promptPlaceholder__')"
+            rows="3"
+          ></textarea>
+        </div>
       </div>
 
       <template #footer>
         <div class="dialog-footer">
-          <div class="dialog-footer__left">
-            <x-button
-              :disabled="testing"
-              @click="testConnection"
-            >{{ testing ? '测试中...' : '测试连接' }}</x-button>
-          </div>
-          <div class="dialog-footer__right">
-            <x-button @click="dialogVisible = false">取消</x-button>
-            <x-button type="primary" @click="saveItem">保存</x-button>
-          </div>
+          <x-button @click="dialogVisible = false">{{ geti18nMsg('__cancel__') }}</x-button>
+          <x-button type="primary" @click="saveItem">{{ geti18nMsg('__save__') }}</x-button>
         </div>
       </template>
     </x-dialog>
@@ -137,6 +146,7 @@ import { ref, computed, onMounted } from 'vue'
 import { ILLMConfig, ILLMModels } from '@/interface/trans'
 import { v4 as uuidv4 } from 'uuid'
 import { XMessage } from '@/xxui/index'
+import { geti18nMsg } from '@/utils/share'
 const llmList = ref<ILLMConfig[]>([])
 const dialogVisible = ref(false)
 const isEditing = ref(false)
@@ -165,6 +175,7 @@ const form = ref<ILLMConfig>({
   apiUrl: '',
   apiKey: '',
   model: '',
+  customPrompt: '',
 })
 
 const STORAGE_KEY = 'llmConfigs'
@@ -226,7 +237,7 @@ function showAddDialog() {
   isEditing.value = false
   selectedPreset.value = null
   editingId.value = null
-  form.value = { id: '', name: '', apiUrl: '', apiKey: '', model: '' }
+  form.value = { id: '', name: '', apiUrl: '', apiKey: '', model: '', customPrompt: '' }
   dialogVisible.value = true
 }
 
@@ -580,20 +591,20 @@ onMounted(() => {
    Dialog — preset grid + form
    ========================================== */
 .dialog-preset {
-  margin-bottom: 28px;
+  margin-bottom: 0;
 
   &__grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
   }
 
   &__item {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 6px;
-    padding: 12px 8px 10px;
+    gap: 12px;
+    padding: 12px 16px;
     border: 1px solid var(--xx-border-color);
     border-radius: 8px;
     cursor: pointer;
@@ -612,34 +623,52 @@ onMounted(() => {
   }
 
   &__icon-img {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     object-fit: contain;
+    flex-shrink: 0;
   }
 
   &__icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
     color: #fff;
     background: linear-gradient(135deg, var(--xx-c-primary), #6c5ce7);
+    flex-shrink: 0;
   }
 
   &__name {
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
     color: var(--xx-text-color-regular);
   }
 }
 
+.dialog-divider {
+  height: 1px;
+  background: var(--xx-border-color);
+  margin: 16px 0;
+}
+
 .dialog-form {
   &__group {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+  }
+
+  &__row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  &__flex {
+    flex: 1;
   }
 }
 
@@ -654,14 +683,14 @@ onMounted(() => {
 .dialog-model-suggestions {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   margin-top: 8px;
 }
 
 .dialog-model-tag {
   display: inline-flex;
   align-items: center;
-  padding: 2px 10px;
+  padding: 4px 12px;
   font-size: 12px;
   font-family: ui-monospace, 'SF Mono', Menlo, monospace;
   border: 1px solid var(--xx-border-color);
@@ -683,20 +712,32 @@ onMounted(() => {
   }
 }
 
+.dialog-textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  font-size: 13px;
+  border: 1px solid var(--xx-border-color);
+  border-radius: 6px;
+  background: var(--xx-background-color);
+  color: var(--xx-text-color-regular);
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  &:focus {
+    border-color: var(--xx-c-primary);
+  }
+}
+
 .dialog-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   gap: 12px;
 
-  &__left {
-    display: flex;
-    gap: 12px;
-  }
-
-  &__right {
-    display: flex;
-    gap: 12px;
+  .xx-button {
+    min-width: 88px;
   }
 }
 

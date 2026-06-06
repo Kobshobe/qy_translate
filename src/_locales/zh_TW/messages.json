@@ -168,6 +168,69 @@
     "__addMore__": {
         "message": "添加更多"
     },
+    "__quickSelect__": {
+        "message": "快速選擇"
+    },
+    "__apiUrl__": {
+        "message": "API 位址"
+    },
+    "__modelName__": {
+        "message": "模型"
+    },
+    "__customPrompt__": {
+        "message": "自訂 Prompt（可選）"
+    },
+    "__addLLM__": {
+        "message": "添加大模型"
+    },
+    "__editLLM__": {
+        "message": "編輯大模型"
+    },
+    "__testConn__": {
+        "message": "測試連線"
+    },
+    "__testing__": {
+        "message": "測試中..."
+    },
+    "__noLLMConfig__": {
+        "message": "暫無 AI 大模型配置"
+    },
+    "__noLLMDesc__": {
+        "message": "添加你的第一個 AI 大模型，開始在翻譯中使用 AI 能力"
+    },
+    "__addFirstLLM__": {
+        "message": "添加大模型"
+    },
+    "__manageAI__": {
+        "message": "管理你的 AI 大模型 API 配置"
+    },
+    "__save__": {
+        "message": "儲存"
+    },
+    "__cancel__": {
+        "message": "取消"
+    },
+    "__edit__": {
+        "message": "編輯"
+    },
+    "__apiKeyPlaceholder__": {
+        "message": "請輸入 API Key"
+    },
+    "__modelPlaceholder__": {
+        "message": "例如：deepseek-chat、gpt-4o"
+    },
+    "__promptPlaceholder__": {
+        "message": "額外附加到系統提示詞的指令，例如：翻譯為專業領域術語、保持原文語氣風格"
+    },
+    "__name__": {
+        "message": "名稱"
+    },
+    "__namePlaceholder__": {
+        "message": "例如：DeepSeek、ChatGPT"
+    },
+    "__apiUrlPlaceholder__": {
+        "message": "例如：https://api.deepseek.com/v1"
+    },
     "bing__common": {
         "message": "Bing必應"
     },

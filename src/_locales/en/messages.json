@@ -168,6 +168,69 @@
     "__addMore__": {
         "message": "Add More"
     },
+    "__quickSelect__": {
+        "message": "Quick Select"
+    },
+    "__apiUrl__": {
+        "message": "API URL"
+    },
+    "__modelName__": {
+        "message": "Model"
+    },
+    "__customPrompt__": {
+        "message": "Custom Prompt (optional)"
+    },
+    "__addLLM__": {
+        "message": "Add AI Model"
+    },
+    "__editLLM__": {
+        "message": "Edit AI Model"
+    },
+    "__testConn__": {
+        "message": "Test Connection"
+    },
+    "__testing__": {
+        "message": "Testing..."
+    },
+    "__noLLMConfig__": {
+        "message": "No AI Model Configured"
+    },
+    "__noLLMDesc__": {
+        "message": "Add your first AI model to start translating with AI"
+    },
+    "__addFirstLLM__": {
+        "message": "Add AI Model"
+    },
+    "__manageAI__": {
+        "message": "Manage your AI model API configurations"
+    },
+    "__save__": {
+        "message": "Save"
+    },
+    "__cancel__": {
+        "message": "Cancel"
+    },
+    "__edit__": {
+        "message": "Edit"
+    },
+    "__apiKeyPlaceholder__": {
+        "message": "Enter API Key"
+    },
+    "__modelPlaceholder__": {
+        "message": "e.g. deepseek-chat, gpt-4o"
+    },
+    "__promptPlaceholder__": {
+        "message": "Additional system prompt instructions, e.g. use professional domain terminology, preserve original tone"
+    },
+    "__name__": {
+        "message": "Name"
+    },
+    "__namePlaceholder__": {
+        "message": "e.g. DeepSeek, ChatGPT"
+    },
+    "__apiUrlPlaceholder__": {
+        "message": "e.g. https://api.deepseek.com/v1"
+    },
     "bing__common": {
         "message": "Bing"
     },
