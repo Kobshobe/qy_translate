@@ -8,7 +8,6 @@ export class BaseTrans {
   maxLenght: number = 2000
   SLangToELang?: Map<string, string>
   ELangToSLang?: Map<string, string>
-  LangSupport: any
   start = 0
 
   async setLangCode(c: Context): Promise<string> {
@@ -130,20 +129,7 @@ export class BaseTrans {
     return this.SLangToELang && this.SLangToELang.get(lang)
   }
 
-  checkDMLang(from: string, to: string, engine: string): '__noSupportLang__' | '__onlyEnAndZh__' | '__onlyZhToZh__' | '' {
-    if (this.LangSupport[engine].support[from] && this.LangSupport[engine].support[from].has(to)) {
-      return ''
-    }
-    return this.LangSupport[engine].noSupportMsg
-  }
 
-  setExtraMsg(c: Context, key: string, value: any) {
-    const info: IWrapTransInfo = c.req
-    if (!info.extraMsg) {
-      info.extraMsg = new Map()
-    }
-    info.extraMsg.set(key, value)
-  }
 
   setLangNotSupportResp(c: Context, err: '__noSupportLang__' | '__onlyEnAndZh__' | '__onlyZhToZh__' = '__noSupportLang__') {
     c.err = err

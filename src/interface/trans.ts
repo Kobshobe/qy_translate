@@ -5,14 +5,13 @@ export declare type ITransMode = 'popup'|'contentInject'|'pdf'
 
 export declare type ITransStatus = 'editing'|'result'|'none'
 
-export declare type ITransEngine = ''|'ggTrans__common'|'bing__common'|'bdDM__finance'|
-'bdDM__electronics'|'bdDM__mechanics'|'bdDM__medicine'|'bdDM__novel'
+export declare type ITransEngine = ''|'ggTrans__common'|'bing__common'
 
 export declare type ITransType = 'sub'|'popup_icon'|'select'|'changeLang'|'popup_enter'|'popup_shift_enter'|'test'|
 'exchange'|'popup_paste'|'menu'|'changeEngine'
 
 export declare type IPortName = 'translate'|'collect'|'reduceCollect'|'updateMark'|'tts'|
-'openOptionsPage'|'analytic'|'applyDomainTrans'
+'openOptionsPage'|'analytic'
 
 export declare type ITransFindStatus = 'none'|'ok'|'popLoading'|'reLoading'|'willOK'|'editLoading'
 
@@ -116,7 +115,7 @@ export interface ITranslatorHook {
     toEdit(): void
     copyResult(): void
     eventToAnalytic(eventData: any): void
-    applyDomainTrans() :void
+
     setResultPostion():void
 }
 

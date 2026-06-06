@@ -394,9 +394,7 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
             }
             else if (context.dialogMsg) {
                 switch (context.dialogMsg.message) {
-                    case '__wantToApplyTrans__':
-                        context.dialogMsg.confirmAction = hook.applyDomainTrans
-                        break
+
                     case '__transReqErr__':
                         if (hook.options.engine) {
                             hook.base.toast.showToast({
@@ -629,14 +627,7 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
                 message: new Context(eventData),
             })
         },
-        async applyDomainTrans() {
-            await usePort({
-                name: "applyDomainTrans",
-                message: new Context({}),
-                callback: hook.handleWebErr,
-            })
-            hook.base.dialog.show = false
-        },
+
         setResultPostion() { }
     })
 

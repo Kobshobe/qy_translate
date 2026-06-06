@@ -2,9 +2,6 @@ export const engines:any = [
   {
     code: '__commonTrans__',
     engines: {
-      // baidu:{
-      //   code: 'bdTrans__common'
-      // },
       bing: {
         code: 'bing__common'
       },
@@ -12,89 +9,18 @@ export const engines:any = [
         code: 'ggTrans__common'
       },
     }
-  },
-  {
-    code: '__domainTrans__',
-    engines: {
-      alDM__social: {
-        code: 'alDM__social'
-      },
-      alDM__finance: {
-        code: 'alDM__finance'
-      },
-      alDM__medical: {
-        code: 'alDM__medical'
-      },
-      alDM__title: {
-        code: 'alDM__title'
-      },
-      alDM__communication: {
-        code: 'alDM__communication'
-      },
-      alDM__description: {
-        code: 'alDM__description'
-      },
-      bdFinance: {
-        code: 'bdDM__finance'
-      },
-      bdElectronics: {
-        code: 'bdDM__electronics'
-      },
-      bdMechanics: {
-        code: 'bdDM__mechanics'
-      },
-      bdMedicine: {
-        code: 'bdDM__medicine'
-      },
-      bdNovel: {
-        code: 'bdDM__novel'
-      }
-    }
   }
 ]
 
-export  function getTransEngineIcon(engine:string) :string {
+export function getTransEngineIcon(engine:string) :string {
   switch (engine) {
     case 'ggTrans__common':
       return 'google_engine'
-    case 'bdTrans__common':
-      return 'baidu_engine'
     case 'bing__common':
       return 'bing_engine'
-    //alibaba domain
-    case 'alDM__social':
-      return 'alibaba_engine'
-    case 'alDM__finance':
-      return 'alibaba_engine'
-    case 'alDM__medical':
-      return 'alibaba_engine'
-    case 'alDM__title':
-      return 'alibaba_engine'
-    case 'alDM__communication':
-      return 'alibaba_engine'
-    case 'alDM__description':
-      return 'alibaba_engine'
-    //baidu domain
-    case 'bdDM__finance':
-      return 'baidu_engine'
-    case 'bdDM__electronics':
-      return 'baidu_engine'
-    case 'bdDM__mechanics':
-      return 'baidu_engine'
-    case 'bdDM__medicine':
-      return 'baidu_engine'
-    case 'bdDM__novel':
-      return 'baidu_engine'
     default:
       return 'icon-gengduo1'
   }
-}
-
-export function checkDomainLang(from:string, to:string, engine:string, support:any) :string {
-  if (support[engine].support[from] && support[engine].support[from].has(to)) {
-    return ''
-  }
-  return support[engine].noSupportMsg
 }
 
 
@@ -207,30 +133,7 @@ export const languages = {
     zu: { en: 'Zulu', 'zh-CN': '祖鲁'}
 }
 
-export const SToAlibaba:Iterable<readonly [string, string]> = [
-  ['zh-CN', 'zh'],
-  ['zh-TW', 'zh-tw'],
-  // ['', 'yue'],
-  ['en', 'en'],
-  ['ja', 'ja'],
-  ['ko', 'ko'],
-  ['es', 'es'],
-  ['fr', 'fr'],
-  ['pt', 'pt'],
-  ['it', 'it'],
-  ['ru', 'ru'],
-  ['ar', 'ar'],
-  ['tr', 'tr'],
-  ['th', 'th'],
-  ['id', 'id'],
-  ['vi', 'vi'],
-  ['ms', 'ms'],
-  ['he', 'he'],
-  ['hi', 'hi'],
-  ['pl', 'pl'],
-  ['nl', 'nl'],
-  ['de', 'de'],
-]
+
 
 export const SToBaidu:Iterable<readonly [string, string]> = [
   [ 'auto', 'auto' ], [ 'zh-CN', 'zh' ], [ 'zh-TW', 'cht' ], [ 'af', 'afr' ],
@@ -379,105 +282,3 @@ export const LangSysToBing:Iterable<readonly [string, string]> = [
   ["kmr", "kmr"],
 ]
 
-export const bdLangSupport = {
-  bdTrans__common: {
-    noSupportMsg: '__noSupport__'
-  },
-  bdDM__finance: {
-    support: {
-      en: new Set(['zh']),
-      zh: new Set(['en'])
-    },
-    noSupportMsg: '__onlyEnAndZh__'
-  },
-  bdDM__medicine: {
-    support: {
-      en: new Set(['zh']),
-      zh: new Set(['en'])
-    },
-    noSupportMsg: '__onlyEnAndZh__'
-  },
-  bdDM__electronics: {
-    support: {
-      zh: new Set(['en'])
-    },
-    noSupportMsg: '__onlyZhToZh__'
-  },
-  bdDM__mechanics: {
-    support: {
-      zh: new Set(['en'])
-    },
-    noSupportMsg: '__onlyZhToZh__'
-  },
-  bdDM__novel: {
-    support: {
-      zh: new Set(['en'])
-    },
-    noSupportMsg: '__onlyZhToZh__'
-  }
-}
-
-export const alLangSupport = {
-  alDM__finance: {
-    support: {
-      en: new Set(['zh']),
-      zh: new Set(['en'])
-    },
-    noSupportMsg: '__onlyEnAndZh__'
-  },
-  alDM__medical: {
-    support: {
-      en: new Set(['zh']),
-      ja: new Set(['zh']),
-      zh: new Set(['en', 'ja'])
-    },
-    noSupportMsg: '__noSupport__'
-  },
-  alDM__social: {
-    support: {
-      en: new Set(['zh']),
-      ja: new Set(['zh']),
-      ko: new Set(['zh']),
-      zh: new Set(['en', 'ja', 'ko'])
-    },
-    noSupportMsg: '__noSupport__'
-  },
-  alDM__title: {
-    support: {
-      ja: new Set(['zh']),
-      ko: new Set(['zh']),
-      ms: new Set(['en']),
-      'zh-tw': new Set(['zh']),
-      en: new Set(['zh', 'ja', 'ko', 'es', 'fr', 'it', 'ru', 'ar', 'tr', 'th', 'id', 'vi', 'ms', 'he', 'hi', 'nl', 'de', 'zh-tw']),
-      zh: new Set(['en', 'ja', 'ko', 'id', 'th', 'vi', 'ms', 'zh-tw', 'es', 'fr', 'ru'])
-    },
-    noSupportMsg: '__noSupport__'
-  },
-  alDM__description: {
-    support: {
-      ja: new Set(['zh']),
-      ko: new Set(['zh']),
-      ms: new Set(['en']),
-      'zh-tw': new Set(['zh']),
-      en: new Set(['zh', 'ja', 'ko', 'es', 'fr', 'it', 'ru', 'ar', 'tr', 'th', 'id', 'vi', 'ms', 'he', 'hi', 'nl', 'de', 'zh-tw']),
-      zh: new Set(['en', 'ja', 'ko', 'id', 'th', 'vi', 'ms', 'zh-tw', 'es', 'fr', 'ru'])
-    },
-    noSupportMsg: '__noSupport__'
-  },
-  alDM__communication: {
-    support: {
-      en: new Set(['zh', 'ar', 'ru', 'fr', 'th', 'tr', 'es', 'vi', 'it', 'ms']),
-      zh: new Set(['en', 'ar', 'ru', 'fr', 'th', 'tr', 'es', 'vi', 'it', 'ms']),
-      ar: new Set(['en', 'zh']),
-      ru: new Set(['en', 'zh']),
-      fr: new Set(['en', 'zh']),
-      th: new Set(['en', 'zh']),
-      tr: new Set(['en', 'zh']),
-      es: new Set(['en', 'zh']),
-      vi: new Set(['en', 'zh']),
-      it: new Set(['en', 'zh']),
-      ms: new Set(['en', 'zh']),
-    },
-    noSupportMsg: '__noSupport__'
-  }
-}

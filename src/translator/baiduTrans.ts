@@ -1,7 +1,6 @@
 import {BaseTrans} from '@/translator/share'
 import {IWrapTransInfo, ITransResult} from '@/interface/trans'
-import {domainTransApi} from '@/api/api'
-import {SToBaidu, bdLangSupport} from '@/translator/trans_base'
+import {SToBaidu} from '@/translator/trans_base'
 import { Context } from '@/api/context'
 import { baseRequest, IBaseResp } from '@/api/request'
 
@@ -9,7 +8,6 @@ export class BaiduTrans extends BaseTrans {
     SLangToELang = new Map(SToBaidu)
     //@ts-ignore
     ELangToSLang = new Map(SToBaidu.map(([a, b]) => [b, a]))
-    LangSupport = bdLangSupport
     maxLenght = 1800
 
     CHOST: string = 'https://fanyi.baidu.com/'
@@ -21,73 +19,7 @@ export class BaiduTrans extends BaseTrans {
         "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
     };
 
-    //百度专业翻译
-    async transDomain(c:Context) :Promise<Context> {
-        const info:IWrapTransInfo = c.req
-        const toLongErr = this.checkTextLen(c)
-        if(toLongErr) {
-            c.resp = toLongErr
-            return c
-        }
 
-        // detect lang and set engine lang //marks
-        const err = await this.setLangCode(c)
-
-        if (err) {
-            return c
-        }
-
-        if (!info.engine) return c
-
-        const engineInfo = info.engine.split('__') as string[];
-
-        if (engineInfo[1] === 'common') {
-            return await this.CTrans(c)
-        }
-
-        //@ts-ignore true to common domain and give tips
-        const supportErr = this.checkDMLang(info.fromCode, info.toCode, info.engine)
-        if(supportErr !== '') {
-            this.setExtraMsg(c, 'tipsMessages', [supportErr, '__changeEngineForLang__']);
-            this.setExtraMsg(c, '__changeEngine__', info.engine)
-            return await this.CTrans(c)
-        }
-
-        this.startTiming()
-        const ctx = await domainTransApi(new Context({q:info.text,from:info.fromCode,to:info.toCode,domain:engineInfo[1], engine:'baidu'}))
-        
-        if (ctx.err) {
-            c.errDetail = ctx.errDetail
-            if(ctx.err !== '__noRice__') {
-                c.err = ctx.err
-                c.dialogMsg = ctx.dialogMsg
-                c.toastMsg = ctx.toastMsg
-                this.transErrToAnalytic(c, ctx)
-                return c
-            }
-            this.setExtraMsg(c, '__noRice__', {
-                message: "__wantToApplyTrans__",
-                confirmText: '__applyServiceFree__',
-                type: 'i18n'
-            })
-            this.setExtraMsg(c, '__changeEngine__', info.engine)
-            return await this.CTrans(c)
-        }
-
-        this.getCost(c)
-        const data:ITransResult = {
-            text: ctx.res.result.reduce((total:string, item:string) => {total+=item}),
-            resultFrom: info.sFrom as string,
-            resultTo: info.sTo as string,
-            engine: info.engine
-        }
-
-        this.transOKToAnalytic(c, ctx)
-        
-
-        c.res = data
-        return c
-    }
 
     //通用翻译
     async CTrans(c:Context) :Promise<Context> {

@@ -194,50 +194,11 @@
     "__commonTrans__": {
         "message": "Common"
     },
-    "__domainTrans__": {
-        "message": "Domain"
-    },
-    "bdTrans__common": {
-        "message": "Baidu"
-    },
     "bing__common": {
         "message": "Bing"
     },
     "ggTrans__common": {
         "message": "Google"
-    },
-    "bdDM__finance": {
-        "message": "Baidu Finance"
-    },
-    "bdDM__electronics": {
-        "message": "Baidu Electronics"
-    },
-    "bdDM__mechanics": {
-        "message": "Baidu Mechanics"
-    },
-    "bdDM__medicine": {
-        "message": "Baidu Medicine"
-    },
-    "bdDM__novel": {
-        "message": "Baidu Novel"
-    },
-    "alDM__social": {
-        "message": "Alibaba Social"
-    },
-    "alDM__finance": {
-        "message": "Alibaba Finance"
-    },
-    "alDM__medical": {
-        "message": "Alibaba Medical"
-    },
-    "alDM__title": {
-        "message": "Alibaba Title"
-    },
-    "alDM__communication": {
-        "message": "Alibaba Communication"
-    },
-    "alDM__description": {
-        "message": "Alibaba Description"
     },
     "__enterTrans__": {
         "message": "Enter Keydown to Translate"

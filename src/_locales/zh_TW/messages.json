@@ -194,50 +194,11 @@
     "__commonTrans__": {
         "message": "通用翻譯"
     },
-    "__domainTrans__": {
-        "message": "專業翻譯"
-    },
-    "bdTrans__common": {
-        "message": "百度翻譯"
-    },
     "bing__common": {
         "message": "Bing必應"
     },
     "ggTrans__common": {
         "message": "谷歌翻譯"
-    },
-    "bdDM__finance": {
-        "message": "百度金融財經"
-    },
-    "bdDM__electronics": {
-        "message": "百度電子科技"
-    },
-    "bdDM__mechanics": {
-        "message": "百度水利機械"
-    },
-    "bdDM__medicine": {
-        "message": "百度生物醫藥"
-    },
-    "bdDM__novel": {
-        "message": "百度網絡文學"
-    },
-    "alDM__social": {
-        "message": "阿里社交"
-    },
-    "alDM__finance": {
-        "message": "阿里金融"
-    },
-    "alDM__medical": {
-        "message": "阿里醫療"
-    },
-    "alDM__title": {
-        "message": "阿里商品標題"
-    },
-    "alDM__communication": {
-        "message": "阿里買賣家溝通"
-    },
-    "alDM__description": {
-        "message": "阿里商品詳情"
     },
     "__enterTrans__": {
         "message": "Enter鍵入翻譯"
