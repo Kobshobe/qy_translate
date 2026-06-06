@@ -26,3 +26,4 @@ pnpm-debug.log*
 
 ignore__*
 tmp/
+.playwright-cli/

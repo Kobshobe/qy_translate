@@ -79,7 +79,8 @@
             :class="{ 'dialog-preset__item--active': selectedPreset === p.id }"
             @click="selectPreset(p)"
           >
-            <span class="dialog-preset__icon">{{ p.id.charAt(0).toUpperCase() }}</span>
+            <img v-if="presetIcon(p.id)" class="dialog-preset__icon-img" :src="presetIcon(p.id)" :alt="p.id" />
+            <span v-else class="dialog-preset__icon">{{ p.id.charAt(0).toUpperCase() }}</span>
             <span class="dialog-preset__name">{{ p.id }}</span>
           </button>
         </div>
@@ -116,8 +117,16 @@
 
       <template #footer>
         <div class="dialog-footer">
-          <x-button @click="dialogVisible = false">取消</x-button>
-          <x-button type="primary" @click="saveItem">保存</x-button>
+          <div class="dialog-footer__left">
+            <x-button
+              :disabled="testing"
+              @click="testConnection"
+            >{{ testing ? '测试中...' : '测试连接' }}</x-button>
+          </div>
+          <div class="dialog-footer__right">
+            <x-button @click="dialogVisible = false">取消</x-button>
+            <x-button type="primary" @click="saveItem">保存</x-button>
+          </div>
         </div>
       </template>
     </x-dialog>
@@ -128,6 +137,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { ILLMConfig, ILLMModels } from '@/interface/trans'
 import { v4 as uuidv4 } from 'uuid'
+import { XMessage } from '@/xxui/index'
 
 const llmList = ref<ILLMConfig[]>([])
 const dialogVisible = ref(false)
@@ -147,6 +157,8 @@ const currentModels = computed(() => {
   return p ? p.models : []
 })
 
+const testing = ref(false)
+
 const form = ref<ILLMConfig>({
   id: '',
   name: '',
@@ -157,13 +169,48 @@ const form = ref<ILLMConfig>({
 
 const STORAGE_KEY = 'llmConfigs'
 
+function storageGet(key: string): Promise<any> {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(key, (result) => {
+      resolve(result)
+    })
+  })
+}
+
+function storageSet(data: Record<string, any>): Promise<void> {
+  return new Promise((resolve) => {
+    chrome.storage.sync.set(data, () => {
+      resolve()
+    })
+  })
+}
+
 async function loadList() {
-  const result = await chrome.storage.sync.get(STORAGE_KEY)
-  llmList.value = (result[STORAGE_KEY] as ILLMConfig[]) || []
+  console.log('[LLM] loadList 开始加载')
+  const result = await storageGet(STORAGE_KEY)
+  console.log('[LLM] storage 返回:', JSON.parse(JSON.stringify(result)))
+  const data = result[STORAGE_KEY]
+  console.log('[LLM] 原始数据类型:', typeof data, Array.isArray(data))
+  llmList.value = Array.isArray(data) ? data : []
+  console.log('[LLM] 加载完成, 列表长度:', llmList.value.length)
 }
 
 async function saveList() {
-  await chrome.storage.sync.set({ [STORAGE_KEY]: llmList.value })
+  // 深拷贝避免 Vue Proxy 序列化问题
+  const raw = JSON.parse(JSON.stringify(llmList.value))
+  console.log('[LLM] saveList 开始保存, 类型:', Array.isArray(raw), '长度:', raw.length)
+  await storageSet({ [STORAGE_KEY]: raw })
+  console.log('[LLM] saveList 保存完成')
+}
+
+function presetIcon(id: string): string {
+  const icons: Record<string, string> = {
+    deepseek: 'assets/images/deepseek.svg',
+    minimax: 'assets/images/MiniMax.svg',
+    glm: 'assets/images/glm.svg',
+    qwen: 'assets/images/qwen.svg',
+  }
+  return icons[id] || ''
 }
 
 function selectPreset(p: ILLMModels) {
@@ -189,26 +236,104 @@ function editItem(item: ILLMConfig) {
 }
 
 async function deleteItem(item: ILLMConfig) {
-  llmList.value = llmList.value.filter(i => i.id !== item.id)
+  const list = Array.isArray(llmList.value) ? llmList.value : []
+  llmList.value = list.filter(i => i.id !== item.id)
   await saveList()
 }
 
 async function saveItem() {
-  if (!form.value.name || !form.value.apiUrl || !form.value.apiKey || !form.value.model) {
+  console.log('[LLM] saveItem called', JSON.parse(JSON.stringify(form.value)))
+  console.log('[LLM] isEditing:', isEditing.value, 'editingId:', editingId.value)
+
+  if (!form.value.name) {
+    console.warn('[LLM] 验证失败: 名称为空')
+    XMessage({ message: '请输入名称', type: 'warning' })
+    return
+  }
+  if (!form.value.apiUrl) {
+    console.warn('[LLM] 验证失败: API 地址为空')
+    XMessage({ message: '请输入 API 地址', type: 'warning' })
+    return
+  }
+  if (!form.value.apiKey) {
+    console.warn('[LLM] 验证失败: API Key 为空')
+    XMessage({ message: '请输入 API Key', type: 'warning' })
+    return
+  }
+  if (!form.value.model) {
+    console.warn('[LLM] 验证失败: 模型为空')
+    XMessage({ message: '请输入模型名称', type: 'warning' })
     return
   }
 
-  if (isEditing.value && editingId.value) {
-    const index = llmList.value.findIndex(i => i.id === editingId.value)
-    if (index !== -1) {
-      llmList.value[index] = { ...form.value, id: editingId.value }
+  try {
+    console.log('[LLM] llmList.value 类型:', typeof llmList.value, Array.isArray(llmList.value))
+
+    // 确保是数组（防止存储数据损坏）
+    let list = Array.isArray(llmList.value) ? [...llmList.value] : []
+
+    if (isEditing.value && editingId.value) {
+      const index = list.findIndex(i => i.id === editingId.value)
+      console.log('[LLM] 编辑模式, index:', index)
+      if (index !== -1) {
+        list[index] = { ...form.value, id: editingId.value }
+      }
+      llmList.value = list
+    } else {
+      const newId = uuidv4()
+      console.log('[LLM] 新增模式, newId:', newId)
+      list.push({ ...form.value, id: newId })
+      llmList.value = list
     }
-  } else {
-    llmList.value.push({ ...form.value, id: uuidv4() })
+
+    console.log('[LLM] 准备保存到 storage, 列表长度:', list.length)
+    await saveList()
+    console.log('[LLM] storage 保存成功')
+    dialogVisible.value = false
+    XMessage({ message: '保存成功', type: 'success' })
+  } catch (e) {
+    console.error('[LLM] 保存失败:', e)
+    XMessage({ message: '保存失败: ' + (e as Error).message, type: 'error' })
+  }
+}
+
+async function testConnection() {
+  if (!form.value.apiUrl || !form.value.apiKey || !form.value.model) {
+    XMessage({ message: '请先填写 API 地址、API Key 和模型', type: 'warning' })
+    return
   }
 
-  await saveList()
-  dialogVisible.value = false
+  testing.value = true
+  console.log('[LLM] 测试连接:', form.value.apiUrl, form.value.model)
+
+  try {
+    const url = form.value.apiUrl.replace(/\/+$/, '') + '/chat/completions'
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + form.value.apiKey,
+      },
+      body: JSON.stringify({
+        model: form.value.model,
+        messages: [{ role: 'user', content: 'Hi' }],
+        max_tokens: 5,
+      }),
+    })
+
+    if (resp.ok) {
+      XMessage({ message: '连接成功！', type: 'success' })
+    } else {
+      const err = await resp.text()
+      XMessage({ message: '连接失败: HTTP ' + resp.status, type: 'error' })
+      console.error('[LLM] 测试连接失败:', resp.status, err)
+    }
+  } catch (e) {
+    XMessage({ message: '连接失败: ' + (e as Error).message, type: 'error' })
+    console.error('[LLM] 测试连接异常:', e)
+  } finally {
+    testing.value = false
+  }
 }
 
 function maskApiKey(key: string): string {
@@ -457,7 +582,7 @@ onMounted(() => {
 
   &__grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 8px;
   }
 
@@ -482,6 +607,12 @@ onMounted(() => {
       border-color: var(--xx-c-primary);
       background: rgba(76, 139, 245, 0.08);
     }
+  }
+
+  &__icon-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
   }
 
   &__icon {
@@ -552,8 +683,19 @@ onMounted(() => {
 
 .dialog-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 12px;
+
+  &__left {
+    display: flex;
+    gap: 12px;
+  }
+
+  &__right {
+    display: flex;
+    gap: 12px;
+  }
 }
 
 /* ==========================================
