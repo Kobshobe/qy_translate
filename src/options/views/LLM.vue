@@ -80,7 +80,7 @@
           >
             <img v-if="presetIcon(p.id)" class="dialog-preset__icon-img" :src="presetIcon(p.id)" :alt="p.id" />
             <span v-else class="dialog-preset__icon">{{ p.id.charAt(0).toUpperCase() }}</span>
-            <span class="dialog-preset__name">{{ p.id }}</span>
+            <span class="dialog-preset__name">{{ presetDisplayName(p.id) }}</span>
           </button>
         </div>
         <div class="dialog-divider"></div>
@@ -228,7 +228,7 @@ function presetIcon(id: string): string {
 
 function selectPreset(p: ILLMModels) {
   selectedPreset.value = p.id
-  form.value.name = p.id.charAt(0).toUpperCase() + p.id.slice(1)
+  form.value.name = presetDisplayName(p.id)
   form.value.apiUrl = p.baseUrl
   form.value.model = p.models[0]
 }
@@ -352,6 +352,18 @@ async function testConnection() {
 function maskApiKey(key: string): string {
   if (key.length <= 8) return '****'
   return key.slice(0, 4) + '****' + key.slice(-4)
+}
+
+function presetDisplayName(id: string): string {
+  const names: Record<string, string> = {
+    'deepseek': 'DeepSeek',
+    'claude': 'Claude',
+    'openai': 'OpenAI',
+    'minimax': 'MiniMax',
+    'glm': 'GLM',
+    'qwen': 'Qwen',
+  }
+  return names[id] || id.charAt(0).toUpperCase() + id.slice(1)
 }
 
 function avatarGradient(apiUrl: string): string {

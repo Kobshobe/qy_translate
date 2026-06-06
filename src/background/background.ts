@@ -52,7 +52,6 @@ chrome.runtime.onInstalled.addListener((details) => {
   
 })
 
-chrome.runtime.setUninstallURL("https://www.fishfit.fun/bqy/web/uninstall", () => {})
 
 chrome.contextMenus.onClicked.addListener(function (clickData) {
   if(clickData.menuItemId === "actionPdfReader") {

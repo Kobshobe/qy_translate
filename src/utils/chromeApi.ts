@@ -106,7 +106,7 @@ export function getOptionOpenParmas(): Promise<IAllStorage> {
 
 export function onInstall(details: any) {
     if (details.reason === 'install') {
-        chrome.tabs.create({ url: "https://www.fishfit.fun/bqy/web/install" })
+        chrome.tabs.create({ url: "https://github.com/Kobshobe/qy_translate/blob/main/docs/Instructions/Instructions(English).md" })
         chrome.storage.sync.set({ installTime: new Date().valueOf() })
     }
     eventToGoogle({

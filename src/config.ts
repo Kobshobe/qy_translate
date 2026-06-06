@@ -5,20 +5,7 @@ export const clientVersion = "2.0.6" // manifest.json
 export const platform:'chrome'|'edge' = 'chrome'
 export const client:IClientInfo = getClient()
 export const os:'mac'|'windows'|'linux'|'unknow' = getOS()
-export const storeUrl = 'https://www.fishfit.fun/bqy/web/download/option'
-export let baseURL:string
-export let baseWs:string
 export const initZIndex = 100000000;
-
-//@ts-ignore
-if (Mode === 'test' || Mode === 'jest') {
-    baseURL = 'http://localhost:7600/bqy/papi'
-    baseWs = 'ws://localhost:7600/bqy/papi'
-} else {
-    baseURL = 'https://www.fishfit.fun/bqy/papi'
-    baseWs = 'wss://www.fishfit.fun/bqy/papi'
-}
-
 
 //@ts-ignore
 export const store = platform === 'chrome' ?
