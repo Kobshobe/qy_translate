@@ -4,7 +4,7 @@
         "description": "ext_name"
     },
     "extDesc": {
-        "message": "Translate selected text. Professional domain translate."
+        "message": "Translate selected text, integrated with large model API translation, providing collection management and language learning"
     },
     "title": {
         "message": "QY Translate"

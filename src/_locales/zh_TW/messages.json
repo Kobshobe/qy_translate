@@ -4,7 +4,7 @@
         "description": "ext_name"
     },
     "extDesc": {
-        "message": "劃詞翻譯，電子科技、金融等專業領域翻譯，提供多端收藏管理"
+        "message": "劃詞翻譯，接入大模型 API 翻譯，提供收藏管理及語言學習"
     },
     "title": {
         "message": "輕氧翻譯"
