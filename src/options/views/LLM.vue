@@ -147,6 +147,7 @@ import { ILLMConfig, ILLMModels } from '@/interface/trans'
 import { v4 as uuidv4 } from 'uuid'
 import { XMessage } from '@/xxui/index'
 import { geti18nMsg } from '@/utils/share'
+import { eventToGoogle } from '@/utils/analytics'
 const llmList = ref<ILLMConfig[]>([])
 const dialogVisible = ref(false)
 const isEditing = ref(false)
@@ -253,6 +254,15 @@ async function deleteItem(item: ILLMConfig) {
   llmList.value = list.filter(i => i.id !== item.id)
   await saveList()
 
+  // GA event
+  eventToGoogle({
+    name: 'delete_llm_engine',
+    params: {
+      engine_name: item.name,
+      engine_model: item.model,
+    },
+  })
+
   // If the deleted engine is currently the default, fallback to Google Translate
   const { transEngine } = await chrome.storage.sync.get('transEngine')
   if (transEngine === 'llm__' + item.id) {
@@ -310,6 +320,16 @@ async function saveItem() {
     console.log('[LLM] storage 保存成功')
     dialogVisible.value = false
     XMessage({ message: '保存成功', type: 'success' })
+
+    // GA event
+    eventToGoogle({
+      name: isEditing.value ? 'edit_llm_engine' : 'add_llm_engine',
+      params: {
+        engine_name: form.value.name,
+        engine_model: form.value.model,
+        engine_url: form.value.apiUrl.replace(/\/+$/, '').replace(/^https?:\/\//, '').split('/')[0] || form.value.apiUrl,
+      },
+    })
   } catch (e) {
     console.error('[LLM] 保存失败:', e)
     XMessage({ message: '保存失败: ' + (e as Error).message, type: 'error' })
