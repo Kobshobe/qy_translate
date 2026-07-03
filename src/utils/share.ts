@@ -4,6 +4,8 @@ export function getLocaleLang() :string {
     const lang = navigator.language
     if(lang === 'zh' || lang === 'zh-CN') {
       return 'zh-CN'
+    } else if(lang === 'ja' || lang === 'ja-JP') {
+      return 'ja'
     } else {
       return 'en'
     }

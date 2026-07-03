@@ -1,0 +1,326 @@
+{
+    "extName": {
+        "message": "QY Translate",
+        "description": "ext_name"
+    },
+    "extDesc": {
+        "message": "選択したテキストを翻訳、大規模モデルAPI翻訳に対応、コレクション管理と言語学習を提供"
+    },
+    "title": {
+        "message": "QY Translate"
+    },
+    "sName": {
+        "message": "QY Translate"
+    },
+    "enterText": {
+        "message": "翻訳するテキストを入力"
+    },
+    "moreOption": {
+        "message": "その他の設定"
+    },
+    "copyOK": {
+        "message": "コピーしました"
+    },
+    "treadWordOff": {
+        "message": "選択翻訳が無効です"
+    },
+    "treadWord": {
+        "message": "テキストを選択して翻訳"
+    },
+
+    "collTooLong": {
+        "message": "500文字を超えるとコレクションできません"
+    },
+    "subTrans": {
+        "message": "翻訳"
+    },
+    "reduceMark": {
+        "message": "ハイライト解除"
+    },
+    "mark": {
+        "message": "ハイライト"
+    },
+    "transExampple": {
+        "message": "例文"
+    },
+    "optionTrans": {
+        "message": "翻訳設定"
+    },
+
+    "mainLang": {
+        "message": "第一言語:"
+    },
+    "secondLang": {
+        "message": "第二言語:"
+    },
+    "collManager": {
+        "message": "コレクション管理:"
+    },
+    "weChatCollMana": {
+        "message": "WeChatでQRコードをスキャンして管理"
+    },
+
+    "PDFViewer": {
+        "message": "PDFビューア"
+    },
+    "appStore": {
+        "message": "アプリストア"
+    },
+    "shareLink": {
+        "message": "リンクを共有"
+    },
+    "contactUs": {
+        "message": "フィードバック"
+    },
+    "copyShareLink": {
+        "message": "共有リンクをコピーしました"
+    },
+
+
+    "__noSupportLang__": {
+        "message": "この言語はサポートされていません。"
+    },
+    "__onlyEnAndZh__": {
+        "message": "この翻訳元は中国語と英語のみ対応しています。"
+    },
+    "__onlyZhToZh__": {
+        "message": "この翻訳元は中国語から英語への翻訳のみ対応しています。"
+    },
+    "__reqErr__": {
+        "message": "リクエストエラー"
+    },
+    "__textTooLong__": {
+        "message": "テキストが長すぎます"
+    },
+    "__hasErr__": {
+        "message": "エラーが発生しました"
+    },
+    "__fetchErr__": {
+        "message": "ネットワークを確認してください"
+    },
+    "__netErr__": {
+        "message": "ネットワークエラー"
+    },
+
+    "__wantToApplyTrans__": {
+        "message": "無料の専門翻訳サービスを申請しますか？"
+    },
+    "__gotIt__": {
+        "message": "わかりました"
+    },
+    "__reduce__": {
+        "message": "キャンセル"
+    },
+    "__scanApply__": {
+        "message": "申請"
+    },
+    "__noMouthAccess__": {
+        "message": "30日以内に再度申請することはできません。必要な場合はお問い合わせください。"
+    },
+    "__applyServiceFree__": {
+        "message": "無料で申請"
+    },
+    "__applyOK__": {
+        "message": "おめでとうございます、申請成功しました！"
+    },
+    "__applyFail__": {
+        "message": "申請に失敗しました。必要な場合はお問い合わせください。"
+    },
+    "__changeEngineForLang__": {
+        "message": "言語がサポートされていません。翻訳元を切り替えました。"
+    },
+    "__changeEngine__": {
+        "message": "翻訳元を切り替えました"
+    },
+    "__menuTrans__": {
+        "message": "右クリックで翻訳"
+    },
+    "__cannotDoIt__": {
+        "message": "現在操作できません"
+    },
+    "__showProun__": {
+        "message": "発音記号を表示"
+    },
+    "__choice__": {
+        "message": "選択してください"
+    },
+    "__enterLink__": {
+        "message": "リンクアドレスを入力してください"
+    },
+    "__defaultTransEngine__": {
+        "message": "デフォルトの翻訳元"
+    },
+    "__interface__": {
+        "message": "インターフェースと操作"
+    },
+    "__simpleAndIntellgent__": {
+        "message": "シンプルでインテリジェント"
+    },
+    "__profession__": {
+        "message": "プロフェッショナル"
+    },
+    "__commonTrans__": {
+        "message": "一般翻訳"
+    },
+    "__llm__": {
+        "message": "AI大規模モデル"
+    },
+    "__addMore__": {
+        "message": "さらに追加"
+    },
+    "__quickSelect__": {
+        "message": "クイック選択"
+    },
+    "__apiUrl__": {
+        "message": "API URL"
+    },
+    "__modelName__": {
+        "message": "モデル"
+    },
+    "__customPrompt__": {
+        "message": "カスタムプロンプト（オプション）"
+    },
+    "__addLLM__": {
+        "message": "AIモデルを追加"
+    },
+    "__editLLM__": {
+        "message": "AIモデルを編集"
+    },
+    "__testConn__": {
+        "message": "接続テスト"
+    },
+    "__testing__": {
+        "message": "テスト中..."
+    },
+    "__noLLMConfig__": {
+        "message": "AIモデルが設定されていません"
+    },
+    "__noLLMDesc__": {
+        "message": "最初のAIモデルを追加して、AI翻訳を始めましょう"
+    },
+    "__addFirstLLM__": {
+        "message": "AIモデルを追加"
+    },
+    "__manageAI__": {
+        "message": "AIモデルAPI設定を管理"
+    },
+    "__save__": {
+        "message": "保存"
+    },
+    "__cancel__": {
+        "message": "キャンセル"
+    },
+    "__edit__": {
+        "message": "編集"
+    },
+    "__apiKeyPlaceholder__": {
+        "message": "APIキーを入力"
+    },
+    "__modelPlaceholder__": {
+        "message": "例：deepseek-chat、gpt-4o"
+    },
+    "__promptPlaceholder__": {
+        "message": "システムプロンプトに追加する指示（例：専門用語を使用、原文の文体を保持）"
+    },
+    "__name__": {
+        "message": "名前"
+    },
+    "__namePlaceholder__": {
+        "message": "例：DeepSeek、ChatGPT"
+    },
+    "__apiUrlPlaceholder__": {
+        "message": "例：https://api.deepseek.com/v1"
+    },
+    "bing__common": {
+        "message": "Bing"
+    },
+    "ggTrans__common": {
+        "message": "Google翻訳"
+    },
+    "__enterTrans__": {
+        "message": "Enterキーで翻訳"
+    },
+    "__totalFreeOver__": {
+        "message": "今月の無料枠を使い切りました。必要な場合はお問い合わせください"
+    },
+    "__instructions__": {
+        "message": "使い方"
+    },
+
+    "__collection__": {
+        "message": "コレクション"
+    },
+    "__options__": {
+        "message": "設定"
+    },
+    "__others__": {
+        "message": "その他"
+    },
+    "__newCollection__": {
+        "message": "新しいコレクション"
+    },
+    "__delete__": {
+        "message": "削除"
+    },
+    "__manage__": {
+        "message": "管理"
+    },
+    "__move__": {
+        "message": "移動"
+    },
+    "__confirm__": {
+        "message": "確認"
+    },
+    "__rename__": {
+        "message": "名前変更"
+    },
+    "__confirmToDelete__": {
+        "message": "削除してもよろしいですか？"
+    },
+    "__default__": {
+        "message": "デフォルト"
+    },
+    "__qyMiniProgram__": {
+        "message": "QY Translate WeChatミニプログラム"
+    },
+    "__defaultLang__": {
+        "message": "デフォルトの翻訳言語"
+    },
+    "__transMethods__": {
+        "message": "翻訳方法"
+    },
+    "__transItemDisplay__": {
+        "message": "翻訳結果の表示"
+    },
+    "__openRemotePDF__": {
+        "message": "リモートPDFファイルを開く"
+    },
+
+    "__transReqErr__": {
+        "message": "翻訳に失敗しました。デフォルトの翻訳元を切り替えますか？"
+    },
+    "__change__": {
+        "message": "切り替え"
+    },
+    "__changeSuccess__": {
+        "message": "切り替えました"
+    },
+    "__giveFiveStar__": {
+        "message": "<div>このアプリが役に立った場合は、アプリストアで <span>5つ星</span> の評価をお願いします。</div>"
+    },
+    "__giveMeCharge__": {
+        "message": "開発者を支援"
+    },
+    "__or__": {
+        "message": "または"
+    },
+    "__IWantBoth__": {
+        "message": "両方欲しい！"
+    },
+    "__supportDeveloper__": {
+        "message": "開発者を支援"
+    },
+    "__fiveStar__": {
+        "message": "5つ星評価"
+    }
+}
