@@ -6,6 +6,8 @@ export function getLocaleLang() :string {
       return 'zh-CN'
     } else if(lang === 'ja' || lang === 'ja-JP') {
       return 'ja'
+    } else if(lang === 'fr' || lang === 'fr-FR' || lang === 'fr-CA' || lang === 'fr-BE' || lang === 'fr-CH') {
+      return 'fr'
     } else {
       return 'en'
     }

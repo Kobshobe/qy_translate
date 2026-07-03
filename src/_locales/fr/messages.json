@@ -1,0 +1,326 @@
+{
+    "extName": {
+        "message": "QY Translate",
+        "description": "ext_name"
+    },
+    "extDesc": {
+        "message": "Traduisez le texte sélectionné, intégré avec la traduction par API de grands modèles de langage, offrant la gestion des collections et l'apprentissage des langues"
+    },
+    "title": {
+        "message": "QY Translate"
+    },
+    "sName": {
+        "message": "QY Translate"
+    },
+    "enterText": {
+        "message": "Entrez le contenu à traduire"
+    },
+    "moreOption": {
+        "message": "Plus d'options"
+    },
+    "copyOK": {
+        "message": "Copié avec succès"
+    },
+    "treadWordOff": {
+        "message": "Traduction par sélection désactivée"
+    },
+    "treadWord": {
+        "message": "Sélectionnez le texte à traduire"
+    },
+
+    "collTooLong": {
+        "message": "Plus de 500 caractères ne peuvent pas être collectés"
+    },
+    "subTrans": {
+        "message": "Traduire"
+    },
+    "reduceMark": {
+        "message": "Enlever le surlignage"
+    },
+    "mark": {
+        "message": "Surligner"
+    },
+    "transExampple": {
+        "message": "Exemple"
+    },
+    "optionTrans": {
+        "message": "Paramètres de traduction"
+    },
+
+    "mainLang": {
+        "message": "Ma langue principale :"
+    },
+    "secondLang": {
+        "message": "Ma deuxième langue :"
+    },
+    "collManager": {
+        "message": "Gestion des collections :"
+    },
+    "weChatCollMana": {
+        "message": "Scannez le QR code avec WeChat pour gérer"
+    },
+
+    "PDFViewer": {
+        "message": "Lecteur PDF"
+    },
+    "appStore": {
+        "message": "App Store"
+    },
+    "shareLink": {
+        "message": "Partager le lien"
+    },
+    "contactUs": {
+        "message": "Contact"
+    },
+    "copyShareLink": {
+        "message": "Le lien de partage a été copié"
+    },
+
+
+    "__noSupportLang__": {
+        "message": "Langue non prise en charge."
+    },
+    "__onlyEnAndZh__": {
+        "message": "Cette source de traduction ne prend en charge que le chinois et l'anglais."
+    },
+    "__onlyZhToZh__": {
+        "message": "Cette source de traduction ne prend en charge que le chinois vers l'anglais."
+    },
+    "__reqErr__": {
+        "message": "Erreur de requête !"
+    },
+    "__textTooLong__": {
+        "message": "Le texte est trop long !"
+    },
+    "__hasErr__": {
+        "message": "Une erreur s'est produite !"
+    },
+    "__fetchErr__": {
+        "message": "Veuillez vérifier votre réseau !"
+    },
+    "__netErr__": {
+        "message": "Erreur réseau !"
+    },
+
+    "__wantToApplyTrans__": {
+        "message": "Demander des services de traduction professionnelle gratuits ?"
+    },
+    "__gotIt__": {
+        "message": "Compris"
+    },
+    "__reduce__": {
+        "message": "Annuler"
+    },
+    "__scanApply__": {
+        "message": "Soumettre"
+    },
+    "__noMouthAccess__": {
+        "message": "Vous ne pouvez pas refaire une demande pour ce service dans les 30 jours. Contactez-nous si nécessaire."
+    },
+    "__applyServiceFree__": {
+        "message": "Demande gratuite"
+    },
+    "__applyOK__": {
+        "message": "Félicitations, demande réussie !"
+    },
+    "__applyFail__": {
+        "message": "Échec de la demande, contactez-nous si nécessaire !"
+    },
+    "__changeEngineForLang__": {
+        "message": "Langue non prise en charge. Source de traduction changée !"
+    },
+    "__changeEngine__": {
+        "message": "Source de traduction changée"
+    },
+    "__menuTrans__": {
+        "message": "Cliquez droit pour traduire"
+    },
+    "__cannotDoIt__": {
+        "message": "Actuellement impossible !"
+    },
+    "__showProun__": {
+        "message": "Afficher la prononciation"
+    },
+    "__choice__": {
+        "message": "Sélectionner"
+    },
+    "__enterLink__": {
+        "message": "Veuillez entrer l'adresse du lien"
+    },
+    "__defaultTransEngine__": {
+        "message": "Source de traduction par défaut"
+    },
+    "__interface__": {
+        "message": "Interface et interaction"
+    },
+    "__simpleAndIntellgent__": {
+        "message": "Simple et intelligent"
+    },
+    "__profession__": {
+        "message": "Professionnel"
+    },
+    "__commonTrans__": {
+        "message": "Traduction courante"
+    },
+    "__llm__": {
+        "message": "Grand modèle d'IA"
+    },
+    "__addMore__": {
+        "message": "Ajouter plus"
+    },
+    "__quickSelect__": {
+        "message": "Sélection rapide"
+    },
+    "__apiUrl__": {
+        "message": "URL de l'API"
+    },
+    "__modelName__": {
+        "message": "Modèle"
+    },
+    "__customPrompt__": {
+        "message": "Prompt personnalisé (optionnel)"
+    },
+    "__addLLM__": {
+        "message": "Ajouter un modèle d'IA"
+    },
+    "__editLLM__": {
+        "message": "Modifier le modèle d'IA"
+    },
+    "__testConn__": {
+        "message": "Tester la connexion"
+    },
+    "__testing__": {
+        "message": "Test en cours..."
+    },
+    "__noLLMConfig__": {
+        "message": "Aucun modèle d'IA configuré"
+    },
+    "__noLLMDesc__": {
+        "message": "Ajoutez votre premier modèle d'IA pour commencer à traduire avec l'IA"
+    },
+    "__addFirstLLM__": {
+        "message": "Ajouter un modèle d'IA"
+    },
+    "__manageAI__": {
+        "message": "Gérer vos configurations d'API de modèle d'IA"
+    },
+    "__save__": {
+        "message": "Enregistrer"
+    },
+    "__cancel__": {
+        "message": "Annuler"
+    },
+    "__edit__": {
+        "message": "Modifier"
+    },
+    "__apiKeyPlaceholder__": {
+        "message": "Entrez la clé API"
+    },
+    "__modelPlaceholder__": {
+        "message": "ex. deepseek-chat, gpt-4o"
+    },
+    "__promptPlaceholder__": {
+        "message": "Instructions supplémentaires pour le prompt système, ex. utiliser la terminologie professionnelle, préserver le ton original"
+    },
+    "__name__": {
+        "message": "Nom"
+    },
+    "__namePlaceholder__": {
+        "message": "ex. DeepSeek, ChatGPT"
+    },
+    "__apiUrlPlaceholder__": {
+        "message": "ex. https://api.deepseek.com/v1"
+    },
+    "bing__common": {
+        "message": "Bing"
+    },
+    "ggTrans__common": {
+        "message": "Google Traduction"
+    },
+    "__enterTrans__": {
+        "message": "Appuyez sur Entrée pour traduire"
+    },
+    "__totalFreeOver__": {
+        "message": "Le quota gratuit de ce mois est épuisé. Contactez-nous pour plus de besoins"
+    },
+    "__instructions__": {
+        "message": "Instructions"
+    },
+
+    "__collection__": {
+        "message": "Collection"
+    },
+    "__options__": {
+        "message": "Options"
+    },
+    "__others__": {
+        "message": "Autres"
+    },
+    "__newCollection__": {
+        "message": "Nouvelle collection"
+    },
+    "__delete__": {
+        "message": "Supprimer"
+    },
+    "__manage__": {
+        "message": "Gérer"
+    },
+    "__move__": {
+        "message": "Déplacer"
+    },
+    "__confirm__": {
+        "message": "Confirmer"
+    },
+    "__rename__": {
+        "message": "Renommer"
+    },
+    "__confirmToDelete__": {
+        "message": "Êtes-vous sûr de vouloir supprimer ?"
+    },
+    "__default__": {
+        "message": "Par défaut"
+    },
+    "__qyMiniProgram__": {
+        "message": "Mini-programme WeChat QY Translate"
+    },
+    "__defaultLang__": {
+        "message": "Langue de traduction par défaut"
+    },
+    "__transMethods__": {
+        "message": "Méthodes de traduction"
+    },
+    "__transItemDisplay__": {
+        "message": "Affichage des résultats de traduction"
+    },
+    "__openRemotePDF__": {
+        "message": "Ouvrir le fichier PDF distant"
+    },
+
+    "__transReqErr__": {
+        "message": "Échec de la traduction, avez-vous changé la source de traduction par défaut ?"
+    },
+    "__change__": {
+        "message": "Changer"
+    },
+    "__changeSuccess__": {
+        "message": "Changé"
+    },
+    "__giveFiveStar__": {
+        "message": "<div>Si cette application vous est utile, cliquez ici pour donner une note de <span> 5 étoiles </span> sur l'App Store.</div>"
+    },
+    "__giveMeCharge__": {
+        "message": "Soutenir le développeur"
+    },
+    "__or__": {
+        "message": "OU"
+    },
+    "__IWantBoth__": {
+        "message": "Et je veux les deux !"
+    },
+    "__supportDeveloper__": {
+        "message": "Soutenir le développeur"
+    },
+    "__fiveStar__": {
+        "message": "5 étoiles"
+    }
+}
