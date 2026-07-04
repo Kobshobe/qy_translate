@@ -26,6 +26,12 @@ chrome.runtime.onInstalled.addListener((details) => {
   } else if (lang === 'zh-TW' || lang === 'zh-HK') {
     transMsg = '翻譯'
     openPDFMsg = 'PDF閱讀器(用於翻譯)';
+  } else if (lang === 'ja' || lang === 'ja-JP') {
+    transMsg = '翻訳';
+    openPDFMsg = 'PDFリーダー（翻訳用）';
+  } else if (lang.startsWith('fr')) {
+    transMsg = 'Traduire';
+    openPDFMsg = 'Lecteur PDF (pour la traduction)';
   } else {
     transMsg = 'translate'
     openPDFMsg = 'PDF Reader For Translate'
