@@ -4,7 +4,7 @@
         "description": "ext_name"
     },
     "extDesc": {
-        "message": "划词翻译，接入大模型 API 翻译，提供收藏管理及语言学习"
+        "message": "轻氧翻译, 免费翻译插件, 支持PDF翻译, 划词翻译, 大模型 API 翻译(OpenAI, Deepseek等), 提供收藏管理及语言学习"
     },
     "title": {
         "message": "轻氧翻译"

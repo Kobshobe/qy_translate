@@ -4,7 +4,7 @@
         "description": "ext_name"
     },
     "extDesc": {
-        "message": "選択したテキストを翻訳、大規模モデルAPI翻訳に対応、コレクション管理と言語学習を提供"
+        "message": "QY Translate、無料翻訳プラグイン、PDF翻訳、テキスト選択翻訳、大規模モデルAPI翻訳（OpenAI、Deepseek等）に対応、コレクション管理と言語学習を提供"
     },
     "title": {
         "message": "QY Translate"

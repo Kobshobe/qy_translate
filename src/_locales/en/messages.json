@@ -4,7 +4,7 @@
         "description": "ext_name"
     },
     "extDesc": {
-        "message": "Translate selected text, integrated with large model API translation, providing collection management and language learning"
+        "message": "QY Translate: free PDF & text translation plugin, LLM API (OpenAI, Deepseek etc.), collection management & language learning"
     },
     "title": {
         "message": "QY Translate"

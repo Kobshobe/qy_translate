@@ -2,6 +2,14 @@ import {IClientInfo} from '@/interface/trans'
 
 export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
 export const platform:'chrome'|'edge' = 'chrome'
+export const clientVersion = (() => {
+    try {
+        return chrome.runtime?.getManifest()?.version || '3.0.3'
+    } catch {
+        return '3.0.3'
+    }
+})()
+
 export const client:IClientInfo = getClient()
 export const os:'mac'|'windows'|'linux'|'unknow' = getOS()
 export const initZIndex = 100000000;
@@ -15,14 +23,6 @@ export const googleAnalytic = {
     measurementId: `G-4XZ65P0G94`,
     apiSecret: `G1uxYlc7QgaWUOMbbk7MSA`
 }
-
-export const clientVersion = (() => {
-    try {
-        return chrome.runtime?.getManifest()?.version || '3.0.3'
-    } catch {
-        return '3.0.3'
-    }
-})()
 
 export function getClient() :IClientInfo {
     if (Mode === 'jest') {

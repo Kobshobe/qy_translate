@@ -4,7 +4,7 @@
         "description": "ext_name"
     },
     "extDesc": {
-        "message": "Traduisez le texte sélectionné, intégré avec la traduction par API de grands modèles de langage, offrant la gestion des collections et l'apprentissage des langues"
+        "message": "QY Translate: extension gratuite, traduction PDF, texte, IA (OpenAI, Deepseek), gestion des collections & apprentissage des langues"
     },
     "title": {
         "message": "QY Translate"
