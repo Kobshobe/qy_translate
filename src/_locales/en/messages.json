@@ -322,5 +322,8 @@
     },
     "__fiveStar__": {
         "message": "5-Star-Ratings"
+    },
+    "__apiKeyLocalOnly__": {
+        "message": "API Key is only stored locally in your browser and will not be uploaded to any server"
     }
 }

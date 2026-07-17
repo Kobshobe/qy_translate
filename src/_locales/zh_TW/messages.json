@@ -322,5 +322,8 @@
     },
     "__fiveStar__": {
         "message": "五星好評"
+    },
+    "__apiKeyLocalOnly__": {
+        "message": "API Key 資訊僅保存在本地瀏覽器中，不會上傳到任何伺服器"
     }
 }

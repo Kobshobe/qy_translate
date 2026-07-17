@@ -322,5 +322,8 @@
     },
     "__fiveStar__": {
         "message": "5つ星評価"
+    },
+    "__apiKeyLocalOnly__": {
+        "message": "API Key 情報はローカルブラウザにのみ保存され、サーバーにアップロードされることはありません"
     }
 }

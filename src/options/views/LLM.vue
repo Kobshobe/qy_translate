@@ -6,6 +6,12 @@
         <div class="llm-header__left">
           <h2 class="llm-header__title">{{ geti18nMsg('__llm__') }}</h2>
           <p class="llm-header__desc">{{ geti18nMsg('__manageAI__') }}</p>
+          <div class="llm-header__notice">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <span>{{ geti18nMsg('__apiKeyLocalOnly__') }}</span>
+          </div>
         </div>
         <x-button type="primary" @click="showAddDialog">+ {{ geti18nMsg('__addFirstLLM__') }}</x-button>
       </header>
@@ -106,6 +112,12 @@
         <div class="dialog-form__group">
           <label class="dialog-label">API Key</label>
           <x-input v-model="form.apiKey" :placeholder="geti18nMsg('__apiKeyPlaceholder__')" />
+          <div class="dialog-form__notice">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <span>{{ geti18nMsg('__apiKeyLocalOnly__') }}</span>
+          </div>
         </div>
         <div class="dialog-form__group">
           <label class="dialog-label">{{ geti18nMsg('__modelName__') }}</label>
@@ -456,6 +468,21 @@ onMounted(() => {
     font-size: 14px;
     color: var(--xx-text-color-secondary);
   }
+
+  &__notice {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 8px 12px;
+    font-size: 12px;
+    line-height: 1.4;
+
+    svg {
+      flex-shrink: 0;
+      color: var(--xx-c-primary);
+    }
+  }
 }
 
 /* ==========================================
@@ -722,6 +749,21 @@ onMounted(() => {
 
   &__flex {
     flex: 1;
+  }
+
+  &__notice {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    line-height: 1.4;
+
+    svg {
+      flex-shrink: 0;
+      color: var(--xx-c-primary);
+    }
   }
 }
 

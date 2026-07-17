@@ -322,5 +322,8 @@
     },
     "__fiveStar__": {
         "message": "5 étoiles"
+    },
+    "__apiKeyLocalOnly__": {
+        "message": "La clé API est uniquement stockée localement dans votre navigateur et ne sera téléchargée sur aucun serveur"
     }
 }
