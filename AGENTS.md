@@ -15,3 +15,6 @@ playwright-cli open "chrome://extensions/" --headed --persistent
 ```
 
 If the extension is not loaded, prompt the user to manually load it.
+
+## playwright-cli
+Always use the default session
