@@ -167,6 +167,7 @@ const editingId = ref<string | null>(null)
 
 const defaultProviders: ILLMModels[] = [
   { id: 'deepseek', baseUrl: 'https://api.deepseek.com/v1', models: ['deepseek-v4-flash', 'deepseek-v4-pro', 'deepseek-chat', 'deepseek-reasoner'] },
+  { id: 'kimi', baseUrl: 'https://api.moonshot.cn/v1', models: ['kimi-k3', 'kimi-k2.6', 'kimi-k2.5'] },
   { id: 'claude', baseUrl: 'https://api.anthropic.com/v1', models: ['claude-3-5-sonnet', 'claude-3-opus', 'claude-3-haiku', 'claude-3-sonnet'] },
   { id: 'openai', baseUrl: 'https://api.openai.com/v1', models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo'] },
   { id: 'minimax', baseUrl: 'https://api.minimax.chat/v1', models: ['MiniMax-M3', 'MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'MiniMax-M2.5', 'MiniMax-M2.5-highspeed', 'MiniMax-M2.1', 'MiniMax-M2.1-highspeed', 'MiniMax-M2'] },
@@ -232,6 +233,7 @@ function presetIcon(id: string): string {
     claude: 'assets/images/claude.svg',
     openai: 'assets/images/openai.svg',
     deepseek: 'assets/images/deepseek.svg',
+    kimi: 'assets/images/kimi.svg',
     minimax: 'assets/images/MiniMax.svg',
     glm: 'assets/images/glm.svg',
     qwen: 'assets/images/qwen.svg',
@@ -395,6 +397,7 @@ function maskApiKey(key: string): string {
 function presetDisplayName(id: string): string {
   const names: Record<string, string> = {
     'deepseek': 'DeepSeek',
+    'kimi': 'Kimi',
     'claude': 'Claude',
     'openai': 'OpenAI',
     'minimax': 'MiniMax',
@@ -407,6 +410,7 @@ function presetDisplayName(id: string): string {
 function avatarGradient(apiUrl: string): string {
   const colors: Record<string, string> = {
     'deepseek': 'linear-gradient(135deg, #4D6BFE, #7B8EFF)',
+    'kimi': 'linear-gradient(135deg, #1C1C1C, #4A4A4A)',
     'openai': 'linear-gradient(135deg, #10A37F, #1EC99A)',
     'anthropic': 'linear-gradient(135deg, #D97757, #E8957D)',
     'minimax': 'linear-gradient(135deg, #D4367A, #ED6D48)',
