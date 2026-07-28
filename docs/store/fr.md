@@ -6,6 +6,8 @@ Traduisez le texte sélectionné, intégré avec la traduction par API de grands
 
 Intégré avec la traduction par API de grands modèles de langage, plus intelligent et précis, prend en charge OpenAI, DeepSeek, Claude, Qwen, MiniMax et d'autres modèles.
 
+Traduction bilingue de page web : prend en charge les modes d'affichage bilingue et traduction seule, avec plusieurs styles de traduction.
+
 Offre deux modes d'interaction : professionnel et minimaliste intelligent, configurables selon les besoins.
 
 Lecteur PDF intégré pour la traduction de documents PDF.

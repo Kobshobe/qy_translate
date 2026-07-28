@@ -6,6 +6,8 @@ Translate selected text, integrated with large model API translation, providing 
 
 Integrated with large model API translation, more intelligent and accurate, supports OpenAI, DeepSeek, Claude, Qwen, MiniMax and other models.
 
+Bilingual web page translation: supports bilingual and target-only display modes, with multiple translation styles.
+
 Provide two models of professional and minimalist intelligence, can be configured according to requirements
 
 Built-in PDF reader for translation for PDF documents
