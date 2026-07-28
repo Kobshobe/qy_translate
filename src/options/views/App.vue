@@ -6,8 +6,7 @@
         <router-link to="/collections"
           ><div class="tab-item">{{geti18nMsg('__collection__')}}</div></router-link
         >
-        <router-link to="/"><div class="tab-item">{{geti18nMsg('__options__')}}</div></router-link>
-        
+        <router-link to="/settings/trans" :class="{'router-link-active': $route.path.startsWith('/settings')}"><div class="tab-item">{{geti18nMsg('__options__')}}</div></router-link>
         <router-link to="/llm"><div class="tab-item">{{geti18nMsg('__llm__')}}</div></router-link>
         <router-link to="/other"
           ><div class="tab-item">{{geti18nMsg('__others__')}}</div></router-link
@@ -83,7 +82,7 @@ a {
     .tab-item {
       padding: 3px 20px 0 20px;
       font-size: 15px;
-      color: #6e6d7a;
+      color: var(--xx-text-color-regular);
       font-weight: bold;
       cursor: pointer;
       transition: color 0.2s;

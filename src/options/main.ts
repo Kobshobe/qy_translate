@@ -6,12 +6,23 @@ import {eventToGoogle} from '@/utils/analytics'
 
 import TransOptions from '@/options/views/TransOptions.vue'
 import Collections from '@/options/views/Collections.vue'
+import Settings from '@/options/views/Settings.vue'
+import PageTrans from '@/options/views/PageTrans.vue'
 import Other from '@/options/views/Other.vue'
 import UIExample from '@/options/views/UIExample.vue'
 import LLM from '@/options/views/LLM.vue'
 
 const routes = [
-    {path: '/', component: TransOptions},
+    {
+        path: '/settings',
+        component: Settings,
+        redirect: '/settings/trans',
+        children: [
+            {path: 'trans', component: TransOptions},
+            {path: 'page-trans', component: PageTrans}
+        ]
+    },
+    {path: '/', redirect: '/settings/trans'},
     {path: '/collections', component: Collections},
     {path: '/other', component: Other},
     {path: '/ui_example', component: UIExample},

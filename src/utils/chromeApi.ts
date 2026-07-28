@@ -6,11 +6,17 @@ import { languages } from '@/translator/trans_base'
 export async function getTransConf(): Promise<IAllStorage> {
     const conf: IAllStorage = await getFromeStorage([
         'isTreadWord', 'fromLang', 'toLang', 'mode', 'transEngine', 'showProun', 'keyDownTrans',
-        'mainLang', 'secondLang',
+        'mainLang', 'secondLang', 'fbVisible', 'fbDefaultSide',
+        'pageTransStyle', 'pageTransDisplayMode', 'pageTransDimOriginal',
     ])
     conf.isTreadWord = dealTreadWord(conf.isTreadWord);
     conf.menuTrans = dealTreadWord(conf.menuTrans);
-    conf.showProun = dealTreadWord(conf.showProun) 
+    conf.pageTransMenu = dealTreadWord(conf.pageTransMenu);
+    conf.showProun = dealTreadWord(conf.showProun)
+    conf.fbVisible = dealTreadWord(conf.fbVisible)
+    conf.fbDefaultSide || (conf.fbDefaultSide = 'right')
+    conf.pageTransStyle || (conf.pageTransStyle = 'none')
+    conf.pageTransDisplayMode || (conf.pageTransDisplayMode = 'bilingual')
     conf.fromLang || (conf.fromLang = 'auto');
     conf.toLang || (conf.toLang = '__auto__');
     conf.mode || (conf.mode = 'simple');
@@ -87,7 +93,11 @@ export function openOptionsPage(msg: any) {
     chrome.storage.sync.set({
         optionPageOpenParmas: msg
     }, () => {
-        chrome.runtime.openOptionsPage()
+        if (msg?.hash) {
+            chrome.tabs.create({ url: chrome.runtime.getURL('options.html' + msg.hash) })
+        } else {
+            chrome.runtime.openOptionsPage()
+        }
         eventToGoogle({
             name: "open_options_page",
             params: msg

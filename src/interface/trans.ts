@@ -147,6 +147,12 @@ export interface IAllStorage {
     transEngine?: ITransEngine
     showProun?: boolean
     keyDownTrans?: 'Enter'|'Shift+Enter'
+    fbVisible?: boolean
+    fbDefaultSide?: 'left' | 'right'
+    pageTransStyle?: string
+    pageTransDisplayMode?: string
+    pageTransDimOriginal?: boolean
+    pageTransMenu?: boolean
 }
 
 export class Find {

@@ -56,12 +56,26 @@ defineComponent({name: 'x-dialog'})
     background-color: var(--xx-overlay-color-lighter);
 
     .xx-dialog__content {
+        scrollbar-width: thin;
+        scrollbar-color: var(--xx-border-color) transparent;
+
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: var(--xx-border-color);
+            border-radius: 2px;
+        }
         background-color: var(--xx-background-color);
         width: 30%;
+        max-height: 80vh;
         padding: 20px;
         border: 1px solid var(--xx-border-only-dark);
         border-radius: 5px;
-        overflow: hidden;
+        overflow-y: auto;
         .xx-dialog__header {
             padding-bottom: 30px;
             color: var(--xx-text-color-regular);

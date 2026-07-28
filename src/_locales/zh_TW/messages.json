@@ -135,6 +135,12 @@
     "__menuTrans__": {
         "message": "右鍵翻譯"
     },
+    "__pageTransMenu__": {
+        "message": "右鍵頁面翻譯"
+    },
+    "__showFloatingBall__": {
+        "message": "頁面翻譯浮球"
+    },
     "__cannotDoIt__": {
         "message": "當前不可操作"
     },
@@ -256,6 +262,12 @@
     "__others__": {
         "message": "其它"
     },
+    "__basicOptions__": {
+        "message": "基本選項"
+    },
+    "__pageTrans__": {
+        "message": "頁面翻譯"
+    },
     "__newCollection__": {
         "message": "新建收藏夾"
     },
@@ -325,5 +337,14 @@
     },
     "__apiKeyLocalOnly__": {
         "message": "API Key 資訊僅保存在本地瀏覽器中，不會上傳到任何伺服器"
+    },
+    "__translating__": {
+        "message": "翻譯中..."
+    },
+    "__showOriginal__": {
+        "message": "顯示原文"
+    },
+    "__restoring__": {
+        "message": "還原中..."
     }
 }

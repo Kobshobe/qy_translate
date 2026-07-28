@@ -135,6 +135,12 @@
     "__menuTrans__": {
         "message": "Cliquez droit pour traduire"
     },
+    "__pageTransMenu__": {
+        "message": "Cliquez droit pour traduire la page"
+    },
+    "__showFloatingBall__": {
+        "message": "Boule flottante de traduction de page"
+    },
     "__cannotDoIt__": {
         "message": "Actuellement impossible !"
     },
@@ -256,6 +262,12 @@
     "__others__": {
         "message": "Autres"
     },
+    "__basicOptions__": {
+        "message": "Options de base"
+    },
+    "__pageTrans__": {
+        "message": "Traduction de page"
+    },
     "__newCollection__": {
         "message": "Nouvelle collection"
     },
@@ -325,5 +337,14 @@
     },
     "__apiKeyLocalOnly__": {
         "message": "La clé API est uniquement stockée localement dans votre navigateur et ne sera téléchargée sur aucun serveur"
+    },
+    "__translating__": {
+        "message": "Traduction en cours..."
+    },
+    "__showOriginal__": {
+        "message": "Afficher l'original"
+    },
+    "__restoring__": {
+        "message": "Restauration en cours..."
     }
 }

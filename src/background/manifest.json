@@ -35,12 +35,20 @@
         "chromeos": "Alt+K",
         "linux": "Alt+K"
       }
+    },
+    "toggleTranslatePage": {
+      "description": "__MSG_toggleTranslatePage__",
+      "suggested_key": {
+        "default": "Alt+A"
+      }
     }
   },
   "web_accessible_resources": [
     {
       "resources": [
-        "iframe.html"
+        "iframe.html",
+        "assets/images/logo.png",
+        "assets/images/finish.svg"
       ],
       "matches": [
         "<all_urls>"
@@ -54,7 +62,8 @@
       ],
       "css": [
         "css/popup-ewrskdfdswerhnyikyofd.css",
-        "css/chunk-common-ewrskdfdswerhnyikyofd.css"
+        "css/chunk-common-ewrskdfdswerhnyikyofd.css",
+        "css/content-ewrskdfdswerhnyikyofd.css"
       ],
       "js": [
         "chunk-common-ewrskdfdswerhnyikyofd.js",

@@ -191,6 +191,7 @@ export class BaseTrans {
 
   transErrToAnalytic(c: Context, apiCtx: Context, other: any = {}) {
     const info: IWrapTransInfo = c.req
+    if (info.type === 'pageTrans') return
     const params = {
       from: info.from,
       to: info.to,
@@ -211,6 +212,7 @@ export class BaseTrans {
 
   transOKToAnalytic(c: Context, respCtx: Context, other: any = {}) {
     const info: IWrapTransInfo = c.req
+    if (info.type === 'pageTrans') return
     const params = {
       from: info.from,
       to: info.to,

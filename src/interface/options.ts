@@ -19,6 +19,12 @@ export interface IConfHook {
       changeTreadWord() :void
       changeMode() :void
       changeMenuTrans() :void
+      changePageTransMenu() :void
+      changeFbVisible() :void
+      changeFbSide() :void
+      changePageTransStyle() :void
+      changePageTransDisplayMode() :void
+      changePageTransDimOriginal() :void
       changeMainLang() :void
       changeSecondLang() :void
       changeShowProun() :void

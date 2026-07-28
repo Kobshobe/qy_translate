@@ -135,6 +135,12 @@
     "__menuTrans__": {
         "message": "右クリックで翻訳"
     },
+    "__pageTransMenu__": {
+        "message": "右クリックでページ翻訳"
+    },
+    "__showFloatingBall__": {
+        "message": "ページ翻訳フローティングボール"
+    },
     "__cannotDoIt__": {
         "message": "現在操作できません"
     },
@@ -256,6 +262,12 @@
     "__others__": {
         "message": "その他"
     },
+    "__basicOptions__": {
+        "message": "基本オプション"
+    },
+    "__pageTrans__": {
+        "message": "ページ翻訳"
+    },
     "__newCollection__": {
         "message": "新しいコレクション"
     },
@@ -325,5 +337,14 @@
     },
     "__apiKeyLocalOnly__": {
         "message": "API Key 情報はローカルブラウザにのみ保存され、サーバーにアップロードされることはありません"
+    },
+    "__translating__": {
+        "message": "翻訳中..."
+    },
+    "__showOriginal__": {
+        "message": "原文を表示"
+    },
+    "__restoring__": {
+        "message": "復元中..."
     }
 }

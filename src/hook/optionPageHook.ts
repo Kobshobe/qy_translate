@@ -108,6 +108,75 @@ export default function confHook(base: IOptionBaseHook): IConfHook {
           }
         })
       },
+      changePageTransMenu() {
+        chrome.storage.sync.set({ pageTransMenu: hook.conf.C.pageTransMenu })
+        if (hook.conf.C.pageTransMenu) {
+          chrome.contextMenus.create({
+            id: "pageTrans",
+            title: "翻译此页面",
+            contexts: ['page', 'selection']
+          })
+        } else {
+          chrome.contextMenus.remove('pageTrans')
+        }
+        eventToGoogle({
+          name: 'changePageTransMenu',
+          params: {
+            value: hook.conf.C.pageTransMenu,
+            scene: 'option'
+          }
+        })
+      },
+      changeFbVisible() {
+        chrome.storage.sync.set({ fbVisible: hook.conf.C.fbVisible })
+        eventToGoogle({
+          name: 'changeFbVisible',
+          params: {
+            value: hook.conf.C.fbVisible,
+            scene: 'option'
+          }
+        })
+      },
+      changeFbSide() {
+        chrome.storage.sync.set({ fbDefaultSide: hook.conf.C.fbDefaultSide })
+        eventToGoogle({
+          name: 'changeFbSide',
+          params: {
+            value: hook.conf.C.fbDefaultSide,
+            scene: 'option'
+          }
+        })
+      },
+      changePageTransStyle() {
+        chrome.storage.sync.set({ pageTransStyle: hook.conf.C.pageTransStyle })
+        eventToGoogle({
+          name: 'changePageTransStyle',
+          params: {
+            value: hook.conf.C.pageTransStyle,
+            scene: 'option'
+          }
+        })
+      },
+      changePageTransDisplayMode() {
+        chrome.storage.sync.set({ pageTransDisplayMode: hook.conf.C.pageTransDisplayMode })
+        eventToGoogle({
+          name: 'changePageTransDisplayMode',
+          params: {
+            value: hook.conf.C.pageTransDisplayMode,
+            scene: 'option'
+          }
+        })
+      },
+      changePageTransDimOriginal() {
+        chrome.storage.sync.set({ pageTransDimOriginal: hook.conf.C.pageTransDimOriginal })
+        eventToGoogle({
+          name: 'changePageTransDimOriginal',
+          params: {
+            value: hook.conf.C.pageTransDimOriginal,
+            scene: 'option'
+          }
+        })
+      },
       changeShowProun() {
         chrome.storage.sync.set({ showProun: hook.conf.C.showProun })
         eventToGoogle({

@@ -28,6 +28,46 @@ export function getTransEngineIcon(engine:string) :string {
   }
 }
 
+/**
+ * 语言 → Unicode Script 映射
+ * 用于判断文本是否属于某语言（页面翻译时跳过已为目标语言的段落）
+ *
+ * 新增语种时在此处添加正则即可，
+ * 正则匹配该语言的主要 Unicode 编码区块。
+ */
+export const langToScript: Record<string, RegExp> = {
+  'zh-CN': /[\u4e00-\u9fff\u3400-\u4dbf]/,   // 汉字（CJK 统一表意文字）
+  'zh-TW': /[\u4e00-\u9fff\u3400-\u4dbf]/,   // 同 zh-CN，共用汉字区块
+  'zh':    /[\u4e00-\u9fff\u3400-\u4dbf]/,   // 中文通用
+  'ja':    /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]/,  // 平假名 + 片假名 + 汉字
+  'ko':    /[\uac00-\ud7af\u1100-\u11ff]/,  // 韩文音节 + 谚文
+  'ru':    /[\u0400-\u04ff]/,  // 西里尔字母
+  'ar':    /[\u0600-\u06ff]/,  // 阿拉伯字母
+  'th':    /[\u0e00-\u0e7f]/,  // 泰文
+  'hi':    /[\u0900-\u097f]/,  // 天城文（印地语）
+  'he':    /[\u0590-\u05ff]/,  // 希伯来文
+  'el':    /[\u0370-\u03ff]/,  // 希腊文
+}
+
+/**
+ * 判断文本语言是否与目标语言相同
+ * @param text  待检测文本
+ * @param targetLang  目标语言代码（如 'zh-CN', 'ja'）
+ * @returns true 表示文本已是目标语言
+ */
+export function isTargetLangText(text: string, targetLang: string): boolean {
+  if (targetLang === 'auto' || targetLang === '__auto__') return false
+  const re = langToScript[targetLang]
+  if (!re) return false
+  // 使用带 g 标志的正则，获取所有匹配字符数
+  const reGlobal = new RegExp(re.source, 'g')
+  const matched = text.match(reGlobal)
+  if (!matched) return false
+  // matched.length 为匹配到的字符个数
+  const ratio = matched.length / text.length
+  return ratio > 0.3
+}
+
 
 export const languages = {
     auto: { en: 'auto detect', 'zh-CN': '自动检测', ja: '自動検出', fr: 'détection auto'},

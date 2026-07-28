@@ -135,6 +135,12 @@
     "__menuTrans__": {
         "message": "右键翻译"
     },
+    "__pageTransMenu__": {
+        "message": "右键页面翻译"
+    },
+    "__showFloatingBall__": {
+        "message": "页面翻译浮窗"
+    },
     "__cannotDoIt__": {
         "message": "当前不可操作"
     },
@@ -256,6 +262,12 @@
     "__others__": {
         "message": "其它"
     },
+    "__basicOptions__": {
+        "message": "基本选项"
+    },
+    "__pageTrans__": {
+        "message": "页面翻译"
+    },
     "__newCollection__": {
         "message": "新建收藏夹"
     },
@@ -325,5 +337,18 @@
     },
     "__apiKeyLocalOnly__": {
         "message": "API Key 信息仅保存在本地浏览器中，不会上传到任何服务器"
+    },
+    "toggleTranslatePage": {
+        "message": "翻译网页 / 显示原文",
+        "description": "快捷键：切换页面翻译"
+    },
+    "__translating__": {
+        "message": "翻译中..."
+    },
+    "__showOriginal__": {
+        "message": "显示原文"
+    },
+    "__restoring__": {
+        "message": "还原中..."
     }
 }

@@ -135,6 +135,12 @@
     "__menuTrans__": {
         "message": "Click menu to translate"
     },
+    "__pageTransMenu__": {
+        "message": "Right-click to translate page"
+    },
+    "__showFloatingBall__": {
+        "message": "Page translate floating ball"
+    },
     "__cannotDoIt__": {
         "message": "Currently unable!"
     },
@@ -256,6 +262,12 @@
     "__others__": {
         "message": "Others"
     },
+    "__basicOptions__": {
+        "message": "Basic Options"
+    },
+    "__pageTrans__": {
+        "message": "Page Translation"
+    },
     "__newCollection__": {
         "message": "New Collection"
     },
@@ -325,5 +337,18 @@
     },
     "__apiKeyLocalOnly__": {
         "message": "API Key is only stored locally in your browser and will not be uploaded to any server"
+    },
+    "toggleTranslatePage": {
+        "message": "Translate page / Show original",
+        "description": "Keyboard shortcut: toggle page translation"
+    },
+    "__translating__": {
+        "message": "Translating..."
+    },
+    "__showOriginal__": {
+        "message": "Show original"
+    },
+    "__restoring__": {
+        "message": "Restoring..."
     }
 }

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QY Translate - Page Translation Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.8;
+      color: #333;
+      background: #f8f9fa;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    h1 { font-size: 28px; margin-bottom: 8px; color: #1a1a2e; }
+    h2 { font-size: 22px; margin: 32px 0 12px; color: #16213e; border-bottom: 2px solid #e9ecef; padding-bottom: 8px; }
+    h3 { font-size: 18px; margin: 24px 0 8px; color: #0f3460; }
+    p { margin-bottom: 16px; font-size: 16px; }
+    .meta { color: #6c757d; font-size: 14px; margin-bottom: 24px; }
+    .section-desc { background: #f1f3f5; padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; color: #495057; }
+    code { background: #e9ecef; padding: 2px 6px; border-radius: 3px; font-size: 14px; }
+    pre { background: #212529; color: #f8f9fa; padding: 16px; border-radius: 6px; overflow-x: auto; margin-bottom: 16px; font-size: 14px; }
+    ul, ol { margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    blockquote { border-left: 4px solid #4C8BF5; padding: 12px 20px; margin: 16px 0; background: #f8f9ff; color: #495057; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+    th, td { border: 1px solid #dee2e6; padding: 8px 12px; text-align: left; }
+    th { background: #f1f3f5; font-weight: 600; }
+    .test-badge { display: inline-block; background: #4C8BF5; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 12px; margin-bottom: 16px; }
+    .lang-label { display: inline-block; background: #e9ecef; padding: 2px 8px; border-radius: 3px; font-size: 12px; color: #495057; margin-right: 8px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="test-badge">🧪 Page Translation Test Page</div>
+    <h1>Welcome to the QY Translate Test Page</h1>
+    <p class="meta">
+      This page is designed to test the page translation feature. 
+      It contains content in multiple languages, various HTML structures,
+      and edge cases to ensure robust translation.
+    </p>
+
+    <!-- ================================================================ -->
+    <h2>1. General English Content</h2>
+    <p class="section-desc">Basic paragraphs that should be translated to the target language.</p>
+
+    <p>
+      Artificial intelligence is transforming the way we live and work. 
+      From machine learning algorithms that power recommendation systems 
+      to natural language processing models that enable seamless communication, 
+      AI has become an integral part of modern technology. Researchers 
+      continue to push the boundaries of what machines can achieve, 
+      opening up new possibilities for innovation across every industry.
+    </p>
+
+    <p>
+      The web is a powerful platform for sharing knowledge and connecting 
+      people across the globe. With the rise of open-source software and 
+      collaborative tools, developers can build amazing applications that 
+      solve real-world problems. The key to success lies in understanding 
+      user needs and creating intuitive, accessible experiences.
+    </p>
+
+    <!-- ================================================================ -->
+    <h2>2. Technical Documentation Style</h2>
+    <p class="section-desc">Simulates blog posts and technical docs with code and notes.</p>
+
+    <h3>Getting Started with React</h3>
+    <p>
+      React is a JavaScript library for building user interfaces. It lets you compose complex UIs from small, isolated pieces of code called components. To get started, you need to install Node.js and npm on your machine.
+    </p>
+
+    <pre>npx create-react-app my-app
+cd my-app
+npm start</pre>
+
+    <p>
+      Once the development server is running, you can open your browser to 
+      see the default React application. From there, you can start modifying 
+      the source files and see changes reflected in real-time.
+    </p>
+
+    <!-- ================================================================ -->
+    <h2>3. Lists (Ordered &amp; Unordered)</h2>
+    <p class="section-desc">All list items should be translated.</p>
+
+    <h3>Top Programming Languages in 2026</h3>
+    <ol>
+      <li>Python - Dominates data science and AI development</li>
+      <li>JavaScript - Powers the modern web</li>
+      <li>TypeScript - Brings type safety to JavaScript</li>
+      <li>Rust - Systems programming with memory safety</li>
+      <li>Go - Cloud-native and backend services</li>
+    </ol>
+
+    <h3>Key Features of a Good Translation Plugin</h3>
+    <ul>
+      <li>Supports bilingual display for easy comparison</li>
+      <li>Preserves the original formatting and structure</li>
+      <li>Works across different types of web pages</li>
+      <li>Fast and accurate translation results</li>
+      <li>Respects user privacy</li>
+    </ul>
+
+    <!-- ================================================================ -->
+    <h2>4. Mixed Language Content</h2>
+    <p class="section-desc">
+      <span class="lang-label">EN</span>Content that mixes English with other languages. 
+      The translation should handle code-switching gracefully.
+    </p>
+
+    <p>
+      In Japanese, the word <strong>ありがとう</strong> means "thank you".
+      When visiting Tokyo, you'll often hear people say 
+      <strong>すみません</strong> (excuse me) in crowded places. 
+      Understanding these basic phrases can greatly enhance your travel experience.
+    </p>
+
+    <p>
+      Many Chinese idioms, known as <strong>成语 (chéngyǔ)</strong>, 
+      are derived from ancient literature. For example, 
+      <strong>井底之蛙</strong> (jǐng dǐ zhī wā) literally means 
+      "a frog at the bottom of a well" and describes someone with 
+      a limited perspective.
+    </p>
+
+    <!-- ================================================================ -->
+    <h2>5. Blockquote &amp; Special Elements</h2>
+    <p class="section-desc">Blockquotes and other semantic elements.</p>
+
+    <blockquote>
+      The only way to do great work is to love what you do. 
+      If you haven't found it yet, keep looking. Don't settle. 
+      As with all matters of the heart, you'll know when you find it.
+      <br><br>
+      — Steve Jobs, Stanford Commencement Address (2005)
+    </blockquote>
+
+    <blockquote>
+      In the middle of difficulty lies opportunity. 
+      The measure of intelligence is the ability to change. 
+      Education is the most powerful weapon which you can use to change the world.
+      <br><br>
+      — Albert Einstein
+    </blockquote>
+
+    <!-- ================================================================ -->
+    <h2>6. Table Content</h2>
+    <p class="section-desc">Tables with headers and data cells.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Language</th>
+          <th>Difficulty Level</th>
+          <th>Native Speakers</th>
+          <th>Writing System</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Chinese (Mandarin)</td>
+          <td>Very Hard</td>
+          <td>~1.1 Billion</td>
+          <td>Logographic</td>
+        </tr>
+        <tr>
+          <td>English</td>
+          <td>Medium</td>
+          <td>~1.5 Billion</td>
+          <td>Alphabetic</td>
+        </tr>
+        <tr>
+          <td>Japanese</td>
+          <td>Very Hard</td>
+          <td>~125 Million</td>
+          <td>Mixed (Kanji + Kana)</td>
+        </tr>
+        <tr>
+          <td>Spanish</td>
+          <td>Easy</td>
+          <td>~600 Million</td>
+          <td>Alphabetic</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ================================================================ -->
+    <h2>7. Long Paragraph (Edge Case)</h2>
+    <p class="section-desc">A very long paragraph to test length handling.</p>
+
+    <p>
+      The history of computing machinery is a fascinating journey that spans centuries of human ingenuity. 
+      From the abacus, invented around 2400 BC in Mesopotamia, to the Antikythera mechanism of ancient Greece, 
+      humans have always sought tools to aid calculation. The 17th century saw the development of mechanical 
+      calculators by thinkers like Blaise Pascal and Gottfried Wilhelm Leibniz. In the 19th century, 
+      Charles Babbage conceptualized the Analytical Engine, a mechanical general-purpose computer, 
+      while Ada Lovelace wrote what is considered the first algorithm intended for machine processing. 
+      The 20th century witnessed an explosion of innovation: Alan Turing's theoretical work laid the 
+      foundation for modern computing, the ENIAC brought electronic computing to the world stage, 
+      the invention of the transistor revolutionized electronics, and the development of integrated 
+      circuits made personal computing possible. Today, we stand at the brink of quantum computing 
+      and artificial general intelligence, continuing a tradition of innovation that shows no signs 
+      of slowing down. The story of computing is ultimately a story about human creativity and our 
+      relentless drive to push beyond the boundaries of what is possible.
+    </p>
+
+    <!-- ================================================================ -->
+    <h2>8. Japanese Content</h2>
+    <p class="section-desc">
+      <span class="lang-label">JA</span>Japanese text — should be translated from Japanese to target language.
+    </p>
+
+    <p>
+      人工知能（AI）は、現代のテクノロジーにおいて最も重要な革新の一つです。
+      機械学習と深層学習の進歩により、コンピューターは画像認識、自然言語処理、
+      音声認識などの分野で人間に匹敵する能力を獲得しつつあります。
+    </p>
+
+    <p>
+      日本の四季は美しいです。春には桜が咲き、夏には海で泳ぎ、
+      秋には紅葉を楽しみ、冬には雪景色を見ることができます。
+      それぞれの季節には特別な行事や食べ物があり、一年中楽しむことができます。
+    </p>
+
+    <!-- ================================================================ -->
+    <h2>9. Mixed Heading Levels</h2>
+    <p class="section-desc">Different heading levels to verify h1-h6 are translated.</p>
+
+    <h3>Section One: Overview</h3>
+    <p>This section provides an overview of the translation testing process.</p>
+
+    <h4>Subsection A: Setup Requirements</h4>
+    <p>Before running the tests, ensure that the extension is properly loaded.</p>
+
+    <h5>Detailed Configuration</h5>
+    <p>Configure the target language and translation service in the options page.</p>
+
+    <h6>Notes for Developers</h6>
+    <p>All test results should be documented for future reference.</p>
+
+    <!-- ================================================================ -->
+    <h2>10. Short Text / Edge Cases</h2>
+    <p class="section-desc">Very short paragraphs that should still be translated.</p>
+
+    <p>Hello world.</p>
+    <p>This is a test.</p>
+    <p>How are you today?</p>
+    <p>I am fine, thank you.</p>
+    <p>Good morning!</p>
+
+    <!-- ================================================================ -->
+    <h2>11. Navigation / Sidebar Simulation</h2>
+    <p class="section-desc">These nav links would ideally be excluded or translated.</p>
+
+    <nav>
+      <ul>
+        <li>Home</li>
+        <li>About Us</li>
+        <li>Products</li>
+        <li>Services</li>
+        <li>Blog</li>
+        <li>Contact</li>
+      </ul>
+    </nav>
+
+    <!-- ================================================================ -->
+    <h2>12. Figcaption / Media Descriptions</h2>
+    <p class="section-desc">Captions and descriptions for media elements.</p>
+
+    <figure>
+      <div style="background: #e9ecef; height: 200px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #6c757d;">
+        [Placeholder Image]
+      </div>
+      <figcaption>A beautiful sunset over the mountains during autumn season.</figcaption>
+    </figure>
+
+    <figure>
+      <div style="background: #e9ecef; height: 200px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #6c757d;">
+        [Placeholder Image]
+      </div>
+      <figcaption>An illustration showing the architecture of a neural network.</figcaption>
+    </figure>
+
+    <!-- ================================================================ -->
+    <h2>13. Chinese Content (Target Language Test)</h2>
+    <p class="section-desc">
+      <span class="lang-label">ZH</span>中文内容 — 如果目标语言设置为中文，这些段落应被识别为已是目标语言，
+      <code>isTargetLangText</code> 应返回 <code>true</code>，跳过翻译。
+      如果目标语言不是中文，则应正常翻译。
+    </p>
+
+    <p>
+      人工智能正在深刻改变我们的生活方式和工作方式。从驱动推荐系统的机器学习算法，
+      到实现无缝沟通的自然语言处理模型，AI 已经成为现代技术不可或缺的一部分。
+      研究人员不断突破机器能力的边界，为各行各业的创新开辟了新的可能性。
+    </p>
+
+    <p>
+      互联网是一个强大的平台，可以分享知识并连接全球的人们。随着开源软件和协作工具的兴起，
+      开发者能够构建解决现实世界问题的出色应用程序。成功的关键在于理解用户需求，
+      并创建直观、可访问的体验。
+    </p>
+
+    <p>
+      Vue.js 是一款用于构建用户界面的渐进式 JavaScript 框架。它采用自底向上增量开发的设计，
+      核心库只关注视图层，非常容易上手，同时也能与第三方库或既有项目整合。
+      当与现代化的工具链和各种支持类库结合使用时，Vue 也完全能够为复杂的单页应用提供驱动。
+    </p>
+
+    <h3>中英文混排测试</h3>
+    <p>
+      这段文字混合了 English 和中文，用来测试 isTargetLangText 的混合语言判断逻辑。
+      如果段落中同时包含 Python 和中文两种语言，算法应该能够正确识别主要语言。
+      JavaScript 和 TypeScript 是现代 Web 开发的核心技术。
+    </p>
+
+    <blockquote>
+      学而不思则罔，思而不学则殆。
+      <br><br>
+      — 孔子《论语·为政》
+    </blockquote>
+
+  </div>
+</body>
+</html>

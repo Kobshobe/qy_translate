@@ -28,4 +28,16 @@ export const apiWrap = {
     eventToGoogle(c.req)
   },
 
+  /**
+   * 页面翻译：处理单个段落的翻译请求
+   * msg.req: { id, text, from, to, engine }
+   */
+  pageTrans: async (msg: any, port: any) => {
+    const { id, text, from, to, engine } = msg
+    const context = new Context({ text, from, to, type: 'pageTrans', engine })
+    await wrapTranslator.trans(context)
+    const result = context.res?.text || ''
+    const error = context.err || null
+    port.postMessage({ id, text: result, error })
+  },
 }

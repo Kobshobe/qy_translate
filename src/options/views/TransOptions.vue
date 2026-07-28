@@ -105,6 +105,18 @@
         @change="hook.OP.conf.changeMenuTrans"
         >{{ geti18nMsg("__menuTrans__") }}</x-checkbox
       >
+      <x-size-box width="30px" />
+      <x-checkbox
+        v-model="hook.OP.conf.C.pageTransMenu"
+        @change="hook.OP.conf.changePageTransMenu"
+        >{{ geti18nMsg("__pageTransMenu__") }}</x-checkbox
+      >
+      <x-size-box width="30px" />
+      <x-checkbox
+        v-model="hook.OP.conf.C.fbVisible"
+        @change="hook.OP.conf.changeFbVisible"
+        >{{ geti18nMsg("__showFloatingBall__") }}</x-checkbox
+      >
     </OptionItem>
     <OptionItem :title="`${geti18nMsg('__enterTrans__')}:`">
       <x-radio
@@ -174,7 +186,7 @@ onMounted(() => {
 .option-container {
   box-sizing: border-box;
   width: 100%;
-  padding: 70px 0 150px 100px;
+  padding: 30px 60px 150px 40px;
 }
 
 .colume-option {
