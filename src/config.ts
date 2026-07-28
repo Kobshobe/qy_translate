@@ -1,12 +1,12 @@
 import {IClientInfo} from '@/interface/trans'
 
 export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
-export const platform:'chrome'|'edge' = 'edge'
+export const platform:'chrome'|'edge' = 'chrome'
 export const clientVersion = (() => {
     try {
-        return chrome.runtime?.getManifest()?.version || '3.0.3'
+        return chrome.runtime?.getManifest()?.version || '3.1.0'
     } catch {
-        return '3.0.3'
+        return '3.1.0'
     }
 })()
 
