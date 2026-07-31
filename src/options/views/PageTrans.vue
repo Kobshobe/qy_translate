@@ -1,6 +1,6 @@
 <template>
   <div class="page-trans-container">
-    <h2 class="page-trans-title">{{ geti18nMsg('__pageTrans__') }}</h2>
+    <h2 class="page-trans-title">{{ geti18nMsg('__pageTrans__') }} <span class="beta-badge">BETA</span></h2>
 
     <!-- 悬浮球设置 -->
     <section class="page-trans-section">
@@ -91,6 +91,21 @@ const styleList = [
   font-size: 20px;
   color: var(--xx-text-color-primary);
   margin: 0 0 32px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .beta-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 3px 7px;
+    border-radius: 3px;
+    color: #fff;
+    background: $mainColor;
+    vertical-align: middle;
+  }
 }
 
 .page-trans-section {

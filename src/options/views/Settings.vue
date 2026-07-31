@@ -6,6 +6,7 @@
       </router-link>
       <router-link to="/settings/page-trans" class="sidebar-item" :class="{ active: $route.path === '/settings/page-trans' }">
         {{ geti18nMsg('__pageTrans__') }}
+        <span class="beta-badge">BETA</span>
       </router-link>
     </div>
     <div class="settings-content">
@@ -36,7 +37,9 @@ import { geti18nMsg } from '@/utils/share'
 }
 
 .sidebar-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 12px 24px;
   font-size: 14px;
   color: var(--xx-text-color-regular);
@@ -44,6 +47,18 @@ import { geti18nMsg } from '@/utils/share'
   cursor: pointer;
   transition: all 0.2s;
   border-left: 3px solid transparent;
+
+  .beta-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 2px 5px;
+    border-radius: 3px;
+    color: #fff;
+    background: $mainColor;
+    vertical-align: middle;
+  }
 
   &:hover {
     color: $mainColor;
