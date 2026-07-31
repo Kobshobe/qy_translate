@@ -4,7 +4,6 @@
     v-show="visible"
     id="qyt-floating-ball"
     ref="ballRef"
-    :title="titleText"
     :class="['qyt-fb-ball', sideClass, { 'qyt-fb-dragging': isDragging }]"
     :style="ballStyle"
     @click.prevent="onClick"
@@ -23,6 +22,7 @@
       draggable="false"
       class="qyt-fb-finish"
     />
+    <span class="qyt-fb-tip">{{ titleText }}</span>
     <button
       class="qyt-fb-settings"
       :title="settingsTitle"
@@ -315,6 +315,10 @@ function snapToSide(): void {
     opacity: 1;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     transform: scale(1.05);
+
+    .qyt-fb-tip {
+      opacity: 1;
+    }
   }
 }
 
@@ -409,12 +413,34 @@ function snapToSide(): void {
   }
 }
 
+.qyt-fb-tip {
+  all: initial;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1;
+}
+
 #qyt-floating-ball:hover .qyt-fb-settings {
   opacity: 1;
 }
 
-#qyt-floating-ball.qyt-fb-dragging .qyt-fb-settings {
-  opacity: 0 !important;
+#qyt-floating-ball.qyt-fb-dragging {
+  .qyt-fb-settings,
+  .qyt-fb-tip {
+    opacity: 0 !important;
+  }
 }
 </style>
 
