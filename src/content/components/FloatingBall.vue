@@ -280,10 +280,17 @@ function snapToSide(): void {
 
 <style lang="scss" scoped>
 #qyt-floating-ball {
+  all: initial;
   position: fixed;
   z-index: 2147483647;
+  box-sizing: content-box;
   width: 36px;
+  min-width: 36px;
+  max-width: 36px;
   height: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  margin: 0;
   border: none;
   border-radius: 8px;
   background: var(--xx-background-color);
@@ -298,6 +305,11 @@ function snapToSide(): void {
   padding: 0;
   outline: none;
   -webkit-appearance: none;
+  appearance: none;
+  flex-shrink: 0;
+  flex-grow: 0;
+  line-height: 1;
+  font-family: inherit;
 
   &:hover {
     opacity: 1;
@@ -323,28 +335,54 @@ function snapToSide(): void {
 }
 
 .qyt-fb-logo {
+  all: initial;
+  display: block;
   width: 24px;
+  min-width: 24px;
+  max-width: 24px;
   height: 24px;
+  min-height: 24px;
+  max-height: 24px;
+  margin: 0;
+  padding: 0;
+  border: none;
   pointer-events: none;
   border-radius: 5px;
+  box-sizing: content-box;
 }
 
 .qyt-fb-finish {
+  all: initial;
   position: absolute;
   right: 2px;
   bottom: 2px;
   width: 12px;
+  min-width: 12px;
+  max-width: 12px;
   height: 12px;
+  min-height: 12px;
+  max-height: 12px;
+  margin: 0;
+  padding: 0;
+  border: none;
   pointer-events: none;
+  box-sizing: content-box;
 }
 
 .qyt-fb-settings {
+  all: initial;
   position: absolute;
   top: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
+  box-sizing: content-box;
   width: 28px;
+  min-width: 28px;
+  max-width: 28px;
   height: 28px;
+  min-height: 28px;
+  max-height: 28px;
+  margin: 0;
   border-radius: 50%;
   border: none;
   background: var(--xx-background-color);
@@ -359,6 +397,11 @@ function snapToSide(): void {
   padding: 0;
   outline: none;
   -webkit-appearance: none;
+  appearance: none;
+  flex-shrink: 0;
+  flex-grow: 0;
+  line-height: 1;
+  font-family: inherit;
 
   &:hover {
     background: var(--xx-c-primary);

@@ -218,33 +218,62 @@ function setResultPostion() {
 <style scoped lang="scss">
 
 .tap-to-translate {
+  all: initial;
   position: fixed;
+  box-sizing: content-box;
   width: 23px;
+  min-width: 23px;
+  max-width: 23px;
   height: 23px;
+  min-height: 23px;
+  max-height: 23px;
+  margin: 0;
+  padding: 0;
+  border: none;
   background-size: cover;
   background-color: transparent;
 }
 
 .to-translate-icon {
   width: 23px;
+  min-width: 23px;
+  max-width: 23px;
   height: 23px;
-  background-color: rgba(0,0,0,0);
+  min-height: 23px;
+  max-height: 23px;
+  background-color: transparent;
 }
 
 .content-trans-loading {
+  all: initial;
   position: fixed;
   display: flex;
   justify-content: center;
   align-items: center;
+  box-sizing: content-box;
   width: 35px;
+  min-width: 35px;
+  max-width: 35px;
   height: 35px;
+  min-height: 35px;
+  max-height: 35px;
+  margin: 0;
+  padding: 0;
+  border: none;
   background-color: var(--xx-background-color);
   border-radius: 5px;
   box-shadow: 0 0 3px #444;
+  flex-shrink: 0;
+  flex-grow: 0;
 }
 
 .translator-result-box {
+  all: initial;
   position: fixed;
+  box-sizing: content-box;
+  margin: 0;
+  border: none;
+  padding: 0;
   background-color: var(--xx-background-color);
   box-shadow: 0 0 3px #444;
   border-radius: $transRadius;
