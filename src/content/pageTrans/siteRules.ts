@@ -1,57 +1,57 @@
 /**
- * siteRules -- 站点特定翻译规则
+ * siteRules — Site-specific translation rules
  *
- * 对于通用启发式算法覆盖不佳的站点,在此处添加自定义规则。
- * 每个规则定义该站点的"主要内容容器"和"排除选择器",
- * 确保只翻译页面正文,跳过导航、侧栏、页脚等 UI 元素。
+ * For sites where the generic heuristic algorithm doesn't cover well, add custom rules here.
+ * Each rule defines the site's "main content container" and "exclude selectors",
+ * ensuring only the page body is translated, skipping nav, sidebar, footer, and other UI elements.
  *
- * 新增站点步骤:
- * 1. 在 `ALL_SITE_RULES` 中添加一条规则
- * 2. 用 `siteRules.at(-1)` 获取最后一条规则确认
+ * Adding a new site:
+ * 1. Add a rule to `ALL_SITE_RULES`
+ * 2. Use `siteRules.at(-1)` to verify the last rule
  */
 
 /* ============================================================
-   类型定义
+   Type Definitions
    ============================================================ */
 export interface SiteRule {
-  /** 站点名称(仅用于标识) */
+  /** Site name (for identification only) */
   name: string
-  /** 匹配的域名列表(支持子域名) */
+  /** Matching domain list (supports subdomains) */
   domains: string[]
-  /** 主要内容容器的 CSS 选择器(选中的容器内才提取段落) */
+  /** CSS selector for the main content container (paragraphs extracted only within it) */
   mainSelector?: string
-  /** 额外排除的选择器(在容器内进一步排除非内容区域) */
+  /** Additional exclude selectors (further exclude non-content areas within the container) */
   excludeSelectors?: string[]
   /**
-   * 自定义提取函数(可选)。
-   * 当 mainSelector + excludeSelectors 不够用时,
-   * 完全接管提取逻辑。
-   * 返回所有可翻译的段落节点。
+   * Custom extraction function (optional).
+   * When mainSelector + excludeSelectors are insufficient,
+   * completely takes over the extraction logic.
+   * Returns all translatable paragraph nodes.
    */
   customExtract?: () => Element[]
 }
 
 /* ============================================================
-   GitHub 规则
+   GitHub Rule
    ============================================================ */
 const githubRule: SiteRule = {
   name: 'GitHub',
   domains: ['github.com', 'www.github.com'],
 
-  // 仓库详情页只翻译 About 描述 + README.md
+  // Translate About description + all markdown content (README, release previews, comments, etc.)
   customExtract: () => {
     const result: Element[] = []
     const visited = new Set<Element>()
     const TARGET = 'p, h1, h2, h3, h4, h5, h6, li, td, th, blockquote, dt, dd'
 
-    // 1. About 描述
-    // GitHub 使用 Primer CSS（CSS Modules 哈希类名），通过内容匹配找到 About 段落
+    // 1. About description
+    // GitHub uses Primer CSS (CSS Modules hashed class names); find the About paragraph by content match
     const aboutHeadings = document.querySelectorAll<Element>('h2, h3, h4')
     for (const heading of aboutHeadings) {
       if (/^about$/i.test(heading.textContent?.trim() || '')) {
-        const section = heading.parentElement
-        if (!section) break
-        const aboutP = section.querySelector<Element>('p')
+        const aboutSection = heading.parentElement
+        if (!aboutSection) break
+        const aboutP = aboutSection.querySelector<Element>('p')
         if (aboutP && !visited.has(aboutP) && aboutP.textContent?.trim()) {
           visited.add(aboutP)
           result.push(aboutP)
@@ -60,10 +60,11 @@ const githubRule: SiteRule = {
       }
     }
 
-    // 2. README.md
-    const readme = document.querySelector<Element>('article.markdown-body')
-    if (readme) {
-      const els = readme.querySelectorAll<Element>(TARGET)
+    // 2. All .markdown-body containers (article/README, section/release previews, comments, etc.)
+    //    Release body previews on the feed page use <section class="markdown-body">
+    const markdownBodies = document.querySelectorAll<Element>('.markdown-body')
+    for (const md of markdownBodies) {
+      const els = md.querySelectorAll<Element>(TARGET)
       for (const el of els) {
         if (visited.has(el)) continue
         if (!el.textContent?.trim()) continue
@@ -72,12 +73,29 @@ const githubRule: SiteRule = {
       }
     }
 
+    // 3. Plain-text descriptions in the feed (repo descriptions, etc. — <div> without markdown wrapper)
+    //    Only extract pure text leaf nodes (no child elements) to avoid breaking flex/grid layouts
+    const mainArea = document.querySelector('main, [role="main"], article') || document.body
+    const leafDivs = mainArea.querySelectorAll<Element>('div')
+    for (const el of leafDivs) {
+      if (visited.has(el)) continue
+      if (el.closest('.markdown-body')) continue
+      if (el.closest('nav, header, footer, aside, [role="navigation"], [role="banner"], [role="contentinfo"]')) continue
+      // Only extract divs with zero child elements (text-only, not layout containers / card frames)
+      if (el.children.length > 0) continue
+      const text = el.textContent?.trim() || ''
+      if (text.length < 30) continue
+      if (/^[\d\s\p{P}]+$/u.test(text)) continue
+      visited.add(el)
+      result.push(el)
+    }
+
     return result
   },
 }
 
 /* ============================================================
-   Wikipedia 规则
+   Wikipedia Rule
    ============================================================ */
 const wikipediaRule: SiteRule = {
   name: 'Wikipedia',
@@ -87,33 +105,33 @@ const wikipediaRule: SiteRule = {
     'ko.wikipedia.org', 'es.wikipedia.org',
   ],
 
-  // Wikipedia 的主要内容区
+  // Wikipedia main content area
   mainSelector: '#mw-content-text, div.mw-parser-output',
 
   excludeSelectors: [
-    // 目录
+    // Table of contents
     '.toc', '#toc', '.mw-toc',
-    // 侧边栏
+    // Sidebar
     '.sidebar', '.mw-sidebar',
-    // 信息框(右侧的信息卡片)
+    // Infobox (right-side info card)
     '.infobox', '.mw-infobox',
-    // 导航框
+    // Navigation box
     '.navbox', '.mw-navbox',
-    // 脚注
+    // Footnotes
     '.reflist', '.references',
-    // 编辑链接
+    // Edit links
     '.mw-editsection',
-    // 页面底部导航
+    // Page bottom navigation
     '.catlinks', '.mw-normal-catlinks',
-    // 姊妹项目链接
+    // Sister project links
     '.sisterproject',
-    // 短描述
+    // Short description
     '.shortdescription',
   ],
 }
 
 /* ============================================================
-   YouTube 规则
+   YouTube Rule
    ============================================================ */
 const youtubeRule: SiteRule = {
   name: 'YouTube',
@@ -130,12 +148,12 @@ const youtubeRule: SiteRule = {
     'ytd-offer-module-renderer',
   ],
 
-  // YouTube 正文使用 yt-formatted-string（自定义元素）存放文本，
-  // 不是标准 <p>/<h1> 等。需要特殊处理。
+  // YouTube body text uses yt-formatted-string (custom element),
+  // not standard <p>/<h1> etc. Needs special handling.
   customExtract: () => {
     const result: Element[] = []
     const visited = new Set<Element>()
-    // 排除选择器（与 excludeSelectors 保持一致，额外加上用户名区域）
+    // Exclude selectors (consistent with excludeSelectors, plus username area)
     const skipSel = '#related, #secondary, ytd-watch-next-secondary-results-renderer, ' +
       '#header, #header-author, [id*=author], #author-button, #author-text, #top-level-buttons, ' +
       '#masthead-container, #chat-container, #live-chat-iframe, ' +
@@ -145,21 +163,21 @@ const youtubeRule: SiteRule = {
     const primary = document.querySelector('#primary')
     if (!primary) return result
 
-    // 1. 视频标题
+    // 1. Video title
     const title = primary.querySelector<Element>('h1 yt-formatted-string')
     if (title && !visited.has(title)) {
       visited.add(title)
       if (title.textContent?.trim()) result.push(title)
     }
 
-    // 2. 视频描述（展开后会有更多内容）
+    // 2. Video description (more content after expanding)
     const desc = primary.querySelector<Element>('#description yt-formatted-string')
     if (desc && !visited.has(desc)) {
       visited.add(desc)
       if (desc.textContent?.trim()) result.push(desc)
     }
 
-    // 3. 评论区只取正文（排除标题计数、用户名、操作按钮）
+    // 3. Comment body only (exclude title count, username, action buttons)
     const commentTexts = primary.querySelectorAll<Element>(
       '#comments #content-text, #comments #comment-content-text'
     )
@@ -170,7 +188,7 @@ const youtubeRule: SiteRule = {
       if (text && text.length > 3) result.push(el)
     }
 
-    // 4. 标准标签回退（如果 YouTube 未来改版）
+    // 4. Standard tag fallback (in case YouTube redesigns)
     const standard = primary.querySelectorAll<Element>(
       'p, h1, h2, h3, h4, h5, h6, li, td, th, blockquote'
     )
@@ -185,7 +203,7 @@ const youtubeRule: SiteRule = {
 }
 
 /* ============================================================
-   Reddit 规则
+   Reddit Rule
    ============================================================ */
 const redditRule: SiteRule = {
   name: 'Reddit',
@@ -194,21 +212,21 @@ const redditRule: SiteRule = {
   mainSelector: '[data-testid="post-container"], .link, .usertext-body, .md',
 
   excludeSelectors: [
-    // 侧边栏
+    // Sidebar
     '.side',
-    // 广告
+    // Ads
     '.ad-container',
-    // 导航
+    // Navigation
     '#header',
-    // 社区详情侧栏
+    // Community details sidebar
     '[data-testid="subreddit-sidebar"]',
-    // 特惠信息
+    // Premium banner
     '.premium-banner',
   ],
 }
 
 /* ============================================================
-   所有站点规则列表
+   All Site Rules
    ============================================================ */
 const ALL_SITE_RULES: SiteRule[] = [
   githubRule,
@@ -218,14 +236,14 @@ const ALL_SITE_RULES: SiteRule[] = [
 ]
 
 /* ============================================================
-   域名匹配
+   Domain Matching
    ============================================================ */
 function matchDomain(hostname: string, domains: string[]): boolean {
   return domains.some((d) => hostname === d || hostname.endsWith('.' + d))
 }
 
 /* ============================================================
-   获取当前站点对应的规则
+   Get the rule for the current site
    ============================================================ */
 export function getSiteRule(): SiteRule | null {
   const hostname = location.hostname.toLowerCase()
@@ -238,7 +256,7 @@ export function getSiteRule(): SiteRule | null {
 }
 
 /* ============================================================
-   使用站点规则提取段落节点
+   Extract paragraph nodes using the site rule
    ============================================================ */
 export function extractWithSiteRule(
   rule: SiteRule
@@ -249,23 +267,23 @@ export function extractWithSiteRule(
     'dt', 'dd', 'caption',
   ])
 
-  // 如果规则有 customExtract,直接使用
+  // If the rule has customExtract, use it directly
   if (rule.customExtract) {
     return rule.customExtract()
   }
 
-  // 根据 mainSelector 找到容器
+  // Find containers by mainSelector
   const containers: Element[] = []
   if (rule.mainSelector) {
     const found = document.querySelectorAll<Element>(rule.mainSelector)
     found.forEach((el) => containers.push(el))
   }
   if (containers.length === 0) {
-    // fallback: 使用 document.body
+    // fallback: use document.body
     containers.push(document.body)
   }
 
-  // 合并 excludeSelectors
+  // Merge excludeSelectors
   const excludeSel = rule.excludeSelectors?.join(', ') || ''
 
   const result: Element[] = []
@@ -276,13 +294,13 @@ export function extractWithSiteRule(
     for (const el of elements) {
       if (visited.has(el)) continue
 
-      // 排除指定选择器
+      // Exclude specified selectors
       if (excludeSel && el.closest(excludeSel)) {
         visited.add(el)
         continue
       }
 
-      // 排除深层嵌套--只保留最内层的可翻译节点
+      // Exclude deep nesting — only keep the innermost translatable node
       let parent = el.parentElement
       let skip = false
       while (parent && parent !== container) {
