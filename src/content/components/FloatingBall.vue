@@ -1,7 +1,7 @@
 <template>
   <ThemeElement>
     <button
-    v-show="visible"
+    v-show="showBall"
     id="qyt-floating-ball"
     ref="ballRef"
     :class="['qyt-fb-ball', sideClass, { 'qyt-fb-dragging': isDragging }]"
@@ -46,19 +46,23 @@ import SvgIcon from '@/components/base/SvgIcon.vue'
 let engine: PageTransEngine | null = null
 
 /* ============================================================
-   资源
+   Assets
    ============================================================ */
 const logoUrl = chrome.runtime.getURL('assets/images/logo.png')
 const finishUrl = chrome.runtime.getURL('assets/images/finish.svg')
 
 /* ============================================================
-   响应式状态
+   Reactive state
    ============================================================ */
 const ballRef = ref<HTMLButtonElement | null>(null)
 const isDragging = ref(false)
 const visible = ref(true)
 const side = ref<'left' | 'right'>('right')
 const engineStatus = ref<string>('idle')
+
+// Hide the floating ball while any element is in fullscreen (Fullscreen API)
+const fullscreenHides = ref(false)
+const showBall = computed(() => visible.value && !fullscreenHides.value)
 
 const ballStyle = reactive({
   left: 'auto',
@@ -71,7 +75,7 @@ const ballStyle = reactive({
 const toggling = ref(false)
 
 /* ============================================================
-   计算属性
+   Computed properties
    ============================================================ */
 const sideClass = computed(() => `qyt-fb-${side.value}`)
 
@@ -94,13 +98,33 @@ const showFinishBadge = computed(() => engineStatus.value === 'translated')
 const settingsTitle = chrome.i18n.getMessage('__options__')
 
 /* ============================================================
-   初始化
+   Initialization
    ============================================================ */
 let messageHandler: ((msg: any, sender: chrome.runtime.MessageSender) => void) | null = null
 
+/* ============================================================
+   Fullscreen detection
+   ============================================================ */
+function updateFullscreenState(): void {
+  const el =
+    document.fullscreenElement ||
+    (document as Document & { webkitFullscreenElement: Element | null }).webkitFullscreenElement
+  // Hide the ball when any element enters fullscreen (video/image/iframe/whole page, etc.)
+  fullscreenHides.value = !!el
+}
+
+function onFullscreenChange(): void {
+  updateFullscreenState()
+}
+
 onMounted(async () => {
-  // 只在顶层窗口初始化，iframe 内跳过
+  // Initialize only in the top window; skip iframes
   if (window.top !== window.self) return
+
+  // Fullscreen API listeners (with Safari prefix fallback)
+  document.addEventListener('fullscreenchange', onFullscreenChange)
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange)
+  updateFullscreenState()
 
   engine = new PageTransEngine()
   engine.onStatusChange = (status) => {
@@ -108,7 +132,7 @@ onMounted(async () => {
   }
   await engine.init()
 
-  // 从 storage 加载浮球配置
+  // Load floating ball config from storage
   const result = await chrome.storage.sync.get(['fbVisible', 'fbDefaultSide'])
   if (result.fbDefaultSide === 'left') {
     side.value = 'left'
@@ -119,10 +143,10 @@ onMounted(async () => {
     visible.value = false
   }
 
-  // 监听 storage 变化
+  // Listen for storage changes
   chrome.storage.onChanged.addListener(storageChangeHandler)
 
-  // 监听来自 background 的消息（快捷键等）
+  // Listen for messages from background (shortcuts, etc.)
   messageHandler = (msg, sender) => {
     if (sender.id !== chrome.runtime.id) return
     switch (msg.action) {
@@ -143,6 +167,8 @@ onMounted(async () => {
 
 onUnmounted(() => {
   chrome.storage.onChanged.removeListener(storageChangeHandler)
+  document.removeEventListener('fullscreenchange', onFullscreenChange)
+  document.removeEventListener('webkitfullscreenchange', onFullscreenChange)
   if (messageHandler) {
     chrome.runtime.onMessage.removeListener(messageHandler)
     messageHandler = null
@@ -152,7 +178,7 @@ onUnmounted(() => {
 })
 
 /* ============================================================
-   Storage 变化监听
+   Storage change listener
    ============================================================ */
 function storageChangeHandler(
   changes: { [key: string]: chrome.storage.StorageChange },
@@ -176,7 +202,7 @@ function storageChangeHandler(
     }
   }
 
-  // 样式/模式配置变更
+  // Style/mode config changes
   if (changes.pageTransStyle) {
     engine?.updateConfig({ transStyle: changes.pageTransStyle.newValue })
     engine?.renderEngine.applyStyle(changes.pageTransStyle.newValue)
@@ -191,7 +217,7 @@ function storageChangeHandler(
 }
 
 /* ============================================================
-   设置按钮
+   Settings button
    ============================================================ */
 function openSettings(): void {
   const port = chrome.runtime.connect({ name: 'openOptionsPage' })
@@ -200,7 +226,7 @@ function openSettings(): void {
 }
 
 /* ============================================================
-   点击处理
+   Click handling
    ============================================================ */
 async function onClick(): Promise<void> {
   if (isDragging.value) {
@@ -217,7 +243,7 @@ async function onClick(): Promise<void> {
 }
 
 /* ============================================================
-   拖拽逻辑
+   Drag logic
    ============================================================ */
 function onDragStart(e: MouseEvent): void {
   const ball = ballRef.value
@@ -254,7 +280,7 @@ function onDragStart(e: MouseEvent): void {
 }
 
 /* ============================================================
-   吸附到最近的一侧
+   Snap to the nearest side
    ============================================================ */
 function snapToSide(): void {
   const ball = ballRef.value
@@ -322,17 +348,17 @@ function snapToSide(): void {
   }
 }
 
-/* 吸附左侧：去掉左侧圆角 */
+/* Snap left: remove left rounded corners */
 #qyt-floating-ball.qyt-fb-left {
   border-radius: 0 8px 8px 0;
 }
 
-/* 吸附右侧：去掉右侧圆角 */
+/* Snap right: remove right rounded corners */
 #qyt-floating-ball.qyt-fb-right {
   border-radius: 8px 0 0 8px;
 }
 
-/* 拖拽中：关闭 transition */
+/* Dragging: disable transition */
 #qyt-floating-ball.qyt-fb-dragging {
   transition: none !important;
   opacity: 0.9;
@@ -444,7 +470,7 @@ function snapToSide(): void {
 }
 </style>
 
-<!-- 全局样式：拖拽时阻止页面文本选中 -->
+<!-- Global style: prevent text selection while dragging -->
 <style lang="scss">
 body.qyt-fb-dragging-active {
   user-select: none !important;
