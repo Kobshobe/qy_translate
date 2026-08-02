@@ -160,6 +160,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { XMessage } from '@/xxui/index'
 import { geti18nMsg } from '@/utils/share'
 import { eventToGoogle } from '@/utils/analytics'
+import { defaultTransEngine } from '@/config'
 const llmList = ref<ILLMConfig[]>([])
 const dialogVisible = ref(false)
 const isEditing = ref(false)
@@ -276,11 +277,10 @@ async function deleteItem(item: ILLMConfig) {
       engine_model: item.model,
     },
   })
-
-  // If the deleted engine is currently the default, fallback to Google Translate
+  
   const { transEngine } = await chrome.storage.sync.get('transEngine')
   if (transEngine === 'llm__' + item.id) {
-    await chrome.storage.sync.set({ transEngine: 'ggTrans__common' })
+    await chrome.storage.sync.set({ transEngine: defaultTransEngine })
   }
 }
 

@@ -2,6 +2,7 @@ import { IAllStorage } from '@/interface/trans'
 import { v4 } from "uuid";
 import { eventToGoogle } from './analytics'
 import { languages } from '@/translator/trans_base'
+import { defaultTransEngine } from '@/config'
 
 export async function getTransConf(): Promise<IAllStorage> {
     const conf: IAllStorage = await getFromeStorage([
@@ -20,7 +21,7 @@ export async function getTransConf(): Promise<IAllStorage> {
     conf.fromLang || (conf.fromLang = 'auto');
     conf.toLang || (conf.toLang = '__auto__');
     conf.mode || (conf.mode = 'simple');
-    conf.transEngine || (conf.transEngine = 'bing__common');
+    conf.transEngine || (conf.transEngine = defaultTransEngine);
     conf.keyDownTrans || (conf.keyDownTrans = 'Enter');
     if (!conf.mainLang) {
         [conf.mainLang, conf.secondLang] = setLang();

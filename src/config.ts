@@ -1,14 +1,12 @@
 import {IClientInfo} from '@/interface/trans'
+import manifest from '@/background/manifest.json'
 
 export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
 export const platform:'chrome'|'edge' = 'edge'
-export const clientVersion = (() => {
-    try {
-        return chrome.runtime?.getManifest()?.version || '3.1.1'
-    } catch {
-        return '3.1.1'
-    }
-})()
+export const clientVersion = manifest.version
+
+/** 默认翻译引擎（单一来源，设置页显示与实际翻译回退保持一致） */
+export const defaultTransEngine = 'bing__common'
 
 export const client:IClientInfo = getClient()
 export const os:'mac'|'windows'|'linux'|'unknow' = getOS()

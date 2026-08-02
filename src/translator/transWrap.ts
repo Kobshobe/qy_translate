@@ -5,6 +5,7 @@ import {getFromeStorage} from '@/utils/chromeApi'
 import {Context} from '@/api/context'
 import { GoogleTrans } from './google'
 import { LLMTrans } from './llmTrans'
+import { defaultTransEngine } from '@/config'
 
 class WrapTranslator {
     baidu: BaiduTrans
@@ -39,7 +40,7 @@ class WrapTranslator {
       if (!info.engine) {
         const conf = await getFromeStorage(['transEngine'])
         info.engine = conf.transEngine
-        info.engine || (info.engine = 'ggTrans__common')
+        info.engine || (info.engine = defaultTransEngine)
       }
       
       const engineInfo = info.engine ? info.engine.split("__") : undefined

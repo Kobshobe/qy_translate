@@ -21,6 +21,7 @@ import { RenderEngine } from './renderEngine'
 import { isTargetLangText } from '@/translator/trans_base'
 import { getSiteRule, extractWithSiteRule } from './siteRules'
 import { Context } from '@/api/context'
+import { defaultTransEngine } from '@/config'
 
 /* ============================================================
    可翻译的目标标签(块级文本元素)
@@ -60,6 +61,7 @@ export class PageTransEngine {
   totalCount = 0
   config: PageTransConfig = { ...defaultPageTransConfig }
   targetLang = 'zh-CN'
+  currentEngine: string | null = null
 
   /* ---- 依赖 ---- */
   renderEngine: RenderEngine
@@ -420,6 +422,17 @@ export class PageTransEngine {
     }
   }
 
+  /* ---- 解析默认翻译引擎 ---- */
+  private async resolveDefaultEngine(): Promise<string> {
+    try {
+      const conf = await chrome.storage.sync.get(['transEngine'])
+      // 默认引擎与设置页(getTransConf)保持一致
+      return conf.transEngine || defaultTransEngine
+    } catch {
+      return defaultTransEngine
+    }
+  }
+
   /* ---- 判断段落是否值得翻译 ---- */
   private shouldTranslate(text: string): boolean {
     if (text.length < MIN_TEXT_LENGTH) return false
@@ -453,11 +466,16 @@ export class PageTransEngine {
     this.processedCount = 0
     const translateStartTime = Date.now()
 
+    // 未显式指定引擎时，与 background 保持一致（storage.transEngine，默认 defaultTransEngine）
+    const resolvedEngine = engine || (await this.resolveDefaultEngine())
+    engine = resolvedEngine
+    this.currentEngine = resolvedEngine
+
     // 分析: 开始批量翻译
     this.sendAnalytic('pageTrans_start', {
       total: pending.length,
       targetLang: this.targetLang,
-      engine: engine || '',
+      engine,
       hostname: location.hostname,
     })
 
@@ -484,7 +502,7 @@ export class PageTransEngine {
       failed,
       duration,
       targetLang: this.targetLang,
-      engine: engine || '',
+      engine,
       hostname: location.hostname,
     })
   }
@@ -552,7 +570,7 @@ export class PageTransEngine {
       let settled = false
 
       // LLM 引擎翻译长文本可能较慢，使用更长超时
-      const isLLMEngine = engine === '__llm__'
+      const isLLMEngine = !!engine && engine.startsWith('llm__')
       const timeoutMs = isLLMEngine ? 30000 : 15000
       const timer = setTimeout(() => {
         if (settled) return
@@ -657,7 +675,7 @@ export class PageTransEngine {
     const { batchSize, concurrency } = this.config
     for (let i = 0; i < pending.length; i += batchSize) {
       const batch = pending.slice(i, i + batchSize)
-      await this.translateBatch(batch, concurrency)
+      await this.translateBatch(batch, concurrency, this.currentEngine || undefined)
       this.renderEngine.renderBatch(batch, this.config.displayMode, this.config.transStyle)
     }
   }
