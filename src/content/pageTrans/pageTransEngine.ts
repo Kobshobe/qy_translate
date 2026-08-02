@@ -149,15 +149,19 @@ export class PageTransEngine {
      主要内容容器查找策略
      ============================================================ */
   private findMainContentContainer(): Element | null {
-    // 1. 优先使用语义化标签
-    const candidates = [
-      document.querySelector<Element>('[role="main"]'),
-      document.querySelector<Element>('main'),
-      document.querySelector<Element>('article'),
-    ].filter(Boolean)
-    if (candidates.length > 0) return candidates[0]!
+    // 1. 显式语义容器（role="main" / <main>）——语义明确，直接信任
+    const semantic =
+      document.querySelector<Element>('[role="main"]') ||
+      document.querySelector<Element>('main')
+    if (semantic) return semantic
 
-    // 2. 查找文本最密集的区域（排除非内容区）
+    // 2. <article> 常被用作卡片/列表项（商品卡、统计卡、新闻摘要等），
+    //    页面中第一个 <article> 可能只是一个小卡片，不能代表整页正文。
+    //    只有当它包含足够的正文内容时才将其视为正文容器。
+    const article = document.querySelector<Element>('article')
+    if (article && this.isContentRichContainer(article)) return article
+
+    // 3. 查找文本最密集的区域（排除非内容区）
     const contentLikeTags = ['div', 'section', 'article']
     let best: Element | null = null
     let bestScore = 0
@@ -176,7 +180,33 @@ export class PageTransEngine {
       }
     }
 
+    // 4. 覆盖度检查：落地页/卡片网格页往往没有 <main>，正文分散在多个兄弟
+    //    <section>/<div> 中（hero、feature、faq…），密度算法只会选中其中一个。
+    //    若最优容器只覆盖了页面可翻译节点的一小部分，则返回 null，
+    //    让调用方退回 document.body 全页扫描（isInNonContentArea 负责过滤
+    //    导航、页眉、页脚、侧边栏等非内容区）。
+    if (best) {
+      const TARGET =
+        'p, li, h1, h2, h3, h4, h5, h6, td, th, blockquote, figcaption, dt, dd, caption'
+      const bestTargets = best.querySelectorAll(TARGET).length
+      const bodyTargets = document.body.querySelectorAll(TARGET).length
+      if (bestTargets < bodyTargets * 0.5) {
+        return null
+      }
+    }
+
     return best
+  }
+
+  /** 判断元素是否包含足够的正文内容（避免把卡片/列表项当成整页容器） */
+  private isContentRichContainer(el: Element): boolean {
+    const text = el.textContent?.trim() || ''
+    if (text.length < 100) return false
+    // 长文本(>=200)或包含多个块级文本节点才认为是正文容器
+    const targetCount = el.querySelectorAll(
+      'p, li, h1, h2, h3, h4, h5, h6, blockquote'
+    ).length
+    return text.length >= 200 || targetCount >= 3
   }
 
   /** 合并的非内容区选择器（单次 closest() 匹配全部） */
