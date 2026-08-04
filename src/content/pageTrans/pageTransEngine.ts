@@ -52,6 +52,17 @@ const SKIP_ROLES = new Set([
 const MIN_TEXT_LENGTH = 2
 const MAX_TEXT_LENGTH = 5000
 
+/** How long the "auto-translate this domain" intent stays active (6h) */
+const AUTO_TRANSLATE_TTL = 6 * 60 * 60 * 1000
+
+/**
+ * sessionStorage key for the auto-translate intent.
+ * sessionStorage is per-tab, in-memory and cleared when the tab closes, but it
+ * survives re-injection (joinContent re-runs on some same-tab navigations) and
+ * page reloads within the same tab.
+ */
+const PAGE_TRANS_ACTIVE_KEY = 'qyt-pageTransActive'
+
 /* ============================================================
    PageTransEngine
    ============================================================ */
@@ -78,6 +89,10 @@ export class PageTransEngine {
   private observerDebounceTimer: ReturnType<typeof setTimeout> | null = null
   private observerSelector = ''
 
+  /* ---- Same-domain navigation (SPA) ---- */
+  private navCheckTimer: ReturnType<typeof setInterval> | null = null
+  private lastUrl = ''
+
   /* ---- Callbacks ---- */
   onProgress?: (done: number, total: number) => void
   onStatusChange?: (status: EngineStatus) => void
@@ -97,6 +112,12 @@ export class PageTransEngine {
     const result = await chrome.storage.sync.get(['toLang', 'mainLang'])
     this.targetLang = result.toLang || result.mainLang || 'zh-CN'
     this.connectPort()
+
+    // Same-domain navigation auto-translates: the intent is kept in sessionStorage
+    // (per-tab, temporary) because some same-tab navigations re-inject the content
+    // script and would lose an in-memory-only flag.
+    this.startNavigationListener()
+    this.maybeAutoTranslate()
   }
 
   /** Load page translation config from storage */
@@ -555,6 +576,9 @@ export class PageTransEngine {
 
     this.setStatus('translated')
 
+    // Remember the "translated" intent so same-domain navigation auto-translates
+    this.persistActive(true)
+
     // Start dynamic content observation
     this.startDynamicObserver()
 
@@ -827,6 +851,8 @@ export class PageTransEngine {
     this.totalCount = 0
     this.processedCount = 0
     this.setStatus('idle')
+    // Clear the auto-translate intent for this domain
+    this.persistActive(false)
   }
 
   /* ============================================================
@@ -856,8 +882,81 @@ export class PageTransEngine {
       this.port = null
     }
     this.stopDynamicObserver()
+    this.stopNavigationListener()
     this.paragraphs = []
     this.setStatus('idle')
+  }
+
+  /* ============================================================
+     Auto-translate after same-domain navigation
+     ============================================================ */
+
+  /** Save/clear the "translated" intent for the current domain (tab-scoped sessionStorage) */
+  private persistActive(active: boolean): void {
+    try {
+      if (active) {
+        sessionStorage.setItem(
+          PAGE_TRANS_ACTIVE_KEY,
+          JSON.stringify({ hostname: location.hostname, ts: Date.now() })
+        )
+      } else {
+        sessionStorage.removeItem(PAGE_TRANS_ACTIVE_KEY)
+      }
+    } catch {
+      // ignore (sandboxed / opaque-origin pages may block storage)
+    }
+  }
+
+  /** On (re-)injection: auto-translate if this domain was translated recently in this tab */
+  private maybeAutoTranslate(): void {
+    try {
+      const raw = sessionStorage.getItem(PAGE_TRANS_ACTIVE_KEY)
+      if (!raw) return
+      const active = JSON.parse(raw) as { hostname: string; ts: number }
+      if (this.destroyed) return
+      if (!active || active.hostname !== location.hostname) return
+      if (Date.now() - active.ts > AUTO_TRANSLATE_TTL) return
+      this.extract()
+      this.translate().catch(() => {})
+    } catch {
+      // ignore (sandboxed / opaque-origin pages may block storage)
+    }
+  }
+
+  /** Watch for same-domain navigation (SPA pushState / popstate) */
+  private startNavigationListener(): void {
+    this.stopNavigationListener()
+    this.lastUrl = location.href
+    this.navCheckTimer = setInterval(() => {
+      if (this.destroyed || location.href === this.lastUrl) return
+      this.lastUrl = location.href
+      this.handleUrlChange()
+    }, 500)
+  }
+
+  private stopNavigationListener(): void {
+    if (this.navCheckTimer) {
+      clearInterval(this.navCheckTimer)
+      this.navCheckTimer = null
+    }
+  }
+
+  /** Re-translate after same-domain SPA navigation (only while translated) */
+  private handleUrlChange(): void {
+    if (this.status !== 'translated') return
+    // The SPA may have replaced <main> entirely, so re-locate and re-observe
+    // the container; this also catches content rendered after the URL change
+    this.startDynamicObserver()
+    // Extract + translate, retrying briefly to catch late-rendered content
+    let attempts = 0
+    const tryTranslate = (): void => {
+      if (this.destroyed || this.status !== 'translated') return
+      this.extract()
+      this.translate().catch(() => {})
+      attempts++
+      if (attempts < 3) setTimeout(tryTranslate, 1500)
+    }
+    tryTranslate()
   }
 
   /* ============================================================
