@@ -209,20 +209,87 @@ const redditRule: SiteRule = {
   name: 'Reddit',
   domains: ['reddit.com', 'www.reddit.com', 'old.reddit.com'],
 
-  mainSelector: '[data-testid="post-container"], .link, .usertext-body, .md',
+  // New shreddit UI renders all content inside <main>; the legacy rule matched
+  // .md which only exists in the sidebar now, so the feed/post pages were never
+  // translated. mainSelector is used by the dynamic observer.
+  mainSelector: 'main, [id="main-content"]',
 
   excludeSelectors: [
     // Sidebar
-    '.side',
+    'aside, .side, [data-testid="subreddit-sidebar"]',
     // Ads
-    '.ad-container',
+    '.ad-container, shreddit-ad-post',
     // Navigation
     '#header',
-    // Community details sidebar
-    '[data-testid="subreddit-sidebar"]',
     // Premium banner
     '.premium-banner',
+    // Author/credit bars & duplicate overlay/screen-reader text
+    '[slot="credit-bar"], a[slot="full-post-link"], faceplate-screen-reader-content, shreddit-post-flair',
   ],
+
+  customExtract: () => {
+    const result: Element[] = []
+    const visited = new Set<Element>()
+    const TARGET =
+      'p, h1, h2, h3, h4, h5, h6, li, td, th, blockquote, dt, dd, figcaption'
+
+    const isExcluded = (el: Element) =>
+      el.closest(
+        'aside, .side, [data-testid="subreddit-sidebar"], .ad-container, shreddit-ad-post, #header, .premium-banner, [slot="credit-bar"], a[slot="full-post-link"], faceplate-screen-reader-content, shreddit-post-flair'
+      )
+
+    // ---- New shreddit UI ----
+    if (document.querySelector('shreddit-post')) {
+      // 1. Post titles (feed: <a slot=title>, post page: <h1 slot=title>)
+      const titles = document.querySelectorAll<Element>('shreddit-post [slot="title"]')
+      for (const el of titles) {
+        if (visited.has(el) || isExcluded(el)) continue
+        if (!el.textContent?.trim()) continue
+        visited.add(el)
+        result.push(el)
+      }
+
+      // 2. Feed body previews (self-post snippets; skip link-post pure URLs)
+      const previews = document.querySelectorAll<Element>('shreddit-post div[class*="truncate"]')
+      for (const el of previews) {
+        if (visited.has(el) || isExcluded(el)) continue
+        const text = el.textContent?.trim() ?? ''
+        if (!text || /^https?:\/\//i.test(text)) continue
+        visited.add(el)
+        result.push(el)
+      }
+
+      // 3. Post body + comment bodies (rtjson text blocks & .md within main)
+      const main = document.querySelector('main, [id="main-content"]') || document.body
+      const textRoots = main.querySelectorAll<Element>('[id*="-rtjson-content"], .md')
+      for (const root of textRoots) {
+        const els = root.querySelectorAll<Element>(TARGET)
+        for (const el of els) {
+          if (visited.has(el) || isExcluded(el)) continue
+          if (!el.textContent?.trim()) continue
+          visited.add(el)
+          result.push(el)
+        }
+      }
+      return result
+    }
+
+    // ---- Legacy UI (old.reddit.com) ----
+    const legacyRoots = document.querySelectorAll<Element>(
+      '.link, .usertext-body, .md, .comment'
+    )
+    for (const root of legacyRoots) {
+      const els = root.querySelectorAll<Element>(TARGET)
+      for (const el of els) {
+        if (visited.has(el)) continue
+        if (el.closest('.side, .ad-container, #header')) continue
+        if (!el.textContent?.trim()) continue
+        visited.add(el)
+        result.push(el)
+      }
+    }
+    return result
+  },
 }
 
 /* ============================================================
