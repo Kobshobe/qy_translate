@@ -15,6 +15,7 @@
         geti18nMsg("contactUs")
       }}</a>
     </div>
+    <div class="other-version">v{{ clientVersion }}</div>
   </div>
 </template>
 
@@ -23,6 +24,7 @@ import { defineComponent } from "vue";
 import { geti18nMsg } from "@/utils/share";
 import { eventToGoogle } from "@/utils/analytics";
 import { openPDFReader } from "@/utils/chromeApi";
+import { clientVersion } from "@/config";
 
 function toGitHub() {
   window.open(`https://github.com/Kobshobe/qy_translate`);
@@ -72,6 +74,12 @@ defineComponent({name:'other-view'})
       padding-bottom: 20px;
       font-weight: bold;
     }
+  }
+  .other-version {
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--xx-text-color-placeholder);
+    user-select: none;
   }
 }
 
