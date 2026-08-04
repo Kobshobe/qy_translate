@@ -293,6 +293,47 @@ const redditRule: SiteRule = {
 }
 
 /* ============================================================
+   X (Twitter) Rule
+   ============================================================ */
+const xRule: SiteRule = {
+  name: 'X',
+  domains: ['x.com', 'twitter.com', 'www.x.com', 'www.twitter.com', 'mobile.twitter.com'],
+
+  mainSelector: 'main',
+
+  customExtract: () => {
+    const result: Element[] = []
+    const visited = new Set<Element>()
+    const TWEET_TEXT_SEL = '[class*="whitespace-pre-wrap"]'
+
+    // New X UI: tweet text renders in div/span with the whitespace-pre-wrap class
+    // (no <p> tags). Exclude <a> (timestamp links share the class); keep only the
+    // outermost matching text container for nested matches.
+    const containers = [...document.querySelectorAll<Element>(
+      `article ${TWEET_TEXT_SEL}:not(a)`
+    )]
+    for (const el of containers) {
+      if (visited.has(el)) continue
+      if (containers.some((o) => o !== el && o.contains(el))) continue
+      if (!el.textContent?.trim()) continue
+      visited.add(el)
+      result.push(el)
+    }
+
+    // Legacy X UI: data-testid="tweetText"
+    const legacy = document.querySelectorAll<Element>('[data-testid="tweetText"]')
+    for (const el of legacy) {
+      if (visited.has(el)) continue
+      if (!el.textContent?.trim()) continue
+      visited.add(el)
+      result.push(el)
+    }
+
+    return result
+  },
+}
+
+/* ============================================================
    All Site Rules
    ============================================================ */
 const ALL_SITE_RULES: SiteRule[] = [
@@ -300,6 +341,7 @@ const ALL_SITE_RULES: SiteRule[] = [
   wikipediaRule,
   youtubeRule,
   redditRule,
+  xRule,
 ]
 
 /* ============================================================

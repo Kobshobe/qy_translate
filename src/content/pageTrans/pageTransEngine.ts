@@ -1,11 +1,11 @@
 /**
- * PageTransEngine -- 页面翻译引擎
+ * PageTransEngine -- page translation engine
  *
- * 职责:
- * 1. 遍历 DOM,提取可翻译的段落节点
- * 2. 管理每个段落的翻译状态
- * 3. 调用 background 的翻译服务(通过 Port)
- * 4. 控制并发翻译(批量 + 节流)
+ * Responsibilities:
+ * 1. Walk the DOM and extract translatable paragraph nodes
+ * 2. Manage the translation status of each paragraph
+ * 3. Call background translation services (via Port)
+ * 4. Control concurrent translation (batching + throttling)
  */
 import { v4 as uuid } from 'uuid'
 import {
@@ -24,18 +24,18 @@ import { Context } from '@/api/context'
 import { defaultTransEngine } from '@/config'
 
 /* ============================================================
-   可翻译的目标标签(块级文本元素)
+   Translatable target tags (block-level text elements)
    ============================================================ */
 const TARGET_TAGS = new Set([
   'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
   'li', 'td', 'th', 'blockquote', 'figcaption',
   'dt', 'dd', 'caption',
-  // 现代卡片/信息流 UI 常把标题渲染在 <a> 中（如 Reddit 新 UI 的 a[slot=title]）
+  // Modern card/feed UIs often render titles in <a> (e.g. Reddit's a[slot=title])
   'a',
 ])
 
 /* ============================================================
-   排除不可翻译的标签
+   Tags excluded from translation
    ============================================================ */
 const SKIP_TAGS = new Set([
   'script', 'style', 'noscript', 'code', 'pre',
@@ -56,7 +56,7 @@ const MAX_TEXT_LENGTH = 5000
    PageTransEngine
    ============================================================ */
 export class PageTransEngine {
-  /* ---- 状态 ---- */
+  /* ---- State ---- */
   status: EngineStatus = 'idle'
   paragraphs: Paragraph[] = []
   processedCount = 0
@@ -65,20 +65,20 @@ export class PageTransEngine {
   targetLang = 'zh-CN'
   currentEngine: string | null = null
 
-  /* ---- 依赖 ---- */
+  /* ---- Dependencies ---- */
   renderEngine: RenderEngine
   private port: chrome.runtime.Port | null = null
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null
 
-  /* ---- 销毁标记 ---- */
+  /* ---- Destroyed flag ---- */
   private destroyed = false
 
-  /* ---- 动态内容观察 ---- */
+  /* ---- Dynamic content observation ---- */
   private mutationObserver: MutationObserver | null = null
   private observerDebounceTimer: ReturnType<typeof setTimeout> | null = null
   private observerSelector = ''
 
-  /* ---- 回调 ---- */
+  /* ---- Callbacks ---- */
   onProgress?: (done: number, total: number) => void
   onStatusChange?: (status: EngineStatus) => void
   onError?: (error: Error) => void
@@ -88,18 +88,18 @@ export class PageTransEngine {
   }
 
   /* ============================================================
-     初始化:建立与 background 的通信连接
+     Initialization: connect to background
      ============================================================ */
   async init(config?: Partial<PageTransConfig>): Promise<void> {
     if (config) Object.assign(this.config, config)
     await this.loadConfigFromStorage()
-    // 读取用户目标语言偏好
+    // Read the user's target language preference
     const result = await chrome.storage.sync.get(['toLang', 'mainLang'])
     this.targetLang = result.toLang || result.mainLang || 'zh-CN'
     this.connectPort()
   }
 
-  /** 从 storage 加载页面翻译配置 */
+  /** Load page translation config from storage */
   private async loadConfigFromStorage(): Promise<void> {
     const result = await chrome.storage.sync.get(['pageTransStyle', 'pageTransDisplayMode', 'pageTransDimOriginal'])
     if (result.pageTransStyle) {
@@ -116,7 +116,7 @@ export class PageTransEngine {
 
   private connectPort(): void {
     if (this.destroyed) return
-    // 清除已有重连定时器，防止重复
+    // Clear any existing reconnect timer to avoid duplicates
     if (this.reconnectTimer !== null) {
       clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
@@ -125,13 +125,13 @@ export class PageTransEngine {
       this.port = chrome.runtime.connect({ name: 'pageTrans' })
       this.port.onDisconnect.addListener(() => {
         this.port = null
-        // 断线后重连
+        // Reconnect after disconnect
         if (!this.destroyed) {
           this.reconnectTimer = setTimeout(() => this.connectPort(), 1000)
         }
       })
     } catch {
-      // Service Worker 尚未就绪,稍后重试
+      // Service Worker not ready yet, retry later
       if (!this.destroyed) {
         this.reconnectTimer = setTimeout(() => this.connectPort(), 1000)
       }
@@ -139,7 +139,7 @@ export class PageTransEngine {
   }
 
   /* ============================================================
-     更新配置
+     Update configuration
      ============================================================ */
   updateConfig(config: Partial<PageTransConfig>): void {
     Object.assign(this.config, config)
@@ -150,22 +150,23 @@ export class PageTransEngine {
   }
 
   /* ============================================================
-     主要内容容器查找策略
+     Main content container lookup strategy
      ============================================================ */
   private findMainContentContainer(): Element | null {
-    // 1. 显式语义容器（role="main" / <main>）——语义明确，直接信任
+    // 1. Explicit semantic container (role="main" / <main>) — unambiguous, trust it
     const semantic =
       document.querySelector<Element>('[role="main"]') ||
       document.querySelector<Element>('main')
     if (semantic) return semantic
 
-    // 2. <article> 常被用作卡片/列表项（商品卡、统计卡、新闻摘要等），
-    //    页面中第一个 <article> 可能只是一个小卡片，不能代表整页正文。
-    //    只有当它包含足够的正文内容时才将其视为正文容器。
+    // 2. <article> is often used for cards/list items (product cards, stat cards,
+    //    news summaries, etc.); the first <article> may just be a small card,
+    //    not the whole page body. Only treat it as the body container when it
+    //    contains enough content.
     const article = document.querySelector<Element>('article')
     if (article && this.isContentRichContainer(article)) return article
 
-    // 3. 查找文本最密集的区域（排除非内容区）
+    // 3. Find the text-densest region (excluding non-content areas)
     const contentLikeTags = ['div', 'section', 'article']
     let best: Element | null = null
     let bestScore = 0
@@ -184,11 +185,12 @@ export class PageTransEngine {
       }
     }
 
-    // 4. 覆盖度检查：落地页/卡片网格页往往没有 <main>，正文分散在多个兄弟
-    //    <section>/<div> 中（hero、feature、faq…），密度算法只会选中其中一个。
-    //    若最优容器只覆盖了页面可翻译节点的一小部分，则返回 null，
-    //    让调用方退回 document.body 全页扫描（isInNonContentArea 负责过滤
-    //    导航、页眉、页脚、侧边栏等非内容区）。
+    // 4. Coverage check: landing/card-grid pages often lack <main>, with content
+    //    spread across sibling <section>/<div>s (hero, feature, faq…), so the
+    //    density algorithm only picks one of them. If the best container covers
+    //    only a small fraction of the page's translatable nodes, return null so
+    //    the caller falls back to a full document.body scan (isInNonContentArea
+    //    filters nav, header, footer, sidebar, etc.).
     if (best) {
       const TARGET =
         'p, li, h1, h2, h3, h4, h5, h6, td, th, blockquote, figcaption, dt, dd, caption'
@@ -202,18 +204,18 @@ export class PageTransEngine {
     return best
   }
 
-  /** 判断元素是否包含足够的正文内容（避免把卡片/列表项当成整页容器） */
+  /** Whether the element contains enough body content (avoid treating cards/list items as page containers) */
   private isContentRichContainer(el: Element): boolean {
     const text = el.textContent?.trim() || ''
     if (text.length < 100) return false
-    // 长文本(>=200)或包含多个块级文本节点才认为是正文容器
+    // Long text (>=200) or multiple block text nodes qualify as a body container
     const targetCount = el.querySelectorAll(
       'p, li, h1, h2, h3, h4, h5, h6, blockquote'
     ).length
     return text.length >= 200 || targetCount >= 3
   }
 
-  /** 合并的非内容区选择器（单次 closest() 匹配全部） */
+  /** Combined non-content selectors (single closest() match) */
   private static readonly NON_CONTENT_SELECTOR = [
     'nav', 'header', 'footer', 'aside',
     '[role="navigation"]', '[role="banner"]', '[role="contentinfo"]',
@@ -232,21 +234,21 @@ export class PageTransEngine {
     '.subnav', '.SubNav',
   ].join(',')
 
-  /* ---- 判断元素是否在非内容区 ---- */
+  /* ---- Whether an element is in a non-content area ---- */
   private isInNonContentArea(el: Element): boolean {
-    // 第一层: 合并选择器单次匹配
+    // Layer 1: combined selector single match
     if (el.closest(PageTransEngine.NON_CONTENT_SELECTOR)) return true
 
-    // 第二层: 链接密度启发式检测
-    // 如果一个容器中，链接文本占比 > 50% 且每条平均 < 25 字符，很可能是导航
+    // Layer 2: link-density heuristic — if link text is > 50% of a container's
+    // text with an average < 25 chars per link, it's likely navigation
     const parent = el.closest('li, p, h1, h2, h3, h4, h5, h6, td, th, div, section')
     if (!parent) return false
 
-    // 只对短文本块做检测（导航文本通常很短）
+    // Only check short text blocks (nav text is usually short)
     const totalText = (parent.textContent || '').trim()
-    if (totalText.length > 300) return false  // 长文本不可能是导航
+    if (totalText.length > 300) return false  // long text can't be navigation
 
-    // 计算链接文本占比
+    // Calculate link text ratio
     const links = parent.querySelectorAll('a, button')
     if (links.length < 2) return false
 
@@ -258,18 +260,18 @@ export class PageTransEngine {
       if (len > maxLinkLen) maxLinkLen = len
     })
 
-    // 如果链接文本占绝大部分，且平均链接文本短 → 导航
+    // Most text inside links with short average length → navigation
     const linkRatio = linkTextLen / Math.max(totalText.length, 1)
     const avgLinkLen = linkTextLen / links.length
 
-    // 存在较长链接（如文章/帖子标题，HN 标题链接 ~21 字符）说明是内容而非导航
+    // A long link (e.g. an article/post title, HN title links are ~21 chars) means it's content, not nav
     return linkRatio > 0.5 && avgLinkLen < 25 && maxLinkLen < 20
   }
 
   /* ============================================================
-     核心:提取可翻译段落
+     Core: extract translatable paragraphs
      ============================================================ */
-  /* ---- 将候选 Element[] 转为 Paragraph[] ---- */
+  /* ---- Convert candidate Element[] to Paragraph[] ---- */
   private elementsToParagraphs(elements: Element[]): Paragraph[] {
     const result: Paragraph[] = []
     const seen = new Set<Element>()
@@ -282,13 +284,13 @@ export class PageTransEngine {
       ) continue
       seen.add(el)
 
-      // 跳过不可翻译标签
+      // Skip non-translatable tags
       if (SKIP_TAGS.has(el.tagName.toLowerCase())) continue
-      // 跳过声明了排除角色的元素
+      // Skip elements declaring excluded roles
       const role = el.getAttribute('role')
       if (role && SKIP_ROLES.has(role)) continue
       if (el.closest('[role]') && SKIP_ROLES.has(el.closest('[role]')!.getAttribute('role')!)) continue
-      // 跳过非内容区（导航、侧栏等）
+      // Skip non-content areas (nav, sidebar, etc.)
       if (this.isInNonContentArea(el)) continue
 
       if (!this.isElementVisible(el)) continue
@@ -309,29 +311,34 @@ export class PageTransEngine {
   }
 
   /* ============================================================
-     收集候选可翻译节点
+     Collect translatable candidate nodes
      ============================================================ */
   /**
-   * 收集可翻译候选节点：
-   * 1. 标准块级文本标签（TARGET_TAGS），排除嵌套在另一可翻译标签内的重复节点
-   * 2. 裸文本 <div>（React/Vue 等框架常把正文直接渲染在无子元素的 div 中，
-   *    如 Reddit 新 UI 的卡片正文、现代信息流），要求文本 >= 30 字符，
-   *    避免把时间戳/徽标/按钮文案等短 UI 文本当正文
+   * Collect translatable candidate nodes:
+   * 1. Standard block text tags (TARGET_TAGS), excluding duplicates nested inside
+   *    another translatable tag
+   * 2. Bare-text <div>s (frameworks like React/Vue often render body text directly
+   *    into child-less divs, e.g. Reddit's new UI card bodies, modern feeds).
+   *    Requires >= 30 chars to avoid timestamps/badges/button labels being
+   *    treated as content.
    */
   private collectCandidates(root: Element): Element[] {
-    // 表格/列表/定义列表是结构边界：跨过边界后是独立的文本单元，
-    // 避免 <td><table><tr><td>… 这类嵌套把祖先误判为重复节点
+    // Table/list/definition-list are structural boundaries: content past a
+    // boundary is an independent text unit, so nested layouts like
+    // <td><table><tr><td>… no longer treat ancestors as duplicates
     const STRUCTURAL = new Set(['table', 'ul', 'ol', 'dl'])
     const seen = new Set<Element>()
     const result: Element[] = []
 
-    // 1. 标准块级文本标签
+    // 1. Standard block text tags
     const targets = root.querySelectorAll<Element>([...TARGET_TAGS].join(','))
     targets.forEach((el) => {
       if (seen.has(el)) return
 
-      // 跳过结构容器：直接包裹 table/ul/ol/dl 的元素是布局容器而非文本单元
-      // （如 HN 的 <td><table>…</table></td>，否则整个表格会被当成一块文本）
+      // Skip structural containers: an element directly wrapping
+      // table/ul/ol/dl is a layout container, not a text unit
+      // (e.g. HN's <td><table>…</table></td>, otherwise the whole
+      // table would be treated as one block of text)
       let child = el.firstElementChild
       while (child) {
         if (STRUCTURAL.has(child.tagName.toLowerCase())) {
@@ -341,7 +348,8 @@ export class PageTransEngine {
         child = child.nextElementSibling
       }
 
-      // 排除祖先重复节点（如 <p> 内的 <a>）；跨过结构边界后重置
+      // Exclude duplicates of an ancestor node (e.g. <a> inside <p>);
+      // the check resets past structural boundaries
       let parent = el.parentElement
       while (
         parent &&
@@ -358,7 +366,7 @@ export class PageTransEngine {
       result.push(el)
     })
 
-    // 2. 裸文本 div
+    // 2. Bare-text divs
     const divs = root.querySelectorAll<Element>('div')
     divs.forEach((el) => {
       if (seen.has(el) || el.children.length > 0) return
@@ -372,13 +380,13 @@ export class PageTransEngine {
   }
 
   /* ============================================================
-     核心:提取可翻译段落
+     Core: extract translatable paragraphs
      ============================================================ */
   extract(): Paragraph[] {
     this.setStatus('extracting')
     this.paragraphs = []
 
-    // 1. 先检查是否有站点特定规则
+    // 1. Check for site-specific rules first
     const siteRule = getSiteRule()
     if (siteRule) {
       const elements = extractWithSiteRule(siteRule)
@@ -390,7 +398,7 @@ export class PageTransEngine {
       return this.paragraphs
     }
 
-    // 2. 通用启发式算法
+    // 2. Generic heuristic algorithm
     const container = this.findMainContentContainer()
     const root = container || document.body
 
@@ -408,9 +416,9 @@ export class PageTransEngine {
         return
       }
 
-      // 跳过不可翻译标签
+      // Skip non-translatable tags
       if (SKIP_TAGS.has(el.tagName.toLowerCase())) return
-      // 跳过声明了排除角色的元素
+      // Skip elements declaring excluded roles
       const role = el.getAttribute('role')
       if (role && SKIP_ROLES.has(role)) return
       if (el.closest('[role]') && SKIP_ROLES.has(el.closest('[role]')!.getAttribute('role')!)) return
@@ -434,7 +442,7 @@ export class PageTransEngine {
     this.totalCount = result.length
     this.processedCount = 0
 
-    // 标记这些节点为已处理（防止重复提取）
+    // Mark these nodes as processed (prevent re-extraction)
     result.forEach((p) => {
       p.node.setAttribute(ATTR.processed, 'true')
     })
@@ -443,30 +451,30 @@ export class PageTransEngine {
     return result
   }
 
-  /* ---- 判断元素是否在页面上可见 ---- */
+  /* ---- Whether an element is visible on the page ---- */
   private isElementVisible(el: Element): boolean {
-    // 1. 先检查 offsetParent（排除 display:none 的元素）
+    // 1. Check offsetParent first (excludes display:none elements)
     const htmlEl = el as HTMLElement
     if (htmlEl.offsetParent === null) {
-      // offsetParent 为 null 不一定不可见（如 fixed 定位元素）
-      // 再检查 computed style
+      // null offsetParent isn't necessarily invisible (e.g. fixed elements);
+      // fall back to computed style
       const style = window.getComputedStyle(el)
       if (style.display === 'none') return false
       if (style.visibility === 'hidden') return false
       if (parseFloat(style.opacity) < 0.01) return false
     }
 
-    // 2. 检查元素尺寸是否为 0
+    // 2. Check element size is non-zero
     const rect = el.getBoundingClientRect()
     if (rect.width === 0 || rect.height === 0) return false
 
-    // 3. 检查元素或其祖先是否有 aria-hidden
+    // 3. Check element or ancestors for aria-hidden
     if (el.closest('[aria-hidden="true"]')) return false
 
     return true
   }
 
-  /* ---- 发送分析事件 ---- */
+  /* ---- Send analytics event ---- */
   private sendAnalytic(name: string, params: Record<string, any>): void {
     try {
       const port = chrome.runtime.connect({ name: 'analytic' })
@@ -474,30 +482,30 @@ export class PageTransEngine {
       port.postMessage(new Context({ name, params }))
       port.disconnect()
     } catch {
-      // 静默失败，不影响翻译
+      // Fail silently, don't affect translation
     }
   }
 
-  /* ---- 解析默认翻译引擎 ---- */
+  /* ---- Resolve the default translation engine ---- */
   private async resolveDefaultEngine(): Promise<string> {
     try {
       const conf = await chrome.storage.sync.get(['transEngine'])
-      // 默认引擎与设置页(getTransConf)保持一致
+      // Keep consistent with the settings page (getTransConf)
       return conf.transEngine || defaultTransEngine
     } catch {
       return defaultTransEngine
     }
   }
 
-  /* ---- 判断段落是否值得翻译 ---- */
+  /* ---- Whether a paragraph is worth translating ---- */
   private shouldTranslate(text: string): boolean {
     if (text.length < MIN_TEXT_LENGTH) return false
     if (text.length > MAX_TEXT_LENGTH) return false
-    // 排除纯数字/符号/空白（Unicode 标点属性覆盖所有语言）
+    // Exclude pure digits/symbols/whitespace (Unicode punctuation covers all languages)
     if (/^[\d\s\p{P}]+$/u.test(text)) return false
-    // 排除纯 URL（链接帖/来源链接的文本不应被翻译）
+    // Exclude pure URLs (link-post/source-link text should not be translated)
     if (/^https?:\/\/\S+$/i.test(text)) return false
-    // 如果目标语言不是 auto,且文本与目标语言相同,跳过
+    // If target lang isn't auto and the text is already in the target lang, skip
     if (this.targetLang !== 'auto' && isTargetLangText(text, this.targetLang)) {
       return false
     }
@@ -505,7 +513,7 @@ export class PageTransEngine {
   }
 
   /* ============================================================
-     批量翻译
+     Batch translation
      ============================================================ */
   async translate(engine?: string): Promise<void> {
     if (this.paragraphs.length === 0) {
@@ -524,12 +532,12 @@ export class PageTransEngine {
     this.processedCount = 0
     const translateStartTime = Date.now()
 
-    // 未显式指定引擎时，与 background 保持一致（storage.transEngine，默认 defaultTransEngine）
+    // When no engine specified, stay consistent with background (storage.transEngine, default defaultTransEngine)
     const resolvedEngine = engine || (await this.resolveDefaultEngine())
     engine = resolvedEngine
     this.currentEngine = resolvedEngine
 
-    // 分析: 开始批量翻译
+    // Analytics: batch translation start
     this.sendAnalytic('pageTrans_start', {
       total: pending.length,
       targetLang: this.targetLang,
@@ -537,7 +545,7 @@ export class PageTransEngine {
       hostname: location.hostname,
     })
 
-    // 分批并发
+    // Batched concurrency
     const { batchSize, concurrency } = this.config
     for (let i = 0; i < pending.length; i += batchSize) {
       const batch = pending.slice(i, i + batchSize)
@@ -547,10 +555,10 @@ export class PageTransEngine {
 
     this.setStatus('translated')
 
-    // 启动动态内容观察
+    // Start dynamic content observation
     this.startDynamicObserver()
 
-    // 分析: 批量翻译结束
+    // Analytics: batch translation end
     const done = pending.filter((p) => p.status === 'done').length
     const failed = pending.filter((p) => p.status === 'error').length
     const duration = Date.now() - translateStartTime
@@ -565,7 +573,7 @@ export class PageTransEngine {
     })
   }
 
-  /* ---- 翻译一批段落(并发控制) ---- */
+  /* ---- Translate a batch of paragraphs (concurrency control) ---- */
   private async translateBatch(
     batch: Paragraph[],
     concurrency: number,
@@ -606,7 +614,7 @@ export class PageTransEngine {
             break
           }
           retries++
-          // 指数退避: 1s → 2s → 4s
+          // Exponential backoff: 1s → 2s → 4s
           await new Promise(r => setTimeout(r, 1000 * Math.pow(2, retries - 1)))
         }
       }
@@ -616,7 +624,7 @@ export class PageTransEngine {
     }
   }
 
-  /* ---- 调用 background 翻译 ---- */
+  /* ---- Call background translation ---- */
   private callTranslate(para: Paragraph, engine?: string): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this.port) {
@@ -627,7 +635,7 @@ export class PageTransEngine {
       const id = uuid()
       let settled = false
 
-      // LLM 引擎翻译长文本可能较慢，使用更长超时
+      // LLM engines may translate long text slowly, use a longer timeout
       const isLLMEngine = !!engine && engine.startsWith('llm__')
       const timeoutMs = isLLMEngine ? 30000 : 15000
       const timer = setTimeout(() => {
@@ -661,7 +669,7 @@ export class PageTransEngine {
   }
 
   /* ============================================================
-     渲染双语结果
+     Render bilingual results
      ============================================================ */
   render(): void {
     const done = this.paragraphs.filter((p) => p.status === 'done')
@@ -669,12 +677,12 @@ export class PageTransEngine {
   }
 
   /* ============================================================
-     动态内容观察 —— 监听 DOM 变化，翻译新加载的内容
+     Dynamic content observation — watch DOM changes and translate newly loaded content
      ============================================================ */
   private startDynamicObserver(): void {
     this.stopDynamicObserver()
 
-    // 确定观察范围
+    // Determine observation scope
     let root: Element
     const siteRule = getSiteRule()
     if (siteRule && siteRule.mainSelector) {
@@ -687,13 +695,13 @@ export class PageTransEngine {
     }
 
     this.mutationObserver = new MutationObserver((mutations) => {
-      // 只在已翻译状态下处理新节点
+      // Only process new nodes in translated state
       if (this.status !== 'translated') return
 
       const hasAddedNodes = mutations.some((m) => m.addedNodes.length > 0)
       if (!hasAddedNodes) return
 
-      // 防抖：500ms 内多次变更合并处理
+      // Debounce: merge multiple changes within 500ms
       if (this.observerDebounceTimer) clearTimeout(this.observerDebounceTimer)
       this.observerDebounceTimer = setTimeout(() => {
         this.translateNewContent().catch(() => {})
@@ -717,7 +725,7 @@ export class PageTransEngine {
     }
   }
 
-  /** 提取并翻译新加载的段落 */
+  /** Extract and translate newly loaded paragraphs */
   private async translateNewContent(): Promise<void> {
     const newParagraphs = this.extractNewParagraphs()
     if (newParagraphs.length === 0) return
@@ -729,7 +737,7 @@ export class PageTransEngine {
     )
     if (pending.length === 0) return
 
-    // 分批翻译
+    // Translate in batches
     const { batchSize, concurrency } = this.config
     for (let i = 0; i < pending.length; i += batchSize) {
       const batch = pending.slice(i, i + batchSize)
@@ -738,17 +746,17 @@ export class PageTransEngine {
     }
   }
 
-  /** 从新增 DOM 中提取可翻译段落（复用现有 extract 的过滤逻辑） */
+  /** Extract translatable paragraphs from newly added DOM (reuses extract's filtering logic) */
   private extractNewParagraphs(): Paragraph[] {
     const result: Paragraph[] = []
     const siteRule = getSiteRule()
 
-    // 收集所有匹配的新元素
+    // Collect all matching new elements
     const candidates: Element[] = []
     const visited = new Set<Element>()
 
     if (siteRule && siteRule.customExtract) {
-      // 对 YouTube 等有自定义规则的站点，整体扫描
+      // For sites with custom rules (e.g. YouTube), scan the whole page
       const elements = extractWithSiteRule(siteRule)
       for (const el of elements) {
         if (
@@ -761,7 +769,7 @@ export class PageTransEngine {
         candidates.push(el)
       }
     } else {
-      // 通用：使用与初始提取相同的范围限定
+      // Generic: same scope as the initial extraction
       const container = this.findMainContentContainer()
       const root = container || document.body
       const allElements = this.collectCandidates(root)
@@ -778,11 +786,11 @@ export class PageTransEngine {
     }
 
     for (const el of candidates) {
-      // 跳过非内容区域
+      // Skip non-content areas
       if (this.isInNonContentArea(el)) continue
-      // 跳过不可翻译标签
+      // Skip non-translatable tags
       if (SKIP_TAGS.has(el.tagName.toLowerCase())) continue
-      // 跳过声明了排除角色的元素
+      // Skip elements declaring excluded roles
       const role = el.getAttribute('role')
       if (role && SKIP_ROLES.has(role)) continue
       if (el.closest('[role]') && SKIP_ROLES.has(el.closest('[role]')!.getAttribute('role')!)) continue
@@ -792,7 +800,7 @@ export class PageTransEngine {
       const text = el.textContent?.trim() ?? ''
       if (!this.shouldTranslate(text)) continue
 
-      // 标记为已处理
+      // Mark as processed
       el.setAttribute(ATTR.processed, 'true')
 
       result.push({
@@ -809,7 +817,7 @@ export class PageTransEngine {
   }
 
   /* ============================================================
-     恢复原文:移除所有译文节点,还原页面
+     Restore original text: remove all translation nodes and restore the page
      ============================================================ */
   restore(): void {
     this.stopDynamicObserver()
@@ -822,7 +830,7 @@ export class PageTransEngine {
   }
 
   /* ============================================================
-     切换翻译/原文
+     Toggle translation/original
      ============================================================ */
   async toggle(engine?: string): Promise<void> {
     if (this.status === 'translated') {
@@ -834,17 +842,17 @@ export class PageTransEngine {
   }
 
   /* ============================================================
-     销毁:清理资源
+     Destroy: clean up resources
      ============================================================ */
   destroy(): void {
     this.destroyed = true
-    // 取消重连定时器
+    // Cancel reconnect timer
     if (this.reconnectTimer !== null) {
       clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
     }
     if (this.port) {
-      try { this.port.disconnect() } catch { /* 忽略 */ }
+      try { this.port.disconnect() } catch { /* ignore */ }
       this.port = null
     }
     this.stopDynamicObserver()
@@ -853,7 +861,7 @@ export class PageTransEngine {
   }
 
   /* ============================================================
-     状态管理
+     Status management
      ============================================================ */
   private setStatus(status: EngineStatus): void {
     this.status = status

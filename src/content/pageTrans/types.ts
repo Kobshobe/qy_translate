@@ -1,30 +1,30 @@
-/** 段落状态 */
+/** Paragraph status */
 export type ParagraphStatus = 'pending' | 'translating' | 'done' | 'error' | 'skipped'
 
-/** 段落模型 */
+/** Paragraph model */
 export interface Paragraph {
   id: string
-  /** DOM 节点引用 */
+  /** DOM node reference */
   node: Element
-  /** 原文 */
+  /** Original text */
   originalText: string
-  /** 译文（翻译后填充） */
+  /** Translated text (filled after translation) */
   translatedText: string
-  /** 语言 */
+  /** Language */
   lang: string
-  /** 状态 */
+  /** Status */
   status: ParagraphStatus
-  /** 错误信息 */
+  /** Error message */
   error?: string
 }
 
-/** 页面翻译引擎状态 */
+/** Page translation engine status */
 export type EngineStatus = 'idle' | 'extracting' | 'translating' | 'translated' | 'restoring' | 'error'
 
-/** 译文显示模式 */
+/** Translation display mode */
 export type TransDisplayMode = 'bilingual' | 'targetOnly'
 
-/** 译文样式 */
+/** Translation style */
 export type TransStyle =
   | 'none'
   | 'underline'
@@ -36,7 +36,7 @@ export type TransStyle =
   | 'border'
   | 'bgColor'
 
-/** 页面翻译配置 */
+/** Page translation config */
 export interface PageTransConfig {
   enable: boolean
   displayMode: TransDisplayMode
@@ -48,7 +48,7 @@ export interface PageTransConfig {
   concurrency: number
 }
 
-/** 默认配置 */
+/** Default config */
 export const defaultPageTransConfig: PageTransConfig = {
   enable: true,
   displayMode: 'bilingual',
@@ -60,19 +60,19 @@ export const defaultPageTransConfig: PageTransConfig = {
   concurrency: 3,
 }
 
-/** 自定义属性名（命名空间前缀，避免与页面冲突） */
+/** Custom attribute names (namespaced prefix to avoid page conflicts) */
 export const ATTR = {
-  /** 标记该节点是译文注入节点 */
+  /** Marks a node as an injected translation node */
   translation: 'data-qyt-trans',
-  /** 标记该节点是原文节点（已翻译） */
+  /** Marks a node as an original (translated) node */
   original: 'data-qyt-original',
-  /** 标记该段落已处理过 */
+  /** Marks a paragraph as already processed */
   processed: 'data-qyt-processed',
-  /** 原文ID，用于一一对应 */
+  /** Original ID, used for one-to-one correspondence */
   paraId: 'data-qyt-para-id',
 } as const
 
-/** CSS 类名前缀 */
+/** CSS class name prefix */
 export const CLS = {
   wrapper: 'qyt-para-wrap',
   original: 'qyt-para-original',
