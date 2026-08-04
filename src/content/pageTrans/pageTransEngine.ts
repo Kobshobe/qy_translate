@@ -63,6 +63,27 @@ const AUTO_TRANSLATE_TTL = 6 * 60 * 60 * 1000
  */
 const PAGE_TRANS_ACTIVE_KEY = 'qyt-pageTransActive'
 
+/**
+ * Whether the current document load was triggered by a manual refresh
+ * (F5 / Ctrl+R / refresh button).
+ *
+ * Uses the Navigation Timing API; falls back to the legacy
+ * performance.navigation.type for older environments.
+ */
+function isManualReload(): boolean {
+  try {
+    const nav = performance.getEntriesByType('navigation')[0] as
+      PerformanceNavigationTiming | undefined
+    if (nav) return nav.type === 'reload'
+    // Legacy fallback: PerformanceNavigation.TYPE_RELOAD === 1
+    const legacy = (performance as any).navigation
+    if (legacy && typeof legacy.type === 'number') return legacy.type === 1
+  } catch {
+    // ignore — treat as not a manual reload
+  }
+  return false
+}
+
 /* ============================================================
    PageTransEngine
    ============================================================ */
@@ -910,6 +931,14 @@ export class PageTransEngine {
   /** On (re-)injection: auto-translate if this domain was translated recently in this tab */
   private maybeAutoTranslate(): void {
     try {
+      // A manual refresh (F5 / Ctrl+R / refresh button) resets the page
+      // translation state: clear the intent and show the original page.
+      // Same-domain SPA navigations are unaffected — they don't reload the
+      // document and are handled by the navigation listener instead.
+      if (isManualReload()) {
+        this.persistActive(false)
+        return
+      }
       const raw = sessionStorage.getItem(PAGE_TRANS_ACTIVE_KEY)
       if (!raw) return
       const active = JSON.parse(raw) as { hostname: string; ts: number }
