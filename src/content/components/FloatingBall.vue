@@ -70,7 +70,7 @@ const showBall = computed(() => isTopFrame && visible.value && !fullscreenHides.
 
 const ballStyle = reactive({
   left: 'auto',
-  top: 'calc(50% - 18px)',
+  top: 'calc(50% - 15px)',
   right: '0px',
   bottom: 'auto',
   transform: 'none',
@@ -314,15 +314,15 @@ function snapToSide(): void {
   position: fixed;
   z-index: 2147483647;
   box-sizing: content-box;
-  width: 36px;
-  min-width: 36px;
-  max-width: 36px;
-  height: 36px;
-  min-height: 36px;
-  max-height: 36px;
+  width: 30px;
+  min-width: 30px;
+  max-width: 30px;
+  height: 30px;
+  min-height: 30px;
+  max-height: 30px;
   margin: 0;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   background: var(--xx-background-color);
   color: #fff;
   cursor: pointer;
@@ -354,12 +354,12 @@ function snapToSide(): void {
 
 /* Snap left: remove left rounded corners */
 #qyt-floating-ball.qyt-fb-left {
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 6px 6px 0;
 }
 
 /* Snap right: remove right rounded corners */
 #qyt-floating-ball.qyt-fb-right {
-  border-radius: 8px 0 0 8px;
+  border-radius: 6px 0 0 6px;
 }
 
 /* Dragging: disable transition */
@@ -371,31 +371,31 @@ function snapToSide(): void {
 .qyt-fb-logo {
   all: initial;
   display: block;
-  width: 24px;
-  min-width: 24px;
-  max-width: 24px;
-  height: 24px;
-  min-height: 24px;
-  max-height: 24px;
+  width: 20px;
+  min-width: 20px;
+  max-width: 20px;
+  height: 20px;
+  min-height: 20px;
+  max-height: 20px;
   margin: 0;
   padding: 0;
   border: none;
   pointer-events: none;
-  border-radius: 5px;
+  border-radius: 4px;
   box-sizing: content-box;
 }
 
 .qyt-fb-finish {
   all: initial;
   position: absolute;
-  right: 2px;
-  bottom: 2px;
-  width: 12px;
-  min-width: 12px;
-  max-width: 12px;
-  height: 12px;
-  min-height: 12px;
-  max-height: 12px;
+  right: 1px;
+  bottom: 1px;
+  width: 10px;
+  min-width: 10px;
+  max-width: 10px;
+  height: 10px;
+  min-height: 10px;
+  max-height: 10px;
   margin: 0;
   padding: 0;
   border: none;
@@ -410,12 +410,12 @@ function snapToSide(): void {
   left: 50%;
   transform: translateX(-50%);
   box-sizing: content-box;
-  width: 28px;
-  min-width: 28px;
-  max-width: 28px;
-  height: 28px;
-  min-height: 28px;
-  max-height: 28px;
+  width: 22px;
+  min-width: 22px;
+  max-width: 22px;
+  height: 22px;
+  min-height: 22px;
+  max-height: 22px;
   margin: 0;
   border-radius: 50%;
   border: none;
