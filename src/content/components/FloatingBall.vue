@@ -60,9 +60,13 @@ const visible = ref(true)
 const side = ref<'left' | 'right'>('right')
 const engineStatus = ref<string>('idle')
 
+// Content script runs with all_frames: true, so ad/embedded iframes would each
+// render their own ball overlapping the page. Only show the ball in the top window.
+const isTopFrame = window.top === window.self
+
 // Hide the floating ball while any element is in fullscreen (Fullscreen API)
 const fullscreenHides = ref(false)
-const showBall = computed(() => visible.value && !fullscreenHides.value)
+const showBall = computed(() => isTopFrame && visible.value && !fullscreenHides.value)
 
 const ballStyle = reactive({
   left: 'auto',
