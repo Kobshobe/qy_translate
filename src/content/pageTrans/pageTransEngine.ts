@@ -30,6 +30,8 @@ const TARGET_TAGS = new Set([
   'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
   'li', 'td', 'th', 'blockquote', 'figcaption',
   'dt', 'dd', 'caption',
+  // 现代卡片/信息流 UI 常把标题渲染在 <a> 中（如 Reddit 新 UI 的 a[slot=title]）
+  'a',
 ])
 
 /* ============================================================
@@ -249,13 +251,19 @@ export class PageTransEngine {
     if (links.length < 2) return false
 
     let linkTextLen = 0
-    links.forEach(a => { linkTextLen += (a.textContent || '').trim().length })
+    let maxLinkLen = 0
+    links.forEach(a => {
+      const len = (a.textContent || '').trim().length
+      linkTextLen += len
+      if (len > maxLinkLen) maxLinkLen = len
+    })
 
     // 如果链接文本占绝大部分，且平均链接文本短 → 导航
     const linkRatio = linkTextLen / Math.max(totalText.length, 1)
     const avgLinkLen = linkTextLen / links.length
 
-    return linkRatio > 0.5 && avgLinkLen < 25
+    // 存在较长链接（如文章/帖子标题，HN 标题链接 ~21 字符）说明是内容而非导航
+    return linkRatio > 0.5 && avgLinkLen < 25 && maxLinkLen < 20
   }
 
   /* ============================================================
@@ -301,6 +309,69 @@ export class PageTransEngine {
   }
 
   /* ============================================================
+     收集候选可翻译节点
+     ============================================================ */
+  /**
+   * 收集可翻译候选节点：
+   * 1. 标准块级文本标签（TARGET_TAGS），排除嵌套在另一可翻译标签内的重复节点
+   * 2. 裸文本 <div>（React/Vue 等框架常把正文直接渲染在无子元素的 div 中，
+   *    如 Reddit 新 UI 的卡片正文、现代信息流），要求文本 >= 30 字符，
+   *    避免把时间戳/徽标/按钮文案等短 UI 文本当正文
+   */
+  private collectCandidates(root: Element): Element[] {
+    // 表格/列表/定义列表是结构边界：跨过边界后是独立的文本单元，
+    // 避免 <td><table><tr><td>… 这类嵌套把祖先误判为重复节点
+    const STRUCTURAL = new Set(['table', 'ul', 'ol', 'dl'])
+    const seen = new Set<Element>()
+    const result: Element[] = []
+
+    // 1. 标准块级文本标签
+    const targets = root.querySelectorAll<Element>([...TARGET_TAGS].join(','))
+    targets.forEach((el) => {
+      if (seen.has(el)) return
+
+      // 跳过结构容器：直接包裹 table/ul/ol/dl 的元素是布局容器而非文本单元
+      // （如 HN 的 <td><table>…</table></td>，否则整个表格会被当成一块文本）
+      let child = el.firstElementChild
+      while (child) {
+        if (STRUCTURAL.has(child.tagName.toLowerCase())) {
+          seen.add(el)
+          return
+        }
+        child = child.nextElementSibling
+      }
+
+      // 排除祖先重复节点（如 <p> 内的 <a>）；跨过结构边界后重置
+      let parent = el.parentElement
+      while (
+        parent &&
+        parent !== root &&
+        !STRUCTURAL.has(parent.tagName.toLowerCase())
+      ) {
+        if (TARGET_TAGS.has(parent.tagName.toLowerCase()) && !this.isInNonContentArea(parent)) {
+          seen.add(el)
+          return
+        }
+        parent = parent.parentElement
+      }
+      seen.add(el)
+      result.push(el)
+    })
+
+    // 2. 裸文本 div
+    const divs = root.querySelectorAll<Element>('div')
+    divs.forEach((el) => {
+      if (seen.has(el) || el.children.length > 0) return
+      const text = el.textContent?.trim() ?? ''
+      if (text.length < 30) return
+      seen.add(el)
+      result.push(el)
+    })
+
+    return result
+  }
+
+  /* ============================================================
      核心:提取可翻译段落
      ============================================================ */
   extract(): Paragraph[] {
@@ -323,17 +394,13 @@ export class PageTransEngine {
     const container = this.findMainContentContainer()
     const root = container || document.body
 
-    const allElements = root.querySelectorAll<Element>(
-      [...TARGET_TAGS].join(',')
-    )
-    const seen = new Set<Element>()
+    const candidates = this.collectCandidates(root)
     const result: Paragraph[] = []
 
-    allElements.forEach((el) => {
+    candidates.forEach((el) => {
       if (this.isInNonContentArea(el)) return
 
       if (
-        seen.has(el) ||
         el.hasAttribute(ATTR.processed) ||
         el.hasAttribute(ATTR.translation) ||
         el.closest(`[${ATTR.translation}]`)
@@ -347,17 +414,6 @@ export class PageTransEngine {
       const role = el.getAttribute('role')
       if (role && SKIP_ROLES.has(role)) return
       if (el.closest('[role]') && SKIP_ROLES.has(el.closest('[role]')!.getAttribute('role')!)) return
-
-      // 排除祖先重复节点
-      let parent = el.parentElement
-      while (parent && parent !== root) {
-        if (TARGET_TAGS.has(parent.tagName.toLowerCase()) && !this.isInNonContentArea(parent)) {
-          seen.add(el)
-          return
-        }
-        parent = parent.parentElement
-      }
-      seen.add(el)
 
       if (!this.isElementVisible(el)) return
 
@@ -439,6 +495,8 @@ export class PageTransEngine {
     if (text.length > MAX_TEXT_LENGTH) return false
     // 排除纯数字/符号/空白（Unicode 标点属性覆盖所有语言）
     if (/^[\d\s\p{P}]+$/u.test(text)) return false
+    // 排除纯 URL（链接帖/来源链接的文本不应被翻译）
+    if (/^https?:\/\/\S+$/i.test(text)) return false
     // 如果目标语言不是 auto,且文本与目标语言相同,跳过
     if (this.targetLang !== 'auto' && isTargetLangText(text, this.targetLang)) {
       return false
@@ -684,7 +742,6 @@ export class PageTransEngine {
   private extractNewParagraphs(): Paragraph[] {
     const result: Paragraph[] = []
     const siteRule = getSiteRule()
-    const TARGET = [...TARGET_TAGS].join(',')
 
     // 收集所有匹配的新元素
     const candidates: Element[] = []
@@ -707,7 +764,7 @@ export class PageTransEngine {
       // 通用：使用与初始提取相同的范围限定
       const container = this.findMainContentContainer()
       const root = container || document.body
-      const allElements = root.querySelectorAll<Element>(TARGET)
+      const allElements = this.collectCandidates(root)
       for (const el of allElements) {
         if (
           visited.has(el) ||
