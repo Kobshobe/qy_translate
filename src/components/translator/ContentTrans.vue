@@ -158,6 +158,7 @@ onMounted(() => {
 
   chrome.runtime.onMessage.addListener(function (msg, sender) {
     if (sender.id !== chrome.runtime.id) return
+    if (!msg || msg.action || typeof msg.text !== 'string') return
     baseHook.T.trans({ text: msg.text, from: 'auto', to: '', type: 'menu', findStatus: 'popLoading' })
   });
 });

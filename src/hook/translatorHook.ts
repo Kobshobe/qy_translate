@@ -486,7 +486,7 @@ export function transHook(baseHook: IBaseHook): ITranslatorHook {
         async trans(info) {
             hook.options.engine || (hook.options.engine = hook.base.C.transEngine!)
             const t = info.text
-            if (t.replace(/\s+|[\r\n]+/g, "").length === 0) {
+            if (!t || t.replace(/\s+|[\r\n]+/g, "").length === 0) {
                 return
             }
 
