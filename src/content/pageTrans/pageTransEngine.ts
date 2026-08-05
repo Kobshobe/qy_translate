@@ -52,6 +52,17 @@ const SKIP_ROLES = new Set([
 const MIN_TEXT_LENGTH = 2
 const MAX_TEXT_LENGTH = 5000
 
+/**
+ * Format a duration in ms as "min" format for analytics, e.g. 2m30s / 45s
+ */
+function formatDuration(ms: number): string {
+  const totalSeconds = Math.max(0, Math.round(ms / 1000))
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  if (minutes <= 0) return `${seconds}s`
+  return seconds > 0 ? `${minutes}m${seconds}s` : `${minutes}m`
+}
+
 /** How long the "auto-translate this domain" intent stays active (6h) */
 const AUTO_TRANSLATE_TTL = 6 * 60 * 60 * 1000
 
@@ -608,10 +619,11 @@ export class PageTransEngine {
     const failed = pending.filter((p) => p.status === 'error').length
     const duration = Date.now() - translateStartTime
     this.sendAnalytic('pageTrans_end', {
-      total: pending.length,
-      done,
-      failed,
-      duration,
+      // Page translation analysis
+      success: `${done}/${pending.length}`,
+      failed: `${failed}/${pending.length};${engine}`,
+      duration: `${formatDuration(duration)};${pending.length};${engine}`,
+      // Context
       targetLang: this.targetLang,
       engine,
       hostname: location.hostname,
