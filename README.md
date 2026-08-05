@@ -1,38 +1,54 @@
-# 轻氧翻译 - QY Translate
+# QY Translate
 
-### 这是一个划词翻译插件
+A minimalistic, efficient translation extension for Chrome.
 
-[详细说明](https://github.com/Kobshobe/qy_translate/blob/main/docs/Instructions/%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87).md)
-![engine](docs/images/engine.png)
+**Documentation:** [English](docs/Instructions/Instructions(English).md) | [简体中文](docs/Instructions/使用说明(简体中文).md) | [繁體中文](docs/Instructions/使用說明(繁体中文).md)
 
-### 应用商店下载
-[chrome商店](https://chrome.google.com/webstore/detail/fjldhjdclpmehigldnbgbllchcjdgccc) | [edge应用商店](https://microsoftedge.microsoft.com/addons/detail/%E8%BD%BB%E6%B0%A7%E7%BF%BB%E8%AF%91/gldjnohpkhoipopkgkoepimoaoekhioo)  
-&nbsp;
+## Install
 
-### 项目介绍
-基于 vue3，typescripe 开发
+| Store | Link |
+|-------|------|
+| Chrome Web Store | [Download](https://chrome.google.com/webstore/detail/fjldhjdclpmehigldnbgbllchcjdgccc) |
+| Edge Add-ons | [Download](https://microsoftedge.microsoft.com/addons/detail/%E8%BD%BB%E6%B0%A7%E7%BF%BB%E8%AF%91/gldjnohpkhoipopkgkoepimoaoekhioo) |
 
-## Project setup
-```
+## Features
+
+- Web page translation with bilingual display
+- Select-to-translate on any web page
+- Quick word query via popup or shortcut (`Alt + K` / `⌘ + K`)
+- Multiple translation engines (Baidu, Google, etc.)
+- AI large model translation (DeepSeek, OpenAI, Claude, MiniMax, GLM, Qwen, etc.) with custom API endpoints, models, and prompts
+- PDF translation support
+- Vocabulary collection
+
+## Development
+
+Built with **Vue 3** and **TypeScript**.
+
+### Setup
+
+```bash
 pnpm install
 ```
 
-### Compiles and minifies for production
-```
+### Build for production
+
+```bash
 pnpm build
 ```
 
-### Develop
-```
-# run front project
+### Development mode
+
+```bash
+# Watch frontend sources
 pnpm watch
 
-# run background.js
+# Watch background.js
 pnpm bg:watch
 ```
 
-### Contact Us
+Then load the `dist` folder as an unpacked extension in `chrome://extensions`.
+
+## Contact
+
 Email: phraseanywhere@outlook.com
-
-
-
