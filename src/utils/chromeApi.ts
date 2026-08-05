@@ -2,7 +2,7 @@ import { IAllStorage } from '@/interface/trans'
 import { v4 } from "uuid";
 import { eventToGoogle } from './analytics'
 import { languages } from '@/translator/trans_base'
-import { defaultTransEngine } from '@/config'
+import { defaultTransEngine, getUninstallUrl, clientVersion } from '@/config'
 
 export async function getTransConf(): Promise<IAllStorage> {
     const conf: IAllStorage = await getFromeStorage([
@@ -115,10 +115,25 @@ export function getOptionOpenParmas(): Promise<IAllStorage> {
     })
 }
 
+/** 刷新卸载跳转 URL，附带当前版本号和使用时长 */
+function updateUninstallUrl() {
+    chrome.storage.sync.get(['installTime'], (res) => {
+        const installTime = res.installTime || Date.now()
+        // 使用时长（秒）
+        const usage = Math.max(0, Math.floor((Date.now() - installTime) / 1000))
+        chrome.runtime.setUninstallURL(getUninstallUrl({
+            cv: clientVersion,
+            usage: String(usage),
+        }))
+    })
+}
+
 export function onInstall(details: any) {
     if (details.reason === 'install') {
         chrome.tabs.create({ url: "https://github.com/Kobshobe/qy_translate/blob/main/docs/Instructions/Instructions(English).md" })
         chrome.storage.sync.set({ installTime: new Date().valueOf() })
+        // 用户卸载扩展时跳转到重定向页面（发送 GA 事件后转问卷）
+        updateUninstallUrl()
     }
     eventToGoogle({
         name: 'onInstall',
@@ -160,6 +175,8 @@ export function bgInit() {
                 }
             })
         }
+        // 周期性刷新卸载 URL，保持版本号/使用时长最新
+        updateUninstallUrl()
     })
 }
 

@@ -17,6 +17,13 @@ export const store = platform === 'chrome' ?
 'https://chrome.google.com/webstore/detail/fjldhjdclpmehigldnbgbllchcjdgccc' :
 'https://microsoftedge.microsoft.com/addons/detail/%E8%BD%BB%E6%B0%A7%E7%BF%BB%E8%AF%91/gldjnohpkhoipopkgkoepimoaoekhioo';
 
+/** 卸载扩展时打开的页面：发送 GA 事件后跳转问卷
+ *  @param params 额外参数（版本号 cv、使用时长 usage 等） */
+export function getUninstallUrl(params: Record<string, string> = {}) {
+    const qs = new URLSearchParams({ platform, ...params }).toString()
+    return `https://algoten.com/qy_trans/uninstall.html?${qs}`
+}
+
 export const googleAnalytic = {
     measurementId: `G-4XZ65P0G94`,
     apiSecret: `G1uxYlc7QgaWUOMbbk7MSA`
