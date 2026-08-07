@@ -486,8 +486,12 @@ export class PageTransEngine {
       // Only process new nodes in translated state
       if (this.status !== 'translated') return
 
-      const hasAddedNodes = mutations.some((m) => m.addedNodes.length > 0)
-      if (!hasAddedNodes) return
+      // React to added nodes AND in-place text changes (e.g. X "Show more"
+      // expands tweet text by mutating existing spans, not adding new nodes)
+      const hasContentChanges = mutations.some(
+        (m) => m.addedNodes.length > 0 || m.type === 'characterData'
+      )
+      if (!hasContentChanges) return
 
       // Debounce: merge multiple changes within 500ms
       if (this.observerDebounceTimer) clearTimeout(this.observerDebounceTimer)
@@ -499,6 +503,7 @@ export class PageTransEngine {
     this.mutationObserver.observe(root, {
       childList: true,
       subtree: true,
+      characterData: true,
     })
   }
 
@@ -516,11 +521,16 @@ export class PageTransEngine {
   /** Extract and translate newly loaded paragraphs */
   private async translateNewContent(): Promise<void> {
     const newParagraphs = this.extractNewParagraphs()
-    if (newParagraphs.length === 0) return
+    // Paragraphs whose text changed after translation (X "Show more" expands
+    // the tweet text inside the already-processed node, etc.) need a
+    // re-translation of the same node
+    const changedParagraphs = this.findChangedParagraphs()
 
-    this.paragraphs = this.paragraphs.concat(newParagraphs)
+    if (newParagraphs.length > 0) {
+      this.paragraphs = this.paragraphs.concat(newParagraphs)
+    }
 
-    const pending = newParagraphs.filter(
+    const pending = [...newParagraphs, ...changedParagraphs].filter(
       (p) => p.status === 'pending'
     )
     if (pending.length === 0) return
@@ -532,6 +542,31 @@ export class PageTransEngine {
       await this.translateBatch(batch, concurrency, this.currentEngine || undefined)
       this.renderEngine.renderBatch(batch, this.config.displayMode, this.config.transStyle)
     }
+  }
+
+  /**
+   * Detect already-translated paragraphs whose DOM text changed after
+   * translation (expanded/collapsed content, live text updates). The recorded
+   * originalText is always synced to the current text so an un-translatable
+   * change (e.g. the expanded text exceeds MAX_TEXT_LENGTH) doesn't cause
+   * endless re-detection on every observer tick.
+   */
+  private findChangedParagraphs(): Paragraph[] {
+    const changed: Paragraph[] = []
+    for (const p of this.paragraphs) {
+      // Only re-translate finished paragraphs still attached to the document
+      if (p.status !== 'done' || !p.node.isConnected) continue
+      const current = p.node.textContent?.trim() ?? ''
+      if (!current || current === p.originalText) continue
+      // Sync the recorded text first (prevents re-detecting the same change)
+      p.originalText = current
+      // Skip re-translation if the new text no longer qualifies
+      if (!shouldTranslateText(current, this.targetLang)) continue
+      p.translatedText = ''
+      p.status = 'pending'
+      changed.push(p)
+    }
+    return changed
   }
 
   /** Extract translatable paragraphs from newly added DOM (reuses extract's filtering logic) */
