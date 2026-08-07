@@ -30,6 +30,13 @@
     >
       <SvgIcon type="icon-shezhi" :size="12" color="currentColor" />
     </button>
+    <button
+      class="qyt-fb-feedback"
+      :title="feedbackTitle"
+      @click.stop="openFeedback"
+    >
+      <SvgIcon type="icon-fankui" :size="12" color="currentColor" />
+    </button>
   </button>
   </ThemeElement>
 </template>
@@ -39,6 +46,7 @@ import { ref, computed, reactive, onMounted, onUnmounted } from 'vue'
 import { PageTransEngine } from '../pageTrans/pageTransEngine'
 import ThemeElement from '@/components/base/ThemeElement.vue'
 import SvgIcon from '@/components/base/SvgIcon.vue'
+import { eventToGoogle } from '@/utils/analytics'
 
 /* ============================================================
    Engine
@@ -100,6 +108,7 @@ const titleText = computed(() => {
 const showFinishBadge = computed(() => engineStatus.value === 'translated')
 
 const settingsTitle = chrome.i18n.getMessage('__options__')
+const feedbackTitle = chrome.i18n.getMessage('contactUs')
 
 /* ============================================================
    Initialization
@@ -227,6 +236,17 @@ function openSettings(): void {
   const port = chrome.runtime.connect({ name: 'openOptionsPage' })
   port.postMessage({ req: { type: 'floatingBall', hash: '#/settings/page-trans' } })
   port.disconnect()
+}
+
+/* ============================================================
+   Feedback button
+   ============================================================ */
+function openFeedback(): void {
+  window.open('https://wj.qq.com/s2/27527458/vlhq/')
+  eventToGoogle({
+    name: 'toFeedback',
+    params: { locale: chrome.i18n.getMessage('@@ui_locale') },
+  })
 }
 
 /* ============================================================
@@ -403,10 +423,10 @@ function snapToSide(): void {
   box-sizing: content-box;
 }
 
-.qyt-fb-settings {
+.qyt-fb-settings,
+.qyt-fb-feedback {
   all: initial;
   position: absolute;
-  top: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
   box-sizing: content-box;
@@ -443,6 +463,15 @@ function snapToSide(): void {
   }
 }
 
+/* Settings: 6px below the ball; Feedback: 6px below the settings button */
+.qyt-fb-settings {
+  top: calc(100% + 6px);
+}
+
+.qyt-fb-feedback {
+  top: calc(100% + 34px);
+}
+
 .qyt-fb-tip {
   all: initial;
   position: absolute;
@@ -462,12 +491,14 @@ function snapToSide(): void {
   z-index: 1;
 }
 
-#qyt-floating-ball:hover .qyt-fb-settings {
+#qyt-floating-ball:hover .qyt-fb-settings,
+#qyt-floating-ball:hover .qyt-fb-feedback {
   opacity: 1;
 }
 
 #qyt-floating-ball.qyt-fb-dragging {
   .qyt-fb-settings,
+  .qyt-fb-feedback,
   .qyt-fb-tip {
     opacity: 0 !important;
   }
