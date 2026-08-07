@@ -187,6 +187,18 @@
                 </details>
               </section>
 
+              <!-- ==================== forum post (bare div with <br> children) ==================== -->
+              <section class="forum-post">
+                <h2>Forum Post (br-separated text in a bare div)</h2>
+                <div class="content">Hello and welcome to our community forum.<br>
+                <img src="images/smilies/icon_mrgreen.gif" alt=":mrgreen:">
+                <br>
+                This post body is rendered as raw text nodes separated by line breaks instead of paragraph elements, which is the classic phpBB layout.<br>
+                We hope you enjoy your stay and introduce yourself to the other members.<br>
+                <br>
+                Best regards from the moderation team.</div>
+              </section>
+
               <!-- ==================== edge cases ==================== -->
               <section class="edge-cases">
                 <h2>Edge Cases</h2>

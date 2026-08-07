@@ -49,6 +49,31 @@ export const MAX_TEXT_LENGTH = 5000
 /** Bare-text <div> candidate threshold (avoid timestamps/badges/button labels) */
 export const MIN_DIV_TEXT_LENGTH = 30
 
+/**
+ * Inline content tags that may appear inside a text div without turning it
+ * into a layout container: line breaks, embedded images (smilies/photos),
+ * links and inline text markup.
+ */
+const INLINE_TEXT_TAGS = new Set([
+  'br', 'img', 'a', 'span', 'em', 'strong', 'b', 'i', 'u', 's',
+  'small', 'sub', 'sup', 'time', 'abbr',
+])
+
+/**
+ * A div is treated as a bare text container when it has no element children,
+ * or its children are all inline-level content. Classic forum/blog layouts
+ * (phpBB, vBulletin, …) render multi-line post text as raw text nodes
+ * separated by <br> with smilies/embedded images inline; block children
+ * (div/p/ul/table/…) mark layout frames instead.
+ */
+function isBareTextDiv(el: Element): boolean {
+  if (el.children.length === 0) return true
+  for (const child of el.children) {
+    if (!INLINE_TEXT_TAGS.has(child.tagName.toLowerCase())) return false
+  }
+  return true
+}
+
 /** Combined non-content selectors (single closest() match) */
 export const NON_CONTENT_SELECTOR = [
   'nav', 'header', 'footer', 'aside',
@@ -302,10 +327,10 @@ export function collectCandidates(root: Element): Element[] {
     result.push(el)
   })
 
-  // 2. Bare-text divs
+  // 2. Bare-text divs (>= 30 chars, no children or only inline-level children)
   const divs = root.querySelectorAll<Element>('div')
   divs.forEach((el) => {
-    if (seen.has(el) || el.children.length > 0) return
+    if (seen.has(el) || !isBareTextDiv(el)) return
     const text = el.textContent?.trim() ?? ''
     if (text.length < MIN_DIV_TEXT_LENGTH) return
     seen.add(el)
@@ -441,10 +466,10 @@ export function filterParagraphs(
     decisions.push(judge(el, opts))
   }
 
-  // 2. Bare-text divs (>= 30 chars, no children)
+  // 2. Bare-text divs (>= 30 chars, no children or only inline-level children)
   const divs = root.querySelectorAll<Element>('div')
   for (const el of divs) {
-    if (seen.has(el) || el.children.length > 0) continue
+    if (seen.has(el) || !isBareTextDiv(el)) continue
     const text = el.textContent?.trim() ?? ''
     if (text.length < MIN_DIV_TEXT_LENGTH) continue
     seen.add(el)
