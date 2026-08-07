@@ -1,0 +1,58 @@
+---
+name: page-trans-rules
+description: 修改网页翻译筛选规则时的注意事项与验证流程。当要改动网页翻译的提取/筛选逻辑（ruleFilter、TARGET_TAGS、容器发现、可见性判定、文本判定、siteRules 等）时使用本 skill。
+---
+
+# 网页翻译筛选规则 — 修改注意事项
+
+> 适用场景：修改 `src/content/pageTrans/` 下的提取/筛选规则。
+> 核心原则（强约束）：**改动必须通用**（针对 HTML 标准语义或某一类网站结构，而非单个网站 hack）；
+> **如果改动可能带来不确定的风险，或不够通用，则放弃修改**，改为记录问题、等待讨论后再决定。
+
+## 代码位置
+
+| 文件 | 职责 |
+|---|---|
+| `src/content/pageTrans/ruleFilter.ts` | **规则本体**（纯函数、可插桩）：`TARGET_TAGS` / `SKIP_TAGS` / `SKIP_ROLES` / `NON_CONTENT_SELECTOR` / 长度阈值 / `filterParagraphs()` / `findMainContentContainer()` / `isInNonContentArea()` / `isElementVisible()` / `shouldTranslateText()` |
+| `src/content/pageTrans/pageTransEngine.ts` | 引擎，**消费** ruleFilter（通用提取路径委托给它），另有翻译管线/渲染/动态观察 |
+| `src/content/pageTrans/siteRules.ts` | 站点专用规则（GitHub/Wikipedia/YouTube/Reddit/X），**当前约定：暂不处理** |
+| `src/options/views/RuleLab.vue` | Rule Lab 测试页（固定 Vue 页面 = 翻译对象，加载即自动跑规则，绿=提取/红=过滤/原因统计/节点详情） |
+
+## 验证流程（改完规则必须全走一遍）
+
+1. **Rule Lab 可视化验证**（主要手段）：
+   - `pnpm build` 后打开 `chrome-extension://<id>/options.html?mode=debug#/rule-lab`
+   - 固定页面覆盖：文章/表格/代码块/混合语言/卡片/FAQ 折叠/导航/侧边栏/页脚/边缘场景（隐藏、短文本、数字、URL、长文本、role 排除）
+   - 绿框 = 提取、红框 = 过滤；统计栏按原因分组；点节点看判定依据。
+   - 切换目标语言（auto ↔ zh-CN 等）验证 `isTargetLangText` 行为。
+2. **真实页面验证**（推荐）：
+   - 打开 `chrome://extensions/`，**只重载"轻氧翻译"扩展的"重新加载"按钮**（页面上可能有多个扩展，如沉浸式翻译，别点错！）。
+   - 重载后**已打开的页面必须刷新**才会注入新的 content script。
+   - 页面翻译需手动触发：点击悬浮球（`.qyt-fb-ball`）。playwright 的 CDP 键盘事件触发不了浏览器级快捷键（如 Alt+A）。
+   - 遇到可疑页面（某文本没翻译），用 playwright 检查该文本的 DOM 结构（标签、祖先链、是否在 main 内、有无 `data-qyt-processed`）定位原因。
+
+## 规则语义速查
+
+- `TARGET_TAGS`：候选标签集合 = `p, h1–h6, li, td, th, blockquote, figcaption, dt, dd, caption, summary, a`（`summary` 是 2026-08 加的：FAQ 折叠标题，trustlinq.com 案例）。
+- `SKIP_TAGS` / `SKIP_ROLES`：`script/style/code/pre/svg/…`、`navigation/dialog/toolbar/…`。
+- `MIN_TEXT_LENGTH=2` / `MAX_TEXT_LENGTH=5000`；裸文本 `<div>` 候选阈值 `MIN_DIV_TEXT_LENGTH=30`（无子元素）。
+- `findMainContentContainer(root)`：语义容器(`[role=main]`/`main`) → 内容丰富的 `<article>` → 文本密度评分 → 覆盖率 <50% 时回退 body 扫描。
+- `isInNonContentArea`：① 选择器（nav/header/footer/aside/`.sidebar`/role 等）② 链接密度启发式（链接占比 >50% 且平均 <25 字符且最大 <20）。
+- `isElementVisible`：**无条件检查** `display: none` / `visibility: hidden` / `opacity < 0.01`（`visibility:hidden`/`opacity:0` 仍占布局、offsetParent 非 null，必须无条件检查——这是修过的 bug），再查 rect 尺寸、`aria-hidden`。
+- `isTargetLangText`：>30% 字符命中目标语 script 即跳过；**日语汉字属 CJK 区，目标语言为中文时日语段落会被误判跳过**（已知行为，勿在未讨论时改动）。
+
+## 已知行为 / 陷阱
+
+- **`<details>/<summary>` 折叠组件**：译文会插到 `<details>` 内部，折叠时随面板隐藏（已知行为，暂不处理；可行方案是把译文锚定到 `<summary>` 内部，且 targetOnly 不能隐藏 summary 否则面板点不开）。
+- **行内 `<span>` 不在候选内**：FAQ 折叠问题若只用 `<span>` 渲染（无 `<summary>`）仍不会被提取；把 span 加入候选是高风险改动（误收集按钮/徽章/导航文本），勿轻易做。
+- **扩展重载坑**：两个扩展都有"重新加载"按钮，只重载轻氧翻译；重载后旧页面 context invalidated；content script 变更必须刷新目标页面。
+
+## 决策红线（重要）
+
+在动手改规则前，先自问：
+
+1. **通用吗？** 针对 HTML 标准语义（如 `<details>/<summary>`）或某一类网站的共同结构，而不是只修单个网站。
+2. **低风险吗？** 改动是否可能误伤其他页面/其他规则（如：把行内 `<span>` 加入候选会误收集按钮/徽章/导航文本——高风险，需要更谨慎的判定）。
+3. **有把握吗？** 拿不准的（例如 isTargetLangText 的语言判定、容器覆盖率阈值）先做小实验验证，再决定。
+
+**任一答案为"否"→ 放弃修改**，把问题记下来（`tmp/` 或讨论中），不要贸然改规则。
