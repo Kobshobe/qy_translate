@@ -141,18 +141,16 @@ export function isInNonContentArea(el: Element): boolean {
 
 /** Whether the element is visible on the page */
 export function isElementVisible(el: Element): boolean {
-  // 1. Check offsetParent first (excludes display:none elements)
-  const htmlEl = el as HTMLElement
-  if (htmlEl.offsetParent === null) {
-    // null offsetParent isn't necessarily invisible (e.g. fixed elements);
-    // fall back to computed style
-    const style = window.getComputedStyle(el)
-    if (style.display === 'none') return false
-    if (style.visibility === 'hidden') return false
-    if (parseFloat(style.opacity) < 0.01) return false
-  }
+  // 1. Computed style — checked unconditionally: display:none, visibility:hidden
+  //    and opacity:0 make an element invisible even though it may still occupy
+  //    layout space (visibility/opacity keep offsetParent non-null).
+  const style = window.getComputedStyle(el)
+  if (style.display === 'none') return false
+  if (style.visibility === 'hidden' || style.visibility === 'collapse') return false
+  if (parseFloat(style.opacity) < 0.01) return false
 
-  // 2. Check element size is non-zero
+  // 2. Check element size is non-zero (offsetParent null is not a reliable
+  //    invisibility signal — fixed elements have no offsetParent)
   const rect = el.getBoundingClientRect()
   if (rect.width === 0 || rect.height === 0) return false
 
