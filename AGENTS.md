@@ -20,6 +20,11 @@ playwright-cli open "chrome://extensions/" --headed --persistent
 
 If the extension is not loaded, prompt the user to manually load it.
 
+### Extension name
+
+The extension is named **"轻氧翻译" (QY Translate)** — locate it by name in the
+snapshot when working on `chrome://extensions/`.
+
 ## playwright-cli
 Always use the default session
 
