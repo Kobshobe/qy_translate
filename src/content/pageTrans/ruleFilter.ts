@@ -23,6 +23,8 @@ export const TARGET_TAGS = new Set([
   'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
   'li', 'td', 'th', 'blockquote', 'figcaption',
   'dt', 'dd', 'caption',
+  // <summary>: visible title of a <details> collapsible (FAQ accordions etc.)
+  'summary',
   // Modern card/feed UIs often render titles in <a> (e.g. Reddit's a[slot=title])
   'a',
 ])

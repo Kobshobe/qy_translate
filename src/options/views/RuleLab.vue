@@ -174,11 +174,17 @@
                 </div>
               </section>
 
-              <!-- ==================== faq ==================== -->
+              <!-- ==================== faq accordion ==================== -->
               <section class="faq">
                 <h2>Frequently Asked Questions</h2>
-                <p>Question one: how long does it take to get started? Most teams are fully set up within an hour, including custom integrations with their existing stack.</p>
-                <p>Question two: do you offer enterprise plans? Yes, we have dedicated support, SSO and custom contracts for larger organizations.</p>
+                <details open>
+                  <summary><span>Question one: how long does it take to get started?</span></summary>
+                  <p>Most teams are fully set up within an hour, including custom integrations with their existing stack.</p>
+                </details>
+                <details open>
+                  <summary><span>Question two: do you offer enterprise plans?</span></summary>
+                  <p>Yes, we have dedicated support, SSO and custom contracts for larger organizations.</p>
+                </details>
               </section>
 
               <!-- ==================== edge cases ==================== -->
@@ -690,6 +696,19 @@ onMounted(async () => {
     }
 
     .faq p { margin-bottom: 10px; }
+    .faq details {
+      border: 1px solid #e6eaf0;
+      border-radius: 6px;
+      padding: 8px 14px;
+      margin-bottom: 10px;
+    }
+    .faq summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: #1a1a2e;
+      outline: none;
+    }
+    .faq summary::marker { color: #2563eb; }
 
     /* edge cases */
     .edge-cases {

@@ -379,4 +379,27 @@ export const ALL_FIXTURES: RuleFixture[] = [
   <p>Finally, the conclusion summarizes the key takeaways and suggests further reading for anyone who wants to explore the subject in more depth.</p>
 </article>`,
   },
+  {
+    id: 'faq-accordion',
+    name: 'FAQ accordion',
+    description: '<details>/<summary> collapsible: the visible question in <summary> (with a nested <span>) is extracted; answers <p> extracted.',
+    expectedExtracted: [
+      'Frequently Asked Questions',
+      'Does the recipient need to accept crypto?',
+      'No. The recipient never touches crypto. They receive a standard local bank transfer in their own currency, exactly as they would from any other payment.',
+      'Do I need a bank account to use TrustLinq?',
+      'No. TrustLinq does not require you to hold a bank account. You fund payments directly from your own crypto wallet and TrustLinq settles the payment on your behalf.',
+    ],
+    html: `<main>
+  <h2>Frequently Asked Questions</h2>
+  <details class="faq__item" open>
+    <summary class="faq__question"><span>Does the recipient need to accept crypto?</span></summary>
+    <p>No. The recipient never touches crypto. They receive a standard local bank transfer in their own currency, exactly as they would from any other payment.</p>
+  </details>
+  <details class="faq__item" open>
+    <summary class="faq__question"><span>Do I need a bank account to use TrustLinq?</span></summary>
+    <p>No. TrustLinq does not require you to hold a bank account. You fund payments directly from your own crypto wallet and TrustLinq settles the payment on your behalf.</p>
+  </details>
+</main>`,
+  },
 ]
