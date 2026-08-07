@@ -14,6 +14,9 @@
         <router-link v-if="Mode!='public' || mode==='debug'" to="/ui_example"
           ><div class="tab-item">ui</div></router-link
         >
+        <router-link v-if="Mode!='public' || mode==='debug'" to="/rule-lab"
+          ><div class="tab-item">rule-lab</div></router-link
+        >
       </div>
     </div>
 

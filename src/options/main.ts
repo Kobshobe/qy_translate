@@ -11,6 +11,7 @@ import PageTrans from '@/options/views/PageTrans.vue'
 import Other from '@/options/views/Other.vue'
 import UIExample from '@/options/views/UIExample.vue'
 import LLM from '@/options/views/LLM.vue'
+import RuleLab from '@/options/views/RuleLab.vue'
 
 const routes = [
     {
@@ -26,7 +27,8 @@ const routes = [
     {path: '/collections', component: Collections},
     {path: '/other', component: Other},
     {path: '/ui_example', component: UIExample},
-    {path: '/llm', component: LLM}
+    {path: '/llm', component: LLM},
+    {path: '/rule-lab', component: RuleLab}
 ]
 
 const router = createRouter({

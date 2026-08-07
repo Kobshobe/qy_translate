@@ -18,39 +18,18 @@ import {
   ATTR,
 } from './types'
 import { RenderEngine } from './renderEngine'
-import { isTargetLangText } from '@/translator/trans_base'
 import { getSiteRule, extractWithSiteRule } from './siteRules'
 import { Context } from '@/api/context'
 import { defaultTransEngine } from '@/config'
-
-/* ============================================================
-   Translatable target tags (block-level text elements)
-   ============================================================ */
-const TARGET_TAGS = new Set([
-  'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'li', 'td', 'th', 'blockquote', 'figcaption',
-  'dt', 'dd', 'caption',
-  // Modern card/feed UIs often render titles in <a> (e.g. Reddit's a[slot=title])
-  'a',
-])
-
-/* ============================================================
-   Tags excluded from translation
-   ============================================================ */
-const SKIP_TAGS = new Set([
-  'script', 'style', 'noscript', 'code', 'pre',
-  'svg', 'math', 'canvas', 'video', 'audio',
-  'textarea', 'select', 'option',
-])
-
-const SKIP_ROLES = new Set([
-  'navigation', 'banner', 'complementary', 'contentinfo',
-  'alert', 'dialog', 'toolbar', 'menu', 'menubar',
-  'tabpanel', 'presentation',
-])
-
-const MIN_TEXT_LENGTH = 2
-const MAX_TEXT_LENGTH = 5000
+import {
+  SKIP_TAGS,
+  SKIP_ROLES,
+  isInNonContentArea,
+  isElementVisible,
+  shouldTranslateText,
+  findMainContentContainer,
+  filterParagraphs,
+} from './ruleFilter'
 
 /**
  * Format a duration in ms as "min" format for analytics, e.g. 2m30s / 45s
@@ -203,125 +182,6 @@ export class PageTransEngine {
   }
 
   /* ============================================================
-     Main content container lookup strategy
-     ============================================================ */
-  private findMainContentContainer(): Element | null {
-    // 1. Explicit semantic container (role="main" / <main>) — unambiguous, trust it
-    const semantic =
-      document.querySelector<Element>('[role="main"]') ||
-      document.querySelector<Element>('main')
-    if (semantic) return semantic
-
-    // 2. <article> is often used for cards/list items (product cards, stat cards,
-    //    news summaries, etc.); the first <article> may just be a small card,
-    //    not the whole page body. Only treat it as the body container when it
-    //    contains enough content.
-    const article = document.querySelector<Element>('article')
-    if (article && this.isContentRichContainer(article)) return article
-
-    // 3. Find the text-densest region (excluding non-content areas)
-    const contentLikeTags = ['div', 'section', 'article']
-    let best: Element | null = null
-    let bestScore = 0
-
-    for (const tag of contentLikeTags) {
-      for (const el of document.querySelectorAll<Element>(tag)) {
-        if (this.isInNonContentArea(el)) continue
-        const text = el.textContent?.trim() || ''
-        if (text.length < 200) continue
-        const pCount = el.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6').length
-        const score = text.length * Math.min(pCount, 50)
-        if (score > bestScore) {
-          bestScore = score
-          best = el
-        }
-      }
-    }
-
-    // 4. Coverage check: landing/card-grid pages often lack <main>, with content
-    //    spread across sibling <section>/<div>s (hero, feature, faq…), so the
-    //    density algorithm only picks one of them. If the best container covers
-    //    only a small fraction of the page's translatable nodes, return null so
-    //    the caller falls back to a full document.body scan (isInNonContentArea
-    //    filters nav, header, footer, sidebar, etc.).
-    if (best) {
-      const TARGET =
-        'p, li, h1, h2, h3, h4, h5, h6, td, th, blockquote, figcaption, dt, dd, caption'
-      const bestTargets = best.querySelectorAll(TARGET).length
-      const bodyTargets = document.body.querySelectorAll(TARGET).length
-      if (bestTargets < bodyTargets * 0.5) {
-        return null
-      }
-    }
-
-    return best
-  }
-
-  /** Whether the element contains enough body content (avoid treating cards/list items as page containers) */
-  private isContentRichContainer(el: Element): boolean {
-    const text = el.textContent?.trim() || ''
-    if (text.length < 100) return false
-    // Long text (>=200) or multiple block text nodes qualify as a body container
-    const targetCount = el.querySelectorAll(
-      'p, li, h1, h2, h3, h4, h5, h6, blockquote'
-    ).length
-    return text.length >= 200 || targetCount >= 3
-  }
-
-  /** Combined non-content selectors (single closest() match) */
-  private static readonly NON_CONTENT_SELECTOR = [
-    'nav', 'header', 'footer', 'aside',
-    '[role="navigation"]', '[role="banner"]', '[role="contentinfo"]',
-    '[role="complementary"]', '[role="tabpanel"]', '[role="tablist"]',
-    '[role="menubar"]', '[role="search"]',
-    '.sidebar', '.Sidebar', '#sidebar', '#Sidebar',
-    '.footer', '.Header', '.header',
-    '.nav', '.Nav', '#nav', '#Nav',
-    '.menu', '.Menu', '.toolbar', '.Toolbar',
-    '.dropdown', '.Dropdown',
-    '.tabnav', '.TabNav', '.UnderlineNav', '.underline-nav',
-    '.tab-bar', '.TabBar', '.tabs', '.Tabs',
-    '.breadcrumb', '.Breadcrumb', '.Breadcrumbs',
-    '.pagination', '.Pagination',
-    '.search', '.Search', '#search', '#Search',
-    '.subnav', '.SubNav',
-  ].join(',')
-
-  /* ---- Whether an element is in a non-content area ---- */
-  private isInNonContentArea(el: Element): boolean {
-    // Layer 1: combined selector single match
-    if (el.closest(PageTransEngine.NON_CONTENT_SELECTOR)) return true
-
-    // Layer 2: link-density heuristic — if link text is > 50% of a container's
-    // text with an average < 25 chars per link, it's likely navigation
-    const parent = el.closest('li, p, h1, h2, h3, h4, h5, h6, td, th, div, section')
-    if (!parent) return false
-
-    // Only check short text blocks (nav text is usually short)
-    const totalText = (parent.textContent || '').trim()
-    if (totalText.length > 300) return false  // long text can't be navigation
-
-    // Calculate link text ratio
-    const links = parent.querySelectorAll('a, button')
-    if (links.length < 2) return false
-
-    let linkTextLen = 0
-    let maxLinkLen = 0
-    links.forEach(a => {
-      const len = (a.textContent || '').trim().length
-      linkTextLen += len
-      if (len > maxLinkLen) maxLinkLen = len
-    })
-
-    // Most text inside links with short average length → navigation
-    const linkRatio = linkTextLen / Math.max(totalText.length, 1)
-    const avgLinkLen = linkTextLen / links.length
-
-    // A long link (e.g. an article/post title, HN title links are ~21 chars) means it's content, not nav
-    return linkRatio > 0.5 && avgLinkLen < 25 && maxLinkLen < 20
-  }
-
-  /* ============================================================
      Core: extract translatable paragraphs
      ============================================================ */
   /* ---- Convert candidate Element[] to Paragraph[] ---- */
@@ -344,12 +204,12 @@ export class PageTransEngine {
       if (role && SKIP_ROLES.has(role)) continue
       if (el.closest('[role]') && SKIP_ROLES.has(el.closest('[role]')!.getAttribute('role')!)) continue
       // Skip non-content areas (nav, sidebar, etc.)
-      if (this.isInNonContentArea(el)) continue
+      if (isInNonContentArea(el)) continue
 
-      if (!this.isElementVisible(el)) continue
+      if (!isElementVisible(el)) continue
 
       const text = el.textContent?.trim() ?? ''
-      if (!this.shouldTranslate(text)) continue
+      if (!shouldTranslateText(text, this.targetLang)) continue
 
       result.push({
         id: uuid(),
@@ -360,75 +220,6 @@ export class PageTransEngine {
         status: 'pending',
       })
     }
-    return result
-  }
-
-  /* ============================================================
-     Collect translatable candidate nodes
-     ============================================================ */
-  /**
-   * Collect translatable candidate nodes:
-   * 1. Standard block text tags (TARGET_TAGS), excluding duplicates nested inside
-   *    another translatable tag
-   * 2. Bare-text <div>s (frameworks like React/Vue often render body text directly
-   *    into child-less divs, e.g. Reddit's new UI card bodies, modern feeds).
-   *    Requires >= 30 chars to avoid timestamps/badges/button labels being
-   *    treated as content.
-   */
-  private collectCandidates(root: Element): Element[] {
-    // Table/list/definition-list are structural boundaries: content past a
-    // boundary is an independent text unit, so nested layouts like
-    // <td><table><tr><td>… no longer treat ancestors as duplicates
-    const STRUCTURAL = new Set(['table', 'ul', 'ol', 'dl'])
-    const seen = new Set<Element>()
-    const result: Element[] = []
-
-    // 1. Standard block text tags
-    const targets = root.querySelectorAll<Element>([...TARGET_TAGS].join(','))
-    targets.forEach((el) => {
-      if (seen.has(el)) return
-
-      // Skip structural containers: an element directly wrapping
-      // table/ul/ol/dl is a layout container, not a text unit
-      // (e.g. HN's <td><table>…</table></td>, otherwise the whole
-      // table would be treated as one block of text)
-      let child = el.firstElementChild
-      while (child) {
-        if (STRUCTURAL.has(child.tagName.toLowerCase())) {
-          seen.add(el)
-          return
-        }
-        child = child.nextElementSibling
-      }
-
-      // Exclude duplicates of an ancestor node (e.g. <a> inside <p>);
-      // the check resets past structural boundaries
-      let parent = el.parentElement
-      while (
-        parent &&
-        parent !== root &&
-        !STRUCTURAL.has(parent.tagName.toLowerCase())
-      ) {
-        if (TARGET_TAGS.has(parent.tagName.toLowerCase()) && !this.isInNonContentArea(parent)) {
-          seen.add(el)
-          return
-        }
-        parent = parent.parentElement
-      }
-      seen.add(el)
-      result.push(el)
-    })
-
-    // 2. Bare-text divs
-    const divs = root.querySelectorAll<Element>('div')
-    divs.forEach((el) => {
-      if (seen.has(el) || el.children.length > 0) return
-      const text = el.textContent?.trim() ?? ''
-      if (text.length < 30) return
-      seen.add(el)
-      result.push(el)
-    })
-
     return result
   }
 
@@ -451,45 +242,23 @@ export class PageTransEngine {
       return this.paragraphs
     }
 
-    // 2. Generic heuristic algorithm
-    const container = this.findMainContentContainer()
+    // 2. Generic heuristic algorithm (pure rules in ruleFilter)
+    const container = findMainContentContainer(document)
     const root = container || document.body
-
-    const candidates = this.collectCandidates(root)
+    const decisions = filterParagraphs(root, { targetLang: this.targetLang })
     const result: Paragraph[] = []
 
-    candidates.forEach((el) => {
-      if (this.isInNonContentArea(el)) return
-
-      if (
-        el.hasAttribute(ATTR.processed) ||
-        el.hasAttribute(ATTR.translation) ||
-        el.closest(`[${ATTR.translation}]`)
-      ) {
-        return
-      }
-
-      // Skip non-translatable tags
-      if (SKIP_TAGS.has(el.tagName.toLowerCase())) return
-      // Skip elements declaring excluded roles
-      const role = el.getAttribute('role')
-      if (role && SKIP_ROLES.has(role)) return
-      if (el.closest('[role]') && SKIP_ROLES.has(el.closest('[role]')!.getAttribute('role')!)) return
-
-      if (!this.isElementVisible(el)) return
-
-      const text = el.textContent?.trim() ?? ''
-      if (!this.shouldTranslate(text)) return
-
+    for (const d of decisions) {
+      if (!d.extracted) continue
       result.push({
         id: uuid(),
-        node: el,
-        originalText: text,
+        node: d.element,
+        originalText: d.text,
         translatedText: '',
         lang: '',
         status: 'pending',
       })
-    })
+    }
 
     this.paragraphs = result
     this.totalCount = result.length
@@ -502,29 +271,6 @@ export class PageTransEngine {
 
     this.setStatus('idle')
     return result
-  }
-
-  /* ---- Whether an element is visible on the page ---- */
-  private isElementVisible(el: Element): boolean {
-    // 1. Check offsetParent first (excludes display:none elements)
-    const htmlEl = el as HTMLElement
-    if (htmlEl.offsetParent === null) {
-      // null offsetParent isn't necessarily invisible (e.g. fixed elements);
-      // fall back to computed style
-      const style = window.getComputedStyle(el)
-      if (style.display === 'none') return false
-      if (style.visibility === 'hidden') return false
-      if (parseFloat(style.opacity) < 0.01) return false
-    }
-
-    // 2. Check element size is non-zero
-    const rect = el.getBoundingClientRect()
-    if (rect.width === 0 || rect.height === 0) return false
-
-    // 3. Check element or ancestors for aria-hidden
-    if (el.closest('[aria-hidden="true"]')) return false
-
-    return true
   }
 
   /* ---- Send analytics event ---- */
@@ -548,21 +294,6 @@ export class PageTransEngine {
     } catch {
       return defaultTransEngine
     }
-  }
-
-  /* ---- Whether a paragraph is worth translating ---- */
-  private shouldTranslate(text: string): boolean {
-    if (text.length < MIN_TEXT_LENGTH) return false
-    if (text.length > MAX_TEXT_LENGTH) return false
-    // Exclude pure digits/symbols/whitespace (Unicode punctuation covers all languages)
-    if (/^[\d\s\p{P}]+$/u.test(text)) return false
-    // Exclude pure URLs (link-post/source-link text should not be translated)
-    if (/^https?:\/\/\S+$/i.test(text)) return false
-    // If target lang isn't auto and the text is already in the target lang, skip
-    if (this.targetLang !== 'auto' && isTargetLangText(text, this.targetLang)) {
-      return false
-    }
-    return true
   }
 
   /* ============================================================
@@ -747,7 +478,7 @@ export class PageTransEngine {
       root = el || document.body
       this.observerSelector = siteRule.mainSelector
     } else {
-      const container = this.findMainContentContainer()
+      const container = findMainContentContainer(document)
       root = container || document.body
     }
 
@@ -826,25 +557,21 @@ export class PageTransEngine {
         candidates.push(el)
       }
     } else {
-      // Generic: same scope as the initial extraction
-      const container = this.findMainContentContainer()
-      const root = container || document.body
-      const allElements = this.collectCandidates(root)
-      for (const el of allElements) {
-        if (
-          visited.has(el) ||
-          el.hasAttribute(ATTR.processed) ||
-          el.hasAttribute(ATTR.translation) ||
-          el.closest(`[${ATTR.translation}]`)
-        ) continue
-        visited.add(el)
-        candidates.push(el)
+      // Generic: same scope as the initial extraction, using the pure rules
+      const container = findMainContentContainer(document)
+      const decisions = filterParagraphs(container || document.body, {
+        targetLang: this.targetLang,
+      })
+      for (const d of decisions) {
+        if (!d.extracted || visited.has(d.element)) continue
+        visited.add(d.element)
+        candidates.push(d.element)
       }
     }
 
     for (const el of candidates) {
       // Skip non-content areas
-      if (this.isInNonContentArea(el)) continue
+      if (isInNonContentArea(el)) continue
       // Skip non-translatable tags
       if (SKIP_TAGS.has(el.tagName.toLowerCase())) continue
       // Skip elements declaring excluded roles
@@ -852,10 +579,10 @@ export class PageTransEngine {
       if (role && SKIP_ROLES.has(role)) continue
       if (el.closest('[role]') && SKIP_ROLES.has(el.closest('[role]')!.getAttribute('role')!)) continue
 
-      if (!this.isElementVisible(el)) continue
+      if (!isElementVisible(el)) continue
 
       const text = el.textContent?.trim() ?? ''
-      if (!this.shouldTranslate(text)) continue
+      if (!shouldTranslateText(text, this.targetLang)) continue
 
       // Mark as processed
       el.setAttribute(ATTR.processed, 'true')
