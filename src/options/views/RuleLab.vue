@@ -2,18 +2,8 @@
   <div class="rule-lab">
     <!-- ===== Top control bar ===== -->
     <div class="lab-toolbar">
-      <select v-model="currentId" class="lab-select fixture-select" @change="onSelectFixture">
-        <optgroup label="Built-in fixtures">
-          <option v-for="f in ALL_FIXTURES" :key="f.id" :value="f.id">{{ f.name }}</option>
-        </optgroup>
-        <optgroup v-if="customFixtures.length" label="Custom fixtures">
-          <option v-for="f in customFixtures" :key="f.id" :value="f.id">{{ f.name }}</option>
-        </optgroup>
-        <option value="__new__" class="new-option">+ New custom fixture…</option>
-      </select>
-
       <label class="lab-label">Target lang</label>
-      <select v-model="targetLang" class="lab-select lang-select">
+      <select v-model="targetLang" class="lab-select lang-select" @change="run">
         <option value="auto">auto</option>
         <option value="zh-CN">zh-CN</option>
         <option value="en">en</option>
@@ -36,19 +26,13 @@
         <input type="checkbox" v-model="showFiltered" @change="applyMarks" /> filtered
       </label>
 
-      <select v-model="resultFilter" class="lab-select filter-select" @change="applyMarks">
+      <select v-model="resultFilter" class="lab-select filter-select">
         <option value="all">all results</option>
         <option value="extracted">extracted only</option>
         <option value="filtered">filtered only</option>
       </select>
 
       <input v-model="search" class="lab-input search-input" placeholder="search text / tag / reason…" />
-
-      <button class="lab-btn" @click="exportJson">Export JSON</button>
-      <label class="lab-btn file-btn">
-        Import JSON
-        <input type="file" accept="application/json,.json" style="display:none" @change="onImportJson" />
-      </label>
     </div>
 
     <!-- ===== Stats bar ===== -->
@@ -57,49 +41,179 @@
       <span class="stat extracted">extracted: {{ extractedCount }}</span>
       <span class="stat filtered">filtered: {{ filteredCount }}</span>
       <span class="stat container">main container: <code>{{ containerDesc }}</code></span>
-      <span v-if="currentFixture && currentFixture.description" class="stat desc" :title="currentFixture.description">
-        {{ currentFixture.description }}
-      </span>
       <span v-for="(count, reason) in filteredByReason" :key="reason" class="stat reason-chip" :title="reasonLabel(reason)">
         {{ shortReason(reason) }}: {{ count }}
       </span>
     </div>
 
-    <!-- ===== Editor (collapsible) ===== -->
-    <div class="lab-editor">
-      <button class="lab-btn small" @click="editorOpen = !editorOpen">
-        {{ editorOpen ? '▾ Hide HTML editor' : '▸ Edit HTML' }}
-      </button>
-      <textarea
-        v-if="editorOpen"
-        v-model="html"
-        class="lab-textarea"
-        spellcheck="false"
-        placeholder="Paste fixture HTML here…"
-      ></textarea>
-      <div v-if="editorOpen" class="editor-actions">
-        <button class="lab-btn small" @click="run">Run edited HTML</button>
-        <template v-if="isCustom">
-          <button class="lab-btn small primary" @click="saveCustom">Save custom fixture</button>
-          <button class="lab-btn small danger" @click="deleteCustom">Delete fixture</button>
-        </template>
-        <template v-else>
-          <button class="lab-btn small" @click="saveAsCustom">Save as new custom fixture</button>
-        </template>
-      </div>
-    </div>
-
-    <!-- ===== Main split: preview + decision table ===== -->
+    <!-- ===== Main split: the fixed test page + decision table ===== -->
     <div class="lab-main">
-      <!-- Preview -->
+      <!-- The test page itself (this page IS the translation target) -->
       <div class="lab-preview-pane">
-        <div class="pane-title">Preview</div>
+        <div class="pane-title">Test page (translation target)</div>
         <div class="lab-preview-scroll">
-          <div ref="previewEl" class="qyt-lab-preview"></div>
+          <div ref="previewEl" class="qyt-test-page">
+            <!-- ==================== site header / nav ==================== -->
+            <header class="site-header">
+              <div class="brand">QY Translate</div>
+              <nav class="main-nav">
+                <ul>
+                  <li><a href="#">Home</a></li>
+                  <li><a href="#">Features</a></li>
+                  <li><a href="#">Pricing</a></li>
+                  <li><a href="#">Blog</a></li>
+                  <li><a href="#">Contact</a></li>
+                </ul>
+              </nav>
+            </header>
+
+            <main class="test-main">
+              <!-- ==================== article ==================== -->
+              <article class="post">
+                <h1>How the Page Translation Engine Works</h1>
+                <p class="post-meta">By QY Translate Team · Updated March 2026</p>
+
+                <p>
+                  The page translation engine walks the DOM and extracts translatable paragraph nodes before
+                  sending them to the background translation service. It manages the status of every paragraph
+                  and controls concurrent translation with batching and throttling so the page stays responsive
+                  even on long documents with hundreds of paragraphs.
+                </p>
+                <p>
+                  Instead of translating the whole page at once, the engine only targets the main content area:
+                  navigation menus, sidebars, footers and other chrome are detected and skipped automatically.
+                  Dynamic content is handled by a mutation observer, so newly loaded posts and comments get
+                  translated in the background without interrupting the reader.
+                </p>
+
+                <blockquote>
+                  The only way to do great work is to love what you do. If you have not found it yet, keep
+                  looking and never settle. As with all matters of the heart, you will know when you find it.
+                </blockquote>
+
+                <h2>Getting Started</h2>
+                <p>
+                  Install the extension from the store, open any article page and press the translate button.
+                  The engine detects the main content container, extracts every paragraph and renders the
+                  translation right below the original text. You can switch between bilingual and target-only
+                  display modes at any time.
+                </p>
+
+                <!-- ==================== table ==================== -->
+                <h2>Supported Languages</h2>
+                <table class="lang-table">
+                  <thead>
+                    <tr><th>Language</th><th>Difficulty</th><th>Native Speakers</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Mandarin Chinese</td><td>Very hard</td><td>Over one billion</td></tr>
+                    <tr><td>English</td><td>Medium</td><td>About one point five billion</td></tr>
+                    <tr><td>Japanese</td><td>Very hard</td><td>About one hundred and twenty five million</td></tr>
+                  </tbody>
+                </table>
+
+                <!-- ==================== code block ==================== -->
+                <h2>Code Sample</h2>
+                <p>Install the package with the following command in your terminal:</p>
+                <pre>npm install qy-translate --save</pre>
+                <p>Then import the module in your project entry file and start translating.</p>
+
+                <!-- ==================== figure ==================== -->
+                <figure>
+                  <div class="placeholder-img">[Image placeholder]</div>
+                  <figcaption>Architecture diagram of the page translation pipeline.</figcaption>
+                </figure>
+
+                <!-- ==================== mixed language ==================== -->
+                <h2>Mixed Language Notes</h2>
+                <p>
+                  This paragraph is written entirely in English and should be translated into the target
+                  language when the page is translated.
+                </p>
+                <p>
+                  人工智能正在深刻改变我们的生活方式和工作方式。从驱动推荐系统的机器学习算法，到实现无缝沟通的
+                  自然语言处理模型，AI 已经成为现代技术不可或缺的一部分。这段中文内容在目标语言为中文时应该被
+                  识别为已经是目标语言，从而跳过翻译。
+                </p>
+                <p>
+                  人工知能は、現代のテクノロジーにおいて最も重要な革新の一つです。機械学習と深層学習の進歩に
+                  より、コンピューターは画像認識などの分野で大きな進歩を遂げています。日本語の段落は漢字の
+                  割合が高いため、目标语言为中文时会被当作已翻译语言跳过。
+                </p>
+                <p>
+                  This paragraph mixes English words and 中文 characters together to test the language detection
+                  logic inside the filter, because the CJK ratio stays below the threshold and the text should
+                  still be translated.
+                </p>
+              </article>
+
+              <!-- ==================== sidebar ==================== -->
+              <aside class="sidebar">
+                <h3>Related Articles</h3>
+                <ul>
+                  <li>Ten tips for writing better browser extensions</li>
+                  <li>Understanding the mutation observer API</li>
+                  <li>How to keep your translations fast and accurate</li>
+                </ul>
+                <h3>Advertisement</h3>
+                <div class="ad">Try our premium plan today with a thirty day free trial and full access to every feature.</div>
+              </aside>
+
+              <!-- ==================== card grid ==================== -->
+              <section class="card-grid">
+                <h2>Featured Products</h2>
+                <div class="card">
+                  <a class="card-title" href="#">Ergonomic Office Chair with Adjustable Lumbar Support</a>
+                  <p>Designed for long working hours, this chair features breathable mesh fabric and a recline mechanism that adapts to your posture.</p>
+                  <div class="summary">Free shipping on orders over fifty dollars within the continental United States.</div>
+                </div>
+                <div class="card">
+                  <a class="card-title" href="#">Wireless Mechanical Keyboard with RGB Backlighting</a>
+                  <p>Hot-swappable switches, low latency Bluetooth and a long battery life make this keyboard perfect for both work and gaming sessions.</p>
+                  <div class="summary">Compatible with Windows, macOS, Android and iOS devices out of the box.</div>
+                </div>
+              </section>
+
+              <!-- ==================== faq ==================== -->
+              <section class="faq">
+                <h2>Frequently Asked Questions</h2>
+                <p>Question one: how long does it take to get started? Most teams are fully set up within an hour, including custom integrations with their existing stack.</p>
+                <p>Question two: do you offer enterprise plans? Yes, we have dedicated support, SSO and custom contracts for larger organizations.</p>
+              </section>
+
+              <!-- ==================== edge cases ==================== -->
+              <section class="edge-cases">
+                <h2>Edge Cases</h2>
+                <p class="scenario-note">Hidden, non-content and non-translatable text lives below — these should all be filtered.</p>
+
+                <p style="display:none">This paragraph is hidden with display none and must be skipped.</p>
+                <p style="visibility:hidden">This paragraph is hidden with visibility hidden and must be skipped.</p>
+                <div aria-hidden="true"><p>This paragraph sits inside an aria-hidden container and must be skipped.</p></div>
+                <div role="dialog"><p>Dialog content that should be skipped as well.</p></div>
+                <div role="toolbar"><p>Toolbar label that is not page content.</p></div>
+
+                <p>A</p>
+                <p>42</p>
+                <p>2026-01-01 12:30</p>
+                <p>https://example.com/docs/guide</p>
+                <p>---</p>
+                <p>This sentence is long enough and should be extracted normally by the filtering rules.</p>
+
+                <div class="long-text-wrap">
+                  <p>{{ longText }}</p>
+                </div>
+              </section>
+            </main>
+
+            <!-- ==================== footer ==================== -->
+            <footer class="site-footer">
+              <p>Copyright 2026 QY Translate. All rights reserved worldwide.</p>
+            </footer>
+          </div>
         </div>
       </div>
 
-      <!-- Decision table -->
+      <!-- ===== Decision table ===== -->
       <div class="lab-table-pane">
         <div class="pane-title">Decisions ({{ visibleDecisions.length }})</div>
         <div class="lab-table-scroll">
@@ -125,7 +239,7 @@
             </tbody>
           </table>
           <div v-if="visibleDecisions.length === 0" class="empty-hint">
-            No decisions — run a fixture first.
+            No decisions — run the page first.
           </div>
         </div>
       </div>
@@ -159,8 +273,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { ALL_FIXTURES, RuleFixture } from '@/content/pageTrans/fixtures'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import {
   FilterDecision,
   FilterReason,
@@ -168,31 +281,20 @@ import {
   findMainContentContainer,
 } from '@/content/pageTrans/ruleFilter'
 
-const STORAGE_KEY = 'ruleLabCustomFixtures'
+/** Paragraph above MAX_TEXT_LENGTH (5000 chars) → text-too-long */
+const longText = 'The quick brown fox jumps over the lazy dog while testing paragraph length limits. '.repeat(120)
 
 /* ---- State ---- */
 const previewEl = ref<HTMLDivElement | null>(null)
-const currentId = ref(ALL_FIXTURES[0].id)
-const html = ref(ALL_FIXTURES[0].html)
 const targetLang = ref('zh-CN')
 const decisions = ref<FilterDecision[]>([])
 const containerDesc = ref('(not run yet)')
-const customFixtures = ref<RuleFixture[]>([])
 const showExtracted = ref(true)
 const showFiltered = ref(true)
 const resultFilter = ref<'all' | 'extracted' | 'filtered'>('all')
 const search = ref('')
-const editorOpen = ref(false)
 const selected = ref<FilterDecision | null>(null)
 const detail = ref<any>(null)
-
-const currentFixture = computed<RuleFixture | null>(() =>
-  ALL_FIXTURES.find((f) => f.id === currentId.value) ||
-  customFixtures.value.find((f) => f.id === currentId.value) || null
-)
-const isCustom = computed(() =>
-  customFixtures.value.some((f) => f.id === currentId.value)
-)
 
 const extractedCount = computed(() => decisions.value.filter((d) => d.extracted).length)
 const filteredCount = computed(() => decisions.value.length - extractedCount.value)
@@ -242,19 +344,11 @@ function truncate(s: string, n: number): string {
   return s.length > n ? s.slice(0, n) + '…' : s
 }
 
-/* ---- Sanitize fixture HTML ---- */
-function sanitizeHtml(raw: string): string {
-  return raw
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '')
-}
-
-/* ---- Run the filter ---- */
+/* ---- Run the filter against the fixed test page DOM ---- */
 function run() {
   selected.value = null
   detail.value = null
   if (!previewEl.value) return
-  previewEl.value.innerHTML = sanitizeHtml(html.value)
   const root = previewEl.value
   const container = findMainContentContainer(root)
   containerDesc.value = container ? describeNode(container) : '(body fallback)'
@@ -274,11 +368,9 @@ function describeNode(el: Element): string {
 function applyMarks() {
   if (!previewEl.value) return
   const root = previewEl.value
-  // clear previous marks
   root.querySelectorAll('.qyt-lab-extracted, .qyt-lab-filtered, .qyt-lab-selected').forEach((el) => {
     el.classList.remove('qyt-lab-extracted', 'qyt-lab-filtered', 'qyt-lab-selected')
   })
-  if (selected.value) selected.value.element.classList.remove('qyt-lab-selected')
 
   for (const d of decisions.value) {
     if (d.extracted && showExtracted.value) d.element.classList.add('qyt-lab-extracted')
@@ -353,115 +445,11 @@ function buildDetail(d: FilterDecision) {
   }
 }
 
-/* ---- Fixture selection ---- */
-function onSelectFixture() {
-  if (currentId.value === '__new__') {
-    newCustomFixture()
-    return
-  }
-  const f = currentFixture.value
-  if (f) {
-    html.value = f.html
-    editorOpen.value = false
-    run()
-  }
-}
-
-function newCustomFixture() {
-  const f: RuleFixture = {
-    id: 'custom-' + Date.now(),
-    name: 'Custom fixture ' + (customFixtures.value.length + 1),
-    description: 'User-defined fixture',
-    html: html.value,
-  }
-  customFixtures.value.push(f)
-  currentId.value = f.id
-  saveCustomFixtures()
-  editorOpen.value = true
+/* ---- Init: run once the fixed page has rendered ---- */
+onMounted(async () => {
+  await nextTick()
   run()
-}
-
-async function saveCustomFixtures() {
-  try {
-    // chrome.storage structured-clones Vue reactive arrays into plain objects;
-    // persist a plain copy so it round-trips as a real array.
-    const plain = customFixtures.value.map((f) => ({
-      id: f.id,
-      name: f.name,
-      description: f.description,
-      html: f.html,
-    }))
-    await chrome.storage.local.set({ [STORAGE_KEY]: plain })
-  } catch { /* storage may be unavailable in dev server */ }
-}
-
-async function saveCustom() {
-  const f = currentFixture.value
-  if (!f) return
-  f.html = html.value
-  await saveCustomFixtures()
-  run()
-}
-
-async function deleteCustom() {
-  const idx = customFixtures.value.findIndex((f) => f.id === currentId.value)
-  if (idx < 0) return
-  customFixtures.value.splice(idx, 1)
-  await saveCustomFixtures()
-  currentId.value = ALL_FIXTURES[0].id
-  html.value = ALL_FIXTURES[0].html
-  run()
-}
-
-function saveAsCustom() {
-  newCustomFixture()
-}
-
-/* ---- Export / Import ---- */
-function exportJson() {
-  const data = { version: 1, fixtures: [...ALL_FIXTURES, ...customFixtures.value] }
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'rule-lab-fixtures.json'
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
-async function onImportJson(e: Event) {
-  const input = e.target as HTMLInputElement
-  const file = input.files?.[0]
-  input.value = ''
-  if (!file) return
-  try {
-    const data = JSON.parse(await file.text())
-    if (!Array.isArray(data.fixtures)) throw new Error('invalid format: missing "fixtures" array')
-    const builtinIds = new Set(ALL_FIXTURES.map((f) => f.id))
-    const imported = (data.fixtures as RuleFixture[]).filter((f) => !builtinIds.has(f.id))
-    customFixtures.value = imported
-    await saveCustomFixtures()
-    if (imported.length > 0) {
-      currentId.value = imported[0].id
-      html.value = imported[0].html
-      run()
-    }
-  } catch (err: any) {
-    window.alert('Import failed: ' + err.message)
-  }
-}
-
-/* ---- Init ---- */
-async function init() {
-  try {
-    const res = await chrome.storage.local.get([STORAGE_KEY])
-    const stored = res[STORAGE_KEY]
-    customFixtures.value = Array.isArray(stored) ? stored : []
-  } catch { /* ignore */ }
-  run()
-}
-
-onMounted(init)
+})
 </script>
 
 <style scoped lang="scss">
@@ -485,6 +473,7 @@ onMounted(init)
   background: var(--xx-background-color, #fff);
   flex-wrap: wrap;
 }
+.lab-label { font-size: 12px; color: var(--xx-text-color-secondary, #666); }
 .lab-select,
 .lab-input {
   height: 26px;
@@ -496,7 +485,6 @@ onMounted(init)
   font-size: 12px;
   outline: none;
 }
-.fixture-select { min-width: 210px; }
 .lang-select { width: 90px; }
 .filter-select { width: 120px; }
 .search-input { width: 180px; }
@@ -518,10 +506,8 @@ onMounted(init)
     color: #fff;
     &:hover { opacity: 0.9; color: #fff; }
   }
-  &.danger { color: #e74c3c; border-color: #e74c3c; &:hover { background: #e74c3c; color: #fff; } }
   &.small { height: 22px; font-size: 11px; padding: 0 8px; }
 }
-.file-btn { position: relative; overflow: hidden; }
 
 .lab-check {
   display: inline-flex;
@@ -551,7 +537,6 @@ onMounted(init)
     border-radius: 3px;
     font-size: 11px;
   }
-  .desc { color: var(--xx-text-color-secondary, #888); max-width: 420px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .reason-chip {
     background: rgba(231, 76, 60, 0.08);
     color: #c0392b;
@@ -560,31 +545,6 @@ onMounted(init)
     font-size: 11px;
   }
 }
-
-/* ---- Editor ---- */
-.lab-editor {
-  padding: 6px 14px;
-  border-bottom: 1px solid var(--xx-border-color, #eee);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: flex-start;
-}
-.lab-textarea {
-  width: 100%;
-  height: 160px;
-  border: 1px solid var(--xx-border-color, #ddd);
-  border-radius: 4px;
-  font-family: Menlo, Consolas, monospace;
-  font-size: 12px;
-  padding: 8px;
-  box-sizing: border-box;
-  resize: vertical;
-  background: var(--xx-input-bg-color, #fff);
-  color: var(--xx-text-color-regular, #333);
-  outline: none;
-}
-.editor-actions { display: flex; gap: 8px; }
 
 /* ---- Main split ---- */
 .lab-main {
@@ -613,7 +573,7 @@ onMounted(init)
 .lab-preview-scroll {
   flex: 1;
   overflow: auto;
-  padding: 16px;
+  padding: 24px 16px;
   background: var(--xx-background-color-2, #fafafa);
 }
 .lab-table-scroll {
@@ -621,16 +581,147 @@ onMounted(init)
   overflow: auto;
 }
 
-/* ---- Preview content ---- */
-.qyt-lab-preview {
+/* ============================================================
+   The fixed test page — this page IS the translation target
+   ============================================================ */
+.qyt-test-page {
+  max-width: 860px;
+  margin: 0 auto;
   background: #fff;
   border: 1px solid var(--xx-border-color, #ddd);
   border-radius: 6px;
-  padding: 20px 24px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-  line-height: 1.7;
   color: #333;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.7;
+  font-size: 15px;
+  overflow: hidden;
+
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    border-bottom: 1px solid #eee;
+    background: #fafbfc;
+    .brand { font-size: 17px; font-weight: 700; color: #1a1a2e; }
+    .main-nav ul {
+      display: flex;
+      gap: 18px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      a { color: #4a5568; text-decoration: none; font-size: 14px; }
+    }
+  }
+
+  .test-main {
+    padding: 28px;
+    display: flow-root;
+
+    h1 { font-size: 26px; margin: 0 0 6px; color: #1a1a2e; }
+    h2 { font-size: 20px; margin: 30px 0 10px; color: #16213e; border-bottom: 2px solid #e9ecef; padding-bottom: 6px; }
+    h3 { font-size: 16px; margin: 20px 0 8px; color: #0f3460; }
+    p { margin: 0 0 14px; }
+    .post-meta { color: #8a94a6; font-size: 13px; }
+
+    blockquote {
+      border-left: 4px solid #4c8bf5;
+      padding: 12px 20px;
+      margin: 16px 0;
+      background: #f8f9ff;
+      color: #495057;
+    }
+
+    pre {
+      background: #212529;
+      color: #f8f9fa;
+      padding: 14px 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 13px;
+      margin: 0 0 14px;
+    }
+
+    .lang-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 0 14px;
+      th, td { border: 1px solid #dee2e6; padding: 8px 12px; text-align: left; }
+      th { background: #f1f3f5; font-weight: 600; }
+    }
+
+    .placeholder-img {
+      height: 140px;
+      background: #e9ecef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      color: #6c757d;
+    }
+    figcaption { font-size: 13px; color: #6c757d; margin-top: 6px; }
+
+    /* sidebar */
+    .sidebar {
+      float: right;
+      width: 240px;
+      margin: 0 0 16px 24px;
+      padding: 14px 18px;
+      background: #f7f9fc;
+      border: 1px solid #e6eaf0;
+      border-radius: 6px;
+      font-size: 14px;
+      ul { margin: 0 0 12px; padding-left: 18px; }
+      li { margin-bottom: 4px; }
+      .ad { font-size: 13px; color: #556; background: #fff; padding: 8px 10px; border-radius: 4px; }
+    }
+
+    /* card grid */
+    .card-grid { clear: both; }
+    .card {
+      border: 1px solid #e6eaf0;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 0 0 14px;
+      .card-title { font-size: 16px; font-weight: 600; color: #2563eb; text-decoration: none; display: block; margin-bottom: 6px; }
+      p { margin: 0 0 8px; }
+      .summary { font-size: 13px; color: #667; background: #f8f9fa; padding: 6px 10px; border-radius: 4px; }
+    }
+
+    .faq p { margin-bottom: 10px; }
+
+    /* edge cases */
+    .edge-cases {
+      margin-top: 26px;
+      padding: 14px 18px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      background: #fbfcfe;
+      .scenario-note { font-size: 13px; color: #64748b; font-style: italic; }
+      .long-text-wrap { max-height: 140px; overflow: hidden; position: relative; }
+      .long-text-wrap::after {
+        content: '';
+        position: absolute;
+        left: 0; right: 0; bottom: 0;
+        height: 40px;
+        background: linear-gradient(transparent, #fbfcfe);
+        pointer-events: none;
+      }
+    }
+  }
+
+  .site-footer {
+    padding: 12px 28px;
+    border-top: 1px solid #eee;
+    background: #fafbfc;
+    color: #8a94a6;
+    font-size: 13px;
+    p { margin: 0; }
+  }
 }
+
+/* ---- highlight marks on the test page ---- */
 :deep(.qyt-lab-extracted) {
   outline: 2px solid #2ecc71;
   outline-offset: 1px;
