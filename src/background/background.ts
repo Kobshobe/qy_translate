@@ -2,9 +2,12 @@ import {apiWrap} from '../utils/apiWithPort'
 import {openPDFReader,onInstall, bgInit} from '../utils/chromeApi'
 
 chrome.runtime.onConnect.addListener(function (port:chrome.runtime.Port) {
-  port.onMessage.addListener(async function (msg: any) {
+  port.onMessage.addListener(function (msg: any) {
     // @ts-ignore
-    apiWrap[port.name](msg, port)
+    // 处理函数均为异步：页面刷新/关闭后回写结果会报错，统一兑底避免未捕获异常
+    Promise.resolve(apiWrap[port.name](msg, port)).catch((e) => {
+      console.warn('[background] api handler failed:', port.name, e?.message || e)
+    })
   })
 })
 
