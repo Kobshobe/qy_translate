@@ -36,6 +36,9 @@ export const SKIP_TAGS = new Set([
   'textarea', 'select', 'option',
 ])
 
+/** Combined skip-tag selector for self-or-ancestor checks */
+const SKIP_TAGS_SELECTOR = [...SKIP_TAGS].join(',')
+
 /** ARIA roles excluded from translation */
 export const SKIP_ROLES = new Set([
   'navigation', 'banner', 'complementary', 'contentinfo',
@@ -386,8 +389,13 @@ function judge(el: Element, opts: FilterOptions): FilterDecision {
     return makeDecision(el, 'already-processed', text)
   }
 
-  // Skip non-translatable tags
-  if (SKIP_TAGS.has(el.tagName.toLowerCase())) {
+  // Skip non-translatable tags — self OR any ancestor. Code editors such as
+  // CodeMirror/Sandpack render lines as div.cm-line inside <pre><code>, so an
+  // element-own tag check alone leaks code text into the candidate set.
+  if (
+    SKIP_TAGS.has(el.tagName.toLowerCase()) ||
+    el.closest(SKIP_TAGS_SELECTOR)
+  ) {
     return makeDecision(el, 'skip-tag', text)
   }
 

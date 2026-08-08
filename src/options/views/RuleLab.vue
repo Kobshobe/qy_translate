@@ -118,6 +118,18 @@
                 <pre>npm install qy-translate --save</pre>
                 <p>Then import the module in your project entry file and start translating.</p>
 
+                <!-- CodeMirror/Sandpack style editor: lines are div.cm-line
+                     inside pre>code and must never be translated -->
+                <div class="sandpack sandpack--codeblock">
+                  <div class="sp-wrapper">
+                    <div class="sp-stack">
+                      <div class="sp-code-editor">
+                        <pre class="sp-cm sp-javascript"><code class="sp-pre-placeholder"><div class="cm-line"><span class="sp-syntax-keyword">function</span> <span class="sp-syntax-definition">MyButton</span>() {</div><div class="cm-line">  <span class="sp-syntax-keyword">return</span> (</div><div class="cm-line">    &lt;<span class="sp-syntax-tag">button</span>&gt;I am a button rendered inside a sandpack code block&lt;/<span class="sp-syntax-tag">button</span>&gt;</div><div class="cm-line">  );</div><div class="cm-line">}</div></code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- ==================== figure ==================== -->
                 <figure>
                   <div class="placeholder-img">[Image placeholder]</div>
