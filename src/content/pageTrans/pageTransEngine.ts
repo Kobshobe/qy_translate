@@ -18,6 +18,7 @@ import {
   ATTR,
 } from './types'
 import { RenderEngine } from './renderEngine'
+import { TranslationCache, translationCacheKey } from './translationCache'
 import { getSiteRule, extractWithSiteRule } from './siteRules'
 import { Context } from '@/api/context'
 import { defaultTransEngine } from '@/config'
@@ -101,6 +102,11 @@ export class PageTransEngine {
   /* ---- Same-domain navigation (SPA) ---- */
   private navCheckTimer: ReturnType<typeof setInterval> | null = null
   private lastUrl = ''
+
+  // In-memory dedup: identical text is translated once per page/engine
+  private transCache = new TranslationCache()
+  // Texts currently being translated; concurrent duplicates share one request
+  private inFlight = new Map<string, Promise<string>>()
 
   /* ---- Callbacks ---- */
   onProgress?: (done: number, total: number) => void
@@ -306,6 +312,10 @@ export class PageTransEngine {
     engine = resolvedEngine
     this.currentEngine = resolvedEngine
 
+    // Dedup cache is engine/language specific: drop it when identity changes
+    this.transCache.ensureIdentity(`${resolvedEngine}|${this.targetLang}`)
+    this.transCache.resetSaved()
+
     // Analytics: batch translation start
     this.sendAnalytic('pageTrans_start', {
       total: pending.length,
@@ -334,11 +344,17 @@ export class PageTransEngine {
     const done = pending.filter((p) => p.status === 'done').length
     const failed = pending.filter((p) => p.status === 'error').length
     const duration = Date.now() - translateStartTime
+    const dedupSaved = this.transCache.saved
+    if (dedupSaved > 0) {
+      console.debug(`[pageTrans] dedup saved ${dedupSaved} translation calls`)
+    }
     this.sendAnalytic('pageTrans_end', {
       // Page translation analysis
       success: `${done}/${pending.length}`,
       failed: `${failed}/${pending.length};${engine}`,
       duration: `${formatDuration(duration)};${pending.length};${engine}`,
+      // Duplicate texts translated only once (quota/time saved)
+      saved: dedupSaved,
       // Context
       targetLang: this.targetLang,
       engine,
@@ -399,8 +415,38 @@ export class PageTransEngine {
     }
   }
 
-  /* ---- Call background translation ---- */
+  /* ---- Call background translation (with in-memory dedup) ---- */
   private callTranslate(para: Paragraph, engine?: string): Promise<string> {
+    const key = translationCacheKey(para.originalText)
+
+    // Already translated on this page with the same engine/language
+    const cached = this.transCache.get(key)
+    if (cached !== undefined) {
+      this.transCache.noteSaved()
+      return Promise.resolve(cached)
+    }
+
+    // Same text is already in flight — share the request
+    const running = this.inFlight.get(key)
+    if (running) {
+      this.transCache.noteSaved()
+      return running
+    }
+
+    const request = this.requestTranslate(para, engine)
+      .then((text) => {
+        this.transCache.set(key, text)
+        return text
+      })
+      .finally(() => {
+        this.inFlight.delete(key)
+      })
+    this.inFlight.set(key, request)
+    return request
+  }
+
+  /* ---- Actually send the translation request to background ---- */
+  private requestTranslate(para: Paragraph, engine?: string): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this.port) {
         reject(new Error('Port not connected'))
