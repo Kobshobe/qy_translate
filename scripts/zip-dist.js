@@ -1,5 +1,5 @@
 /**
- * 打包 dist 为商店上传用的 zip：qy-{platform}-{version}.zip
+ * 打包 dist 为商店上传用的 zip：tmp/qy-{platform}-{version}.zip
  * - platform 取自 VUE_APP_STORE（与 src/config.ts 的 platform 同源），缺省 edge
  * - version 取自 src/background/manifest.json
  * - 商店要求 manifest.json 位于压缩包根目录，因此对 dist 目录内容打包
@@ -10,9 +10,10 @@ const fs = require('fs')
 const path = require('path')
 
 const root = path.resolve(__dirname, '..')
+const outDir = path.join(root, 'tmp')
 const platform = process.env.VUE_APP_STORE === 'chrome' ? 'chrome' : 'edge'
 const { version } = require('../src/background/manifest.json')
-const out = path.join(root, `qy-${platform}-${version}.zip`)
+const out = path.join(outDir, `qy-${platform}-${version}.zip`)
 const dist = path.join(root, 'dist')
 
 if (!fs.existsSync(path.join(dist, 'manifest.json'))) {
@@ -20,6 +21,7 @@ if (!fs.existsSync(path.join(dist, 'manifest.json'))) {
   process.exit(1)
 }
 
+fs.mkdirSync(outDir, { recursive: true })
 if (fs.existsSync(out)) fs.unlinkSync(out)
 
 if (process.platform === 'win32') {
