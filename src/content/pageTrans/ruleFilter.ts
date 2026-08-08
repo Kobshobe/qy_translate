@@ -282,13 +282,20 @@ export function findMainContentContainer(root: Document | Element): Element | nu
   //    the caller falls back to a full scan (isInNonContentArea filters nav,
   //    header, footer, sidebar, etc.).
   if (best) {
-    const TARGET =
-      'p, li, h1, h2, h3, h4, h5, h6, td, th, blockquote, figcaption, dt, dd, caption'
+    // Coverage must measure the same candidate set the extraction translates
+    // (TARGET_TAGS includes <a>/<summary>: e-commerce homepages and feeds keep
+    // most text in title links — a selector missing them would let a container
+    // that excludes all card/link content pass the coverage check).
+    // Non-content targets (nav/header/footer links) are never translated, so
+    // they must not dilute the body-side count either.
+    const TARGET = [...TARGET_TAGS].join(', ')
     const bestTargets = best.querySelectorAll(TARGET).length
-    const bodyTargets = (root as Document).body
-      ? (root as Document).body.querySelectorAll(TARGET).length
-      : root.querySelectorAll(TARGET).length
-    if (bestTargets < bodyTargets * 0.5) {
+    const bodyRoot = (root as Document).body || root
+    let bodyTargets = 0
+    bodyRoot.querySelectorAll<Element>(TARGET).forEach((el) => {
+      if (!isInNonContentArea(el)) bodyTargets++
+    })
+    if (bestTargets <= bodyTargets * 0.5) {
       return null
     }
   }

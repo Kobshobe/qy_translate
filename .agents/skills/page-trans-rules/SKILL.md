@@ -37,7 +37,8 @@ description: 修改网页翻译筛选规则时的注意事项与验证流程。�
 - `SKIP_TAGS` / `SKIP_ROLES`：`script/style/code/pre/svg/…`、`navigation/dialog/toolbar/…`。
 - `MIN_TEXT_LENGTH=2` / `MAX_TEXT_LENGTH=5000`；裸文本 `<div>` 候选阈值 `MIN_DIV_TEXT_LENGTH=30`（无子元素）。
 - **裸 div 去重**（2026-08 加）：① 嵌在 TARGET_TAGS（td/li/blockquote…）内的裸 div 不提取（`duplicate-of-ancestor`），由祖先整块翻译；② 链接区块（子元素全为 `<a>` 的裸 div）由 div 整块翻译，内部 `<a>` 去重——已 processed 的 div 在动态路径同样参与去重（否则二次提取会漏网，MDN footer 实例）。
-- `findMainContentContainer(root)`：语义容器(`[role=main]`/`main`) → 内容丰富的 `<article>` → 文本密度评分 → 覆盖率 <50% 时回退 body 扫描。
+- `findMainContentContainer(root)`：语义容器(`[role=main]`/`main`) → 内容丰富的 `<article>` → 文本密度评分 → 回退 body 扫描。
+  **覆盖率回退判定（2026-08 修）**：统计口径必须与提取候选集一致——用 `TARGET_TAGS`（含 `a`/`summary`，旧版漏了它们：电商首页/信息流的文本大量在标题链接里，漏算会让"排除了全部卡片内容"的容器通过覆盖率检查，导致商品标题不翻译——Mercado Libre poly-card 案例）；body 侧只统计非导航区目标（nav/header/footer 链接永不翻译，不应稀释分母）；阈值 `bestTargets <= bodyTargets * 0.5` 即回退。
 - `isInNonContentArea`：① 选择器（nav/header/footer/aside/`.sidebar`/role 等）② 链接密度启发式（链接占比 >50% 且平均 <25 字符且最大 <20）。
 - `isElementVisible`：**无条件检查** `display: none` / `visibility: hidden` / `opacity < 0.01`（`visibility:hidden`/`opacity:0` 仍占布局、offsetParent 非 null，必须无条件检查——这是修过的 bug），再查 rect 尺寸、`aria-hidden`。
 - `isTargetLangText`：>30% 字符命中目标语 script 即跳过；**日语汉字属 CJK 区，目标语言为中文时日语段落会被误判跳过**（已知行为，勿在未讨论时改动）。

@@ -174,6 +174,37 @@
                 </div>
               </section>
 
+              <!-- ==================== product card title link (Mercado Libre poly-card) ==================== -->
+              <section class="poly-card-case">
+                <h2>Product Card Title Link (poly-card)</h2>
+                <div class="poly-card poly-card--grid poly-card--xlarge">
+                  <div class="poly-card__portada">
+                    <span class="poly-component__image-overlay"></span>
+                    <img class="poly-component__picture" alt="Mochila Impermeable Antirrobos 35L Grande Capacidad Para Laptop 15.6&quot; Hombre Escolar Gris NOMARA" aria-hidden="true" data-testid="picture" loading="lazy" decoding="async" src="">
+                  </div>
+                  <div class="poly-card__content">
+                    <a href="#" target="_self" class="poly-component__title">Mochila Impermeable Antirrobos 35L Grande Capacidad Para Laptop 15.6" Hombre Escolar Gris NOMARA</a>
+                    <div class="poly-component__price">
+                      <s class="andes-money-amount poly-price__previous" role="img" aria-label="Antes: 399 pesos mexicanos" aria-roledescription="Monto">
+                        <span class="andes-money-amount__currency" aria-hidden="true"><span class="andes-money-amount__currency-symbol">$</span></span>
+                        <span class="andes-money-amount__fraction" aria-hidden="true">399</span>
+                      </s>
+                      <div class="poly-price__current">
+                        <span class="andes-money-amount poly-price__amount" role="img" aria-label="Ahora: 298 pesos mexicanos" aria-roledescription="Monto">
+                          <span class="andes-money-amount__currency" aria-hidden="true"><span class="andes-money-amount__currency-symbol">$</span></span>
+                          <span class="andes-money-amount__fraction" aria-hidden="true">298</span>
+                        </span>
+                        <span class="poly-price__disc-label" style="color: rgb(255, 255, 255); background-color: rgb(0, 166, 80);">25% OFF</span>
+                      </div>
+                    </div>
+                    <div class="poly-component__shipping">
+                      <span>Envío gratis</span>
+                      <span class="poly-shipping__additional_text">por ser tu primera compra</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
               <!-- ==================== faq accordion ==================== -->
               <section class="faq">
                 <h2>Frequently Asked Questions</h2>
