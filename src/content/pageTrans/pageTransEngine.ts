@@ -346,15 +346,17 @@ export class PageTransEngine {
     const duration = Date.now() - translateStartTime
     const dedupSaved = this.transCache.saved
     if (dedupSaved > 0) {
-      console.debug(`[pageTrans] dedup saved ${dedupSaved} translation calls`)
+      console.debug(
+        `[pageTrans] dedup saved ${dedupSaved}/${pending.length} translation calls`
+      )
     }
     this.sendAnalytic('pageTrans_end', {
       // Page translation analysis
       success: `${done}/${pending.length}`,
       failed: `${failed}/${pending.length};${engine}`,
       duration: `${formatDuration(duration)};${pending.length};${engine}`,
-      // Duplicate texts translated only once (quota/time saved)
-      saved: dedupSaved,
+      // Duplicate texts translated only once: saved/total
+      saved: `${dedupSaved}/${pending.length}`,
       // Context
       targetLang: this.targetLang,
       engine,
