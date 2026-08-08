@@ -13,16 +13,32 @@ import { shouldTranslateText } from '@/content/pageTrans/ruleFilter'
 class FakeNode {
   text: string
   connected: boolean
-  constructor(text: string, connected = true) {
+  /**
+   * Text of an injected translation child node. For li/td/th the render path
+   * appends the translation INSIDE the original node, so textContent returns
+   * original + translation.
+   */
+  translationText: string | null
+  constructor(text: string, connected = true, translationText: string | null = null) {
     this.text = text
     this.connected = connected
+    this.translationText = translationText
   }
   get textContent(): string | null {
-    return this.text
+    return this.text + (this.translationText ?? '')
   }
   get isConnected(): boolean {
     return this.connected
   }
+}
+
+/**
+ * Mirrors getOriginalText() from ruleFilter.ts: node text EXCLUDING injected
+ * translation nodes. For the fake node that's simply `text` (the translation
+ * child is modeled separately).
+ */
+function getOriginalText(node: FakeNode): string {
+  return node.text.trim()
 }
 
 interface FakeParagraph {
@@ -41,7 +57,12 @@ function findChangedParagraphs(
   for (const p of paragraphs) {
     // Only re-translate finished paragraphs still attached to the document
     if (p.status !== 'done' || !p.node.isConnected) continue
-    const current = p.node.textContent?.trim() ?? ''
+    const full = p.node.textContent?.trim() ?? ''
+    if (!full || full === p.originalText) continue
+    // For li/td/th the translation is appended INSIDE the original node, so
+    // textContent includes the injected translation — re-read excluding it
+    // (prevents "changed" false positives / re-translation loops)
+    const current = getOriginalText(p.node)
     if (!current || current === p.originalText) continue
     // Sync the recorded text first (prevents re-detecting the same change)
     p.originalText = current
@@ -148,12 +169,70 @@ describe('findChangedParagraphs (X "Show more" fix)', () => {
       translatedText: '初始翻译',
       status: 'done',
     }
-    pZh.node.text = '这条推文现在变成了中文内容所以不需要翻译'
+    pZh.node.text = '这条推文现在变成中文内容所以不需要翻译'
 
     const changed = findChangedParagraphs([pZh], 'zh-CN')
 
     expect(changed).toHaveLength(0)
     expect(pZh.originalText).toBe(pZh.node.text)
     expect(pZh.status).toBe('done')
+  })
+})
+
+describe('findChangedParagraphs — translation-inside-node contamination (li/td/th fix)', () => {
+  const cellText = 'Revenue grew 23% year over year despite macro headwinds in the region'
+  const cellTranslation = '尽管该地区存在宏观不利因素，收入仍同比增长 23%'
+
+  it('ignores the injected translation when it lives inside the node (li/td/th)', () => {
+    // textContent = original + translation → differs from originalText, but
+    // the text EXCLUDING translation nodes is unchanged → must NOT re-queue
+    const p: FakeParagraph = {
+      node: new FakeNode(cellText, true, cellTranslation),
+      originalText: cellText,
+      translatedText: cellTranslation,
+      status: 'done',
+    }
+
+    const changed = findChangedParagraphs([p], 'zh-CN')
+
+    expect(changed).toHaveLength(0)
+    expect(p.status).toBe('done')
+    // originalText must stay the clean original, never "original + translation"
+    expect(p.originalText).toBe(cellText)
+    expect(p.translatedText).toBe(cellTranslation)
+  })
+
+  it('still re-queues a genuine in-place change when translation is inside the node', () => {
+    const expandedCell =
+      cellText + ' and operating margins improved for the third consecutive quarter'
+    const p: FakeParagraph = {
+      node: new FakeNode(expandedCell, true, cellTranslation),
+      originalText: cellText,
+      translatedText: cellTranslation,
+      status: 'done',
+    }
+
+    const changed = findChangedParagraphs([p], 'zh-CN')
+
+    expect(changed).toHaveLength(1)
+    expect(p.status).toBe('pending')
+    expect(p.originalText).toBe(expandedCell)
+    expect(p.translatedText).toBe('')
+  })
+
+  it('no re-detection loop after the contaminated-read fix (second pass is quiet)', () => {
+    const p: FakeParagraph = {
+      node: new FakeNode(cellText, true, cellTranslation),
+      originalText: cellText,
+      translatedText: cellTranslation,
+      status: 'done',
+    }
+
+    expect(findChangedParagraphs([p], 'zh-CN')).toHaveLength(0)
+    // simulate repeated observer ticks
+    expect(findChangedParagraphs([p], 'zh-CN')).toHaveLength(0)
+    expect(findChangedParagraphs([p], 'zh-CN')).toHaveLength(0)
+    expect(p.status).toBe('done')
+    expect(p.originalText).toBe(cellText)
   })
 })

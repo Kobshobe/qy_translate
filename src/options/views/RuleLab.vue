@@ -199,6 +199,31 @@
                 Best regards from the moderation team.</div>
               </section>
 
+              <!-- ==================== bare div dedup (div in td/li + link box) ==================== -->
+              <section class="div-dedup">
+                <h2>Bare Div Deduplication</h2>
+
+                <!-- div inside td: td is extracted, the div must be duplicate-of-ancestor -->
+                <table class="dedup-table">
+                  <tbody>
+                    <tr>
+                      <td><div>Dashboard metric description rendered inside a bare div within a table cell, which is common in admin consoles and email HTML.</div></td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <!-- div inside li: li is extracted, the div must be duplicate-of-ancestor -->
+                <ul>
+                  <li><div>List item body rendered as a bare div child of the list item, which must not be translated twice by the extraction rules.</div></li>
+                </ul>
+
+                <!-- link box: div with only long-link children → the div is extracted, the links are duplicates -->
+                <div class="link-box">
+                  <a href="#">Understanding how the translation pipeline processes long documents efficiently</a>
+                  <a href="#">Measuring the performance impact of dynamic content observation strategies</a>
+                </div>
+              </section>
+
               <!-- ==================== edge cases ==================== -->
               <section class="edge-cases">
                 <h2>Edge Cases</h2>

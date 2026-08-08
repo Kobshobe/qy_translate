@@ -22,13 +22,11 @@ import { getSiteRule, extractWithSiteRule } from './siteRules'
 import { Context } from '@/api/context'
 import { defaultTransEngine } from '@/config'
 import {
-  SKIP_TAGS,
-  SKIP_ROLES,
-  isInNonContentArea,
-  isElementVisible,
   shouldTranslateText,
   findMainContentContainer,
   filterParagraphs,
+  passesFilters,
+  getOriginalText,
 } from './ruleFilter'
 
 /**
@@ -188,29 +186,16 @@ export class PageTransEngine {
   private elementsToParagraphs(elements: Element[]): Paragraph[] {
     const result: Paragraph[] = []
     const seen = new Set<Element>()
+    const opts = { targetLang: this.targetLang }
 
     for (const el of elements) {
-      if (
-        seen.has(el) ||
-        el.hasAttribute(ATTR.processed) ||
-        el.hasAttribute(ATTR.translation)
-      ) continue
+      if (seen.has(el)) continue
       seen.add(el)
 
-      // Skip non-translatable tags
-      if (SKIP_TAGS.has(el.tagName.toLowerCase())) continue
-      // Skip elements declaring excluded roles
-      const role = el.getAttribute('role')
-      if (role && SKIP_ROLES.has(role)) continue
-      if (el.closest('[role]') && SKIP_ROLES.has(el.closest('[role]')!.getAttribute('role')!)) continue
-      // Skip non-content areas (nav, sidebar, etc.)
-      if (isInNonContentArea(el)) continue
-
-      if (!isElementVisible(el)) continue
+      // All filtering rules live in ruleFilter (shared with the generic path)
+      if (!passesFilters(el, opts)) continue
 
       const text = el.textContent?.trim() ?? ''
-      if (!shouldTranslateText(text, this.targetLang)) continue
-
       result.push({
         id: uuid(),
         node: el,
@@ -228,49 +213,49 @@ export class PageTransEngine {
      ============================================================ */
   extract(): Paragraph[] {
     this.setStatus('extracting')
-    this.paragraphs = []
 
     // 1. Check for site-specific rules first
+    let result: Paragraph[]
     const siteRule = getSiteRule()
     if (siteRule) {
-      const elements = extractWithSiteRule(siteRule)
-      this.paragraphs = this.elementsToParagraphs(elements)
-      this.totalCount = this.paragraphs.length
-      this.processedCount = 0
-      this.paragraphs.forEach((p) => p.node.setAttribute(ATTR.processed, 'true'))
-      this.setStatus('idle')
-      return this.paragraphs
+      result = this.elementsToParagraphs(extractWithSiteRule(siteRule))
+    } else {
+      // 2. Generic heuristic algorithm (pure rules in ruleFilter)
+      const container = findMainContentContainer(document)
+      const root = container || document.body
+      const decisions = filterParagraphs(root, { targetLang: this.targetLang })
+      result = []
+      for (const d of decisions) {
+        if (!d.extracted) continue
+        result.push({
+          id: uuid(),
+          node: d.element,
+          originalText: d.text,
+          translatedText: '',
+          lang: '',
+          status: 'pending',
+        })
+      }
     }
 
-    // 2. Generic heuristic algorithm (pure rules in ruleFilter)
-    const container = findMainContentContainer(document)
-    const root = container || document.body
-    const decisions = filterParagraphs(root, { targetLang: this.targetLang })
-    const result: Paragraph[] = []
+    // Preserve records whose nodes are still attached to the document: some
+    // same-domain URL changes (e.g. MDN's canonical redirect) rewrite the URL
+    // without replacing the DOM — resetting the list would lose the records
+    // and break in-place change detection. Detached records are dropped.
+    const kept = this.paragraphs.filter((p) => p.node.isConnected)
+    const keptNodes = new Set<Element>(kept.map((p) => p.node))
+    this.paragraphs = kept.concat(result.filter((p) => !keptNodes.has(p.node)))
 
-    for (const d of decisions) {
-      if (!d.extracted) continue
-      result.push({
-        id: uuid(),
-        node: d.element,
-        originalText: d.text,
-        translatedText: '',
-        lang: '',
-        status: 'pending',
-      })
-    }
-
-    this.paragraphs = result
-    this.totalCount = result.length
+    this.totalCount = this.paragraphs.length
     this.processedCount = 0
 
     // Mark these nodes as processed (prevent re-extraction)
-    result.forEach((p) => {
+    this.paragraphs.forEach((p) => {
       p.node.setAttribute(ATTR.processed, 'true')
     })
 
     this.setStatus('idle')
-    return result
+    return this.paragraphs
   }
 
   /* ---- Send analytics event ---- */
@@ -399,6 +384,8 @@ export class PageTransEngine {
           if (retries >= maxRetries) {
             para.status = 'error'
             para.error = e.message
+            // Restore the original's appearance (no translation will render)
+            this.renderEngine.clearTranslating(para)
             break
           }
           retries++
@@ -520,6 +507,10 @@ export class PageTransEngine {
 
   /** Extract and translate newly loaded paragraphs */
   private async translateNewContent(): Promise<void> {
+    // Drop records whose nodes left the document (SPA feed churn), keeping
+    // the list from growing unboundedly
+    this.paragraphs = this.paragraphs.filter((p) => p.node.isConnected)
+
     const newParagraphs = this.extractNewParagraphs()
     // Paragraphs whose text changed after translation (X "Show more" expands
     // the tweet text inside the already-processed node, etc.) need a
@@ -556,7 +547,12 @@ export class PageTransEngine {
     for (const p of this.paragraphs) {
       // Only re-translate finished paragraphs still attached to the document
       if (p.status !== 'done' || !p.node.isConnected) continue
-      const current = p.node.textContent?.trim() ?? ''
+      const full = p.node.textContent?.trim() ?? ''
+      if (!full || full === p.originalText) continue
+      // For li/td/th the translation is appended INSIDE the original node, so
+      // textContent includes the injected translation — re-read excluding it
+      // (prevents "changed" false positives / re-translation loops)
+      const current = getOriginalText(p.node)
       if (!current || current === p.originalText) continue
       // Sync the recorded text first (prevents re-detecting the same change)
       p.originalText = current
@@ -582,12 +578,7 @@ export class PageTransEngine {
       // For sites with custom rules (e.g. YouTube), scan the whole page
       const elements = extractWithSiteRule(siteRule)
       for (const el of elements) {
-        if (
-          visited.has(el) ||
-          el.hasAttribute(ATTR.processed) ||
-          el.hasAttribute(ATTR.translation) ||
-          el.closest(`[${ATTR.translation}]`)
-        ) continue
+        if (visited.has(el)) continue
         visited.add(el)
         candidates.push(el)
       }
@@ -605,19 +596,10 @@ export class PageTransEngine {
     }
 
     for (const el of candidates) {
-      // Skip non-content areas
-      if (isInNonContentArea(el)) continue
-      // Skip non-translatable tags
-      if (SKIP_TAGS.has(el.tagName.toLowerCase())) continue
-      // Skip elements declaring excluded roles
-      const role = el.getAttribute('role')
-      if (role && SKIP_ROLES.has(role)) continue
-      if (el.closest('[role]') && SKIP_ROLES.has(el.closest('[role]')!.getAttribute('role')!)) continue
-
-      if (!isElementVisible(el)) continue
+      // All filtering rules live in ruleFilter (shared with the generic path)
+      if (!passesFilters(el, { targetLang: this.targetLang })) continue
 
       const text = el.textContent?.trim() ?? ''
-      if (!shouldTranslateText(text, this.targetLang)) continue
 
       // Mark as processed
       el.setAttribute(ATTR.processed, 'true')
@@ -654,6 +636,7 @@ export class PageTransEngine {
      Toggle translation/original
      ============================================================ */
   async toggle(engine?: string): Promise<void> {
+    if (this.status === 'translating') return
     if (this.status === 'translated') {
       this.restore()
     } else {

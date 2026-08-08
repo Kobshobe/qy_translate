@@ -203,6 +203,25 @@ export function shouldTranslateText(text: string, targetLang: string): boolean {
 }
 
 /* ============================================================
+   Text helpers
+   ============================================================ */
+
+/**
+ * Text content of a node EXCLUDING injected translation nodes.
+ * For li/td/th the translation is appended INSIDE the original node, so a
+ * plain textContent read returns "original + translation" — use this when
+ * comparing a translated node's current text against the recorded original.
+ */
+export function getOriginalText(el: Element): string {
+  if (!el.querySelector(`[${ATTR.translation}]`)) {
+    return el.textContent?.trim() ?? ''
+  }
+  const clone = el.cloneNode(true) as Element
+  clone.querySelectorAll(`[${ATTR.translation}]`).forEach((n) => n.remove())
+  return clone.textContent?.trim() ?? ''
+}
+
+/* ============================================================
    Main content container lookup strategy
    ============================================================ */
 
@@ -278,66 +297,52 @@ export function findMainContentContainer(root: Document | Element): Element | nu
 }
 
 /* ============================================================
-   Candidate collection
+   Candidate collection helpers
    ============================================================ */
 
 /**
- * Collect translatable candidate nodes:
- * 1. Standard block text tags (TARGET_TAGS), excluding duplicates nested inside
- *    another translatable tag
- * 2. Bare-text <div>s (frameworks like React/Vue often render body text directly
- *    into child-less divs). Requires >= 30 chars to avoid timestamps/badges/button
- *    labels being treated as content.
+ * Whether `el` has a bare-text-div ancestor that is an extracted candidate
+ * (walks up to `root` / a structural boundary). Used to dedup inline
+ * candidates (e.g. <a>) inside a link-box div — the div is translated whole.
  */
-export function collectCandidates(root: Element): Element[] {
-  const seen = new Set<Element>()
-  const result: Element[] = []
+function hasExtractedDivAncestor(
+  el: Element,
+  root: Element,
+  extractedDivs: Set<Element>
+): boolean {
+  let parent = el.parentElement
+  while (
+    parent &&
+    parent !== root &&
+    !STRUCTURAL.has(parent.tagName.toLowerCase())
+  ) {
+    if (extractedDivs.has(parent)) return true
+    parent = parent.parentElement
+  }
+  return false
+}
 
-  // 1. Standard block text tags
-  const targets = root.querySelectorAll<Element>([...TARGET_TAGS].join(','))
-  targets.forEach((el) => {
-    if (seen.has(el)) return
-
-    // Skip structural containers: an element directly wrapping
-    // table/ul/ol/dl is a layout container, not a text unit
-    let child = el.firstElementChild
-    while (child) {
-      if (STRUCTURAL.has(child.tagName.toLowerCase())) {
-        seen.add(el)
-        return
-      }
-      child = child.nextElementSibling
-    }
-
-    // Exclude duplicates of an ancestor node (e.g. <a> inside <p>);
-    // the check resets past structural boundaries
-    let parent = el.parentElement
-    while (
-      parent &&
-      parent !== root &&
-      !STRUCTURAL.has(parent.tagName.toLowerCase())
+/**
+ * Whether `el` (a bare-text div) is nested inside a translatable target tag
+ * (td/li/blockquote/…) — the ancestor already covers this text.
+ * Mirrors the duplicate-of-ancestor check used for standard target tags.
+ */
+function hasTargetTagAncestor(el: Element, root: Element): boolean {
+  let parent = el.parentElement
+  while (
+    parent &&
+    parent !== root &&
+    !STRUCTURAL.has(parent.tagName.toLowerCase())
+  ) {
+    if (
+      TARGET_TAGS.has(parent.tagName.toLowerCase()) &&
+      !isInNonContentArea(parent)
     ) {
-      if (TARGET_TAGS.has(parent.tagName.toLowerCase()) && !isInNonContentArea(parent)) {
-        seen.add(el)
-        return
-      }
-      parent = parent.parentElement
+      return true
     }
-    seen.add(el)
-    result.push(el)
-  })
-
-  // 2. Bare-text divs (>= 30 chars, no children or only inline-level children)
-  const divs = root.querySelectorAll<Element>('div')
-  divs.forEach((el) => {
-    if (seen.has(el) || !isBareTextDiv(el)) return
-    const text = el.textContent?.trim() ?? ''
-    if (text.length < MIN_DIV_TEXT_LENGTH) return
-    seen.add(el)
-    result.push(el)
-  })
-
-  return result
+    parent = parent.parentElement
+  }
+  return false
 }
 
 /* ============================================================
@@ -405,6 +410,14 @@ function judge(el: Element, opts: FilterOptions): FilterDecision {
 }
 
 /**
+ * Boolean filter verdict — reused by the engine on site-rule extraction paths
+ * so the filtering rules live in one place.
+ */
+export function passesFilters(el: Element, opts: FilterOptions): boolean {
+  return judge(el, opts).extracted
+}
+
+/**
  * Run the full generic filtering pipeline against `root`:
  * collect candidates → judge each → structured decisions with reasons.
  *
@@ -422,6 +435,28 @@ export function filterParagraphs(
 ): FilterDecision[] {
   const decisions: FilterDecision[] = []
   const seen = new Set<Element>()
+
+  // 0. Pre-pass: judge bare-text divs up front so nested inline candidates
+  //    (e.g. <a> in a link-box div) can be deduplicated against them
+  const divDecisions = new Map<Element, FilterDecision>()
+  const extractedDivs = new Set<Element>()
+  const divs = root.querySelectorAll<Element>('div')
+  for (const el of divs) {
+    if (!isBareTextDiv(el)) continue
+    const text = el.textContent?.trim() ?? ''
+    if (text.length < MIN_DIV_TEXT_LENGTH) continue
+    // Nested inside a target tag (td/li/blockquote/…): the ancestor already
+    // covers this text
+    if (hasTargetTagAncestor(el, root)) {
+      divDecisions.set(el, makeDecision(el, 'duplicate-of-ancestor'))
+      continue
+    }
+    const d = judge(el, opts)
+    divDecisions.set(el, d)
+    // A processed div was extracted in a previous pass — keep deduplicating
+    // nested inline candidates (e.g. <a>) against it on dynamic re-extraction
+    if (d.extracted || el.hasAttribute(ATTR.processed)) extractedDivs.add(el)
+  }
 
   // 1. Standard block text tags
   const targets = root.querySelectorAll<Element>([...TARGET_TAGS].join(','))
@@ -463,17 +498,23 @@ export function filterParagraphs(
       continue
     }
 
+    // Nested inside an extracted bare-text div (e.g. <a> in a link-box div):
+    // the div is translated as a whole
+    if (hasExtractedDivAncestor(el, root, extractedDivs)) {
+      decisions.push(makeDecision(el, 'duplicate-of-ancestor'))
+      continue
+    }
+
     decisions.push(judge(el, opts))
   }
 
-  // 2. Bare-text divs (>= 30 chars, no children or only inline-level children)
-  const divs = root.querySelectorAll<Element>('div')
+  // 2. Bare-text divs (judged in the pre-pass)
   for (const el of divs) {
-    if (seen.has(el) || !isBareTextDiv(el)) continue
-    const text = el.textContent?.trim() ?? ''
-    if (text.length < MIN_DIV_TEXT_LENGTH) continue
+    if (seen.has(el)) continue
+    const d = divDecisions.get(el)
+    if (!d) continue
     seen.add(el)
-    decisions.push(judge(el, opts))
+    decisions.push(d)
   }
 
   return decisions

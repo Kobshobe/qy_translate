@@ -36,6 +36,7 @@ description: 修改网页翻译筛选规则时的注意事项与验证流程。�
 - `TARGET_TAGS`：候选标签集合 = `p, h1–h6, li, td, th, blockquote, figcaption, dt, dd, caption, summary, a`（`summary` 是 2026-08 加的：FAQ 折叠标题，trustlinq.com 案例）。
 - `SKIP_TAGS` / `SKIP_ROLES`：`script/style/code/pre/svg/…`、`navigation/dialog/toolbar/…`。
 - `MIN_TEXT_LENGTH=2` / `MAX_TEXT_LENGTH=5000`；裸文本 `<div>` 候选阈值 `MIN_DIV_TEXT_LENGTH=30`（无子元素）。
+- **裸 div 去重**（2026-08 加）：① 嵌在 TARGET_TAGS（td/li/blockquote…）内的裸 div 不提取（`duplicate-of-ancestor`），由祖先整块翻译；② 链接区块（子元素全为 `<a>` 的裸 div）由 div 整块翻译，内部 `<a>` 去重——已 processed 的 div 在动态路径同样参与去重（否则二次提取会漏网，MDN footer 实例）。
 - `findMainContentContainer(root)`：语义容器(`[role=main]`/`main`) → 内容丰富的 `<article>` → 文本密度评分 → 覆盖率 <50% 时回退 body 扫描。
 - `isInNonContentArea`：① 选择器（nav/header/footer/aside/`.sidebar`/role 等）② 链接密度启发式（链接占比 >50% 且平均 <25 字符且最大 <20）。
 - `isElementVisible`：**无条件检查** `display: none` / `visibility: hidden` / `opacity < 0.01`（`visibility:hidden`/`opacity:0` 仍占布局、offsetParent 非 null，必须无条件检查——这是修过的 bug），再查 rect 尺寸、`aria-hidden`。
@@ -43,7 +44,9 @@ description: 修改网页翻译筛选规则时的注意事项与验证流程。�
 
 ## 已知行为 / 陷阱
 
-待补充
+- **li/td/th 的译文在原文节点内部**：`renderOne` 对 li/td/th 把译文 span `appendChild` 到原文内，因此译后 `node.textContent = 原文 + 译文`。任何"读取已译节点当前文本"的逻辑（如 `findChangedParagraphs` 的原地变化检测）必须用 `ruleFilter.getOriginalText()`（克隆后剔除 `[data-qyt-trans]`），否则会把自身译文当成文本变化 → 污染重译/循环（已修 + 回归测试）。
+- **同域 URL 重写不替换 DOM**：如 MDN 加载后 pushState 到 canonical URL，会触发 `handleUrlChange` → `extract()`。`extract()` 现在保留仍挂在文档上的段落记录（只丢弃 detached 的），否则记录丢失后原地变化检测永久失效（已修）。
+- **`elementsToParagraphs` / `extractNewParagraphs`（site-rule 路径）统一走 `passesFilters()`**（ruleFilter 导出），过滤规则单一入口；改规则只需改 `judge`/`filterParagraphs`。
 
 ## 决策红线（重要）
 

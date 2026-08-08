@@ -225,6 +225,11 @@ export class RenderEngine {
     para.node.classList.add(CLS.translating)
   }
 
+  /** 移除"翻译中"标记（翻译失败时恢复原文外观） */
+  clearTranslating(para: Paragraph): void {
+    para.node.classList.remove(CLS.translating)
+  }
+
   /* ============================================================
      查找已有译文节点
      ============================================================ */
@@ -251,6 +256,11 @@ export class RenderEngine {
     // 移除所有译文节点
     const transNodes = document.querySelectorAll(`[${ATTR.translation}]`)
     transNodes.forEach((el) => el.remove())
+
+    // 清除残留的"翻译中"标记（失败段落不会被 renderOne 清理）
+    document
+      .querySelectorAll(`.${CLS.translating}`)
+      .forEach((el) => el.classList.remove(CLS.translating))
 
     // 恢复隐藏的原文
     const hiddenOriginals = document.querySelectorAll(`[${ATTR.original}]`)
