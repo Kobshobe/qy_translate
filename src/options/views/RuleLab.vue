@@ -118,6 +118,16 @@
                 <pre>npm install qy-translate --save</pre>
                 <p>Then import the module in your project entry file and start translating.</p>
 
+                <!-- Live editor (CodeMirror/Sandpack playground): lines are
+                     bare divs inside contenteditable + translate="no", with
+                     NO code/pre ancestors — must never be translated -->
+                <div class="cm-editor-live" role="textbox" translate="no">
+                  <div class="cm-content" contenteditable="true" translate="no">
+                    <div class="cm-line"><span>import</span> { useState } from 'react';</div>
+                    <div class="cm-line">export default function MyComponent() { return &lt;div&gt;hello&lt;/div&gt; }</div>
+                  </div>
+                </div>
+
                 <!-- CodeMirror/Sandpack style editor: lines are div.cm-line
                      inside pre>code and must never be translated -->
                 <div class="sandpack sandpack--codeblock">
@@ -419,6 +429,8 @@ const REASON_LABELS: Record<FilterReason, string> = {
   'target-lang': 'already target lang',
   'layout-container': 'layout container',
   'duplicate-of-ancestor': 'duplicate of ancestor',
+  editable: 'editable region',
+  'no-translate': 'translate=no',
 }
 function reasonLabel(r: FilterReason): string {
   return REASON_LABELS[r] || r

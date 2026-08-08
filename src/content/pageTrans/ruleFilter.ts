@@ -44,6 +44,8 @@ export const SKIP_ROLES = new Set([
   'navigation', 'banner', 'complementary', 'contentinfo',
   'alert', 'dialog', 'toolbar', 'menu', 'menubar',
   'tabpanel', 'presentation',
+  // An editable input region (CodeMirror/ProseMirror editors, etc.)
+  'textbox',
 ])
 
 export const MIN_TEXT_LENGTH = 2
@@ -117,6 +119,8 @@ export type FilterReason =
   | 'target-lang'           // already in the target language
   | 'layout-container'      // directly wraps table/ul/ol/dl (not a text unit)
   | 'duplicate-of-ancestor' // nested inside another translatable target tag
+  | 'editable'              // inside a contenteditable editor region
+  | 'no-translate'          // marked translate="no" / .notranslate
 
 export interface FilterDecision {
   element: Element
@@ -397,6 +401,20 @@ function judge(el: Element, opts: FilterOptions): FilterDecision {
     el.closest(SKIP_TAGS_SELECTOR)
   ) {
     return makeDecision(el, 'skip-tag', text)
+  }
+
+  // Skip editable regions (CodeMirror, ProseMirror, rich-text editors…).
+  // Live editors render lines as bare divs; inserting translation nodes into
+  // their contenteditable content is absorbed as user input and corrupts the
+  // editor's document model (e.g. Sandpack re-compiles translated code).
+  if ((el as HTMLElement).isContentEditable) {
+    return makeDecision(el, 'editable', text)
+  }
+
+  // Skip content explicitly marked non-translatable by the page itself
+  // (HTML translate attribute / Google Translate "notranslate" convention)
+  if (el.closest('[translate="no"], .notranslate')) {
+    return makeDecision(el, 'no-translate', text)
   }
 
   // Skip elements declaring excluded roles
