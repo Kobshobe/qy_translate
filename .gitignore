@@ -4,6 +4,7 @@ node_modules
 /coverage
 /dist
 /.docs
+qy-*.zip
 
 
 # local env files

@@ -5,8 +5,9 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build && webpack",
-    "build:chrome": "export VUE_APP_STORE=chrome && vue-cli-service build && webpack",
-    "build:edge": "export VUE_APP_STORE=edge && vue-cli-service build && webpack",
+    "build:chrome": "export VUE_APP_STORE=chrome && vue-cli-service build && webpack && node scripts/zip-dist.js",
+    "build:edge": "export VUE_APP_STORE=edge && vue-cli-service build && webpack && node scripts/zip-dist.js",
+    "zip": "node scripts/zip-dist.js",
     "lint": "vue-cli-service lint",
     "watch": "vue-cli-service build --watch",
     "bg": "export NODE_ENV=production && webpack",
