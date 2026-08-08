@@ -1,5 +1,6 @@
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
+const webpack = require("webpack");
 const AutoImport = require('unplugin-auto-import/webpack')
 const Components = require('unplugin-vue-components/webpack')
 const { ElementPlusResolver } = require('unplugin-vue-components/resolvers')
@@ -36,6 +37,10 @@ const copyFiles = [
 ];
 
 const plugins = [
+  // 确保 platform 在编译期折叠（缺省时 vue-cli 的 process.env 对象不含该 key）
+  new webpack.DefinePlugin({
+    "process.env.VUE_APP_STORE": JSON.stringify(process.env.VUE_APP_STORE || "")
+  }),
   new CopyWebpackPlugin({
     patterns: copyFiles
   }),
