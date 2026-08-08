@@ -45,6 +45,14 @@ function getPDFUrl() {
       url = p[1]
     } 
   })
+  try {
+    const parsed = new URL(decodeURIComponent(url));
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+      return '';
+    }
+  } catch (e) {
+    return '';
+  }
   return url
 }
 
