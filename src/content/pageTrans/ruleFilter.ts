@@ -39,11 +39,29 @@ export const SKIP_TAGS = new Set([
 /** Combined skip-tag selector for self-or-ancestor checks */
 const SKIP_TAGS_SELECTOR = [...SKIP_TAGS].join(',')
 
-/** ARIA roles excluded from translation */
+/**
+ * ARIA roles excluded from translation.
+ *
+ * NOTE: role="tabpanel" is deliberately NOT excluded. A tabpanel is the
+ * content pane of a tab UI, and journal/article sites (tandfonline,
+ * sciencedirect, springer, …) render the entire article body inside one
+ * (role="main" > … > [role="tabpanel"]). Excluding it silently dropped the
+ * whole article. Hidden tabpanels are already filtered by isElementVisible()
+ * (display:none / visibility:hidden / aria-hidden), so the role check is only
+ * needed for the visible, real content pane.
+ *
+ * By contrast role="tab" (the tab BUTTON itself) IS excluded: it is the tab
+ * bar's chrome, like role="tablist". Also excluded are menu items and
+ * tooltips — unambiguous UI chrome roles, added defensively (they are usually
+ * already covered by their container roles menu/menubar/tablist, but some
+ * UIs omit the container role).
+ */
 export const SKIP_ROLES = new Set([
   'navigation', 'banner', 'complementary', 'contentinfo',
-  'alert', 'dialog', 'toolbar', 'menu', 'menubar',
-  'tabpanel', 'presentation',
+  'alert', 'alertdialog', 'dialog', 'toolbar',
+  'menu', 'menubar', 'menuitem', 'menuitemcheckbox', 'menuitemradio',
+  'tab', 'tooltip',
+  'presentation',
   // An editable input region (CodeMirror/ProseMirror editors, etc.)
   'textbox',
 ])
@@ -83,7 +101,11 @@ function isBareTextDiv(el: Element): boolean {
 export const NON_CONTENT_SELECTOR = [
   'nav', 'header', 'footer', 'aside',
   '[role="navigation"]', '[role="banner"]', '[role="contentinfo"]',
-  '[role="complementary"]', '[role="tabpanel"]', '[role="tablist"]',
+  '[role="complementary"]',
+  // [role="tabpanel"] is intentionally absent: it is the content pane of a
+  // tab UI, not chrome (see SKIP_ROLES note). The tab bar ([role="tablist"])
+  // and tab buttons ([role="tab"]) stay.
+  '[role="tablist"]', '[role="tab"]',
   '[role="menubar"]', '[role="search"]',
   '.sidebar', '.Sidebar', '#sidebar', '#Sidebar',
   '.footer', '.Header', '.header',
@@ -100,6 +122,20 @@ export const NON_CONTENT_SELECTOR = [
 
 /** Structural boundaries: content past a boundary is an independent text unit */
 const STRUCTURAL = new Set(['table', 'ul', 'ol', 'dl'])
+
+/**
+ * Semantic non-content regions that override tab-pane content status.
+ * Class-based exclusions (.tabs / .menu / .dropdown …) are ambiguous — they
+ * often wrap real content panes — so they must NOT override a tab panel, but
+ * a genuinely semantic region (nav / header / footer / aside / sidebar) still
+ * wins.
+ */
+const SEMANTIC_NON_CONTENT_SELECTOR = [
+  'nav', 'header', 'footer', 'aside',
+  '[role="navigation"]', '[role="banner"]', '[role="contentinfo"]',
+  '[role="complementary"]',
+  '.sidebar', '.Sidebar', '#sidebar', '#Sidebar',
+].join(',')
 
 /* ============================================================
    Reason types
@@ -142,7 +178,19 @@ export interface FilterOptions {
 /** Whether the element is in a non-content area (nav, sidebar, footer, ...) */
 export function isInNonContentArea(el: Element): boolean {
   // Layer 1: combined selector single match
-  if (el.closest(NON_CONTENT_SELECTOR)) return true
+  if (el.closest(NON_CONTENT_SELECTOR)) {
+    // Content inside a [role=tabpanel] is the tab pane's real content. Tab
+    // widgets (tandfonline's div.tabs.tabs-widget, etc.) wrap the pane in a
+    // generic "tabs"/"menu"-style class, so the class match alone would kill
+    // the whole pane. Only a semantic region (nav/header/footer/aside/
+    // sidebar) can override a tab panel; hidden panes are filtered later by
+    // isElementVisible (display:none / aria-hidden).
+    const pane = el.closest('[role="tabpanel"]')
+    if (pane && !pane.closest(SEMANTIC_NON_CONTENT_SELECTOR)) {
+      return false
+    }
+    return true
+  }
 
   // Layer 2: link-density heuristic — if link text is > 50% of a container's
   // text with an average < 25 chars per link, it's likely navigation

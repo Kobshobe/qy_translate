@@ -240,6 +240,41 @@
                 </details>
               </section>
 
+              <!-- ==================== journal tab widget (tandfonline) ==================== -->
+              <!-- Journal/article sites wrap the whole article body in a tab widget:
+                   div.tabs.tabs-widget > ul.tab-nav (tab bar) + div.tab-content >
+                   div[role=tabpanel] (the real content pane). The pane must be
+                   translated; the tab bar labels must stay untranslated; a hidden
+                   pane (display:none) must stay untranslated. -->
+              <section class="journal-tab-case">
+                <h2>Journal Tab Widget (tabpanel content pane)</h2>
+                <div class="tabs tabs-widget">
+                  <div class="scroll-content">
+                    <ul class="tab-nav container" aria-label="Article Information">
+                      <li class="active"><a href="#" id="showFullText" class="show-full"><span class="nav-data">Full Article</span></a></li>
+                      <li><a href="#" id="showFigure" class="show-figure"><span class="nav-data">Figures &amp; data</span></a></li>
+                      <li><a href="#" id="showReferences" class="show-references"><span class="nav-data">References</span></a></li>
+                    </ul>
+                  </div>
+                  <div class="tab-content">
+                    <div id="mainTabPanel" class="tab tab-pane active" role="tabpanel">
+                      <article class="article">
+                        <div class="hlFld-Fulltext">
+                          <div id="S0001" class="NLM_sec NLM_sec_level_1">
+                            <h2 class="section-heading-2">1. Introduction</h2>
+                            <p>The article body is rendered inside a tab content pane, which is the real content of the page and must always be translated by the page translation engine.</p>
+                            <p>This second paragraph confirms that multiple paragraphs inside the tab panel are picked up as translatable candidates without being confused with the tab bar above.</p>
+                          </div>
+                        </div>
+                      </article>
+                    </div>
+                    <div id="show-permissions" class="tab tab-pane" role="tabpanel" style="display:none">
+                      <p>This hidden tab panel is not visible and must never be translated because the visibility check filters it out.</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
               <!-- ==================== forum post (bare div with <br> children) ==================== -->
               <section class="forum-post">
                 <h2>Forum Post (br-separated text in a bare div)</h2>
@@ -287,6 +322,12 @@
                 <div aria-hidden="true"><p>This paragraph sits inside an aria-hidden container and must be skipped.</p></div>
                 <div role="dialog"><p>Dialog content that should be skipped as well.</p></div>
                 <div role="toolbar"><p>Toolbar label that is not page content.</p></div>
+
+                <!-- standalone tab button (no tablist ancestor): role=tab is UI chrome and must be skipped -->
+                <a role="tab" href="#">Sort by relevance</a>
+                <!-- tooltip: transient UI hint on a candidate tag, must be skipped -->
+                <p role="tooltip">Shows the latest statistics for your account dashboard.</p>
+                <li role="menuitem">Archive this conversation</li>
 
                 <p>A</p>
                 <p>42</p>
