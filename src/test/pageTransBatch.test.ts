@@ -165,21 +165,21 @@ describe('buildRequestGroups (char budget + batch size)', () => {
     expect(groups[0]).toHaveLength(3)
   })
 
-  it('LLM groups are budget-driven: 50 paragraphs fit in one request', () => {
+  it('LLM groups are budget-driven: 20 paragraphs fit in one request', () => {
     const { engine } = makeEngine()
-    // 50 short paragraphs ≈ 1.8k chars — under the 4k LLM budget
-    const ps = Array.from({ length: 50 }, (_, i) => para('short paragraph ' + i))
+    // 20 short paragraphs — at the paragraph cap, under the 4k char budget
+    const ps = Array.from({ length: 20 }, (_, i) => para('short paragraph ' + i))
     const groups = engine.buildRequestGroups(ps, 'llm__big-context')
     expect(groups).toHaveLength(1)
-    expect(groups[0]).toHaveLength(50)
+    expect(groups[0]).toHaveLength(20)
   })
 
-  it('LLM groups respect the 50-paragraph cap', () => {
+  it('LLM groups respect the 20-paragraph cap', () => {
     const { engine } = makeEngine()
-    // 120 short paragraphs — the cap (50) binds before the char budget
-    const ps = Array.from({ length: 120 }, (_, i) => para('p' + i))
+    // 55 short paragraphs — the cap (20) binds before the char budget
+    const ps = Array.from({ length: 55 }, (_, i) => para('p' + i))
     const groups = engine.buildRequestGroups(ps, 'llm__big-context')
-    expect(groups.map((g: Paragraph[]) => g.length)).toEqual([50, 50, 20])
+    expect(groups.map((g: Paragraph[]) => g.length)).toEqual([20, 20, 15])
   })
 
   it('LLM groups respect the 4k char budget (split long pages)', () => {

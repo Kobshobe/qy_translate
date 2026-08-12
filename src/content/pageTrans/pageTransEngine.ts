@@ -50,7 +50,7 @@ const AUTO_TRANSLATE_TTL = 6 * 60 * 60 * 1000
  * Cap the paragraphs per group so each batch completes in reasonable time and
  * results keep streaming in (page translation renders as batches finish).
  */
-const LLM_MAX_PARAGRAPHS = 50
+const LLM_MAX_PARAGRAPHS = 20
 
 /**
  * sessionStorage key for the auto-translate intent.
