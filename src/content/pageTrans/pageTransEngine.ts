@@ -22,6 +22,7 @@ import { TranslationCache, translationCacheKey } from './translationCache'
 import { getSiteRule, extractWithSiteRule } from './siteRules'
 import { Context } from '@/api/context'
 import { defaultTransEngine } from '@/config'
+import { BATCH_SEP } from '@/translator/batch'
 import {
   shouldTranslateText,
   findMainContentContainer,
@@ -43,6 +44,12 @@ function formatDuration(ms: number): string {
 
 /** How long the "auto-translate this domain" intent stays active (6h) */
 const AUTO_TRANSLATE_TTL = 6 * 60 * 60 * 1000
+
+/**
+ * LLM engines batch by char budget (huge context), not by count.
+ * Cap the paragraphs per group so one request stays manageable.
+ */
+const LLM_MAX_PARAGRAPHS = 1000
 
 /**
  * sessionStorage key for the auto-translate intent.
@@ -326,8 +333,12 @@ export class PageTransEngine {
 
     // Batched concurrency
     const { batchSize, concurrency } = this.config
-    for (let i = 0; i < pending.length; i += batchSize) {
-      const batch = pending.slice(i, i + batchSize)
+    // LLM engines use the huge context: chunk by paragraph count, not batchSize
+    const chunkSize = engine?.startsWith('llm__')
+      ? LLM_MAX_PARAGRAPHS
+      : batchSize
+    for (let i = 0; i < pending.length; i += chunkSize) {
+      const batch = pending.slice(i, i + chunkSize)
       await this.translateBatch(batch, concurrency, engine)
       this.renderEngine.renderBatch(batch, this.config.displayMode, this.config.transStyle)
     }
@@ -370,54 +381,171 @@ export class PageTransEngine {
     concurrency: number,
     engine?: string
   ): Promise<void> {
-    const queue = [...batch]
-    const workers: Promise<void>[] = []
-
-    for (let i = 0; i < concurrency; i++) {
-      workers.push(this.workerLoop(queue, engine))
+    // 1. Cache hits resolve immediately, no request needed
+    const todo: Paragraph[] = []
+    for (const para of batch) {
+      const key = translationCacheKey(para.originalText)
+      const cached = this.transCache.get(key)
+      if (cached !== undefined) {
+        this.transCache.noteSaved()
+        this.finishParagraph(para, cached)
+        continue
+      }
+      todo.push(para)
     }
+    if (todo.length === 0) return
 
+    // 2. Dedup identical texts within this batch: translate once, share result
+    const firstByKey = new Map<string, Paragraph>()
+    const dupByKey = new Map<string, Paragraph[]>()
+    for (const para of todo) {
+      const key = translationCacheKey(para.originalText)
+      if (firstByKey.has(key)) {
+        const list = dupByKey.get(key)
+        if (list) list.push(para)
+        else dupByKey.set(key, [para])
+      } else {
+        firstByKey.set(key, para)
+      }
+    }
+    const uniques = [...firstByKey.values()]
+
+    // 3. Group unique paragraphs into request units (count + total chars)
+    const groups = this.buildRequestGroups(uniques, engine)
+
+    // 4. Concurrent workers process groups
+    const queue = [...groups]
+    const workers: Promise<void>[] = []
+    for (let i = 0; i < concurrency; i++) {
+      workers.push(this.groupWorkerLoop(queue, engine))
+    }
     await Promise.all(workers)
+
+    // 5. Share translations with the deduped duplicates
+    for (const [key, dupes] of dupByKey) {
+      const first = firstByKey.get(key)!
+      if (first.status !== 'done' || !first.translatedText) continue
+      this.transCache.noteSaved() // duplicate texts translated only once
+      for (const d of dupes) this.finishParagraph(d, first.translatedText)
+    }
   }
 
-  private async workerLoop(
-    queue: Paragraph[],
+  /**
+   * Max total length budget for a joined batch request, kept below the
+   * engine's maxLenght so the joined text passes the length check.
+   */
+  private engineBatchBudget(engine?: string): number {
+    if (!engine) return 1600
+    // LLM: modern models have huge context (~256k tokens). Budget the input at
+    // half of that (~128k tokens ≈ 64k CJK chars at ~1 token/char) so input +
+    // translated output together stay within the working context.
+    if (engine.startsWith('llm__')) return 65536
+    if (engine.startsWith('ggTrans')) return 4500 // google maxLenght 5000
+    if (engine.startsWith('bing')) return 1800 // bing maxLenght 2000
+    return 1600 // baidu maxLenght 1800
+  }
+
+  /** Group paragraphs into request units: batchSize count + char budget. */
+  private buildRequestGroups(
+    paragraphs: Paragraph[],
+    engine?: string
+  ): Paragraph[][] {
+    const budget = this.engineBatchBudget(engine)
+    // LLM batches are budget-driven (huge context), not count-driven
+    const maxCount = engine?.startsWith('llm__')
+      ? LLM_MAX_PARAGRAPHS
+      : this.config.batchSize
+    const groups: Paragraph[][] = []
+    let current: Paragraph[] = []
+    let currentLen = 0
+    for (const p of paragraphs) {
+      const len = p.originalText.length + BATCH_SEP.length
+      if (
+        current.length > 0 &&
+        (current.length >= maxCount || currentLen + len > budget)
+      ) {
+        groups.push(current)
+        current = []
+        currentLen = 0
+      }
+      current.push(p)
+      currentLen += len
+    }
+    if (current.length > 0) groups.push(current)
+    return groups
+  }
+
+  /** Mark a paragraph translated and report progress. */
+  private finishParagraph(para: Paragraph, text: string): void {
+    para.translatedText = text
+    para.status = 'done'
+    this.renderEngine.clearTranslating(para)
+    this.processedCount++
+    this.onProgress?.(this.processedCount, this.totalCount)
+  }
+
+  /* ---- Worker: pull request groups and translate them with retries ---- */
+  private async groupWorkerLoop(
+    queue: Paragraph[][],
     engine?: string
   ): Promise<void> {
     const maxRetries = 3
 
     while (queue.length > 0) {
-      const para = queue.shift()!
-      para.status = 'translating'
-      this.renderEngine.markTranslating(para)
+      const group = queue.shift()!
+      group.forEach((p) => {
+        p.status = 'translating'
+        this.renderEngine.markTranslating(p)
+      })
 
       let retries = 0
-      while (retries <= maxRetries) {
+      let done = false
+      while (!done && retries <= maxRetries) {
         try {
-          const result = await this.callTranslate(para, engine)
-          para.translatedText = result
-          para.status = 'done'
-          break
+          const results = await this.requestTranslateBatch(group, engine)
+          group.forEach((p, i) => {
+            const text = results[i]
+            if (text) {
+              this.transCache.set(translationCacheKey(p.originalText), text)
+              this.finishParagraph(p, text)
+            } else {
+              // Engine returned an empty translation for this item
+              p.status = 'error'
+              p.error = 'empty result'
+              this.renderEngine.clearTranslating(p)
+            }
+          })
+          done = true
         } catch (e: any) {
           if (retries >= maxRetries) {
-            para.status = 'error'
-            para.error = e.message
-            // Restore the original's appearance (no translation will render)
-            this.renderEngine.clearTranslating(para)
-            break
+            group.forEach((p) => {
+              p.status = 'error'
+              p.error = e.message
+              // Restore the original's appearance (no translation will render)
+              this.renderEngine.clearTranslating(p)
+            })
+            done = true
+          } else {
+            retries++
+            // Exponential backoff: 1s → 2s → 4s
+            await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, retries - 1)))
           }
-          retries++
-          // Exponential backoff: 1s → 2s → 4s
-          await new Promise(r => setTimeout(r, 1000 * Math.pow(2, retries - 1)))
         }
       }
 
-      this.processedCount++
-      this.onProgress?.(this.processedCount, this.totalCount)
+      // Count failed paragraphs toward progress (done ones counted by finishParagraph)
+      group.forEach((p) => {
+        if (p.status === 'error') {
+          this.processedCount++
+          this.onProgress?.(this.processedCount, this.totalCount)
+        }
+      })
     }
   }
 
-  /* ---- Call background translation (with in-memory dedup) ---- */
+  /* ---- Call background translation (with in-memory dedup) ----
+   * Single-paragraph path: used by tests and available for per-paragraph
+   * features. Page translation itself goes through translateBatch (batch). */
   private callTranslate(para: Paragraph, engine?: string): Promise<string> {
     const key = translationCacheKey(para.originalText)
 
@@ -484,6 +612,57 @@ export class PageTransEngine {
         id,
         type: 'pageTrans',
         text: para.originalText,
+        from: 'auto',
+        to: this.targetLang,
+        engine,
+      })
+    })
+  }
+
+  /* ---- Send one batch request: many paragraphs, one port message ---- */
+  private requestTranslateBatch(
+    group: Paragraph[],
+    engine?: string
+  ): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      if (!this.port) {
+        reject(new Error('Port not connected'))
+        return
+      }
+
+      const id = uuid()
+      let settled = false
+
+      // LLM batches can be huge (64k chars → minutes of generation); scale the
+      // timeout with the total text length instead of a fixed budget.
+      const isLLMEngine = !!engine && engine.startsWith('llm__')
+      const totalChars = group.reduce((sum, p) => sum + p.originalText.length, 0)
+      const timeoutMs = isLLMEngine
+        ? Math.min(600000, 60000 + totalChars * 10)
+        : Math.min(120000, 15000 + group.length * 2000)
+      const timer = setTimeout(() => {
+        if (settled) return
+        settled = true
+        this.port?.onMessage.removeListener(handler)
+        reject(new Error('Translation timeout: ' + group[0]?.originalText.slice(0, 30)))
+      }, timeoutMs)
+
+      const handler = (msg: any) => {
+        if (msg.id === id) {
+          clearTimeout(timer)
+          if (settled) return
+          settled = true
+          this.port?.onMessage.removeListener(handler)
+          if (msg.error) reject(new Error(msg.error))
+          else resolve(Array.isArray(msg.texts) ? msg.texts : [])
+        }
+      }
+
+      this.port.onMessage.addListener(handler)
+      this.port.postMessage({
+        id,
+        type: 'pageTransBatch',
+        texts: group.map((p) => p.originalText),
         from: 'auto',
         to: this.targetLang,
         engine,
@@ -576,8 +755,12 @@ export class PageTransEngine {
 
     // Translate in batches
     const { batchSize, concurrency } = this.config
-    for (let i = 0; i < pending.length; i += batchSize) {
-      const batch = pending.slice(i, i + batchSize)
+    // LLM engines use the huge context: chunk by paragraph count, not batchSize
+    const chunkSize = (this.currentEngine || '').startsWith('llm__')
+      ? LLM_MAX_PARAGRAPHS
+      : batchSize
+    for (let i = 0; i < pending.length; i += chunkSize) {
+      const batch = pending.slice(i, i + chunkSize)
       await this.translateBatch(batch, concurrency, this.currentEngine || undefined)
       this.renderEngine.renderBatch(batch, this.config.displayMode, this.config.transStyle)
     }

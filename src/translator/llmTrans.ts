@@ -2,10 +2,13 @@ import {BaseTrans} from '@/translator/share';
 import {ITransResult, IWrapTransInfo, ILLMConfig} from '@/interface/trans';
 import { Context } from '@/api/context';
 import { SToGoogle, languages } from '@/translator/trans_base';
+import { BATCH_SEP } from '@/translator/batch';
 import { wrapTranslator } from '@/translator/transWrap';
 
 export class LLMTrans extends BaseTrans {
-  maxLenght = 8000
+  // Batch page translation joins up to ~64k chars (see pageTransEngine's
+  // engineBatchBudget); modern models have ~256k-token contexts.
+  maxLenght = 65536
 
   constructor() {
     super()
@@ -42,7 +45,11 @@ export class LLMTrans extends BaseTrans {
     const mainName = this.getLangName(info.from!)
     const toName = this.getLangName(info.to!)
 
-    await this.translate(c, config, mainName, toName)
+    // Batch requests join multiple segments with BATCH_SEP — tell the model to
+    // keep the separators so the response can be split back 1:1
+    const isBatch = info.text.includes(BATCH_SEP)
+
+    await this.translate(c, config, mainName, toName, isBatch)
     return c
   }
 
@@ -80,9 +87,23 @@ export class LLMTrans extends BaseTrans {
     return lang?.en || code
   }
 
-  private buildSystemPrompt(fromName: string, toName: string, customPrompt?: string): string {
+  private buildSystemPrompt(
+    fromName: string,
+    toName: string,
+    customPrompt?: string,
+    isBatch = false
+  ): string {
     const base = `You are a professional translator. Translate the following text from ${fromName} to ${toName}. Reply with the translation only, no explanations, no notes, no JSON.`
-    return customPrompt ? base + '\n' + customPrompt : base
+    // Batch rule: the input holds several segments separated by the marker.
+    // The model must translate each segment and reproduce the markers so the
+    // caller can split the reply back into per-paragraph translations.
+    const batchRule = isBatch
+      ? `\nThe input contains multiple text segments separated by the marker "${BATCH_SEP}". ` +
+        `Translate every segment. Keep the markers exactly as-is between the translated ` +
+        `segments, preserving the number and order of the segments. Do not merge, drop, ` +
+        `reorder, or paraphrase the markers.`
+      : ''
+    return base + batchRule + (customPrompt ? '\n' + customPrompt : '')
   }
 
   private parseLLMResponse(raw: string): string {
@@ -101,20 +122,20 @@ export class LLMTrans extends BaseTrans {
     return config.apiUrl.includes('anthropic')
   }
 
-  private async translate(c: Context, config: ILLMConfig, fromName: string, toName: string): Promise<void> {
+  private async translate(c: Context, config: ILLMConfig, fromName: string, toName: string, isBatch = false): Promise<void> {
     if (this.isAnthropic(config)) {
-      return this.translateAnthropic(c, config, fromName, toName)
+      return this.translateAnthropic(c, config, fromName, toName, isBatch)
     }
-    return this.translateOpenAI(c, config, fromName, toName)
+    return this.translateOpenAI(c, config, fromName, toName, isBatch)
   }
 
-  private async translateOpenAI(c: Context, config: ILLMConfig, fromName: string, toName: string): Promise<void> {
+  private async translateOpenAI(c: Context, config: ILLMConfig, fromName: string, toName: string, isBatch = false): Promise<void> {
     const info: IWrapTransInfo = c.req
     this.startTiming()
 
     try {
       const url = config.apiUrl.replace(/\/+$/, '') + '/chat/completions'
-      const systemPrompt = this.buildSystemPrompt(fromName, toName, config.customPrompt)
+      const systemPrompt = this.buildSystemPrompt(fromName, toName, config.customPrompt, isBatch)
       
       const resp = await fetch(url, {
         method: 'POST',
@@ -150,7 +171,7 @@ export class LLMTrans extends BaseTrans {
     }
   }
 
-  private async translateAnthropic(c: Context, config: ILLMConfig, fromName: string, toName: string): Promise<void> {
+  private async translateAnthropic(c: Context, config: ILLMConfig, fromName: string, toName: string, isBatch = false): Promise<void> {
     const info: IWrapTransInfo = c.req
     this.startTiming()
 
@@ -164,7 +185,11 @@ export class LLMTrans extends BaseTrans {
           url += '/v1/messages'
         }
       }
-      const systemPrompt = this.buildSystemPrompt(fromName, toName, config.customPrompt)
+      // Batch requests may produce long output (many segments) — raise the cap.
+      // Modern Claude models support 64k output tokens; older models that cap
+      // lower will error and the batch falls back to per-item translation.
+      const isBatch = info.text.includes(BATCH_SEP)
+      const systemPrompt = this.buildSystemPrompt(fromName, toName, config.customPrompt, isBatch)
 
       const resp = await fetch(url, {
         method: 'POST',
@@ -175,7 +200,7 @@ export class LLMTrans extends BaseTrans {
         },
         body: JSON.stringify({
           model: config.model,
-          max_tokens: 4096,
+          max_tokens: isBatch ? 64000 : 4096,
           system: systemPrompt,
           messages: [
             { role: 'user', content: info.text },
