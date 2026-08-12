@@ -46,10 +46,11 @@ function formatDuration(ms: number): string {
 const AUTO_TRANSLATE_TTL = 6 * 60 * 60 * 1000
 
 /**
- * LLM engines batch by char budget (huge context), not by count.
- * Cap the paragraphs per group so one request stays manageable.
+ * LLM engines batch by char budget, not by count.
+ * Cap the paragraphs per group so each batch completes in reasonable time and
+ * results keep streaming in (page translation renders as batches finish).
  */
-const LLM_MAX_PARAGRAPHS = 1000
+const LLM_MAX_PARAGRAPHS = 50
 
 /**
  * sessionStorage key for the auto-translate intent.
@@ -436,10 +437,10 @@ export class PageTransEngine {
    */
   private engineBatchBudget(engine?: string): number {
     if (!engine) return 1600
-    // LLM: modern models have huge context (~256k tokens). Budget the input at
-    // half of that (~128k tokens ≈ 64k CJK chars at ~1 token/char) so input +
-    // translated output together stay within the working context.
-    if (engine.startsWith('llm__')) return 65536
+    // LLM: moderate batch size — page translation renders results as each
+    // batch completes, so oversized batches delay the visible progress
+    // (generation is the bottleneck: ~1 token/char CJK ≈ 100s for 4k chars).
+    if (engine.startsWith('llm__')) return 4096
     if (engine.startsWith('ggTrans')) return 4500 // google maxLenght 5000
     if (engine.startsWith('bing')) return 1800 // bing maxLenght 2000
     return 1600 // baidu maxLenght 1800
@@ -540,6 +541,15 @@ export class PageTransEngine {
           this.onProgress?.(this.processedCount, this.totalCount)
         }
       })
+
+      // Render this group's finished paragraphs right away — page translation
+      // shows results progressively as each batch completes, not only when the
+      // whole page is done (idempotent: renderOne updates existing nodes).
+      this.renderEngine.renderBatch(
+        group,
+        this.config.displayMode,
+        this.config.transStyle
+      )
     }
   }
 
@@ -633,12 +643,12 @@ export class PageTransEngine {
       const id = uuid()
       let settled = false
 
-      // LLM batches can be huge (64k chars → minutes of generation); scale the
-      // timeout with the total text length instead of a fixed budget.
+      // LLM batches can take minutes to generate (output-token bound); scale
+      // the timeout with the total text length (~1 token/char for CJK).
       const isLLMEngine = !!engine && engine.startsWith('llm__')
       const totalChars = group.reduce((sum, p) => sum + p.originalText.length, 0)
       const timeoutMs = isLLMEngine
-        ? Math.min(600000, 60000 + totalChars * 10)
+        ? Math.min(300000, 60000 + totalChars * 60)
         : Math.min(120000, 15000 + group.length * 2000)
       const timer = setTimeout(() => {
         if (settled) return

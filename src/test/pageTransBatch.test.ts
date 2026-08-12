@@ -12,8 +12,17 @@ import { Paragraph } from '@/content/pageTrans/types'
 // Minimal document stub (RenderEngine injects a stylesheet on construction)
 ;(globalThis as any).document = {
   getElementById: () => null,
-  createElement: () => ({ id: '', textContent: '', remove() {} }),
+  createElement: () => ({
+    id: '',
+    textContent: '',
+    remove() {},
+    className: '',
+    classList: { add() {}, remove() {} },
+    setAttribute() {},
+    appendChild() {},
+  }),
   head: { appendChild: () => {} },
+  body: { classList: { add() {}, remove() {} } },
 }
 
 type Handler = (msg: any) => void
@@ -64,7 +73,17 @@ function makeEngine(): { engine: any; port: FakePort } {
 function para(text: string): Paragraph {
   return {
     id: 'id-' + Math.random().toString(36).slice(2),
-    node: { classList: { add() {}, remove() {} } } as any,
+    node: {
+      tagName: 'P',
+      textContent: text,
+      classList: { add() {}, remove() {} },
+      parentNode: null,
+      nextSibling: null,
+      nextElementSibling: null,
+      setAttribute() {},
+      querySelector: () => null,
+      appendChild() {},
+    } as any,
     originalText: text,
     translatedText: '',
     lang: '',
@@ -146,23 +165,30 @@ describe('buildRequestGroups (char budget + batch size)', () => {
     expect(groups[0]).toHaveLength(3)
   })
 
-  it('LLM groups are budget-driven: many paragraphs fit in one request', () => {
+  it('LLM groups are budget-driven: 50 paragraphs fit in one request', () => {
     const { engine } = makeEngine()
-    // 150 short paragraphs ≈ 7.5k chars — far below the 64k LLM budget
-    const ps = Array.from({ length: 150 }, (_, i) => para('short paragraph ' + i))
+    // 50 short paragraphs ≈ 1.8k chars — under the 4k LLM budget
+    const ps = Array.from({ length: 50 }, (_, i) => para('short paragraph ' + i))
     const groups = engine.buildRequestGroups(ps, 'llm__big-context')
     expect(groups).toHaveLength(1)
-    expect(groups[0]).toHaveLength(150)
+    expect(groups[0]).toHaveLength(50)
   })
 
-  it('LLM groups respect the 64k char budget (split oversized pages)', () => {
+  it('LLM groups respect the 50-paragraph cap', () => {
     const { engine } = makeEngine()
-    // 4 paragraphs × 30k chars = 120k chars > 64k budget → 2 groups
-    const ps = [para('a'.repeat(30000)), para('b'.repeat(30000)), para('c'.repeat(30000)), para('d'.repeat(30000))]
+    // 120 short paragraphs — the cap (50) binds before the char budget
+    const ps = Array.from({ length: 120 }, (_, i) => para('p' + i))
     const groups = engine.buildRequestGroups(ps, 'llm__big-context')
-    expect(groups.length).toBe(2)
-    expect(groups[0]).toHaveLength(2)
-    expect(groups[1]).toHaveLength(2)
+    expect(groups.map((g: Paragraph[]) => g.length)).toEqual([50, 50, 20])
+  })
+
+  it('LLM groups respect the 4k char budget (split long pages)', () => {
+    const { engine } = makeEngine()
+    // 4 paragraphs × 3k chars = 12k chars > 4k budget → 4 groups
+    const ps = [para('a'.repeat(3000)), para('b'.repeat(3000)), para('c'.repeat(3000)), para('d'.repeat(3000))]
+    const groups = engine.buildRequestGroups(ps, 'llm__big-context')
+    expect(groups.length).toBe(4)
+    groups.forEach((g: Paragraph[]) => expect(g).toHaveLength(1))
   })
 })
 

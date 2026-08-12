@@ -6,9 +6,9 @@ import { BATCH_SEP } from '@/translator/batch';
 import { wrapTranslator } from '@/translator/transWrap';
 
 export class LLMTrans extends BaseTrans {
-  // Batch page translation joins up to ~64k chars (see pageTransEngine's
-  // engineBatchBudget); modern models have ~256k-token contexts.
-  maxLenght = 65536
+  // Page translation batches up to ~4k chars per request (see pageTransEngine's
+  // engineBatchBudget); longer single texts (popup/selection) also fit here.
+  maxLenght = 16384
 
   constructor() {
     super()
@@ -185,9 +185,9 @@ export class LLMTrans extends BaseTrans {
           url += '/v1/messages'
         }
       }
-      // Batch requests may produce long output (many segments) — raise the cap.
-      // Modern Claude models support 64k output tokens; older models that cap
-      // lower will error and the batch falls back to per-item translation.
+      // Batch output fits in 8k tokens for ~4k-char batches; single requests
+      // keep the original 4k cap. (Modern Claude models accept 64k, but 8k is
+      // enough here and works with older models too.)
       const isBatch = info.text.includes(BATCH_SEP)
       const systemPrompt = this.buildSystemPrompt(fromName, toName, config.customPrompt, isBatch)
 
@@ -200,7 +200,7 @@ export class LLMTrans extends BaseTrans {
         },
         body: JSON.stringify({
           model: config.model,
-          max_tokens: isBatch ? 64000 : 4096,
+          max_tokens: isBatch ? 8192 : 4096,
           system: systemPrompt,
           messages: [
             { role: 'user', content: info.text },
