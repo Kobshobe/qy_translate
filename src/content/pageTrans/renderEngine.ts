@@ -59,8 +59,23 @@ function injectStyles(): void {
 }
 
 /* ---- 翻译中动画 ---- */
-.${CLS.translating} {
-  opacity: 0.4;
+.${CLS.translating}::after {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-left: 6px;
+  border: 2px solid rgba(76, 139, 245, 0.25);
+  border-top-color: #4C8BF5;
+  border-radius: 50%;
+  vertical-align: middle;
+  animation: qyt-spin 0.8s linear infinite;
+}
+
+@keyframes qyt-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ===== 各样式 ===== */
