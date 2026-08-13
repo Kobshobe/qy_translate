@@ -442,7 +442,7 @@ export class PageTransEngine {
     // (generation is the bottleneck: ~1 token/char CJK ≈ 100s for 4k chars).
     if (engine.startsWith('llm__')) return 4096
     if (engine.startsWith('ggTrans')) return 4500 // google maxLenght 5000
-    if (engine.startsWith('bing')) return 1800 // bing maxLenght 2000
+    if (engine.startsWith('bing')) return 900 // bing truncates input beyond ~1000 chars per request
     return 1600 // baidu maxLenght 1800
   }
 

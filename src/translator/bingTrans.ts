@@ -4,6 +4,13 @@ import { Context } from '@/api/context';
 import { IBaseResp, baseRequest } from '@/api/request';
 import { LangSysToBing } from './trans_base';
 import {wrapTranslator} from '@/translator/transWrap'
+import splitLongText from '@/translator/splitLongText'
+
+/** Max text length per single Bing request. Bing truncates input beyond ~1000 chars. */
+export const BING_MAX_REQ_TEXT = 1000
+
+/** CJK punctuation used as chunk split points (Chinese/Japanese/Korean text has no spaces). */
+export const BING_SPLIT_PUNCT = '。，！？；：、“”‘’（）《》【】…—·'
 
 interface IExample {
     sourcePrefix:string
@@ -73,6 +80,12 @@ export class BingTrans extends BaseTrans {
     }
 
     async trans(c:Context, isRetry:boolean) :Promise<boolean> {
+        // Bing silently truncates input beyond ~1000 chars per request, so long
+        // text must be split into chunks and translated one by one.
+        if (c.req.text.length > BING_MAX_REQ_TEXT) {
+            return this.transChunks(c, isRetry)
+        }
+
         const info:IWrapTransInfo = c.req
 
         const translateURL = `ttranslatev3?isVertical=1&IG=${this.IG}&IID=${this.IID}.${this.count.toString()}`
@@ -113,6 +126,95 @@ export class BingTrans extends BaseTrans {
                 await this.getTexamplev3(c, c.res.text)
             } catch(e) {
                 console.log('bing getTexamplev3: ', info.text, e)
+            }
+        }
+
+        return false
+    }
+
+    /**
+     * Translate long text (> BING_MAX_REQ_TEXT) in chunks and join the results.
+     * Chunks are cut at punctuation/whitespace boundaries so words are never
+     * split mid-way. Returns true when the caller should retry with fresh tokens.
+     */
+    private async transChunks(c:Context, isRetry:boolean) :Promise<boolean> {
+        const info:IWrapTransInfo = c.req
+
+        // Split at sentence/word boundaries; fall back to hard slicing when a
+        // single token is longer than the per-request limit.
+        let chunks: string[]
+        try {
+            chunks = splitLongText(info.text, {
+                maxLength: BING_MAX_REQ_TEXT,
+                splitPunct: BING_SPLIT_PUNCT,
+            })
+        } catch(e) {
+            console.log('bing splitLongText err: ', e)
+            chunks = []
+            for (let i = 0; i < info.text.length; i += BING_MAX_REQ_TEXT) {
+                chunks.push(info.text.slice(i, i + BING_MAX_REQ_TEXT))
+            }
+        }
+
+        let translated = ''
+        let firstRes: ITransResult | null = null
+        let lastRes: ITransResult | null = null
+        for (const chunk of chunks) {
+            const needRetry = await this.transOnce(c, isRetry, chunk)
+            if (needRetry) return true
+            if (c.err) return false
+            const res = c.res as ITransResult
+            firstRes || (firstRes = res)
+            lastRes = res
+            translated += res.text
+        }
+
+        // Merge chunk results into a single result for the caller.
+        c.res = {
+            text: translated,
+            resultFrom: firstRes?.resultFrom,
+            resultTo: firstRes?.resultTo,
+            tPronunciation: firstRes?.tPronunciation,
+            engine: info.engine,
+            data: lastRes?.data,
+        }
+        return false
+    }
+
+    /** Translate one chunk (≤ BING_MAX_REQ_TEXT) as a single Bing request. */
+    private async transOnce(c:Context, isRetry:boolean, text:string) :Promise<boolean> {
+        const info:IWrapTransInfo = c.req
+
+        const translateURL = `ttranslatev3?isVertical=1&IG=${this.IG}&IID=${this.IID}.${this.count.toString()}`
+        const translateData = `&fromLang=${info.fromCode}&to=${info.toCode}&text=${encodeURIComponent(text)}&token=${encodeURIComponent(this.token)}&key=${encodeURIComponent(this.key)}`;
+
+        const resp = await baseRequest({
+            url: this.HOST + translateURL + translateData,
+            method: "post",
+            headers: this.HEADERS,
+        })
+        if (resp.err) {
+            c.err = '__transReqErr__'
+            c.dialogMsg = {
+                message: '__transReqErr__',
+                type: 'i18n'
+            }
+            return false
+        }
+
+        try {
+            c.res = this.parseResult(resp.data, c)
+        } catch(e) {
+            if (isRetry) {
+                c.err = '__transReqErr__'
+                c.dialogMsg = {
+                    message: '__transReqErr__',
+                    type: 'i18n'
+                }
+                console.log('bing trans err: ', e)
+            } else {
+                console.log('bing trans err need retry', e)
+                return true
             }
         }
 
