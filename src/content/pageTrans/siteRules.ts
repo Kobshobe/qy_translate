@@ -180,7 +180,17 @@ const youtubeRule: SiteRule = {
     }
 
     // 2. Video description (more content after expanding)
-    const desc = primary.querySelector<Element>('#description yt-formatted-string')
+    //    Newer YouTube renders the full text in yt-attributed-string inside
+    //    #description-inline-expander #expanded (populated after clicking
+    //    "more"); the old #description yt-formatted-string layout is kept as a
+    //    fallback. NOTE: the two MUST NOT be combined into one comma selector —
+    //    querySelector returns the first match in document order, which picks
+    //    the empty #description-placeholder stub instead of the real content.
+    const desc =
+      primary.querySelector<Element>(
+        '#description-inline-expander #expanded yt-attributed-string'
+      ) ||
+      primary.querySelector<Element>('#description yt-formatted-string')
     if (desc && !visited.has(desc)) {
       visited.add(desc)
       if (desc.textContent?.trim()) result.push(desc)
@@ -203,6 +213,17 @@ const youtubeRule: SiteRule = {
     )
     for (const el of standard) {
       if (visited.has(el) || isSkipped(el)) continue
+      // Skip containers that already contain an extracted node (e.g. <h1>
+      // wrapping the extracted title yt-formatted-string) — otherwise the
+      // title gets translated twice.
+      let hasVisitedDescendant = false
+      for (const v of visited) {
+        if (el !== v && el.contains(v)) {
+          hasVisitedDescendant = true
+          break
+        }
+      }
+      if (hasVisitedDescendant) continue
       visited.add(el)
       if (el.textContent?.trim()) result.push(el)
     }
