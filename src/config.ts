@@ -3,8 +3,14 @@ import manifest from '@/background/manifest.json'
 
 export const Mode:'test'|'jest'|'public'|'public_test' = 'public'
 /** 发行包的目标商店（发行渠道，非用户浏览器；浏览器由 getClient() 的 _E/_C 后缀区分）。
- *  编译期注入：`VUE_APP_STORE=chrome pnpm build` 或 `pnpm build:chrome`，缺省 edge */
-export const platform:'chrome'|'edge' = process.env.VUE_APP_STORE === 'chrome' ? 'chrome' : 'edge'
+ *  编译期注入：`VUE_APP_STORE=chrome pnpm build` 或 `pnpm build:chrome`；未指定平台（本地
+ *  调试构建，如 `pnpm build`）时为 'debug' —— options 页据此显示 debug 标签（ui/rule-lab）。 */
+export const platform:'chrome'|'edge'|'debug' =
+  process.env.VUE_APP_STORE === 'chrome'
+    ? 'chrome'
+    : process.env.VUE_APP_STORE === 'edge'
+      ? 'edge'
+      : 'debug'
 export const clientVersion = manifest.version
 
 /** 默认翻译引擎（单一来源，设置页显示与实际翻译回退保持一致） */

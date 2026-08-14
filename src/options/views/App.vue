@@ -11,10 +11,10 @@
         <router-link to="/other"
           ><div class="tab-item">{{geti18nMsg('__others__')}}</div></router-link
         >
-        <router-link v-if="Mode!='public' || mode==='debug'" to="/ui_example"
+        <router-link v-if="Mode!='public' || mode==='debug' || platform==='debug'" to="/ui_example"
           ><div class="tab-item">ui</div></router-link
         >
-        <router-link v-if="Mode!='public' || mode==='debug'" to="/rule-lab"
+        <router-link v-if="Mode!='public' || mode==='debug' || platform==='debug'" to="/rule-lab"
           ><div class="tab-item">rule-lab</div></router-link
         >
       </div>
@@ -39,7 +39,7 @@ import { optionBaseHook } from "@/hook/optionPageHook";
 
 import {geti18nMsg} from '@/utils/share';
 import {IOptionBaseHook} from '@/interface/options';
-import {Mode} from '@/config'
+import {Mode, platform} from '@/config'
 import {useQyDarkWithChangeToBody} from '@/hook/use-qy-dark'
 import SvgIcon from '@/components/base/SvgIcon.vue'
 
