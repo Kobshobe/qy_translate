@@ -94,9 +94,20 @@ const INLINE_TEXT_TAGS = new Set([
  * (phpBB, vBulletin, …) render multi-line post text as raw text nodes
  * separated by <br> with smilies/embedded images inline; block children
  * (div/p/ul/table/…) mark layout frames instead.
+ *
+ * EXCEPTION (2026-08): a div whose children are ALL <a> links is a layout
+ * frame (link box / card grid / news list), NOT a text container. Translating
+ * the whole block merged N independent items (e.g. 8 news articles) into one
+ * paragraph (ozon.ru news list case); each link is its own content unit and
+ * should be translated separately. Short-link nav blocks are still filtered
+ * by the link-density heuristic in isInNonContentArea.
  */
 function isBareTextDiv(el: Element): boolean {
   if (el.children.length === 0) return true
+  const allLinks = [...el.children].every(
+    (c) => c.tagName.toLowerCase() === 'a'
+  )
+  if (allLinks) return false
   for (const child of el.children) {
     if (!INLINE_TEXT_TAGS.has(child.tagName.toLowerCase())) return false
   }

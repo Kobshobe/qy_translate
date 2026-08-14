@@ -305,7 +305,9 @@
                   <li><div>List item body rendered as a bare div child of the list item, which must not be translated twice by the extraction rules.</div></li>
                 </ul>
 
-                <!-- link box: div with only long-link children → the div is extracted, the links are duplicates -->
+                <!-- link box: div with only link children → NOT a text container
+                     (2026-08): each link is extracted separately instead of
+                     the whole block merging into one paragraph -->
                 <div class="link-box">
                   <a href="#">Understanding how the translation pipeline processes long documents efficiently</a>
                   <a href="#">Measuring the performance impact of dynamic content observation strategies</a>
