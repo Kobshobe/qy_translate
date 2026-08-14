@@ -340,6 +340,43 @@
                   <p>{{ longText }}</p>
                 </div>
               </section>
+
+              <!-- ==================== TikTok video page (comment sidebar) ==================== -->
+              <!-- TikTok renders the video in <article> and the comment list in a
+                   role="complementary" panel, with a sidebar that has NO nav/header
+                   semantics (hashed class names, one link per li). Since 2026-08 the
+                   full-page scan translates complementary content too; short comment
+                   texts (< 30 chars) are added by the TikTok site rule (supplemental),
+                   which the Rule Lab doesn't run — the short comment below is expected
+                   to show text-too-short here. Single-link sidebar items (TikTok /
+                   Following / Explore) are NOT caught by the link-density heuristic
+                   (it requires >= 2 links per container) and ARE extracted when the
+                   target language differs — a known full-page-scan trade-off. -->
+              <section class="tiktok-case">
+                <h2>TikTok Video Page (comment sidebar)</h2>
+                <div class="tiktok-sider">
+                  <ul>
+                    <li><a href="#">TikTok</a></li>
+                    <li><a href="#">Following</a></li>
+                    <li><a href="#">Explore</a></li>
+                  </ul>
+                </div>
+                <article class="tiktok-video">
+                  <div class="tiktok-caption">The most magical place I have ever seen in my entire life</div>
+                  <strong data-e2e="like-count">2.1M</strong>
+                  <strong data-e2e="comment-count">4638</strong>
+                </article>
+                <div role="complementary" class="tiktok-comment-panel">
+                  <div data-e2e="comment-item">
+                    <div data-e2e="comment-username-1"><a href="#"><p>stellyt0020</p></a></div>
+                    <span data-e2e="comment-level-1"><span class="TUXText">So beautiful, I would love to visit this waterfall town someday</span></span>
+                  </div>
+                  <div data-e2e="comment-item">
+                    <div data-e2e="comment-username-1"><a href="#"><p>traveller_77</p></a></div>
+                    <span data-e2e="comment-level-1"><span class="TUXText">Wow amazing place</span></span>
+                  </div>
+                </div>
+              </section>
             </main>
 
             <!-- ==================== footer ==================== -->
@@ -415,7 +452,6 @@ import {
   FilterDecision,
   FilterReason,
   filterParagraphs,
-  findMainContentContainer,
 } from '@/content/pageTrans/ruleFilter'
 
 /** Paragraph above MAX_TEXT_LENGTH (5000 chars) → text-too-long */
@@ -489,9 +525,8 @@ function run() {
   detail.value = null
   if (!previewEl.value) return
   const root = previewEl.value
-  const container = findMainContentContainer(root)
-  containerDesc.value = container ? describeNode(container) : '(body fallback)'
-  decisions.value = filterParagraphs(container || root, { targetLang: targetLang.value })
+  containerDesc.value = '(full-page scan)'
+  decisions.value = filterParagraphs(root, { targetLang: targetLang.value })
   applyMarks()
 }
 

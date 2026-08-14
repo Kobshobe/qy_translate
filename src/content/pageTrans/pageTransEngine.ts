@@ -25,7 +25,6 @@ import { defaultTransEngine } from '@/config'
 import { BATCH_SEP } from '@/translator/batch'
 import {
   shouldTranslateText,
-  findMainContentContainer,
   filterParagraphs,
   passesFilters,
   getOriginalText,
@@ -228,29 +227,41 @@ export class PageTransEngine {
   extract(): Paragraph[] {
     this.setStatus('extracting')
 
-    // 1. Check for site-specific rules first
-    let result: Paragraph[]
+    // Collect candidate elements.
+    // - Replace-all site rules (YouTube/Reddit/X/…, no supplemental flag):
+    //   the rule fully takes over extraction.
+    // - Otherwise: generic full-page scan (no main-container scoping) —
+    //   out-of-container content (comments, sidebars with real content) is in
+    //   scope. Supplemental site rules (e.g. TikTok) ADD nodes the generic
+    //   rules would drop (short comment texts).
     const siteRule = getSiteRule()
-    if (siteRule) {
-      result = this.elementsToParagraphs(extractWithSiteRule(siteRule))
+    const elements: Element[] = []
+
+    if (siteRule?.customExtract && !siteRule.supplemental) {
+      elements.push(...extractWithSiteRule(siteRule))
     } else {
-      // 2. Generic heuristic algorithm (pure rules in ruleFilter)
-      const container = findMainContentContainer(document)
-      const root = container || document.body
-      const decisions = filterParagraphs(root, { targetLang: this.targetLang })
-      result = []
+      const decisions = filterParagraphs(document.body, {
+        targetLang: this.targetLang,
+      })
       for (const d of decisions) {
         if (!d.extracted) continue
-        result.push({
-          id: uuid(),
-          node: d.element,
-          originalText: d.text,
-          translatedText: '',
-          lang: '',
-          status: 'pending',
-        })
+        // Supplemental rules may exclude regions from the generic scan
+        // (e.g. TikTok comment usernames must not be translated)
+        if (
+          siteRule?.excludeSelectors?.some((sel) => d.element.closest(sel))
+        ) {
+          continue
+        }
+        elements.push(d.element)
+      }
+      if (siteRule?.customExtract && siteRule.supplemental) {
+        elements.push(...extractWithSiteRule(siteRule))
       }
     }
+
+    // elementsToParagraphs dedupes by node (generic scan + supplemental rule
+    // can return the same element) and re-runs passesFilters
+    const result = this.elementsToParagraphs(elements)
 
     // Preserve records whose nodes are still attached to the document: some
     // same-domain URL changes (e.g. MDN's canonical redirect) rewrite the URL
@@ -702,8 +713,9 @@ export class PageTransEngine {
       root = el || document.body
       this.observerSelector = siteRule.mainSelector
     } else {
-      const container = findMainContentContainer(document)
-      root = container || document.body
+      // Full-page observation (no main-container scoping): newly loaded
+      // comments/feeds anywhere in the body are picked up
+      root = document.body
     }
 
     this.mutationObserver = new MutationObserver((mutations) => {
@@ -815,8 +827,8 @@ export class PageTransEngine {
     const candidates: Element[] = []
     const visited = new Set<Element>()
 
-    if (siteRule && siteRule.customExtract) {
-      // For sites with custom rules (e.g. YouTube), scan the whole page
+    if (siteRule?.customExtract && !siteRule.supplemental) {
+      // Replace-all site rules: the rule fully takes over extraction
       const elements = extractWithSiteRule(siteRule)
       for (const el of elements) {
         if (visited.has(el)) continue
@@ -824,15 +836,30 @@ export class PageTransEngine {
         candidates.push(el)
       }
     } else {
-      // Generic: same scope as the initial extraction, using the pure rules
-      const container = findMainContentContainer(document)
-      const decisions = filterParagraphs(container || document.body, {
+      // Generic: full-page scan (same scope as the initial extraction)
+      const decisions = filterParagraphs(document.body, {
         targetLang: this.targetLang,
       })
       for (const d of decisions) {
         if (!d.extracted || visited.has(d.element)) continue
+        // Supplemental rules may exclude regions from the generic scan
+        // (e.g. TikTok comment usernames must not be translated)
+        if (
+          siteRule?.excludeSelectors?.some((sel) => d.element.closest(sel))
+        ) {
+          continue
+        }
         visited.add(d.element)
         candidates.push(d.element)
+      }
+      // Supplemental site rules (e.g. TikTok) add nodes the generic rules drop
+      if (siteRule?.customExtract && siteRule.supplemental) {
+        const elements = extractWithSiteRule(siteRule)
+        for (const el of elements) {
+          if (visited.has(el)) continue
+          visited.add(el)
+          candidates.push(el)
+        }
       }
     }
 

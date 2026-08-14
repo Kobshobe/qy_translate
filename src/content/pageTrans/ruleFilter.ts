@@ -55,9 +55,15 @@ const SKIP_TAGS_SELECTOR = [...SKIP_TAGS].join(',')
  * tooltips — unambiguous UI chrome roles, added defensively (they are usually
  * already covered by their container roles menu/menubar/tablist, but some
  * UIs omit the container role).
+ *
+ * NOTE: role="complementary" is deliberately NOT excluded (removed 2026-08).
+ * The full-page scan route translates out-of-container content too, and
+ * social sites (TikTok comments, etc.) put real content in aside-like
+ * complementary regions. Sidebar-style nav is still caught by the link-density
+ * heuristic (isInNonContentArea Layer 2) and shouldTranslateText filters.
  */
 export const SKIP_ROLES = new Set([
-  'navigation', 'banner', 'complementary', 'contentinfo',
+  'navigation', 'banner', 'contentinfo',
   'alert', 'alertdialog', 'dialog', 'toolbar',
   'menu', 'menubar', 'menuitem', 'menuitemcheckbox', 'menuitemradio',
   'tab', 'tooltip',
@@ -101,7 +107,9 @@ function isBareTextDiv(el: Element): boolean {
 export const NON_CONTENT_SELECTOR = [
   'nav', 'header', 'footer', 'aside',
   '[role="navigation"]', '[role="banner"]', '[role="contentinfo"]',
-  '[role="complementary"]',
+  // [role="complementary"] is intentionally absent (removed 2026-08): with
+  // the full-page scan, complementary regions carry real content (TikTok
+  // comments etc.); sidebar nav is caught by the link-density heuristic.
   // [role="tabpanel"] is intentionally absent: it is the content pane of a
   // tab UI, not chrome (see SKIP_ROLES note). The tab bar ([role="tablist"])
   // and tab buttons ([role="tab"]) stay.
@@ -133,7 +141,6 @@ const STRUCTURAL = new Set(['table', 'ul', 'ol', 'dl'])
 const SEMANTIC_NON_CONTENT_SELECTOR = [
   'nav', 'header', 'footer', 'aside',
   '[role="navigation"]', '[role="banner"]', '[role="contentinfo"]',
-  '[role="complementary"]',
   '.sidebar', '.Sidebar', '#sidebar', '#Sidebar',
 ].join(',')
 
@@ -274,88 +281,6 @@ export function getOriginalText(el: Element): string {
   const clone = el.cloneNode(true) as Element
   clone.querySelectorAll(`[${ATTR.translation}]`).forEach((n) => n.remove())
   return clone.textContent?.trim() ?? ''
-}
-
-/* ============================================================
-   Main content container lookup strategy
-   ============================================================ */
-
-/** Whether the element contains enough body content (avoid treating cards/list items as page containers) */
-function isContentRichContainer(el: Element): boolean {
-  const text = el.textContent?.trim() || ''
-  if (text.length < 100) return false
-  // Long text (>=200) or multiple block text nodes qualify as a body container
-  const targetCount = el.querySelectorAll(
-    'p, li, h1, h2, h3, h4, h5, h6, blockquote'
-  ).length
-  return text.length >= 200 || targetCount >= 3
-}
-
-/**
- * Find the main content container inside `root`.
- * `root` is a Document (real engine) or an Element (Rule Lab fixture).
- */
-export function findMainContentContainer(root: Document | Element): Element | null {
-  const queryAll = (sel: string) => root.querySelectorAll<Element>(sel)
-
-  // 1. Explicit semantic container (role="main" / <main>) — unambiguous, trust it
-  const semantic =
-    queryAll('[role="main"]')[0] ||
-    queryAll('main')[0]
-  if (semantic) return semantic
-
-  // 2. <article> is often used for cards/list items (product cards, stat cards,
-  //    news summaries, etc.); the first <article> may just be a small card,
-  //    not the whole page body. Only treat it as the body container when it
-  //    contains enough content.
-  const article = queryAll('article')[0]
-  if (article && isContentRichContainer(article)) return article
-
-  // 3. Find the text-densest region (excluding non-content areas)
-  const contentLikeTags = ['div', 'section', 'article']
-  let best: Element | null = null
-  let bestScore = 0
-
-  for (const tag of contentLikeTags) {
-    for (const el of queryAll(tag)) {
-      if (isInNonContentArea(el)) continue
-      const text = el.textContent?.trim() || ''
-      if (text.length < 200) continue
-      const pCount = el.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6').length
-      const score = text.length * Math.min(pCount, 50)
-      if (score > bestScore) {
-        bestScore = score
-        best = el
-      }
-    }
-  }
-
-  // 4. Coverage check: landing/card-grid pages often lack <main>, with content
-  //    spread across sibling <section>/<div>s (hero, feature, faq…), so the
-  //    density algorithm only picks one of them. If the best container covers
-  //    only a small fraction of the page's translatable nodes, return null so
-  //    the caller falls back to a full scan (isInNonContentArea filters nav,
-  //    header, footer, sidebar, etc.).
-  if (best) {
-    // Coverage must measure the same candidate set the extraction translates
-    // (TARGET_TAGS includes <a>/<summary>: e-commerce homepages and feeds keep
-    // most text in title links — a selector missing them would let a container
-    // that excludes all card/link content pass the coverage check).
-    // Non-content targets (nav/header/footer links) are never translated, so
-    // they must not dilute the body-side count either.
-    const TARGET = [...TARGET_TAGS].join(', ')
-    const bestTargets = best.querySelectorAll(TARGET).length
-    const bodyRoot = (root as Document).body || root
-    let bodyTargets = 0
-    bodyRoot.querySelectorAll<Element>(TARGET).forEach((el) => {
-      if (!isInNonContentArea(el)) bodyTargets++
-    })
-    if (bestTargets <= bodyTargets * 0.5) {
-      return null
-    }
-  }
-
-  return best
 }
 
 /* ============================================================
@@ -561,6 +486,13 @@ export function filterParagraphs(
     }
 
     // Duplicate-of-ancestor check (resets past structural boundaries)
+    // An ancestor TARGET_TAG counts as duplicate even when it was ALREADY
+    // translated (ATTR.processed): on dynamic re-scans, injected translation
+    // nodes next to the original (e.g. <a>译文<a>) inflate the link-density
+    // heuristic, so isInNonContentArea may flip to true and let nested nodes
+    // (e.g. <p> inside the <a>) slip through → double translation. The
+    // processed-ancestor check only covers TARGET_TAG ancestors, so lazily
+    // loaded content inside non-target containers (article/div) is unaffected.
     let parent = el.parentElement
     let duplicate = false
     while (
@@ -568,7 +500,10 @@ export function filterParagraphs(
       parent !== root &&
       !STRUCTURAL.has(parent.tagName.toLowerCase())
     ) {
-      if (TARGET_TAGS.has(parent.tagName.toLowerCase()) && !isInNonContentArea(parent)) {
+      if (
+        TARGET_TAGS.has(parent.tagName.toLowerCase()) &&
+        (parent.hasAttribute(ATTR.processed) || !isInNonContentArea(parent))
+      ) {
         duplicate = true
         break
       }

@@ -29,6 +29,15 @@ export interface SiteRule {
    * Returns all translatable paragraph nodes.
    */
   customExtract?: () => Element[]
+  /**
+   * Supplemental mode (optional, requires customExtract): the generic
+   * full-page scan still runs, and this rule's customExtract result is MERGED
+   * into it (deduped by node). Use for sites where the generic rules already
+   * cover most content but miss a specific container (e.g. TikTok short
+   * comment texts in bare divs). Without this flag the rule replaces the
+   * generic extraction entirely.
+   */
+  supplemental?: boolean
 }
 
 /* ============================================================
@@ -334,6 +343,47 @@ const xRule: SiteRule = {
 }
 
 /* ============================================================
+   TikTok Rule (supplemental: adds comment bodies to the generic full-page scan)
+   ============================================================ */
+const tiktokRule: SiteRule = {
+  name: 'TikTok',
+  domains: ['tiktok.com', 'www.tiktok.com', 'm.tiktok.com'],
+
+  // Supplemental: the generic full-page scan already covers video captions
+  // (bare text divs ≥30 chars) and long comments. This rule only ADDS
+  // comment bodies: TikTok renders them in
+  // <span data-e2e="comment-level-N"> (N = reply depth; verified on the live
+  // page 2026-08) — spans are NOT in TARGET_TAGS and never reach the bare-div
+  // path, so generic rules would drop them entirely. Username lives in
+  // [data-e2e^="comment-username-"] (a > p) and is excluded via
+  // excludeSelectors (applied to the generic scan in supplemental mode). No
+  // mainSelector: the dynamic observer watches document.body so
+  // lazily-loaded comments are picked up too.
+  supplemental: true,
+
+  // Username is a link (a > p) in [data-e2e^="comment-username-"]; it is a
+  // TARGET_TAG so the generic scan would translate it. Exclude the whole
+  // username region.
+  excludeSelectors: ['[data-e2e^="comment-username-"]'],
+
+  customExtract: () => {
+    const result: Element[] = []
+    const visited = new Set<Element>()
+    const commentLevels = document.querySelectorAll<Element>(
+      '[data-e2e^="comment-level-"]'
+    )
+    for (const el of commentLevels) {
+      if (visited.has(el)) continue
+      const text = el.textContent?.trim() ?? ''
+      if (!text || text.length < 2) continue
+      visited.add(el)
+      result.push(el)
+    }
+    return result
+  },
+}
+
+/* ============================================================
    All Site Rules
    ============================================================ */
 const ALL_SITE_RULES: SiteRule[] = [
@@ -342,6 +392,7 @@ const ALL_SITE_RULES: SiteRule[] = [
   youtubeRule,
   redditRule,
   xRule,
+  tiktokRule,
 ]
 
 /* ============================================================
