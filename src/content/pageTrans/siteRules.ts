@@ -99,6 +99,38 @@ const githubRule: SiteRule = {
       result.push(el)
     }
 
+    // 4. Standard-tag fallback for non-repo pages (marketing pages like
+    //    /open-source/accelerator, profiles/orgs without an About box, …):
+    //    the steps above only cover repo structures, so such pages would
+    //    otherwise return nothing. Scan standard block tags inside <main>;
+    //    the engine re-runs passesFilters on each candidate (length, visible,
+    //    target-language, …). Repo pages are SKIPPED via the static,
+    //    server-rendered #repository-container-header: on repo pages the
+    //    standard-tag text is pure chrome (fork/star counts, file names,
+    //    commit messages, sr-only headings) and must not be translated. The
+    //    id is present in the initial HTML, so the check is immune to the
+    //    React code-view mounting late (data-testid markers race with the
+    //    auto-translate that fires on document load).
+    if (
+      result.length === 0 &&
+      !document.querySelector('#repository-container-header')
+    ) {
+      const area = document.querySelector('main') || document.body
+      const els = area.querySelectorAll<Element>(TARGET)
+      for (const el of els) {
+        if (visited.has(el)) continue
+        if (
+          el.closest(
+            'nav, header, footer, aside, [role="navigation"], [role="banner"], [role="contentinfo"]'
+          )
+        )
+          continue
+        if (!el.textContent?.trim()) continue
+        visited.add(el)
+        result.push(el)
+      }
+    }
+
     return result
   },
 }

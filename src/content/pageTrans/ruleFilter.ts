@@ -116,11 +116,15 @@ function isBareTextDiv(el: Element): boolean {
 
 /** Combined non-content selectors (single closest() match) */
 export const NON_CONTENT_SELECTOR = [
-  'nav', 'header', 'footer', 'aside',
+  'nav', 'header', 'footer',
   '[role="navigation"]', '[role="banner"]', '[role="contentinfo"]',
-  // [role="complementary"] is intentionally absent (removed 2026-08): with
-  // the full-page scan, complementary regions carry real content (TikTok
-  // comments etc.); sidebar nav is caught by the link-density heuristic.
+  // The bare <aside> tag is intentionally absent (removed 2026-08), like
+  // [role="complementary"]: <aside> IS the HTML element whose implicit ARIA
+  // role is complementary, and with the full-page scan those regions carry
+  // real content (TikTok's comment sidebar renders as a bare <aside> with no
+  // role attribute — excluding the tag silently dropped every comment).
+  // Sidebar-style nav is still caught by the link-density heuristic (Layer 2)
+  // and by .sidebar / #sidebar class selectors below.
   // [role="tabpanel"] is intentionally absent: it is the content pane of a
   // tab UI, not chrome (see SKIP_ROLES note). The tab bar ([role="tablist"])
   // and tab buttons ([role="tab"]) stay.
@@ -150,7 +154,7 @@ const STRUCTURAL = new Set(['table', 'ul', 'ol', 'dl'])
  * wins.
  */
 const SEMANTIC_NON_CONTENT_SELECTOR = [
-  'nav', 'header', 'footer', 'aside',
+  'nav', 'header', 'footer',
   '[role="navigation"]', '[role="banner"]', '[role="contentinfo"]',
   '.sidebar', '.Sidebar', '#sidebar', '#Sidebar',
 ].join(',')

@@ -345,12 +345,12 @@
 
               <!-- ==================== TikTok video page (comment sidebar) ==================== -->
               <!-- TikTok renders the video in <article> and the comment list in a
-                   role="complementary" panel, with a sidebar that has NO nav/header
-                   semantics (hashed class names, one link per li). Since 2026-08 the
-                   full-page scan translates complementary content too; short comment
-                   texts (< 30 chars) are added by the TikTok site rule (supplemental),
-                   which the Rule Lab doesn't run — the short comment below is expected
-                   to show text-too-short here. Single-link sidebar items (TikTok /
+                   bare <aside> (no role attribute; its implicit ARIA role is
+                   complementary). Since 2026-08 the full-page scan translates
+                   complementary/aside content too; short comment texts (< 30 chars)
+                   are added by the TikTok site rule (supplemental), which the Rule
+                   Lab doesn't run — the short comment below is expected to show
+                   text-too-short here. Single-link sidebar items (TikTok /
                    Following / Explore) are NOT caught by the link-density heuristic
                    (it requires >= 2 links per container) and ARE extracted when the
                    target language differs — a known full-page-scan trade-off. -->
@@ -368,7 +368,7 @@
                   <strong data-e2e="like-count">2.1M</strong>
                   <strong data-e2e="comment-count">4638</strong>
                 </article>
-                <div role="complementary" class="tiktok-comment-panel">
+                <aside class="tiktok-comment-panel">
                   <div data-e2e="comment-item">
                     <div data-e2e="comment-username-1"><a href="#"><p>stellyt0020</p></a></div>
                     <span data-e2e="comment-level-1"><span class="TUXText">So beautiful, I would love to visit this waterfall town someday</span></span>
@@ -377,7 +377,7 @@
                     <div data-e2e="comment-username-1"><a href="#"><p>traveller_77</p></a></div>
                     <span data-e2e="comment-level-1"><span class="TUXText">Wow amazing place</span></span>
                   </div>
-                </div>
+                </aside>
               </section>
             </main>
 
