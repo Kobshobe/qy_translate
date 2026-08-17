@@ -26,7 +26,9 @@ The extension is named **"轻氧翻译" (QY Translate)** — locate it by name i
 snapshot when working on `chrome://extensions/`.
 
 ## playwright-cli
-Always use the default session
+Always use the default session — never pass `-s`/`-session`;
+run commands like `playwright-cli open`, `playwright-cli goto`, `playwright-cli eval`
+without a session flag so they target the default session.
 
 ## ❗ Browser Preview — Keep Open
 
