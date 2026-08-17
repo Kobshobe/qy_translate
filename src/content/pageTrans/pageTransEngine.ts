@@ -28,6 +28,7 @@ import {
   filterParagraphs,
   passesFilters,
   getOriginalText,
+  getText,
 } from './ruleFilter'
 
 /**
@@ -208,7 +209,7 @@ export class PageTransEngine {
       // All filtering rules live in ruleFilter (shared with the generic path)
       if (!passesFilters(el, opts)) continue
 
-      const text = el.textContent?.trim() ?? ''
+      const text = getText(el)
       result.push({
         id: uuid(),
         node: el,

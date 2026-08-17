@@ -237,8 +237,10 @@ export class RenderEngine {
     const singleInteractive =
       childCount === 1 &&
       (singleChildTag === 'a' || singleChildTag === 'button') &&
-      (node.textContent || '').trim() ===
-        (singleChild?.textContent || '').trim()
+      // 用规范化文本比较：节点内缩进空白（嵌套行内标记产生的大量换行/空格）
+      // 不应影响“内容只有这一个链接/按钮”的判定
+      ((node.textContent || '').replace(/\s+/g, ' ').trim() ===
+        (singleChild?.textContent || '').replace(/\s+/g, ' ').trim())
     const isInlineSource = tag === 'a' || singleInteractive
     const transEl = document.createElement(
       appendInside || isInlineSource ? 'span' : tag

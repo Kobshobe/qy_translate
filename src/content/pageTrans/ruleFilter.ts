@@ -89,6 +89,15 @@ const INLINE_TEXT_TAGS = new Set([
 ])
 
 /**
+ * Block-level text units that mark a bare-text div as a container when they
+ * appear deeper inside its inline wrappers (see isBareTextDiv).
+ */
+const BLOCK_DESC_SELECTOR =
+  'div, p, ul, ol, li, dl, dt, dd, table, td, th, h1, h2, h3, h4, h5, h6, ' +
+  'blockquote, figure, figcaption, section, article, header, footer, nav, ' +
+  'aside, main, form, fieldset, details, iframe'
+
+/**
  * A div is treated as a bare text container when it has no element children,
  * or its children are all inline-level content. Classic forum/blog layouts
  * (phpBB, vBulletin, …) render multi-line post text as raw text nodes
@@ -111,6 +120,12 @@ function isBareTextDiv(el: Element): boolean {
   for (const child of el.children) {
     if (!INLINE_TEXT_TAGS.has(child.tagName.toLowerCase())) return false
   }
+  // Inline wrappers that contain further block-level text units (e.g. an
+  // author list rendered as <div><span><span><div class="entryAuthor">…</div>
+  // …</span></span></div>) are containers, not a single paragraph —
+  // translating the whole div would merge N independent items (tandfonline
+  // author block). The nested units translate individually instead.
+  if (el.querySelector(BLOCK_DESC_SELECTOR)) return false
   return true
 }
 
@@ -350,11 +365,22 @@ export function shouldTranslateText(text: string, targetLang: string): boolean {
  */
 export function getOriginalText(el: Element): string {
   if (!el.querySelector(`[${ATTR.translation}]`)) {
-    return el.textContent?.trim() ?? ''
+    return getText(el)
   }
   const clone = el.cloneNode(true) as Element
   clone.querySelectorAll(`[${ATTR.translation}]`).forEach((n) => n.remove())
-  return clone.textContent?.trim() ?? ''
+  return getText(clone)
+}
+
+/**
+ * Normalized readable text of an element: collapse every whitespace run
+ * (including DOM-indentation newlines from nested inline markup) into a
+ * single space. Raw `textContent` keeps the source indentation, which gets
+ * echoed back by translators and explodes under `white-space: pre-wrap`
+ * (tandfonline journal header: a 20-char translation rendered 1254px tall).
+ */
+export function getText(el: Element): string {
+  return (el.textContent ?? '').replace(/\s+/g, ' ').trim()
 }
 
 /* ============================================================
@@ -419,7 +445,7 @@ function makeDecision(
   return {
     element,
     tag: element.tagName.toLowerCase(),
-    text: text ?? element.textContent?.trim() ?? '',
+    text: text ?? getText(element),
     extracted: reason === 'extracted',
     reason,
   }
@@ -427,7 +453,7 @@ function makeDecision(
 
 /** Per-element filter verdict (order mirrors the engine's extract loop) */
 function judge(el: Element, opts: FilterOptions): FilterDecision {
-  const text = el.textContent?.trim() ?? ''
+  const text = getText(el)
 
   // Skip non-content areas (nav, sidebar, etc.)
   if (isInNonContentArea(el)) return makeDecision(el, 'non-content-area', text)
@@ -528,7 +554,7 @@ export function filterParagraphs(
   const divs = root.querySelectorAll<Element>('div')
   for (const el of divs) {
     if (!isBareTextDiv(el)) continue
-    const text = el.textContent?.trim() ?? ''
+    const text = getText(el)
     if (text.length < MIN_DIV_TEXT_LENGTH) continue
     // Nested inside a target tag (td/li/blockquote/…): the ancestor already
     // covers this text
