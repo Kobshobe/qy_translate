@@ -77,6 +77,7 @@ export const CLS = {
   wrapper: 'qyt-para-wrap',
   original: 'qyt-para-original',
   translation: 'qyt-para-translation',
+  translationInline: 'qyt-para-translation-inline',
   translating: 'qyt-para-translating',
   active: 'qyt-active',
 } as const

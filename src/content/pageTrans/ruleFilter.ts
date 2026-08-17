@@ -114,6 +114,39 @@ function isBareTextDiv(el: Element): boolean {
   return true
 }
 
+/**
+ * Whether `el` is a layout frame instead of a translatable text unit:
+ * 1. Directly wraps a structural list/table (existing rule).
+ * 2. <li>/<a> with layout-frame children (cards, card links).
+ */
+export function isLayoutContainer(el: Element): boolean {
+  const tag = el.tagName.toLowerCase()
+  // 1. Directly wraps a structural list/table
+  let child = el.firstElementChild
+  while (child) {
+    if (STRUCTURAL.has(child.tagName.toLowerCase())) return true
+    child = child.nextElementSibling
+  }
+  // 2. <li>/<a> with layout-frame children
+  if (tag === 'li' || tag === 'a') {
+    for (const c of el.children) {
+      if (LAYOUT_TAGS.has(c.tagName.toLowerCase())) return true
+      // A link wrapping layout content (card link: <li><a><div>…</a></li>)
+      // marks the li as a card frame too
+      if (
+        tag === 'li' &&
+        c.tagName.toLowerCase() === 'a' &&
+        [...c.children].some((cc) =>
+          LAYOUT_TAGS.has(cc.tagName.toLowerCase())
+        )
+      ) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
 /** Combined non-content selectors (single closest() match) */
 export const NON_CONTENT_SELECTOR = [
   'nav', 'header', 'footer',
@@ -145,6 +178,32 @@ export const NON_CONTENT_SELECTOR = [
 
 /** Structural boundaries: content past a boundary is an independent text unit */
 const STRUCTURAL = new Set(['table', 'ul', 'ol', 'dl'])
+
+/**
+ * Layout-frame elements (default display: block AND structurally a container):
+ * a card/feed <li>/<a> containing any of these is a layout frame (product
+ * cards with an image + buttons + spec text, card links wrapping <div>s, …),
+ * NOT a text unit — its nested text elements are translated individually.
+ *
+ * Text-level blocks (p, h1-h6, blockquote, pre…) are deliberately NOT here:
+ * <li><p>text</p></li> and <a><p>…</p></a> are plain text units and keep
+ * their whole-element translation.
+ *
+ * Translating a card element as one paragraph merges all its independent
+ * texts into ONE giant translation block appended inside it, which breaks
+ * card grids:
+ *  - percentage-height chains (`height: 100%`, `grid-template-rows: 1fr
+ *    auto`, `margin-top: auto`): the block inflates the card by thousands
+ *    of px (KEYENCE product list: ~4.5k px blank + layout crossover);
+ *  - fixed-height grid rows: the block overflows the card box into the
+ *    next row.
+ */
+const LAYOUT_TAGS = new Set([
+  'div', 'table', 'ul', 'ol', 'dl', 'figure', 'figcaption',
+  'section', 'article', 'header', 'footer', 'nav', 'aside', 'main',
+  'form', 'fieldset', 'details', 'video', 'audio', 'canvas', 'iframe',
+  'address', 'hr',
+])
 
 /**
  * Semantic non-content regions that override tab-pane content status.
@@ -338,6 +397,7 @@ function hasTargetTagAncestor(el: Element, root: Element): boolean {
   ) {
     if (
       TARGET_TAGS.has(parent.tagName.toLowerCase()) &&
+      !isLayoutContainer(parent) &&
       !isInNonContentArea(parent)
     ) {
       return true
@@ -371,6 +431,10 @@ function judge(el: Element, opts: FilterOptions): FilterDecision {
 
   // Skip non-content areas (nav, sidebar, etc.)
   if (isInNonContentArea(el)) return makeDecision(el, 'non-content-area', text)
+
+  // Layout frames (directly wraps a table/list, or an <li> with block-level
+  // children — cards/feed items are not text units)
+  if (isLayoutContainer(el)) return makeDecision(el, 'layout-container', text)
 
   // Skip already-processed / injected translation nodes
   if (
@@ -485,17 +549,9 @@ export function filterParagraphs(
     if (seen.has(el)) continue
     seen.add(el)
 
-    // Structural container check (directly wraps table/ul/ol/dl)
-    let child = el.firstElementChild
-    let structural = false
-    while (child) {
-      if (STRUCTURAL.has(child.tagName.toLowerCase())) {
-        structural = true
-        break
-      }
-      child = child.nextElementSibling
-    }
-    if (structural) {
+    // Layout container check (directly wraps table/ul/ol/dl, or an <li> with
+    // block-level children — cards/feed items are not text units)
+    if (isLayoutContainer(el)) {
       decisions.push(makeDecision(el, 'layout-container'))
       continue
     }
@@ -517,6 +573,9 @@ export function filterParagraphs(
     ) {
       if (
         TARGET_TAGS.has(parent.tagName.toLowerCase()) &&
+        // A layout-frame ancestor (card <li>, …) is NOT a covering text unit
+        // — nested elements translate individually
+        !isLayoutContainer(parent) &&
         (parent.hasAttribute(ATTR.processed) || !isInNonContentArea(parent))
       ) {
         duplicate = true

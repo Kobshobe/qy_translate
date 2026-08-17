@@ -58,6 +58,14 @@ function injectStyles(): void {
   transition: opacity 0.2s;
 }
 
+/* 行内译文：<a> 等行内源元素的译文紧跟原文同一行，不换行堆叠 */
+.${CLS.translationInline} {
+  display: inline;
+  margin: 0 0 0 0.35em;
+  vertical-align: middle;
+  white-space: normal;
+}
+
 /* ---- 翻译中动画 ---- */
 .${CLS.translating}::after {
   content: '';
@@ -201,10 +209,39 @@ export class RenderEngine {
       return
     }
 
-    // 创建译文节点（td/th/li 使用 span 以避免破坏表格布局或列表结构）
-    const isInline = ['li', 'td', 'th'].includes(node.tagName.toLowerCase())
+    // 译文节点放置策略：
+    //  - li/td/th: 追加到元素内部（避免破坏列表/表格结构）
+    //  - 父容器为 flex/grid 的元素:同样追加到元素内部。若在原文后面插入兄弟
+    //    节点，译文会变成容器的新 flex/grid item，打乱卡片网格/标题栏等布局
+    //    （KEYENCE 商品页实例：h2/a 变成额外 flex item，出现大片空白与排版交叉）
+    //  - 其余块级元素:在原文节点后面插入（保持句子/段落级双语排布）
+    const tag = node.tagName.toLowerCase()
+    const isInline = ['li', 'td', 'th'].includes(tag)
+    const parentDisplay = node.parentElement
+      ? window.getComputedStyle(node.parentElement).display
+      : ''
+    const isFlexGridItem =
+      parentDisplay === 'flex' ||
+      parentDisplay === 'inline-flex' ||
+      parentDisplay === 'grid' ||
+      parentDisplay === 'inline-grid'
+    const appendInside = isInline || isFlexGridItem
+    // 行内源元素：译文放进链接/按钮内部，紧跟文字不换行堆叠。
+    //  - <a> 链接（如「カタログで詳しく見る」）：不管 display 是 inline/
+    //    inline-flex/block，兄弟 span 都可能换行到下一行，放进 <a> 内部最稳
+    //  - 内容为单个 <a>/<button> 且无其他文本的目标元素（导航/按钮列表项
+    //    li > a、折叠标题 h2 > button 等）：译文放进该交互元素内部
+    const childCount = node.children ? node.children.length : 0
+    const singleChild = childCount > 0 ? node.firstElementChild : null
+    const singleChildTag = singleChild?.tagName?.toLowerCase() ?? ''
+    const singleInteractive =
+      childCount === 1 &&
+      (singleChildTag === 'a' || singleChildTag === 'button') &&
+      (node.textContent || '').trim() ===
+        (singleChild?.textContent || '').trim()
+    const isInlineSource = tag === 'a' || singleInteractive
     const transEl = document.createElement(
-      isInline ? 'span' : node.tagName.toLowerCase()
+      appendInside || isInlineSource ? 'span' : tag
     )
     // 使用 textContent + pre-wrap 避免 XSS 风险
     transEl.textContent = para.translatedText
@@ -212,9 +249,17 @@ export class RenderEngine {
     transEl.setAttribute(ATTR.paraId, para.id)
     transEl.className = CLS.translation
     transEl.classList.remove(CLS.translating)
+    if (isInlineSource) transEl.classList.add(CLS.translationInline)
 
-    // li/td/th: 追加到元素内部，不破坏布局结构
-    if (isInline) {
+    // 行内源元素：译文放进链接/按钮内部，紧跟链接文字
+    if (isInlineSource) {
+      const host = tag === 'a' ? node : node.firstElementChild!
+      host.appendChild(transEl)
+      return
+    }
+
+    // li/td/th 及 flex/grid item: 追加到元素内部，不破坏布局结构
+    if (appendInside) {
       node.appendChild(transEl)
       return
     }
@@ -256,11 +301,9 @@ export class RenderEngine {
     if (next && next.hasAttribute(ATTR.translation)) {
       return next
     }
-    // li/td/th 内查末尾
-    if (['li', 'td', 'th'].includes(originalNode.tagName.toLowerCase())) {
-      const child = originalNode.querySelector(`[${ATTR.translation}]`)
-      if (child) return child
-    }
+    // li/td/th 或 flex/grid item: 译文在原文内部
+    const child = originalNode.querySelector(`[${ATTR.translation}]`)
+    if (child) return child
     return null
   }
 
