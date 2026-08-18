@@ -317,6 +317,34 @@ export function isInNonContentArea(el: Element): boolean {
   return linkRatio > 0.5 && avgLinkLen < 25 && maxLinkLen < 20
 }
 
+/**
+ * Whether `el` is inside a horizontally clipped-and-scrollable container
+ * (carousel / slider / overflow-x feed).
+ *
+ * The W3C carousel pattern renders inactive slides with aria-hidden while
+ * keeping them reachable by horizontal scroll — without this exception the
+ * aria-hidden filter would drop entire product grids (Mercado Libre
+ * andes-carousel: 22 slides, only the active one is not aria-hidden).
+ *
+ * Requires BOTH signals so plain page overflow (a wide page where body's
+ * scrollWidth > clientWidth, e.g. the Rule Lab options layout) does NOT
+ * match: the ancestor must clip/scroll its x axis (overflow-x hidden/auto/
+ * scroll) AND actually overflow horizontally.
+ */
+function isInsideHorizScrollable(el: Element): boolean {
+  let parent = el.parentElement
+  while (parent) {
+    if (parent.scrollWidth > parent.clientWidth + 1) {
+      const overflowX = window.getComputedStyle(parent).overflowX
+      if (overflowX === 'hidden' || overflowX === 'auto' || overflowX === 'scroll') {
+        return true
+      }
+    }
+    parent = parent.parentElement
+  }
+  return false
+}
+
 /** Whether the element is visible on the page */
 export function isElementVisible(el: Element): boolean {
   // 1. Computed style — checked unconditionally: display:none, visibility:hidden
@@ -332,8 +360,13 @@ export function isElementVisible(el: Element): boolean {
   const rect = el.getBoundingClientRect()
   if (rect.width === 0 || rect.height === 0) return false
 
-  // 3. Check element or ancestors for aria-hidden
-  if (el.closest('[aria-hidden="true"]')) return false
+  // 3. Check element or ancestors for aria-hidden — screen-reader-only content
+  //    is skipped. EXCEPTION: inside a horizontally scrollable container
+  //    (carousel/slider), aria-hidden slides are still user-reachable content
+  //    and must be translated.
+  if (el.closest('[aria-hidden="true"]') && !isInsideHorizScrollable(el)) {
+    return false
+  }
 
   return true
 }

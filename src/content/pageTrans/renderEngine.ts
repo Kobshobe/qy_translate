@@ -22,6 +22,21 @@ let styleRefCount = 0
 
 const STYLE_ID = 'qyt-trans-styles'
 
+/**
+ * Whether the host element clips its own content (line-clamp / overflow
+ * hidden|clip|scroll). Inline translations appended INSIDE such an element
+ * get cut off and look "untranslated" (e-commerce card titles: Mercado
+ * Libre .poly-component__title uses overflow:hidden + -webkit-line-clamp:2).
+ * For these hosts the translation is rendered as a sibling instead.
+ */
+function hostClipsContent(el: Element): boolean {
+  const cs = window.getComputedStyle(el)
+  const overflow = `${cs.overflowX} ${cs.overflowY}`
+  if (/hidden|clip|scroll/.test(overflow)) return true
+  if (cs.webkitLineClamp && cs.webkitLineClamp !== 'none') return true
+  return false
+}
+
 function injectStyles(): void {
   styleRefCount++
   if (document.getElementById(STYLE_ID)) return
@@ -63,6 +78,16 @@ function injectStyles(): void {
   display: inline;
   margin: 0 0 0 0.35em;
   vertical-align: middle;
+  white-space: normal;
+}
+
+/* 裁剪宿主（电商卡片标题 line-clamp/overflow:hidden）的译文：作为块级兄弟
+   节点插在原文下方，保留站点原有的省略截断样式，不撑开卡片布局 */
+.${CLS.translationSibling} {
+  display: block;
+  margin: 2px 0;
+  line-height: 1.6;
+  word-wrap: break-word;
   white-space: normal;
 }
 
@@ -256,6 +281,15 @@ export class RenderEngine {
     // 行内源元素：译文放进链接/按钮内部，紧跟链接文字
     if (isInlineSource) {
       const host = tag === 'a' ? node : node.firstElementChild!
+      // 宿主自带内容裁剪（line-clamp / overflow:hidden，电商卡片标题常见）时，
+      // 追加在内部的译文会被裁掉、看似“没翻译” —— 改为把译文作为块级兄弟
+      // 节点插在宿主下方（保留站点原有的省略截断样式，不撑开卡片布局）
+      if (hostClipsContent(host)) {
+        transEl.classList.remove(CLS.translationInline)
+        transEl.classList.add(CLS.translationSibling)
+        host.parentNode?.insertBefore(transEl, host.nextSibling)
+        return
+      }
       host.appendChild(transEl)
       return
     }

@@ -78,6 +78,7 @@ export const CLS = {
   original: 'qyt-para-original',
   translation: 'qyt-para-translation',
   translationInline: 'qyt-para-translation-inline',
+  translationSibling: 'qyt-para-translation-sibling',
   translating: 'qyt-para-translating',
   active: 'qyt-active',
 } as const
