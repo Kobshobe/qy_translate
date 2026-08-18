@@ -228,7 +228,7 @@ export class RenderEngine {
     node.classList.remove(CLS.translating)
 
     // 译文已存在则更新内容
-    const existing = this.findTranslationNode(node)
+    const existing = this.findTranslationNode(node, para.id)
     if (existing) {
       existing.textContent = para.translatedText
       return
@@ -330,17 +330,26 @@ export class RenderEngine {
      查找已有译文节点
      ============================================================ */
   private findTranslationNode(
-    originalNode: Element
+    originalNode: Element,
+    paraId: string
   ): Element | null {
-    // 先查下一个兄弟节点
+    // 先查下一个兄弟节点（块级插入路径：译文紧跟原文之后）
     const next = originalNode.nextElementSibling
-    if (next && next.hasAttribute(ATTR.translation)) {
+    if (
+      next &&
+      next.hasAttribute(ATTR.translation) &&
+      next.getAttribute(ATTR.paraId) === paraId
+    ) {
       return next
     }
-    // li/td/th 或 flex/grid item: 译文在原文内部
-    const child = originalNode.querySelector(`[${ATTR.translation}]`)
-    if (child) return child
-    return null
+    // li/td/th、flex/grid item、行内源：译文在元素内部。必须按 para-id 匹配——
+    // 若只查任意后代译文，会误取嵌套已处理元素（如翻译后的 <li> 内的 <a> 按钮）
+    // 的译文并覆盖它（tandfonline 参考文献：li 重译时把整条引用译文写进了
+    // View 按钮，按钮变成长文）。
+    const own = originalNode.querySelector(
+      `[${ATTR.translation}][${ATTR.paraId}="${paraId}"]`
+    )
+    return own || null
   }
 
   /* ============================================================
