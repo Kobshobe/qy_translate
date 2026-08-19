@@ -27,6 +27,7 @@ import {
   shouldTranslateText,
   filterParagraphs,
   passesFilters,
+  isDuplicateOfAncestor,
   getOriginalText,
   getText,
 } from './ruleFilter'
@@ -208,6 +209,13 @@ export class PageTransEngine {
 
       // All filtering rules live in ruleFilter (shared with the generic path)
       if (!passesFilters(el, opts)) continue
+
+      // Site-rule candidates can contain ancestor+descendant target pairs
+      // (GitHub markdown <li><p>…</p></li>, Reddit .md lists, …) that the
+      // generic path already dedups inside filterParagraphs — close the same
+      // gap here so the ancestor (e.g. the <li>) is translated as a whole and
+      // the nested target doesn't render a duplicate translation.
+      if (isDuplicateOfAncestor(el, document.body)) continue
 
       const text = getText(el)
       result.push({
@@ -867,6 +875,11 @@ export class PageTransEngine {
     for (const el of candidates) {
       // All filtering rules live in ruleFilter (shared with the generic path)
       if (!passesFilters(el, { targetLang: this.targetLang })) continue
+
+      // Same duplicate-of-ancestor dedup as elementsToParagraphs: on dynamic
+      // re-scans a processed <li> must keep covering its inner <p> (otherwise
+      // the freshly loaded <p> is translated a second time → duplicates)
+      if (isDuplicateOfAncestor(el, document.body)) continue
 
       const text = el.textContent?.trim() ?? ''
 

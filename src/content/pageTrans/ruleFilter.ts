@@ -466,6 +466,41 @@ function hasTargetTagAncestor(el: Element, root: Element): boolean {
   return false
 }
 
+/**
+ * Whether `el` is nested inside a translatable TARGET_TAG ancestor that
+ * covers the same text (resets past structural boundaries: table/ul/ol/dl).
+ *
+ * Shared by the generic extraction (filterParagraphs) and the site-rule
+ * candidates path (elementsToParagraphs / extractNewParagraphs) so nested
+ * targets — e.g. GitHub markdown `<li><p>…</p></li>`, where BOTH the li and
+ * its inner p are TARGET_TAGS — don't both get translated and render
+ * duplicate translations of the same sentence.
+ *
+ * An ancestor counts as covering even when it was ALREADY translated
+ * (ATTR.processed): on dynamic re-scans a processed <li> must keep covering
+ * its freshly loaded inner <p>, otherwise the p is translated a second time.
+ * A layout-frame ancestor (card <li>, …) is NOT a covering text unit —
+ * nested elements translate individually.
+ */
+export function isDuplicateOfAncestor(el: Element, root: Element): boolean {
+  let parent = el.parentElement
+  while (
+    parent &&
+    parent !== root &&
+    !STRUCTURAL.has(parent.tagName.toLowerCase())
+  ) {
+    if (
+      TARGET_TAGS.has(parent.tagName.toLowerCase()) &&
+      !isLayoutContainer(parent) &&
+      (parent.hasAttribute(ATTR.processed) || !isInNonContentArea(parent))
+    ) {
+      return true
+    }
+    parent = parent.parentElement
+  }
+  return false
+}
+
 /* ============================================================
    Instrumented filtering
    ============================================================ */
@@ -623,26 +658,7 @@ export function filterParagraphs(
     // (e.g. <p> inside the <a>) slip through → double translation. The
     // processed-ancestor check only covers TARGET_TAG ancestors, so lazily
     // loaded content inside non-target containers (article/div) is unaffected.
-    let parent = el.parentElement
-    let duplicate = false
-    while (
-      parent &&
-      parent !== root &&
-      !STRUCTURAL.has(parent.tagName.toLowerCase())
-    ) {
-      if (
-        TARGET_TAGS.has(parent.tagName.toLowerCase()) &&
-        // A layout-frame ancestor (card <li>, …) is NOT a covering text unit
-        // — nested elements translate individually
-        !isLayoutContainer(parent) &&
-        (parent.hasAttribute(ATTR.processed) || !isInNonContentArea(parent))
-      ) {
-        duplicate = true
-        break
-      }
-      parent = parent.parentElement
-    }
-    if (duplicate) {
+    if (isDuplicateOfAncestor(el, root)) {
       decisions.push(makeDecision(el, 'duplicate-of-ancestor'))
       continue
     }

@@ -305,6 +305,15 @@
                   <li><div>List item body rendered as a bare div child of the list item, which must not be translated twice by the extraction rules.</div></li>
                 </ul>
 
+                <!-- GitHub markdown list item <li><p dir="auto">…</p></li>:
+                     BOTH the li and its inner p are TARGET_TAGS — the li is the
+                     text unit and the inner p must be duplicate-of-ancestor
+                     (the site-rule path missed this dedup; the generic path
+                     keeps the li only) -->
+                <ul class="github-list">
+                  <li><p>Markdown list items wrap their text in a paragraph element, so both the list item and the paragraph qualify as candidates and only the outer one must be translated.</p></li>
+                </ul>
+
                 <!-- link box: div with only link children → NOT a text container
                      (2026-08): each link is extracted separately instead of
                      the whole block merging into one paragraph -->
