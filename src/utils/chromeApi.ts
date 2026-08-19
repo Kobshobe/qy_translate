@@ -20,7 +20,7 @@ export async function getTransConf(): Promise<IAllStorage> {
     conf.pageTransDisplayMode || (conf.pageTransDisplayMode = 'bilingual')
     conf.fromLang || (conf.fromLang = 'auto');
     conf.toLang || (conf.toLang = '__auto__');
-    conf.mode || (conf.mode = 'simple');
+    conf.mode || (conf.mode = 'profession');
     conf.transEngine || (conf.transEngine = defaultTransEngine);
     conf.keyDownTrans || (conf.keyDownTrans = 'Enter');
     if (!conf.mainLang) {
