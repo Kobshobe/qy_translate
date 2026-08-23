@@ -161,22 +161,15 @@ import { XMessage } from '@/xxui/index'
 import { geti18nMsg } from '@/utils/share'
 import { eventToGoogle } from '@/utils/analytics'
 import { defaultTransEngine } from '@/config'
-import { llmProviderIconTypes } from '@/translator/trans_base'
+import { llmProviders, llmProviderIconTypes, inferLLMProviderFromUrl } from '@/translator/llmProviders'
 import SvgIcon from '@/components/base/SvgIcon.vue'
 const llmList = ref<ILLMConfig[]>([])
 const dialogVisible = ref(false)
 const isEditing = ref(false)
 const editingId = ref<string | null>(null)
 
-const defaultProviders: ILLMModels[] = [
-  { id: 'deepseek', baseUrl: 'https://api.deepseek.com/v1', models: ['deepseek-v4-flash', 'deepseek-v4-pro', 'deepseek-chat', 'deepseek-reasoner'] },
-  { id: 'kimi', baseUrl: 'https://api.moonshot.cn/v1', models: ['kimi-k3', 'kimi-k2.6', 'kimi-k2.5'] },
-  { id: 'claude', baseUrl: 'https://api.anthropic.com/v1', models: ['claude-3-5-sonnet', 'claude-3-opus', 'claude-3-haiku', 'claude-3-sonnet'] },
-  { id: 'openai', baseUrl: 'https://api.openai.com/v1', models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo'] },
-  { id: 'minimax', baseUrl: 'https://api.minimax.chat/v1', models: ['MiniMax-M3', 'MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'MiniMax-M2.5', 'MiniMax-M2.5-highspeed', 'MiniMax-M2.1', 'MiniMax-M2.1-highspeed', 'MiniMax-M2'] },
-  { id: 'glm', baseUrl: 'https://open.bigmodel.cn/api/paas/v4', models: ['glm-5', 'glm-5-turbo', 'glm-4.7', 'glm-4.7-flashx', 'glm-4.7-flash', 'glm-4.6', 'glm-4.5', 'glm-4.5-air', 'glm-4-flash'] },
-  { id: 'qwen', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', models: ['qwen-plus', 'qwen-turbo', 'qwen-max'] },
-]
+// Preset providers come from the single source of truth in trans_base
+const defaultProviders = llmProviders
 
 const selectedPreset = ref<string | null>(null)
 const currentModels = computed(() => {
@@ -393,33 +386,12 @@ function maskApiKey(key: string): string {
 }
 
 function presetDisplayName(id: string): string {
-  const names: Record<string, string> = {
-    'deepseek': 'DeepSeek',
-    'kimi': 'Kimi',
-    'claude': 'Claude',
-    'openai': 'OpenAI',
-    'minimax': 'MiniMax',
-    'glm': 'GLM',
-    'qwen': 'Qwen',
-  }
-  return names[id] || id.charAt(0).toUpperCase() + id.slice(1)
+  return llmProviders.find(p => p.id === id)?.displayName || id.charAt(0).toUpperCase() + id.slice(1)
 }
 
 function avatarGradient(apiUrl: string): string {
-  const colors: Record<string, string> = {
-    'deepseek': 'linear-gradient(135deg, #4D6BFE, #7B8EFF)',
-    'kimi': 'linear-gradient(135deg, #1C1C1C, #4A4A4A)',
-    'openai': 'linear-gradient(135deg, #10A37F, #1EC99A)',
-    'anthropic': 'linear-gradient(135deg, #D97757, #E8957D)',
-    'minimax': 'linear-gradient(135deg, #D4367A, #ED6D48)',
-    'minimaxi': 'linear-gradient(135deg, #D4367A, #ED6D48)',
-    'bigmodel': 'linear-gradient(135deg, #5B6AF0, #7B8AF5)',
-    'dashscope': 'linear-gradient(135deg, #615CED, #817CF0)',
-  }
-  for (const [key, color] of Object.entries(colors)) {
-    if (apiUrl.includes(key)) return color
-  }
-  return 'linear-gradient(135deg, var(--xx-c-primary), #6c5ce7)'
+  const provider = inferLLMProviderFromUrl(apiUrl)
+  return llmProviders.find(p => p.id === provider)?.gradient || 'linear-gradient(135deg, var(--xx-c-primary), #6c5ce7)'
 }
 
 onMounted(() => {

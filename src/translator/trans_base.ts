@@ -1,3 +1,5 @@
+import { llmProviderIconTypes, inferLLMProviderFromUrl } from './llmProviders'
+
 export const engines:any = [
   {
     code: '__commonTrans__',
@@ -29,20 +31,6 @@ export function getTransEngineIcon(engine:string) :string {
 }
 
 /**
- * LLM provider icons, inlined in SvgIcon.vue under `llm_<provider>` types.
- * Keys are the provider ids used in LLM engine codes: llm__<provider>_<uuid>
- */
-export const llmProviderIconTypes: Record<string, string> = {
-  openai: 'llm_openai',
-  deepseek: 'llm_deepseek',
-  claude: 'llm_claude',
-  kimi: 'llm_kimi',
-  minimax: 'llm_minimax',
-  glm: 'llm_glm',
-  qwen: 'llm_qwen',
-}
-
-/**
  * Parse the provider from an LLM engine code.
  * Engine ids are `<provider>_<uuid>` when added from a preset, `unknown_<uuid>`
  * when added manually, or a legacy plain `<uuid>`.
@@ -54,24 +42,6 @@ export function getLLMProviderFromEngine(engine: string): string {
   const provider = suffix.split('_')[0]
   if (provider && llmProviderIconTypes[provider]) return provider
   return 'unknown'
-}
-
-/** Infer provider from an API URL keyword (fallback for legacy configs) */
-export function inferLLMProviderFromUrl(apiUrl: string): string {
-  const keywords: Record<string, string> = {
-    'api.deepseek.com': 'deepseek',
-    'moonshot': 'kimi',
-    'anthropic': 'claude',
-    'api.openai.com': 'openai',
-    'minimax': 'minimax',
-    'minimaxi': 'minimax',
-    'bigmodel': 'glm',
-    'dashscope': 'qwen',
-  }
-  for (const [key, provider] of Object.entries(keywords)) {
-    if (apiUrl?.includes(key)) return provider
-  }
-  return ''
 }
 
 /**
