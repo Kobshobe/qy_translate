@@ -62,11 +62,12 @@
               <IconBtn type="icon-tishi" :iconSize="15" color="#FFB715"  @click="baseHook.openOptionsPage('tipTool')" />
             </x-tooltip>
             <!-- <div>{{ engineIcon }}</div> -->
-            <IconBtn
-              :type="engineIcon"
-              :iconSize="15"
-              @click="baseHook.T.options.show"
-            />
+            <div class="engine-icon-btn" @click="baseHook.T.options.show">
+              <IconBtn
+                :type="engineIconType || engineIcon"
+                :iconSize="15"
+              />
+            </div>
           </div>
         </div>
         <div style="height: 8px"></div>
@@ -81,6 +82,7 @@
 import {
   inject,
   onMounted,
+  ref,
   watch,
   onUnmounted,
   computed
@@ -95,7 +97,7 @@ import SubTranslator from "./SubTranslator.vue";
 import FindText from "./FindText.vue";
 import Divider from "./Divider.vue";
 import { IBaseHook } from "@/interface/trans";
-import {languages, getTransEngineIcon} from '@/translator/trans_base'
+import {languages, getTransEngineIcon, getLLMProviderIconType} from '@/translator/trans_base'
 
 const baseHook = inject("baseHook") as IBaseHook;
 if (!baseHook.T) {
@@ -115,9 +117,21 @@ const resultLang = computed(() => {
   return ''
 })
 
-const engineIcon = computed(() => {
-  return getTransEngineIcon(baseHook.C.transEngine??'')
-})
+// Engine icon in the bottom-right corner: shows the LLM provider logo when the
+// engine is an LLM one (llm__<provider>_<uuid>), otherwise the generic icon.
+// `engineIconType` holds the SvgIcon type (e.g. 'llm_openai') resolved
+// asynchronously from storage; falls back to `engineIcon` (generic).
+const engineIcon = ref(getTransEngineIcon(baseHook.C.transEngine ?? ''))
+const engineIconType = ref('')
+async function refreshEngineIcon() {
+  const engine = baseHook.C.transEngine ?? ''
+  engineIcon.value = getTransEngineIcon(engine)
+  engineIconType.value = ''
+  if (engine.startsWith('llm__')) {
+    engineIconType.value = await getLLMProviderIconType(engine)
+  }
+}
+watch(() => baseHook.C.transEngine, refreshEngineIcon, { immediate: true })
 
 watch(
   () => baseHook.T.subTranslator.selectText,
@@ -182,6 +196,13 @@ onUnmounted(() => {
       .lang-tips {
         color: #999;
         font-size: 12px;
+      }
+      .engine-icon-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background-color: transparent;
       }
     }
   }

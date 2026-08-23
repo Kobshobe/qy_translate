@@ -132,6 +132,8 @@ export interface ILLMConfig {
     apiKey: string
     model: string
     customPrompt?: string
+    /** Model provider recorded at add time, e.g. 'openai' | 'deepseek' | 'unknown' */
+    provider?: string
 }
 
 export interface IAllStorage {

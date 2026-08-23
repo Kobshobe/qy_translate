@@ -29,6 +29,82 @@ export function getTransEngineIcon(engine:string) :string {
 }
 
 /**
+ * LLM provider icons, inlined in SvgIcon.vue under `llm_<provider>` types.
+ * Keys are the provider ids used in LLM engine codes: llm__<provider>_<uuid>
+ */
+export const llmProviderIconTypes: Record<string, string> = {
+  openai: 'llm_openai',
+  deepseek: 'llm_deepseek',
+  claude: 'llm_claude',
+  kimi: 'llm_kimi',
+  minimax: 'llm_minimax',
+  glm: 'llm_glm',
+  qwen: 'llm_qwen',
+}
+
+/**
+ * Parse the provider from an LLM engine code.
+ * Engine ids are `<provider>_<uuid>` when added from a preset, `unknown_<uuid>`
+ * when added manually, or a legacy plain `<uuid>`.
+ * @returns provider id ('deepseek', 'openai', ... 'unknown') or '' if not an LLM engine
+ */
+export function getLLMProviderFromEngine(engine: string): string {
+  if (!engine?.startsWith('llm__')) return ''
+  const suffix = engine.slice('llm__'.length)
+  const provider = suffix.split('_')[0]
+  if (provider && llmProviderIconTypes[provider]) return provider
+  return 'unknown'
+}
+
+/** Infer provider from an API URL keyword (fallback for legacy configs) */
+export function inferLLMProviderFromUrl(apiUrl: string): string {
+  const keywords: Record<string, string> = {
+    'api.deepseek.com': 'deepseek',
+    'moonshot': 'kimi',
+    'anthropic': 'claude',
+    'api.openai.com': 'openai',
+    'minimax': 'minimax',
+    'minimaxi': 'minimax',
+    'bigmodel': 'glm',
+    'dashscope': 'qwen',
+  }
+  for (const [key, provider] of Object.entries(keywords)) {
+    if (apiUrl?.includes(key)) return provider
+  }
+  return ''
+}
+
+/**
+ * Resolve the provider icon type (SvgIcon type, e.g. 'llm_openai') for an engine.
+ * For LLM engines: provider prefix in the engine id first, then the stored
+ * provider field, then inference from the config's apiUrl (legacy configs).
+ * @returns '' when no provider icon applies (caller falls back to generic icon)
+ */
+export async function getLLMProviderIconType(engine: string): Promise<string> {
+  if (!engine?.startsWith('llm__')) return ''
+  const suffix = engine.slice('llm__'.length)
+  const provider = getLLMProviderFromEngine(engine)
+  if (provider !== 'unknown') {
+    return llmProviderIconTypes[provider]
+  }
+  // unknown prefix or legacy plain-uuid id: look up the config for a better guess
+  try {
+    const result = await chrome.storage.sync.get('llmConfigs')
+    const configs: any[] = result.llmConfigs || []
+    const config = configs.find(cfg => cfg.id === suffix)
+    if (config) {
+      const byField = config.provider && llmProviderIconTypes[config.provider]
+      if (byField) return byField
+      const inferred = inferLLMProviderFromUrl(config.apiUrl || '')
+      if (inferred) return llmProviderIconTypes[inferred]
+    }
+  } catch (e) {
+    // storage unavailable — fall through to no icon
+  }
+  return ''
+}
+
+/**
  * 语言 → Unicode Script 映射
  * 用于判断文本是否属于某语言（页面翻译时跳过已为目标语言的段落）
  *

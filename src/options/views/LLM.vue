@@ -84,7 +84,7 @@
             :class="{ 'dialog-preset__item--active': selectedPreset === p.id }"
             @click="selectPreset(p)"
           >
-            <img v-if="presetIcon(p.id)" class="dialog-preset__icon-img" :src="presetIcon(p.id)" :alt="p.id" />
+            <SvgIcon v-if="presetIcon(p.id)" :type="presetIcon(p.id)" :size="26" />
             <span v-else class="dialog-preset__icon">{{ p.id.charAt(0).toUpperCase() }}</span>
             <span class="dialog-preset__name">{{ presetDisplayName(p.id) }}</span>
           </button>
@@ -161,6 +161,8 @@ import { XMessage } from '@/xxui/index'
 import { geti18nMsg } from '@/utils/share'
 import { eventToGoogle } from '@/utils/analytics'
 import { defaultTransEngine } from '@/config'
+import { llmProviderIconTypes } from '@/translator/trans_base'
+import SvgIcon from '@/components/base/SvgIcon.vue'
 const llmList = ref<ILLMConfig[]>([])
 const dialogVisible = ref(false)
 const isEditing = ref(false)
@@ -230,16 +232,7 @@ async function saveList() {
 }
 
 function presetIcon(id: string): string {
-  const icons: Record<string, string> = {
-    claude: 'assets/images/claude.svg',
-    openai: 'assets/images/openai.svg',
-    deepseek: 'assets/images/deepseek.svg',
-    kimi: 'assets/images/kimi.svg',
-    minimax: 'assets/images/MiniMax.svg',
-    glm: 'assets/images/glm.svg',
-    qwen: 'assets/images/qwen.svg',
-  }
-  return icons[id] || ''
+  return llmProviderIconTypes[id] || ''
 }
 
 function selectPreset(p: ILLMModels) {
@@ -253,7 +246,7 @@ function showAddDialog() {
   isEditing.value = false
   selectedPreset.value = null
   editingId.value = null
-  form.value = { id: '', name: '', apiUrl: '', apiKey: '', model: '', customPrompt: '' }
+  form.value = { id: '', name: '', apiUrl: '', apiKey: '', model: '', customPrompt: '', provider: '' }
   dialogVisible.value = true
 }
 
@@ -323,9 +316,13 @@ async function saveItem() {
       }
       llmList.value = list
     } else {
-      const newId = uuidv4()
-      console.log('[LLM] 新增模式, newId:', newId)
-      list.unshift({ ...form.value, id: newId })
+      // Record the provider chosen via the preset grid; 'unknown' when the user
+      // added the model manually without selecting a preset.
+      // Engine id becomes llm__<provider>_<uuid> / llm__unknown_<uuid>
+      const provider = selectedPreset.value || 'unknown'
+      const newId = `${provider}_${uuidv4()}`
+      console.log('[LLM] 新增模式, provider:', provider, 'newId:', newId)
+      list.unshift({ ...form.value, id: newId, provider })
       llmList.value = list
     }
 
@@ -341,6 +338,7 @@ async function saveItem() {
       params: {
         engine_name: form.value.name,
         engine_model: form.value.model,
+        engine_provider: selectedPreset.value || 'unknown',
         engine_url: form.value.apiUrl.replace(/\/+$/, '').replace(/^https?:\/\//, '').split('/')[0] || form.value.apiUrl,
       },
     })
@@ -704,13 +702,6 @@ onMounted(() => {
       border-color: var(--xx-c-primary);
       background: rgba(76, 139, 245, 0.08);
     }
-  }
-
-  &__icon-img {
-    width: 28px;
-    height: 28px;
-    object-fit: contain;
-    flex-shrink: 0;
   }
 
   &__icon {
