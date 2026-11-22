@@ -1,86 +1,31 @@
-import {ref, watch} from 'vue'
+import { createGlobalState } from '@vueuse/core'
+import { computed, ref } from 'vue'
 
-interface IUseDarkOptions {
-    storageKey?: string
-    onChange?: (isDark:boolean) => void
-}
+export const themeModes = ['light', 'auto', 'dark'] as const
+type ThemeMode = typeof themeModes[number]
+const storageKey = 'xx-color-scheme'
 
-declare type mode_value = 'auto'|'auto_light'|'auto_dark'|'dark'|'light'
+export const useDark = createGlobalState(() => {
+    const media = window.matchMedia('(prefers-color-scheme: dark)')
+    const browserDark = ref(media.matches)
+    const mode = ref<ThemeMode>('auto')
 
-const modeValueList = ['auto','auto_light','auto_dark','dark','light']
-
-const isDark = ref(false)
-
-export const useDark = (options:IUseDarkOptions = {}) => {
-    const {
-        storageKey = 'xx-color-scheme'
-    } = options
-
-    let isColorSchemeChange = false
-    const mode = ref<mode_value>('auto')
-
-    const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
-
-    const initColorSchemeMode = () => {
-        chrome.storage.sync.get(storageKey, (v:any) => {
-            const stroageMode = v[storageKey]
-            if (modeValueList.includes(stroageMode)) {
-                mode.value = stroageMode
-            } else {
-                mode.value = 'auto'
-            }
-            if (mode.value === 'auto') {
-                if (colorSchemeQuery.matches) {
-                    isDark.value = true
-                } else {
-                    isDark.value = false
-                }
-            } else {
-                if (mode.value.includes('dark')) {
-                    isDark.value = true
-                } else {
-                    isDark.value = false
-                }
-            }
-        })
+    function restore(value: unknown) {
+        mode.value = value === 'dark' || value === 'light' ? value : 'auto'
+    }
+    function setMode(value: ThemeMode) {
+        mode.value = value
+        chrome.storage.sync.set({ [storageKey]: value })
     }
 
-    const setColorSchemeFromStorage = (value:mode_value) => {
-        const d = <any>{}
-        d[storageKey] = value
-        chrome.storage.sync.set(d)
-    }
-
-    initColorSchemeMode()
-
-    watch(() => isDark.value, (v:boolean) => {
-        if (isColorSchemeChange) {
-            if (v) {
-                mode.value = 'auto_dark'
-            } else {
-                mode.value = 'auto_light'
-            }
-        } else {
-            if (v) {
-                mode.value = 'dark'
-            } else {
-                mode.value = 'light'
-            }
-        }
-        isColorSchemeChange = false
-        setColorSchemeFromStorage(mode.value)
-        options.onChange && options.onChange(isDark.value)
+    chrome.storage.sync.get(storageKey, values => restore(values[storageKey]))
+    chrome.storage.onChanged.addListener((changes, area) => {
+        if (area === 'sync' && changes[storageKey]) restore(changes[storageKey].newValue)
+    })
+    media.addEventListener('change', event => {
+        browserDark.value = event.matches
     })
 
-    colorSchemeQuery.addEventListener('change', (e:any) => {
-        if (e.target?.matches) {
-            isDark.value = true
-        } else {
-            isDark.value = false
-        }
-        isColorSchemeChange = true
-        options.onChange && options.onChange(isDark.value)
-    })
-
-    return {isDark, mode}
-}
+    const isDark = computed(() => mode.value === 'auto' ? browserDark.value : mode.value === 'dark')
+    return { isDark, mode, setMode }
+})

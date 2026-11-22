@@ -9,6 +9,10 @@
     "title": {
         "message": "QY Translate"
     },
+    "theme": { "message": "Thème" },
+    "theme_light": { "message": "Clair" },
+    "theme_auto": { "message": "Auto" },
+    "theme_dark": { "message": "Sombre" },
     "sName": {
         "message": "QY Translate"
     },

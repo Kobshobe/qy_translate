@@ -20,11 +20,15 @@
       </div>
     </div>
 
-    <div class="hearder-side">
-      <x-switch v-model="isDark">
-        <SvgIcon v-if="isDark" type="dark-moon" :size="15" />
-        <SvgIcon v-else type="light-sun" :size="14" />
-      </x-switch>
+    <div class="theme-slider">
+      <input type="range" min="0" :max="themeModes.length - 1" step="1"
+        :value="themeModes.indexOf(themeMode)" :aria-label="geti18nMsg('theme')"
+        :aria-valuetext="geti18nMsg(`theme_${themeMode}`)" @input="onThemeInput" />
+      <div class="theme-labels" aria-hidden="true">
+        <span v-for="choice in themeModes" :key="choice" :class="{ selected: choice === themeMode }">
+          {{ geti18nMsg(`theme_${choice}`) }}
+        </span>
+      </div>
     </div>
   </div>
   <div class="content">
@@ -41,13 +45,16 @@ import {geti18nMsg} from '@/utils/share';
 import {IOptionBaseHook} from '@/interface/options';
 import {Mode, platform} from '@/config'
 import {useQyDarkWithChangeToBody} from '@/hook/use-qy-dark'
-import SvgIcon from '@/components/base/SvgIcon.vue'
+import {themeModes} from '@/xxuse/useDark'
 
 document.title = geti18nMsg('title')
 const baseHook = optionBaseHook() as IOptionBaseHook;
 provide("baseHook", baseHook);
 
-const {isDark} = useQyDarkWithChangeToBody()
+const {mode: themeMode, setMode} = useQyDarkWithChangeToBody()
+function onThemeInput(event: Event) {
+  setMode(themeModes[(event.target as HTMLInputElement).valueAsNumber])
+}
 
 const mode = new URLSearchParams(window.location.search).get('mode')
 </script>
@@ -96,6 +103,27 @@ a {
     .router-link-active .tab-item {
       color: $mainColor;
     }
+  }
+}
+
+.theme-slider {
+  width: 9rem;
+  color: var(--xx-text-color-regular);
+  input {
+    display: block;
+    width: 100%;
+    margin: 0;
+    accent-color: var(--xx-c-primary);
+    cursor: pointer;
+  }
+  .theme-labels {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    font-size: 12px;
+    text-align: center;
+    :first-child { text-align: start; }
+    :last-child { text-align: end; }
+    .selected { font-weight: bold; }
   }
 }
 

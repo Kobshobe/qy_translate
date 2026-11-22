@@ -6,23 +6,18 @@ export const themeClassDark = 'xx-qy-style-dark'
 export const themeClassLight = 'xx-qy-style-light'
 
 export const useQyDarkWithChangeToBody = () => {
-    const {isDark, mode} = useDark({
-        onChange: (isDark) => {
-            if (isDark) {
-                document.body.className = themeClassDark
-            } else {
-                document.body.className = themeClassLight
-            }
+    const {isDark, mode, setMode} = useDark()
+    watch(isDark, (dark, previous) => {
+        document.body.className = dark ? themeClassDark : themeClassLight
+        if (previous !== undefined) {
             eventToGoogle({
                 name: 'change_theme',
                 params: {mode: mode.value}
             })
         }
-    })
+    }, { immediate: true })
 
-    return {
-        isDark
-    }
+    return { mode, setMode }
 }
 
 export const useQyDarkWithClassNames = (className:string) :any => {

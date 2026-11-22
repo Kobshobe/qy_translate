@@ -9,6 +9,10 @@
     "title": {
         "message": "輕氧翻譯"
     },
+    "theme": { "message": "主題" },
+    "theme_light": { "message": "淺色" },
+    "theme_auto": { "message": "自動" },
+    "theme_dark": { "message": "深色" },
     "sName": {
         "message": "輕氧翻譯"
     },
