@@ -10,6 +10,7 @@ import XSelectOption from './components/select/SelectOption.vue'
 import XSelectGroup from './components/select/SelectGroup.vue'
 import XCheckbox from './components/checkbox/Checkbox.vue'
 import XSwitch from './components/switch/Switch.vue'
+import XThemeSwitch from './components/theme-switch/ThemeSwitch.vue'
 import XInput from './components/input/Input.vue'
 import XTooltip from './components/tooltip/Tooltip.vue'
 import XDropdown from './components/dropdown/Dropdown.vue'
@@ -32,6 +33,7 @@ const components:any = {
     XSelectGroup,
     XCheckbox,
     XSwitch,
+    XThemeSwitch,
     XInput,
     XTooltip,
     XDropdown,

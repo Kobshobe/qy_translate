@@ -13,6 +13,8 @@
     "theme_light": { "message": "Light" },
     "theme_auto": { "message": "Auto" },
     "theme_dark": { "message": "Dark" },
+    "theme_auto_tip_light": { "message": "Following system · currently light" },
+    "theme_auto_tip_dark": { "message": "Following system · currently dark" },
     "sName": {
         "message": "QY Translate"
     },

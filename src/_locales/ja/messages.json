@@ -13,6 +13,8 @@
     "theme_light": { "message": "ライト" },
     "theme_auto": { "message": "自動" },
     "theme_dark": { "message": "ダーク" },
+    "theme_auto_tip_light": { "message": "システムに従う · 現在ライト" },
+    "theme_auto_tip_dark": { "message": "システムに従う · 現在ダーク" },
     "sName": {
         "message": "QY Translate"
     },
