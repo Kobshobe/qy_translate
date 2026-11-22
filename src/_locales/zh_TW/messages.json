@@ -13,6 +13,8 @@
     "theme_light": { "message": "淺色" },
     "theme_auto": { "message": "自動" },
     "theme_dark": { "message": "深色" },
+    "theme_auto_tip_light": { "message": "跟隨系統 · 目前淺色" },
+    "theme_auto_tip_dark": { "message": "跟隨系統 · 目前深色" },
     "sName": {
         "message": "輕氧翻譯"
     },
